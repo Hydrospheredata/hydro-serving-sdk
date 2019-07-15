@@ -15,7 +15,7 @@ setup(
     url="https://hydrosphere.io/",
     license="Apache 2.0",
     packages=pkgs,
-    install_requires=["hs~=2.0.6"],
+    install_requires=["hs>=2.0.6"],
     include_package_data=True,
     setup_requires=[
         'pytest-runner'
