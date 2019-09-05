@@ -206,3 +206,4 @@ fabric.properties
 # Rope project settings
 # mkdocs documentation
 # mypy
+/tests/.hypothesis/
