@@ -1,4 +1,6 @@
+import operator
 from enum import Enum
+from functools import reduce
 from typing import Tuple, List
 
 import numpy as np
@@ -80,6 +82,9 @@ class Field:
 
         if self.dtype == other_dtype:
             return True, None
+        elif self.dtype.kind == "U":
+            # Numpy specify max string length in dtype, but HS has no such info in dtype, so we just check that it is the unicode-string
+            return self.dtype.kind == other_dtype.kind, None
         else:
             return False, "Tensor {} has invalid dtype. Expected {}, recieved {}".format(self.name, self.dtype, other_dtype)
 
@@ -100,6 +105,13 @@ class Signature:
 
     def __init__(self, name: str, inputs: List[Field], outputs: List[Field]):
         self.name = name
+
+        for field_list in [inputs, outputs]:
+            field_names = list(map(lambda x: x.name, field_list))
+            unique_names, counts = np.unique(field_names, return_counts=True)
+            if any(counts > 1):
+                raise ValueError("Tensor names have to be unique. Repeating tensor names: {}".format(unique_names[counts > 1]))
+
         self.inputs = inputs
         self.outputs = outputs
 
@@ -125,16 +137,15 @@ class Signature:
         common_tensor_names = set(tensor_dict.keys()).intersection(set(map(lambda x: x.name, fields)))
 
         common_tensor_names = list(common_tensor_names)
-        common_fields = tensor_dict(
-            zip(common_tensor_names, [next(filter(lambda x: x.name == name, fields)).val for name in common_tensor_names]))
+        common_fields = dict(zip(common_tensor_names, [next(filter(lambda x: x.name == name, fields)) for name in common_tensor_names]))
 
         if extra_tensor_names:
             is_valid = False
-        error_messages.append("Extra tensors provided: {}".format(extra_tensor_names))
+            error_messages.append("Extra tensors provided: {}".format(extra_tensor_names))
 
         if missing_tensor_names:
             is_valid = False
-        error_messages.append("Missing tensors: {}".format(missing_tensor_names))
+            error_messages.append("Missing tensors: {}".format(missing_tensor_names))
 
         for tensor_name in common_tensor_names:
             is_tensor_valid, error_message = common_fields[tensor_name].validate(tensor_dict[tensor_name])
@@ -142,7 +153,7 @@ class Signature:
             if error_message:
                 error_messages.append(error_message)
 
-        return is_valid, error_messages
+        return is_valid, error_messages if error_messages else None
 
     def validate_input(self, input_dict):
         return self.__validate_dict(input_dict, self.inputs)
@@ -159,33 +170,35 @@ class Signature:
                          other_signature.outputs)
 
     def mock_input_data(self):
-        # work in progress
         input_dict = {}
         for field in self.inputs:
-            x = (10 * np.random.randn(*field.shape)).astype(field.dtype)
-            input_dict[field.name] = x
+            field_shape = tuple(np.abs(field.shape))  # Fix -1 dimension to be equal to 1
+            field_shape = field_shape if field_shape else (1,)  # If field_shape is (), fix shape as (1,)
+            size = reduce(operator.mul, field_shape)
 
+            if field.dtype.kind == "b":
+                x = (np.random.randn(*field_shape) >= 0).astype(np.bool)
+            elif field.dtype.kind in ["f", "c"]:
+                x = np.random.randn(*field_shape).astype(field.dtype)
+            elif field.dtype.kind in ["i", "u"]:
+                _min, _max = np.iinfo(field.dtype).min, np.iinfo(field.dtype).max
+                x = np.random.randint(_min, _max, size, dtype=field.dtype).reshape(field_shape)
+            elif field.dtype == "U":
+                x = np.array(["foo"] * size).reshape(field_shape)
+            else:
+                raise Exception("{} does not support mock data generation yet.".format(field.dtype))
+            input_dict[field.name] = x
         return input_dict
 
 
 class Contract:
 
-    @staticmethod
-    def from_fields(sig_name, inputs, outputs):
-        pass
-
     def __init__(self, model_name, signature: Signature):
         self.signature = signature
         self.model_name = model_name  # zochem model name ???
 
-    def validate(self):
-        pass
-
     def merge_sequential(self, other_contract):
         return Contract(self.model_name, self.signature.merge_sequential(other_contract.signature))
-
-    def merge_parallel(self, other_contract):
-        pass
 
     def mock_data(self):
         return self.signature.mock_input_data()

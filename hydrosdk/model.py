@@ -1,3 +1,6 @@
+from .cluster import Cluster
+
+
 class Model:
     @staticmethod
     def find(cluster, name=None, version=None, id=None):
@@ -10,13 +13,16 @@ class Model:
         else:
             pass  # infer the contract
         pass
-    
-    def __init__(self, cluster, id, name, version, contract, install_command, runtime, status, status_message, image):
+
+    def __init__(self, cluster: Cluster, name, version):
         self.cluster = cluster
-        self.id = id
-        self.name = name
-        self.version = version
-        self.contract = contract
-        self.install_command = install_command
-        self.runtime = runtime
-        self.image = image
+
+        # FIXME fetch everything else from cluster
+        # contract, install_command, runtime, status, status_message, image
+        # self.name = name
+        # self.id = id
+        # self.version = version
+        # self.contract = contract
+        # self.install_command = install_command
+        # self.runtime = runtime
+        # self.image = image
