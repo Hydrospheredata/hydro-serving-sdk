@@ -4,9 +4,11 @@ from functools import reduce
 from typing import Tuple, List
 
 import numpy as np
+import pandas as pd
 from hydro_serving_grpc.contract import ModelContract, ModelSignature, ModelField
+from hydro_serving_grpc.tf import TensorProto
 
-from .proto_conversion_utils import np2proto_shape, np2proto_dtype, proto2np_shape, proto2np_dtype
+from .proto_conversion_utils import np2proto_shape, np2proto_dtype, proto2np_shape, proto2np_dtype, NP_DTYPE_TO_ARG_NAME
 
 
 class AlwaysTrueObj(object):
@@ -27,9 +29,20 @@ class ContractViolationException(Exception):
 
 class ProfilingType(Enum):
     NONE = 0
-    TABULAR = 1
-    IMAGE = 2
-    TEXT = 3
+
+    CATEGORICAL = 1
+    NOMINAL = 11
+    ORDINAL = 12
+
+    NUMERICAL = 2
+    CONTINUOUS = 21
+    INTERVAL = 22
+    RATIO = 23
+
+    IMAGE = 3
+    VIDEO = 4
+    AUDIO = 5
+    TEXT = 6
 
 
 class Field:
@@ -63,7 +76,7 @@ class Field:
                 if max(other_shape) == 1:  # All dimensions are equal to 1
                     return True, None
                 else:
-                    return False, "Tensor {} has scalar shape. Recieved tensor is of shape {}".format(self.name, other_shape)
+                    return False, "Tensor {} has scalar shape. Received tensor is of shape {}".format(self.name, other_shape)
 
         if len(self.shape) == len(other_shape):
             possible_shape = tuple([AnyDimSize if s == -1 else s for s in self.shape])
@@ -76,29 +89,56 @@ class Field:
         else:
             return True, None
 
-    def validate_dtype(self, other_dtype):
-        # TODO Use np.can_cast rules? i.e. float32 can be casted to float16
-        #  add strict = True for strict matching and strict = False for supporting subtypes?
-
-        if self.dtype == other_dtype:
-            return True, None
-        elif self.dtype.kind == "U":
-            # Numpy specify max string length in dtype, but HS has no such info in dtype, so we just check that it is the unicode-string
-            return self.dtype.kind == other_dtype.kind, None
+    def validate_dtype(self, other_dtype, strict=False):
+        if strict:
+            if self.dtype == other_dtype:
+                return True, None
+            elif self.dtype.kind == "U":
+                # Numpy specify max string length in dtype, but HS has no such info in dtype, so we just check that it is the unicode-string
+                return self.dtype.kind == other_dtype.kind, None
+            else:
+                return False, "Tensor {} has invalid dtype. Expected {}, received {}".format(self.name, self.dtype, other_dtype)
         else:
-            return False, "Tensor {} has invalid dtype. Expected {}, recieved {}".format(self.name, self.dtype, other_dtype)
+            if np.can_cast(other_dtype, self.dtype):
+                return True, None
+            else:
+                return False, "Tensor {} has invalid dtype. Expected {}, received {}".format(self.name, self.dtype, other_dtype)
 
-    def validate(self, x: np.array):
+    def validate(self, t, strict=False):
         """
         Return bool whether array is valid for this field and error message, if not valid.
         Error message is None if array is valid.
-        :param x: input ndarray
+        :param strict: Strict comparison for dtypes.
+        :param t: input Tensor
         :return: is_valid, error_message
         """
-        is_shape_valid, shape_error_message = self.validate_shape(x.shape)
-        is_dtype_valid, dtype_error_message = self.validate_dtype(x.dtype)
+        is_shape_valid, shape_error_message = self.validate_shape(t.shape)
+        is_dtype_valid, dtype_error_message = self.validate_dtype(t.dtype, strict=strict)
         error_message = ', '.join(filter(None, (shape_error_message, dtype_error_message)))
         return is_dtype_valid & is_dtype_valid, error_message if error_message else None
+
+
+class Tensor:
+
+    def __init__(self, name, x):
+        self.name = name
+        self.shape = x.shape
+        self.dtype = x.dtype
+        self.x = x
+
+    @property
+    def proto(self):
+        kwargs = {NP_DTYPE_TO_ARG_NAME[self.dtype]: self.x.flatten(),
+                  "dtype": np2proto_dtype(self.dtype),
+                  "shape": np2proto_shape(self.shape)}
+        return TensorProto(**kwargs)
+
+    @classmethod
+    def from_proto(cls, name, proto: ModelField):
+        dtype = proto2np_dtype(proto.dtype)
+        shape = proto2np_shape(proto.shape)
+        x = np.array(getattr(proto, NP_DTYPE_TO_ARG_NAME[dtype]), dtype=dtype).reshape(shape)
+        return cls(name, x)
 
 
 class Signature:
@@ -128,16 +168,16 @@ class Signature:
                    outputs=[Field.from_proto(p) for p in proto.outputs])
 
     @staticmethod
-    def __validate_dict(tensor_dict, fields):
+    def __validate_tensors(tensors, fields):
         is_valid = True
         error_messages = []
 
-        extra_tensor_names = set(tensor_dict.keys()).difference(set(map(lambda x: x.name, fields)))
-        missing_tensor_names = set(map(lambda x: x.name, fields)).difference(set(tensor_dict.keys()))
-        common_tensor_names = set(tensor_dict.keys()).intersection(set(map(lambda x: x.name, fields)))
+        tensors_dict = dict(zip(map(lambda x: x.name, tensors), tensors))
+        field_dict = dict(zip(map(lambda x: x.name, fields), fields))
 
-        common_tensor_names = list(common_tensor_names)
-        common_fields = dict(zip(common_tensor_names, [next(filter(lambda x: x.name == name, fields)) for name in common_tensor_names]))
+        extra_tensor_names = set(tensors_dict.keys()).difference(set(field_dict.keys()))
+        missing_tensor_names = set(field_dict.keys()).difference(set(tensors_dict.keys()))
+        common_tensor_names = set(tensors_dict.keys()).intersection(set(field_dict.keys()))
 
         if extra_tensor_names:
             is_valid = False
@@ -148,29 +188,29 @@ class Signature:
             error_messages.append("Missing tensors: {}".format(missing_tensor_names))
 
         for tensor_name in common_tensor_names:
-            is_tensor_valid, error_message = common_fields[tensor_name].validate(tensor_dict[tensor_name])
+            is_tensor_valid, error_message = field_dict[tensor_name].validate(tensors_dict[tensor_name])
             is_valid &= is_tensor_valid
             if error_message:
                 error_messages.append(error_message)
 
         return is_valid, error_messages if error_messages else None
 
-    def validate_input(self, input_dict):
-        return self.__validate_dict(input_dict, self.inputs)
+    def validate_input(self, input_tensors):
+        return self.__validate_tensors(input_tensors, self.inputs)
 
-    def validate_output(self, output_dict):
-        return self.__validate_dict(output_dict, self.outputs)
+    def validate_output(self, output_tensors):
+        return self.__validate_tensors(output_tensors, self.outputs)
 
     def merge_sequential(self, other_signature):
         if set(self.outputs) != set(other_signature.inputs):
-            raise ContractViolationException("Invalid blablalba")
+            raise ContractViolationException("Only strict direct implementation")
 
         return Signature("|".join([self.name, other_signature.name]),
                          self.inputs,
                          other_signature.outputs)
 
     def mock_input_data(self):
-        input_dict = {}
+        input_tensors = []
         for field in self.inputs:
             field_shape = tuple(np.abs(field.shape))  # Fix -1 dimension to be equal to 1
             field_shape = field_shape if field_shape else (1,)  # If field_shape is (), fix shape as (1,)
@@ -187,15 +227,28 @@ class Signature:
                 x = np.array(["foo"] * size).reshape(field_shape)
             else:
                 raise Exception("{} does not support mock data generation yet.".format(field.dtype))
-            input_dict[field.name] = x
-        return input_dict
+            input_tensors.append(Tensor(field.name, x))
+        return input_tensors
+
+    @classmethod
+    def from_df(cls, example_df: pd.DataFrame):
+        """
+        Suggest contract definition for model contract from dataframe
+        :param example_df:
+        :return:
+        """
+        signature_name = getattr(example_df, "name", "predict")
+        inputs = []
+        for name, dtype in zip(example_df.columns, example_df.dtypes):
+            inputs.append(Field(name, (-1, 1), dtype.type, profile=ProfilingType.NUMERICAL))
+        return cls(signature_name, inputs, [])
 
 
 class Contract:
 
     def __init__(self, model_name, signature: Signature):
         self.signature = signature
-        self.model_name = model_name  # zochem model name ???
+        self.model_name = model_name
 
     def merge_sequential(self, other_contract):
         return Contract(self.model_name, self.signature.merge_sequential(other_contract.signature))

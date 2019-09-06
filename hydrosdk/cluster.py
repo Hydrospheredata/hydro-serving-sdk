@@ -1,5 +1,6 @@
-from urllib import parse
 import logging
+from urllib import parse
+
 
 class Cluster:
     @staticmethod
@@ -18,19 +19,23 @@ class Cluster:
         """
         Cluster ctor. Don't use it unless you understand what you are doing.
         """
-        parse.urlsplit(address) # check if address is ok
+        parse.urlsplit(address)  # check if address is ok
         self.address = address
+        self.grpc_channel = None
+        self.manager_stub = None
+        self.gateway_stub = None
+        self.predcition_stub = None
 
-    def host_selectors():
+    def host_selectors(self, ):
         pass
 
-    def models():
+    def models(self, ):
         pass
 
-    def servables():
+    def servables(self, ):
         pass
 
-    def applications():
+    def applications(self, ):
         pass
 
     def build_info(self):
