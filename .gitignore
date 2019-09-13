@@ -1,6 +1,10 @@
 .vscode
+<<<<<<< Updated upstream
 .idea
 
+=======
+test-report.xml
+>>>>>>> Stashed changes
 # Created by .ignore support plugin (hsz.mobi)
 ### VirtualEnv template
 # Virtualenv

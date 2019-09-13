@@ -8,6 +8,7 @@ import pandas as pd
 from hydro_serving_grpc.contract import ModelContract, ModelSignature, ModelField
 from hydro_serving_grpc.tf import TensorProto
 
+<<<<<<< Updated upstream
 from .proto_conversion_utils import np2proto_shape, np2proto_dtype, proto2np_shape, proto2np_dtype, NP_DTYPE_TO_ARG_NAME
 
 
@@ -166,6 +167,32 @@ class Signature:
         return cls(name=proto.signature_name,
                    inputs=[Field.from_proto(p) for p in proto.inputs],
                    outputs=[Field.from_proto(p) for p in proto.outputs])
+=======
+class Field:
+    def __init__(self, name, datatype, shape):
+        self.name = name
+        self.dtype = datatype
+        self.shape = shape
+
+    def to_proto(self):
+        return ModelField()
+
+    @staticmethod
+    def from_proto(proto_obj):
+        if not isinstance(proto_obj, ModelField):
+            raise TypeError("{} is not supported as Field".format(proto_obj))
+        
+
+class Contract:
+    @staticmethod    
+    def from_proto(proto_obj):
+        if isinstance(proto_obj, ModelContract):
+            return Contract(proto_obj.predict)
+        elif isinstance(proto_obj, ModelSignature):
+            return Contract(proto_obj)
+        else:
+            raise TypeError("{} is not supported as Contract".format(proto_obj))
+>>>>>>> Stashed changes
 
     @staticmethod
     def __validate_tensors(tensors, fields):
@@ -187,11 +214,18 @@ class Signature:
             is_valid = False
             error_messages.append("Missing tensors: {}".format(missing_tensor_names))
 
+<<<<<<< Updated upstream
         for tensor_name in common_tensor_names:
             is_tensor_valid, error_message = field_dict[tensor_name].validate(tensors_dict[tensor_name])
             is_valid &= is_tensor_valid
             if error_message:
                 error_messages.append(error_message)
+=======
+    def __init__(self, signature):
+        if not isinstance(signature, ModelSignature):
+            raise TypeError("Invalid signature type. Expected ModelSignature, got {}".format(type(signature)))
+        self.signature = signature
+>>>>>>> Stashed changes
 
         return is_valid, error_messages if error_messages else None
 
@@ -260,7 +294,12 @@ class Contract:
     def proto(self):
         return ModelContract(model_name=self.model_name, predict=self.signature.proto)
 
+<<<<<<< Updated upstream
     @classmethod
     def from_proto(cls, proto):
         return cls(model_name=proto.model_name,
                    signature=Signature.from_proto(proto.predict))
+=======
+    def to_proto(self):
+        return ModelContract(predict=self.signature)
+>>>>>>> Stashed changes

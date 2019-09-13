@@ -15,6 +15,14 @@ def require_cluster(func, *args, **kwargs):
 
 
 class Model:
+    BASE_URL = "/api/v2/model"
+    @staticmethod
+    def from_file(path):
+        """
+        Reads model definition from .yaml file or serving.py
+        """
+        pass
+
     @staticmethod
     def find(cluster, name=None, version=None, id=None):
         pass
@@ -62,9 +70,6 @@ class Model:
 
     def __repr__(self):
         return "Model \"{}\" v{}".format(self.name, self.version)
-
-    def __call__(self, *args, **kwargs):
-        raise NotImplementedError("Prediction through Model object is not possible. Use servable instead")
 
     @require_cluster
     def create_servable(self) -> Servable:

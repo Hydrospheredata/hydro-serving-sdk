@@ -1,6 +1,6 @@
 import logging
 from urllib import parse
-
+import requests
 
 class Cluster:
     @staticmethod
@@ -26,7 +26,11 @@ class Cluster:
         self.gateway_stub = None
         self.predcition_stub = None
 
-    def host_selectors(self, ):
+    def request(self, method, url, **kwargs):
+        url = parse.urljoin(self.address, url)
+        return requests.request(method, url, **kwargs)
+
+    def host_selectors():
         pass
 
     def models(self, ):
