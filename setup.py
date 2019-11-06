@@ -12,11 +12,11 @@ setup(
     url="https://hydrosphere.io/",
     license="Apache 2.0",
     packages=pkgs,
-    install_requires=["hydro-serving-grpc==2.1.0rc1", 'numpy'],
+    install_requires=['hydro-serving-grpc==2.1.0rc1', 'sseclient-py~=1.7', 'numpy', 'pyyaml~=5.1.2'],
     include_package_data=True,
     setup_requires=['pytest-runner'],
     test_suite='tests',
     tests_require=[
-        'pytest>=3.8.0', 'requests_mock>=1.5.0', 'mock>=2.0.0'
+        'pytest>=3.8.0', 'requests_mock>=1.7.0'
     ]
 )

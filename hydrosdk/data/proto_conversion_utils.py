@@ -1,5 +1,3 @@
-from typing import Tuple
-
 import numpy as np
 from hydro_serving_grpc import DT_STRING, DT_BOOL, \
     DT_HALF, DT_FLOAT, DT_DOUBLE, DT_INT8, DT_INT16, \
@@ -54,15 +52,15 @@ NP_DTYPE_TO_ARG_NAME = {
 }
 
 
-def proto2np_dtype(dt: DataType):
+def proto2np_dtype(dt):
     return HS_TO_NP_DTYPE[dt]
 
 
-def np2proto_dtype(dt: np.dtype):
+def np2proto_dtype(dt):
     return NP_TO_HS_DTYPE[dt]
 
 
-def proto2np_shape(tsp: TensorShapeProto):
+def proto2np_shape(tsp):
     if tsp is None or len(tsp.dim) == 0:
         return tuple()
     else:
@@ -70,6 +68,6 @@ def proto2np_shape(tsp: TensorShapeProto):
     return shape
 
 
-def np2proto_shape(np_shape: Tuple):
+def np2proto_shape(np_shape):
     shape = TensorShapeProto(dim=[TensorShapeProto.Dim(size=x) for x in np_shape])
     return shape

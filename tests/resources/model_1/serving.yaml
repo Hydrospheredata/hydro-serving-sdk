@@ -1,0 +1,6 @@
+kind: Model
+name: upload-model-test
+runtime: test:latest
+payload:
+  - 'file1.txt'
+  - 'data_folder/'

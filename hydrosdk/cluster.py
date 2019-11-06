@@ -1,6 +1,10 @@
 import logging
 from urllib import parse
 import requests
+import json
+import grpc
+import functools
+
 
 class Cluster:
     @staticmethod
@@ -13,7 +17,10 @@ class Cluster:
         cl = Cluster(address)
         logging.info("Connecting to {} cluster".format(cl.address))
         info = cl.build_info()
+        if info['manager']['status'] != 'Ok':
+            raise ConnectionError("Couldn't establish connection with cluster {}. {}".format(address, info['manager'].get('reason')))
         logging.info("Connected to the {} cluster".format(info))
+        return cl
 
     def __init__(self, address):
         """
@@ -21,26 +28,48 @@ class Cluster:
         """
         parse.urlsplit(address)  # check if address is ok
         self.address = address
-        self.grpc_channel = None
-        self.manager_stub = None
-        self.gateway_stub = None
-        self.predcition_stub = None
 
     def request(self, method, url, **kwargs):
         url = parse.urljoin(self.address, url)
         return requests.request(method, url, **kwargs)
 
-    def host_selectors():
-        pass
+    def grpc_secure(self, credentials=None, options=None, compression=None):
+        if credentials is None:
+            credentials = grpc.ChannelCredentials(None)
+        return grpc.secure_channel(self.address, credentials, options=options, compression=compression)
 
-    def models(self, ):
-        pass
+    def grpc_insecure(self, options=None, compression=None):
+        return grpc.insecure_channel(self.address, options=options, compression=compression)
 
-    def servables(self, ):
-        pass
+    def host_selectors(self):
+        return []
 
-    def applications(self, ):
-        pass
+    def models(self):
+        return []
+
+    def servables(self):
+        return []
+
+    def applications(self):
+        return []
 
     def build_info(self):
-        pass
+        manager_bl = self.safe_buildinfo("/api/buildinfo")
+        gateway_bl = self.safe_buildinfo("/gateway/buildinfo")
+        sonar_bl = self.safe_buildinfo("/monitoring/buildinfo")
+        return {
+            "manager": manager_bl,
+            "gateway": gateway_bl,
+            "sonar": sonar_bl
+        }
+
+    def safe_buildinfo(self, url):
+        try:
+            result = self.request("GET", url).json()
+            if 'status' not in result:
+                result['status'] = "Ok"
+            return result
+        except requests.exceptions.ConnectionError as ex:
+            return {"status": "Unavailable", "reason": "Can't establish connection"}
+        except json.decoder.JSONDecodeError as ex:
+            return {"status": "Unknown", "reason": "Can't parse JSON response. {}".format(ex)}

@@ -1,99 +1,63 @@
-import warnings
+from urllib.parse import urljoin
+import sseclient
+from .predictor import GRPCPredictor, ShadowlessGRPCPredictor
 
-import numpy as np
-import pandas as pd
-from hydro_serving_grpc.gateway import ServablePredictRequest
-
-from hydrosdk.contract import ContractViolationException, Tensor
-
-
-def decompose_arg_to_tensors(x):
-    tensors = []
-    if type(x) is dict:
-        for k, v in x.items():
-            tensors.append(Tensor(k, v))
-    elif type(x) is pd.DataFrame:
-        for k, v in dict(x).items():
-            tensors.append(Tensor(k, v))
-    elif type(x) is pd.Series:
-        if x.name is None:
-            raise ValueError("Provided pandas.Series should have names")
-        else:
-            tensors.append(Tensor(x.name, np.array(x)))
-    elif type(x) is np.ndarray:
-        raise NotImplementedError("Conversion of nameless np.array is not supported")
-    else:
-        raise ValueError("Conversion failed. Expected [pandas.DataFrame, pd.Series, dict[str, numpy.ndarray]], got {}".format(type(x)))
-    return tensors
-
-
-def decompose_kwarg_to_tensor(key, x):
-    if type(x) is dict:
-        raise ValueError("Conversion of dict as kwatg is not supported/")
-    elif type(x) is pd.DataFrame:
-        tensor = Tensor(key, np.array(x))
-    elif type(x) is pd.Series:
-        tensor = Tensor(key, np.array(x))
-    elif type(x) is np.ndarray:
-        tensor = Tensor(key, x)
-    elif np.isscalar(x):
-        if x in (0, 1):
-            # Minimum scalar dtype for 0 or 1 is `uint8`, but it
-            # cannot be casted into `bool` safely. So, we detect
-            # for bool scalars by hand.
-            min_input_dtype = np.bool
-        else:
-            min_input_dtype = np.min_scalar_type(x)
-
-        tensor = Tensor(key, np.array(x, dtype=min_input_dtype))
-    else:
-        raise ValueError("Conversion failed. Expected [pandas.DataFrame, pd.Series, dict[str, numpy.ndarray]], got {}".format(type(x)))
-    return tensor
+class ServableException(BaseException):
+    pass
 
 
 class Servable:
+    BASE_URL = "/api/v2/servable"
 
-    def __init__(self, model, servable_name, meta=None):
-        if meta is None:
-            meta = dict()
+    @staticmethod
+    def find(servable_name):
+        pass
+
+    @staticmethod
+    def list_for_model(model_name, model_version):
+        pass
+
+    def __init__(self, cluster, model, servable_name, host, port,  metadata=None):
+        if metadata is None:
+            metadata = {}
         self.model = model
         self.name = servable_name
-        self.meta = meta
+        self.meta = metadata
+        self.cluster = cluster
+        self.host = host
+        self.port = port
 
-    def __call__(self, profile=True, *args, **kwargs):
-        input_tensors = []
-
-        for arg in args:
-            input_tensors.extend(decompose_arg_to_tensors(arg))
-
-        for key, arg in kwargs.items():
-            input_tensors.append(decompose_kwarg_to_tensor(key, arg))
-
-        is_valid, error_msg = self.model.contract.signature.validate_input(input_tensors)
-        if not is_valid:
-            return ContractViolationException(error_msg)
-
-        input_proto_dict = dict((map(lambda x: (x.name, x.proto), input_tensors)))
-        predict_request = ServablePredictRequest(servable_name=self.name, data=input_proto_dict)
-
-        if profile:
-            result = self.model.cluster.gateway_stub.PredictServable(predict_request)
+    def remove(self):
+        url = urljoin(self.BASE_URL, self.name)
+        resp = self.cluster.request(method="DELETE", url=url)
+        if resp.ok:
+            return resp.json()
         else:
-            result = self.model.cluster.gateway_stub.ShadowlessPredictServable(predict_request)
+            raise ServableException(resp)
 
-        output_tensors = []
-        for tensor_name, tensor_proto in result.outputs:
-            output_tensors.append(Tensor.from_proto(tensor_name, tensor_proto))
+    def predictor(self, secure=False, shadowed=True):
+        if secure:
+            channel = self.cluster.grpc_secure()
+        else:
+            channel = self.cluster.grpc_insecure()
 
-        is_valid, error_msg = self.model.contract.signature.validate_output(output_tensors)
-        if not is_valid:
-            warnings.warn("Output is not valid.\n" + error_msg)
+        if shadowed:
+            predictor = GRPCPredictor(channel, self.name, self.model.contract.predict)
+        else:
+            predictor = ShadowlessGRPCPredictor(channel, self.name, self.model.contract.predict)
 
-        return output_tensors
+        return predictor
 
-    def remove(self, ):
-        """
-        Kill this servable
-        :return:
-        """
-        return self.model.cluster.remove_servable(self.name)
+    def logs(self, follow=False):
+        if follow:
+            url_suffix = "{}/logs?follow=true".format(self.name)
+        else:
+            url_suffix = "{}/logs".format(self.name)
+
+        url = urljoin(self.BASE_URL, url_suffix)
+        resp = self.cluster.request(method="GET", url=url)
+        if resp.ok:
+            return sseclient.SSEClient(resp).events()
+        else:
+            raise ServableException(resp)
+
