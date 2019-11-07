@@ -13,6 +13,7 @@ from hydro_serving_grpc.manager import ModelVersion, DockerImage as DockerImageP
 from requests_toolbelt.multipart.encoder import MultipartEncoder
 
 from hydrosdk.contract import name2dtype
+from hydrosdk.errors import InvalidYAMLFile
 from hydrosdk.image import DockerImage
 
 
@@ -105,13 +106,23 @@ def read_yaml(path):
     logger = logging.getLogger('read_yaml')
     with open(path, 'r') as f:
         model_docs = [x for x in yaml.safe_load_all(f) if x.get("kind").lower() == "model"]
+    if not model_docs:
+        raise InvalidYAMLFile(path, "Couldn't find proper documents (kind: model)")
     if len(model_docs) > 1:
         logger.warning("Multiple YAML documents detected. Using the first one.")
         logger.debug(model_docs[0])
     model_doc = model_docs[0]
+    name = model_doc.get('name')
+    if not name:
+        raise InvalidYAMLFile(path, "name is not defined")
     folder = os.path.dirname(path)
-    payload = resolve_paths(folder, model_doc['payload'])
-    full_runtime = model_doc['runtime']
+    original_payload = model_doc.get('payload')
+    if not original_payload:
+        raise InvalidYAMLFile(path, "payload is not defined")
+    payload = resolve_paths(folder, original_payload)
+    full_runtime = model_doc.get('runtime')
+    if not full_runtime:
+        raise InvalidYAMLFile(path, "runtime is not defined")
     split = full_runtime.split(":")
     runtime = DockerImage(
         name=split[0],
@@ -124,7 +135,7 @@ def read_yaml(path):
     else:
         protocontract = None
     model = LocalModel(
-        name=model_doc['name'],
+        name=name,
         contract=protocontract,
         runtime=runtime,
         payload=payload,

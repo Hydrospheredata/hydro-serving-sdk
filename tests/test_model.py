@@ -6,6 +6,7 @@ from hydrosdk.model import LocalModel, resolve_paths
 class ModelCases(unittest.TestCase):
     def test_local_model_file_deserialization(self):
         model = LocalModel.from_file("./resources/model_1/serving.yaml")
+        print(model)
         self.assertIsNotNone(model)
 
     def test_local_model_upload(self):

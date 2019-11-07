@@ -1,3 +1,9 @@
-pytest
-twine
-wheel
+hydro-serving-grpc==2.1.0rc1
+sseclient-py~=1.7
+numpy
+pyyaml~=5.1.2
+requests~=2.22.0
+requests_toolbelt~=0.9.1
+
+requests_mock>=1.7.0
+pytest>=3.8.0

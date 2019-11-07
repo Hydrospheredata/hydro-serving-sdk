@@ -10,7 +10,9 @@ from hydro_serving_grpc import DT_STRING, DT_BOOL, \
     DT_HALF, DT_FLOAT, DT_DOUBLE, DT_INT8, DT_INT16, \
     DT_INT32, DT_INT64, DT_UINT8, DT_UINT16, DT_UINT32, \
     DT_UINT64, DT_QINT8, DT_QINT16, DT_QINT32, DT_QUINT8, \
-    DT_QUINT16, DT_VARIANT, DT_COMPLEX64, DT_COMPLEX128, DT_INVALID, TensorShapeProto
+    DT_QUINT16, DT_VARIANT, DT_COMPLEX64, DT_COMPLEX128, DT_INVALID, TensorShapeProto, DataType
+
+from hydrosdk.data.proto_conversion_utils import np2proto_dtype
 
 DTYPE_TO_FIELDNAME = {
     DT_HALF: "half_val",
@@ -30,6 +32,16 @@ DTYPE_TO_FIELDNAME = {
     DT_BOOL: "bool_val",
     DT_STRING: "string_val",
 }
+
+PY_TO_DTYPE = {
+    int: DT_INT64,
+    str: DT_STRING,
+    bool: DT_BOOL,
+    float: DT_DOUBLE,
+    complex: DT_COMPLEX128
+}
+
+DTYPE_TO_PY = {v: k for k,v in PY_TO_DTYPE.items()}
 
 DTYPE_ALIASES = {
     DT_STRING: "string",
@@ -208,9 +220,49 @@ def contract_from_dict(data_dict):
     return ModelContract(model_name="model", predict=signature)
 
 
+def parse_field(name, dtype, shape, profile=ProfilingType.NONE):
+    if profile not in DataProfileType.keys():
+        profile = "NONE"
+
+    if dtype is None:
+        raise ValueError("Invalid field. Neither dtype nor subfields are present in dict", name)
+    elif isinstance(dtype, dict):
+        subfields_buffer = []
+        for name, v in dtype.items():
+            subfield = parse_field(name, v['dtype'], v['shape'], v['profile'])
+            subfields_buffer.append(subfield)
+        return ModelField(
+            name=name,
+            shape=shape_to_proto(shape),
+            subfields=ModelField.Subfield(data=subfields_buffer),
+            profile=profile
+        )
+    else:
+        print(dtype)
+        if dtype in DataType.keys():  # exact name e.g. DT_STRING
+            result_dtype = dtype
+        elif isinstance(dtype, str):  # string alias
+            result_dtype = name2dtype(dtype)
+        elif isinstance(dtype, type):  # type. could be python or numpy type
+            result_dtype = PY_TO_DTYPE.get(dtype)
+            if not result_dtype:
+                result_dtype = np2proto_dtype(dtype)
+        else:
+            result_dtype = DT_INVALID
+
+        if result_dtype == DT_INVALID:
+            raise ValueError("Invalid contract: {} field has invalid datatype {}".format(name, dtype))
+        return ModelField(
+            name=name,
+            shape=shape_to_proto(shape),
+            dtype=result_dtype,
+            profile=profile
+        )
+
+
 class SignatureBuilder:
-    def __init__(self):
-        self.name = []
+    def __init__(self, name):
+        self.name = name
         self.inputs = []
         self.outputs = []
 
@@ -220,34 +272,15 @@ class SignatureBuilder:
     def with_output(self, name, dtype, shape, profile=ProfilingType.NONE):
         return self.__with_field(self.outputs, name, dtype, shape, profile)
 
-    def __with_field(self, collection, name, dtype, shape, profile=ProfilingType.NONE):
-        if profile not in DataProfileType.keys():
-            profile = "NONE"
+    def build(self):
+        return ModelSignature(
+            signature_name=self.name,
+            inputs=self.inputs,
+            outputs=self.outputs
+        )
 
-        if dtype is None:
-            raise ValueError("Invalid field. Neither dtype nor subfields are present in dict", name)
-        elif isinstance(dtype, dict):
-            subfields_buffer = []
-            for k, v in dtype.items():
-                subfield = field_from_dict(k, v)
-                subfields_buffer.append(subfield)
-            result_subfields = subfields_buffer
-            proto_field = ModelField(
-                name=name,
-                shape=shape_to_proto(shape),
-                subfields=ModelField.Subfield(data=result_subfields),
-                profile=profile
-            )
-        else:
-            result_dtype = name2dtype(dtype)
-            if result_dtype == DT_INVALID:
-                raise ValueError("Invalid contract: {} field has invalid datatype {}".format(name, dtype))
-            proto_field = ModelField(
-                name=name,
-                shape=shape_to_proto(shape),
-                dtype=result_dtype,
-                profile=profile
-            )
+    def __with_field(self, collection, name, dtype, shape, profile=ProfilingType.NONE):
+        proto_field = parse_field(name, dtype, shape, profile)
         collection.append(proto_field)
         return self
 
@@ -339,22 +372,26 @@ def check_tensor_fields(tensors, fields):
 def mock_input_data(signature):
     input_tensors = []
     for field in signature.inputs:
-        field_shape = tuple(np.abs(field.shape))  # TODO change -1 to random N, where N <=5
-        field_shape = field_shape if field_shape else (1,)  # If field_shape is (), fix shape as (1,)
+        simple_shape = []
+        if field.shape:
+            simple_shape = [x.size if x.size > 0 else 1 for x in field.shape.dim] # TODO change -1 to random N, where N <=5
+        if len(simple_shape) == 0:
+            simple_shape = [1]
+        field_shape = tuple(np.abs(simple_shape))
         size = reduce(operator.mul, field_shape)
 
-        if field.dtype.kind == "b":
+        if field.dtype == DT_BOOL:
             x = (np.random.randn(*field_shape) >= 0).astype(np.bool)
-        elif field.dtype.kind in ["f", "c"]:
+        elif field.dtype in [DT_FLOAT, DT_HALF, DT_DOUBLE, DT_COMPLEX128, DT_COMPLEX64]:
             x = np.random.randn(*field_shape).astype(field.dtype)
-        elif field.dtype.kind in ["i", "u"]:
+        elif field.dtype in [DT_INT8,DT_INT16,DT_INT32,DT_INT64,DT_UINT8,DT_UINT16,DT_UINT32,DT_UINT64]:
             _min, _max = np.iinfo(field.dtype).min, np.iinfo(field.dtype).max
             x = np.random.randint(_min, _max, size, dtype=field.dtype).reshape(field_shape)
-        elif field.dtype == "U":
+        elif field.dtype == DT_STRING:
             x = np.array(["foo"] * size).reshape(field_shape)
         else:
             raise Exception("{} does not support mock data generation yet.".format(field.dtype))
-        input_tensors.append(Tensor(field.name, x))
+        input_tensors.append(x)
     return input_tensors
 
 
