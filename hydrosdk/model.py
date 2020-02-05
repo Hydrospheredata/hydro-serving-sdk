@@ -183,7 +183,7 @@ class LocalModel:
         if not isinstance(payload, dict):
             raise TypeError("payload is not a dict")
         self.payload = payload
-        if not isinstance(path, str):
+        if path and not isinstance(path, str):
             raise TypeError("path is not a str")
         self.path = path
 
@@ -241,6 +241,10 @@ class Model:
 
     @staticmethod
     def find(cluster, name=None, version=None, id=None):
+        pass
+
+    @staticmethod
+    def find_by_id(cluster, id=None):
         pass
 
     @staticmethod
