@@ -186,6 +186,11 @@ class Model:
             cluster=cluster
         )
 
+    @staticmethod
+    def list_models(cluster):
+        result = cluster.request("GET", "/api/v2/model")
+        return result.json()
+
     def to_proto(self):
         return ModelVersion(
             _id=self.id,
@@ -208,4 +213,7 @@ class Model:
 
     def __repr__(self):
         return "Model {}:{}".format(self.name, self.version)
+
+
+
 
