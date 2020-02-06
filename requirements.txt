@@ -1,4 +1,4 @@
-hydro-serving-grpc==2.1.0rc1
+hydro-serving-grpc==2.1.0
 sseclient-py~=1.7
 numpy
 pyyaml~=5.1.2

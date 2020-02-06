@@ -4,7 +4,7 @@ pkgs = find_packages(exclude=['tests', 'tests.*'])
 print("FOUND PKGS", pkgs)
 
 reqs = [
-    'hydro-serving-grpc==2.1.0rc1',
+    'hydro-serving-grpc==2.1.0',
     'sseclient-py~=1.7',
     'numpy',
     'pyyaml~=5.1.2',
