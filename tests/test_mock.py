@@ -28,11 +28,11 @@ def test_tensor_data(np_type):
     # self.assertIsNone(error_msg)
 
 
+@pytest.mark.xfail(strict=True, raises=KeyError)
 @pytest.mark.parametrize('np_type', UNSUPPORTED_NP_TYPES)
 def test_unsupported(np_type):
-    with pytest.raises(KeyError):
-        s = SignatureBuilder("change_state") \
-            .with_input("tensor1", np_type, hs.scalar) \
-            .with_input("tensor2", np_type, [-1, 10]) \
-            .build()
-        mock_input_data(s)
+    s = SignatureBuilder("change_state") \
+        .with_input("tensor1", np_type, hs.scalar) \
+        .with_input("tensor2", np_type, [-1, 10]) \
+        .build()
+    mock_input_data(s)
