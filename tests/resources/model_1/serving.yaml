@@ -3,4 +3,4 @@ name: upload-model-test
 runtime: test:latest
 payload:
   - 'file1.txt'
-  - 'data_folder/'
+  - '../file2.txt'
