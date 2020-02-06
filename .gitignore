@@ -1,6 +1,6 @@
 .vscode
 .idea
-
+.hs/
 test-report.xml
 # Created by .ignore support plugin (hsz.mobi)
 ### VirtualEnv template
