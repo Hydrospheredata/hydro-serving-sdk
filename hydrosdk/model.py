@@ -187,8 +187,15 @@ class Model:
         )
 
     @staticmethod
+    def delete_by_id(cluster, model_id):
+        res = cluster.request("DELETE", Model.BASE_URL + "/{}".format(model_id))
+        if res.ok:
+            return res.json()
+        return None
+
+    @staticmethod
     def list_models(cluster):
-        result = cluster.request("GET", "/api/v2/model")
+        result = cluster.request("GET", Model.BASE_URL)
         return result.json()
 
     def to_proto(self):
