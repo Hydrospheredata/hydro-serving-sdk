@@ -180,12 +180,11 @@ class LocalModel:
         if contract and not isinstance(contract, ModelContract):
             raise TypeError("contract is not a ModelContract")
         self.contract = contract
-        if not isinstance(payload, dict):
-            raise TypeError("payload is not a dict")
-        self.payload = payload
-        if path and not isinstance(path, str):
-            raise TypeError("path is not a str")
-        self.path = path
+        if isinstance(payload, list):
+            self.payload = resolve_paths(path=path, payload=payload)
+            self.path = path
+        if isinstance(payload, dict):
+            self.payload = payload
 
     def __repr__(self):
         return "LocalModel {}".format(self.name)
