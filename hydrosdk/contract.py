@@ -200,6 +200,118 @@ def field_from_dict(name, data_dict):
     return result_field
 
 
+def field_from_dict(name, data_dict):
+    shape = data_dict.get("shape")
+    dtype = data_dict.get("type")
+    subfields = data_dict.get("fields")
+    raw_profile = data_dict.get("profile", "NONE").upper()
+    if raw_profile not in DataProfileType.keys():
+        profile = "NONE"
+    else:
+        profile = raw_profile
+
+    result_dtype = None
+    result_subfields = None
+    if dtype is None:
+        if subfields is None:
+            raise ValueError("Invalid field. Neither dtype nor subfields are present in dict", name, data_dict)
+        else:
+            subfields_buffer = []
+            for k, v in subfields.items():
+                subfield = field_from_dict(k, v)
+                subfields_buffer.append(subfield)
+            result_subfields = subfields_buffer
+    else:
+        result_dtype = name2dtype(dtype)
+        if result_dtype == DT_INVALID:
+            raise ValueError("Invalid contract: {} field has invalid datatype {}".format(name, dtype))
+
+    if result_dtype is not None:
+        result_field = ModelField(
+            name=name,
+            shape=shape_to_proto(shape),
+            dtype=result_dtype,
+            profile=profile
+        )
+    elif result_subfields is not None:
+        result_field = ModelField(
+            name=name,
+            shape=shape_to_proto(shape),
+            subfields=ModelField.Subfield(data=result_subfields),
+            profile=profile
+        )
+    else:
+        raise ValueError("Invalid field. Neither dtype nor subfields are present in dict", name, data_dict)
+    return result_field
+
+
+def signature_to_dict(signature):
+    if not isinstance(signature, ModelSignature):
+        raise TypeError("signature is not ModelSignature")
+    inputs = []
+    for i in signature.inputs:
+        inputs.append(field_to_dict(i))
+    outputs = []
+    for o in signature.outputs:
+        outputs.append(field_to_dict(o))
+    result_dict = {
+        "signatureName": signature.signature_name,
+        "inputs": inputs,
+        "outputs": outputs
+    }
+    return result_dict
+def contract_to_dict(contract):
+    if contract is None:
+        return None
+    if not isinstance(contract, ModelContract):
+        raise TypeError("contract is not ModelContract")
+    signature = signature_to_dict(contract.predict)
+    result_dict = {
+        "modelName": contract.model_name,
+        "predict": signature
+    }
+    return result_dict
+
+
+
+def field_to_dict(field):
+    if not isinstance(field, ModelField):
+        raise TypeError("field is not ModelField")
+    result_dict = {
+        "name": field.name,
+        "profile": DataProfileType.Name(field.profile)
+    }
+    if field.shape is not None:
+        result_dict["shape"] = shape_to_dict(field.shape)
+
+    attach_ds(result_dict, field)
+    return result_dict
+
+
+
+def attach_ds(result_dict, field):
+    if field.dtype is not None:
+        result_dict["dtype"] = DataType.Name(field.dtype)
+    elif field.subfields is not None:
+        subfields = []
+        for f in field.subfields:
+            subfields.append(field_to_dict(f))
+        result_dict["subfields"] = subfields
+    else:
+        raise ValueError("Invalid ModelField type")
+    return result_dict
+
+def shape_to_dict(shape):
+    dims = []
+    for d in shape.dim:
+        dims.append({"size": d.size, "name": d.name})
+    result_dict = {
+        "dim": dims,
+        "unknownRank": shape.unknown_rank
+    }
+    return result_dict
+
+
 def contract_from_dict(data_dict):
     if data_dict is None:
         return None

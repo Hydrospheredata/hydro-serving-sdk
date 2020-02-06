@@ -7,95 +7,14 @@ from numbers import Number
 
 import sseclient
 import yaml
-from hydro_serving_grpc import DT_INVALID, TensorShapeProto
+from hydro_serving_grpc import DT_INVALID, TensorShapeProto, DataType
 from hydro_serving_grpc.contract import DataProfileType, ModelField, ModelSignature, ModelContract
 from hydro_serving_grpc.manager import ModelVersion, DockerImage as DockerImageProto
 from requests_toolbelt.multipart.encoder import MultipartEncoder
 
-from hydrosdk.contract import name2dtype
+from hydrosdk.contract import name2dtype, contract_from_dict, contract_to_dict
 from hydrosdk.errors import InvalidYAMLFile
 from hydrosdk.image import DockerImage
-
-
-def shape_to_proto(user_shape):
-    if user_shape == "scalar":
-        shape = TensorShapeProto()
-    elif user_shape is None:
-        shape = None
-    elif isinstance(user_shape, list):
-        dims = []
-        for dim in user_shape:
-            if not isinstance(dim, Number):
-                raise TypeError("shape_list contains incorrect dim", user_shape, dim)
-            converted = TensorShapeProto.Dim(size=dim)
-            dims.append(converted)
-        shape = TensorShapeProto(dim=dims)
-    else:
-        raise ValueError("Invalid shape value", user_shape)
-    return shape
-
-
-def field_from_dict(name, data_dict):
-    shape = data_dict.get("shape")
-    dtype = data_dict.get("type")
-    subfields = data_dict.get("fields")
-    raw_profile = data_dict.get("profile", "NONE").upper()
-    if raw_profile not in DataProfileType.keys():
-        profile = "NONE"
-    else:
-        profile = raw_profile
-
-    result_dtype = None
-    result_subfields = None
-    if dtype is None:
-        if subfields is None:
-            raise ValueError("Invalid field. Neither dtype nor subfields are present in dict", name, data_dict)
-        else:
-            subfields_buffer = []
-            for k, v in subfields.items():
-                subfield = field_from_dict(k, v)
-                subfields_buffer.append(subfield)
-            result_subfields = subfields_buffer
-    else:
-        result_dtype = name2dtype(dtype)
-        if result_dtype == DT_INVALID:
-            raise ValueError("Invalid contract: {} field has invalid datatype {}".format(name, dtype))
-
-    if result_dtype is not None:
-        result_field = ModelField(
-            name=name,
-            shape=shape_to_proto(shape),
-            dtype=result_dtype,
-            profile=profile
-        )
-    elif result_subfields is not None:
-        result_field = ModelField(
-            name=name,
-            shape=shape_to_proto(shape),
-            subfields=ModelField.Subfield(data=result_subfields),
-            profile=profile
-        )
-    else:
-        raise ValueError("Invalid field. Neither dtype nor subfields are present in dict", name, data_dict)
-    return result_field
-
-
-def contract_from_dict(data_dict):
-    name = data_dict.get("name", "Predict")
-    inputs = []
-    outputs = []
-    for in_key, in_value in data_dict["inputs"].items():
-        input = field_from_dict(in_key, in_value)
-        inputs.append(input)
-    for out_key, out_value in data_dict["outputs"].items():
-        output = field_from_dict(out_key, out_value)
-        outputs.append(output)
-    signature = ModelSignature(
-        signature_name=name,
-        inputs=inputs,
-        outputs=outputs
-    )
-    return ModelContract(model_name="model", predict=signature)
 
 
 def resolve_paths(path, payload):
@@ -198,15 +117,23 @@ class LocalModel:
         tarpath = os.path.join(hs_folder, tarballname)
         logger.debug("Creating payload tarball {} for {} model".format(tarpath, self.name))
         with tarfile.open(tarpath, "w:gz") as tar:
-            for source, target in self.payload.values():
+            for source, target in self.payload.items():
                 logger.debug("Archiving %s as %s", source, target)
                 tar.add(source, arcname=target)
         # TODO upload it to the manager
-        metadata = {}
+
+        meta = {
+            "name": self.name,
+            "runtime": {"name": self.runtime.name,
+                        "tag": self.runtime.tag,
+                        "sha256": self.runtime.sha256},
+            "contract": contract_to_dict(self.contract)
+        }
+
         encoder = MultipartEncoder(
             fields={
                 "payload": ("filename", open(tarpath, "rb")),
-                "metadata": json.dumps(metadata.__dict__)
+                "metadata": json.dumps(meta)
             }
         )
         result = cluster.request("POST", "/api/v2/model/upload",
@@ -214,7 +141,8 @@ class LocalModel:
                                  headers={'Content-Type': encoder.content_type})
         if result.ok:
             json_res = result.json()
-            version_id = json_res['modelVersionId']
+            print(json_res)
+            version_id = json_res['id']
             try:
                 url = "/api/v2/model/version/{}/logs".format(version_id)
                 logs_response = cluster.request("GET", url, stream=True)
@@ -224,15 +152,15 @@ class LocalModel:
                 logs_iterator = None
             model = Model(
                 id=version_id,
-                name=json_res['name'],
-                version=json_res['version'],
-                contract=json_res['contract'],
-                runtime=json_res['runtime'],
-                image=json_res['image'],
+                name=json_res['model']['name'],
+                version=json_res['modelVersion'],
+                contract=contract_to_dict(self.contract),
+                runtime=self.runtime,
+                image=DockerImage(json_res['image'].get('name'), json_res['image'].get('tag'), json_res['image'].get('sha256')),
                 cluster=cluster)
             return model, logs_iterator
         else:
-            raise ValueError("Error during model upload. {}".format(result.text()))
+            raise ValueError("Error during model upload. {}".format(result.text))
 
 
 class Model:
@@ -280,3 +208,4 @@ class Model:
 
     def __repr__(self):
         return "Model {}:{}".format(self.name, self.version)
+
