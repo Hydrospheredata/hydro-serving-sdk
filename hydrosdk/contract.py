@@ -4,118 +4,10 @@ from functools import reduce
 import numbers
 
 import numpy as np
+from hydro_serving_grpc.tf.types_pb2 import *
 from hydro_serving_grpc.contract import ModelContract, ModelSignature, ModelField, DataProfileType
 
-from hydro_serving_grpc import DT_STRING, DT_BOOL, \
-    DT_HALF, DT_FLOAT, DT_DOUBLE, DT_INT8, DT_INT16, \
-    DT_INT32, DT_INT64, DT_UINT8, DT_UINT16, DT_UINT32, \
-    DT_UINT64, DT_QINT8, DT_QINT16, DT_QINT32, DT_QUINT8, \
-    DT_QUINT16, DT_VARIANT, DT_COMPLEX64, DT_COMPLEX128, DT_INVALID, TensorShapeProto, DataType
-
-from hydrosdk.data.proto_conversion_utils import np2proto_dtype
-
-DTYPE_TO_FIELDNAME = {
-    DT_HALF: "half_val",
-    DT_FLOAT: "float_val",
-    DT_DOUBLE: "double_val",
-
-    DT_INT8: "int_val",
-    DT_INT16: "int_val",
-    DT_INT32: "int_val",
-    DT_INT64: "int64_val",
-    DT_UINT8: "int_val",
-    DT_UINT16: "int_val",
-    DT_UINT32: "uint32_val",
-    DT_UINT64: "uint64_val",
-    DT_COMPLEX64: "scomplex_val",
-    DT_COMPLEX128: "dcomplex_val",
-    DT_BOOL: "bool_val",
-    DT_STRING: "string_val",
-}
-
-PY_TO_DTYPE = {
-    int: DT_INT64,
-    str: DT_STRING,
-    bool: DT_BOOL,
-    float: DT_DOUBLE,
-    complex: DT_COMPLEX128
-}
-
-DTYPE_TO_PY = {v: k for k,v in PY_TO_DTYPE.items()}
-
-DTYPE_ALIASES = {
-    DT_STRING: "string",
-    DT_BOOL: "bool",
-    DT_VARIANT: "variant",
-
-    DT_HALF: "float16",
-    DT_FLOAT: "float32",
-    DT_DOUBLE: "float64",
-
-    DT_INT8: "int8",
-    DT_INT16: "int16",
-    DT_INT32: "int32",
-    DT_INT64: "int64",
-
-    DT_UINT8: "uint8",
-    DT_UINT16: "uint16",
-    DT_UINT32: "uint32",
-    DT_UINT64: "uint64",
-
-    DT_QINT8: "qint8",
-    DT_QINT16: "qint16",
-    DT_QINT32: "qint32",
-
-    DT_QUINT8: "quint8",
-    DT_QUINT16: "quint16",
-
-    DT_COMPLEX64: "complex64",
-    DT_COMPLEX128: "complex128"
-}
-
-DTYPE_ALIASES_REVERSE = {
-    "string": DT_STRING,
-    "bool": DT_BOOL,
-    "variant": DT_VARIANT,
-
-    "float16": DT_HALF,
-    "half": DT_HALF,
-    "float32": DT_FLOAT,
-    "float64": DT_DOUBLE,
-    "double": DT_DOUBLE,
-
-    "int8": DT_INT8,
-    "int16": DT_INT16,
-    "int32": DT_INT32,
-    "int64": DT_INT64,
-
-    "uint8": DT_UINT8,
-    "uint16": DT_UINT16,
-    "uint32": DT_UINT32,
-    "uint64": DT_UINT64,
-
-    "qint8": DT_QINT8,
-    "qint16": DT_QINT16,
-    "qint32": DT_QINT32,
-
-    "quint8": DT_QUINT8,
-    "quint16": DT_QUINT16,
-
-    "complex64": DT_COMPLEX64,
-    "complex128": DT_COMPLEX128,
-}
-
-
-def name2dtype(name):
-    return DTYPE_ALIASES_REVERSE.get(name, DT_INVALID)
-
-
-def dtype2name(dtype):
-    return DTYPE_ALIASES.get(dtype)
-
-
-def dtype_field(dtype):
-    return DTYPE_TO_FIELDNAME.get(dtype)
+from hydrosdk.data.types import name2dtype, shape_to_proto, PY_TO_DTYPE, np2proto_dtype, proto2np_dtype
 
 
 class ContractViolationException(Exception):
@@ -135,25 +27,6 @@ class ProfilingType(Enum):
     VIDEO = 4
     AUDIO = 5
     TEXT = 6
-
-
-def shape_to_proto(user_shape):
-    if user_shape == "scalar":
-        shape = TensorShapeProto()
-    elif user_shape is None:
-        shape = None
-    elif isinstance(user_shape, list):
-        dims = []
-        for dim in user_shape:
-            if not isinstance(dim, numbers.Number):
-                raise TypeError("shape_list contains incorrect dim", user_shape, dim)
-            converted = TensorShapeProto.Dim(size=dim)
-            dims.append(converted)
-        shape = TensorShapeProto(dim=dims)
-    else:
-        raise ValueError("Invalid shape value", user_shape)
-    return shape
-
 
 def field_from_dict(name, data_dict):
     shape = data_dict.get("shape")
@@ -350,8 +223,9 @@ def parse_field(name, dtype, shape, profile=ProfilingType.NONE):
             profile=profile
         )
     else:
-        print(dtype)
         if dtype in DataType.keys():  # exact name e.g. DT_STRING
+            result_dtype = dtype
+        elif dtype in DataType.values():
             result_dtype = dtype
         elif isinstance(dtype, str):  # string alias
             result_dtype = name2dtype(dtype)
@@ -491,14 +365,14 @@ def mock_input_data(signature):
             simple_shape = [1]
         field_shape = tuple(np.abs(simple_shape))
         size = reduce(operator.mul, field_shape)
-
+        npdtype = proto2np_dtype(field.dtype)
         if field.dtype == DT_BOOL:
             x = (np.random.randn(*field_shape) >= 0).astype(np.bool)
         elif field.dtype in [DT_FLOAT, DT_HALF, DT_DOUBLE, DT_COMPLEX128, DT_COMPLEX64]:
-            x = np.random.randn(*field_shape).astype(field.dtype)
+            x = np.random.randn(*field_shape).astype(npdtype)
         elif field.dtype in [DT_INT8,DT_INT16,DT_INT32,DT_INT64,DT_UINT8,DT_UINT16,DT_UINT32,DT_UINT64]:
-            _min, _max = np.iinfo(field.dtype).min, np.iinfo(field.dtype).max
-            x = np.random.randint(_min, _max, size, dtype=field.dtype).reshape(field_shape)
+            _min, _max = np.iinfo(npdtype).min, np.iinfo(npdtype).max
+            x = np.random.randint(_min, _max, size, dtype=npdtype).reshape(field_shape)
         elif field.dtype == DT_STRING:
             x = np.array(["foo"] * size).reshape(field_shape)
         else:
@@ -507,16 +381,16 @@ def mock_input_data(signature):
     return input_tensors
 
 
-def contract_from_df(example_df):
-    """
-    Suggest contract definition for model contract from dataframe
-    :param example_df:
-    :return:
-    """
-    signature_name = getattr(example_df, "name", "predict")
-    inputs = []
-    for name, dtype in zip(example_df.columns, example_df.dtypes):
-        field = ModelField()
-        inputs.append(Field(name, (-1, 1), dtype.type, profile=ProfilingType.NUMERICAL))
-    signature = ModelSignature(signature_name, inputs, [])
-    return ModelContract(predict=signature)
+# def contract_from_df(example_df):
+#     """
+#     Suggest contract definition for model contract from dataframe
+#     :param example_df:
+#     :return:
+#     """
+#     signature_name = getattr(example_df, "name", "predict")
+#     inputs = []
+#     for name, dtype in zip(example_df.columns, example_df.dtypes):
+#         field = ModelField()
+#         inputs.append(Field(name, (-1, 1), dtype.type, profile=ProfilingType.NUMERICAL))
+#     signature = ModelSignature(signature_name, inputs, [])
+#     return ModelContract(predict=signature)

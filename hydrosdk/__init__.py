@@ -1,0 +1,1 @@
+from hydrosdk.data.types import scalar
