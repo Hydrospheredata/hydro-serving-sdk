@@ -88,8 +88,8 @@ def test_local_model_upload():
     # check that correct JSON is sent to cluster
     cluster = Cluster(CLUSTER_HTTP)
 
-    m1 = LocalModel.from_file("../m1").as_metric(threshold=100, cmp=m.LESS_EQ)
-    m2 = LocalModel.from_file("../m2").as_metric(threshold=100, cmp=m.EQ)
+    m1 = LocalModel.from_file("../m1").as_metric(name="m1-monitor", threshold=100, cmp=m.LESS_EQ)
+    m2 = LocalModel.from_file("../m2").as_metric(name="m1-monitor",threshold=100, cmp=m.EQ)
 
     production_model = LocalModel.from_file("../prod").with_metrics([m1, m2])
     progress = production_model.upload(cluster)
