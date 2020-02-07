@@ -1,3 +1,4 @@
+import pytest
 from hydro_serving_grpc.contract import ModelContract
 
 from hydrosdk.cluster import Cluster
@@ -83,12 +84,35 @@ def test_model_create_programmatically():
 
 
 def test_local_model_upload():
+    import hydrosdk.monitroing as m
+
     # mock answer from server
     # check that correct JSON is sent to cluster
     cluster = Cluster(CLUSTER_HTTP)
-    model = LocalModel.from_file(PATH_TO_SERVING)
 
-    model.deploy(cluster)
+    m1 = LocalModel.from_file("../m1").as_metric(threshold=100, cmp=m.LESS_EQ)
+    m2 = LocalModel.from_file("../m2").as_metric(threshold=100, cmp=m.EQ)
+
+    production_model = LocalModel.from_file("../prod").with_metrics([m1, m2])
+    progress = production_model.upload(cluster)
+
+    all_logs = list(progress.logs())  # NB check list correctness
+    assert all_logs == []
+    assert all_logs is not None
+
+    status = progress.wait()
+
+    assert status.ok
+
+
+@pytest.mark.skip("IMPLEMENT LATER")
+def test_upload_fail():
+    pass
+
+
+@pytest.mark.skip("IMPLEMENT LATER")
+def test_upload_logs_fail():
+    pass
 
 
 def test_model_list():
