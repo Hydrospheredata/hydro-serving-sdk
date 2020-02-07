@@ -4,3 +4,16 @@ runtime: test:latest
 payload:
   - 'file1.txt'
   - '../file2.txt'
+
+contract:
+  name: test_contract
+  inputs:
+    x:
+      shape: [-1, 2]
+      type: double
+      profile: numerical
+  outputs:
+    y:
+      shape: [-1]
+      type: double
+      profile: numerical

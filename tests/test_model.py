@@ -4,9 +4,7 @@ from hydrosdk.cluster import Cluster
 from hydrosdk.contract import SignatureBuilder
 from hydrosdk.image import DockerImage
 from hydrosdk.model import Model, LocalModel, resolve_paths
-
-PATH_TO_SERVING = "./tests/resources/model_1/serving.yaml"
-CLUSTER_HTTP = "http://localhost:80"
+from tests.resources.test_config import CLUSTER_ENDPOINT, PATH_TO_SERVING
 
 
 def test_local_model_file_deserialization():
@@ -18,7 +16,7 @@ def test_local_model_file_deserialization():
 def test_model_find_in_cluster():
     # mock answer from server
     # check model objects
-    cluster = Cluster(CLUSTER_HTTP)
+    cluster = Cluster(CLUSTER_ENDPOINT)
     model = Model.find(cluster, name="test-model", version=1)
     model_by_id = Model.find_by_id(12)
 
@@ -85,19 +83,19 @@ def test_model_create_programmatically():
 def test_local_model_upload():
     # mock answer from server
     # check that correct JSON is sent to cluster
-    cluster = Cluster(CLUSTER_HTTP)
+    cluster = Cluster(CLUSTER_ENDPOINT)
     model = LocalModel.from_file(PATH_TO_SERVING)
 
     model.deploy(cluster)
 
 
 def test_model_list():
-    cluster = Cluster(CLUSTER_HTTP)
+    cluster = Cluster(CLUSTER_ENDPOINT)
     res_list = Model.list_models(cluster)
 
 
 def test_model_delete_by_id():
-    cluster = Cluster(CLUSTER_HTTP)
+    cluster = Cluster(CLUSTER_ENDPOINT)
     Model.delete_by_id(cluster, model_id=420)
 
 
