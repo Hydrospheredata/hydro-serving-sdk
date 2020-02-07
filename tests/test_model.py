@@ -1,14 +1,12 @@
 import pytest
 from hydro_serving_grpc.contract import ModelContract
-
+from .config import CLUSTER_HTTP
 from hydrosdk.cluster import Cluster
 from hydrosdk.contract import SignatureBuilder
 from hydrosdk.image import DockerImage
 from hydrosdk.model import Model, LocalModel, resolve_paths
 
 PATH_TO_SERVING = "./tests/resources/model_1/serving.yaml"
-CLUSTER_HTTP = "http://localhost:80"
-
 
 def test_local_model_file_deserialization():
     model = LocalModel.from_file(PATH_TO_SERVING)
