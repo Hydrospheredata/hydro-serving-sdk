@@ -1,0 +1,6 @@
+LESS_EQ = "LESS_EQ"
+LESS = "LESS"
+EQ = "EQ"
+NOT_EQ = "NOT_EQ"
+GREATER = "GT"
+GREATER_EQ = "GT_EQ"

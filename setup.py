@@ -16,10 +16,8 @@ test_reqs = ['pytest>=3.8.0', 'requests_mock>=1.7.0']
 
 setup(
     name='hydrosdk',
-    version='2.1.0-dev0',
+    version='2.2.0-dev',
     description="Hydro-serving SDK",
-    author="Bulat Lutfullin",
-    author_email='blutfullin@hydrosphere.io',
     url="https://hydrosphere.io/",
     license="Apache 2.0",
     packages=pkgs,
