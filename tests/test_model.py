@@ -1,12 +1,12 @@
 import pytest
 from hydro_serving_grpc.contract import ModelContract
-from .config import CLUSTER_HTTP
+
 from hydrosdk.cluster import Cluster
 from hydrosdk.contract import SignatureBuilder
 from hydrosdk.image import DockerImage
 from hydrosdk.model import Model, LocalModel, resolve_paths
+from tests.resources.test_config import CLUSTER_ENDPOINT, PATH_TO_SERVING
 
-PATH_TO_SERVING = "./tests/resources/model_1/serving.yaml"
 
 def test_local_model_file_deserialization():
     model = LocalModel.from_file(PATH_TO_SERVING)
@@ -17,7 +17,7 @@ def test_local_model_file_deserialization():
 def test_model_find_in_cluster():
     # mock answer from server
     # check model objects
-    cluster = Cluster(CLUSTER_HTTP)
+    cluster = Cluster(CLUSTER_ENDPOINT)
     model = Model.find(cluster, name="test-model", version=1)
     model_by_id = Model.find_by_id(12)
 
@@ -86,7 +86,8 @@ def test_local_model_upload():
 
     # mock answer from server
     # check that correct JSON is sent to cluster
-    cluster = Cluster(CLUSTER_HTTP)
+    model = LocalModel.from_file(PATH_TO_SERVING)
+    cluster = Cluster(CLUSTER_ENDPOINT)
 
     m1 = LocalModel.from_file("../m1").as_metric(name="m1-monitor", threshold=100, cmp=m.LESS_EQ)
     m2 = LocalModel.from_file("../m2").as_metric(name="m1-monitor",threshold=100, cmp=m.EQ)
@@ -114,12 +115,12 @@ def test_upload_logs_fail():
 
 
 def test_model_list():
-    cluster = Cluster(CLUSTER_HTTP)
+    cluster = Cluster(CLUSTER_ENDPOINT)
     res_list = Model.list_models(cluster)
 
 
 def test_model_delete_by_id():
-    cluster = Cluster(CLUSTER_HTTP)
+    cluster = Cluster(CLUSTER_ENDPOINT)
     Model.delete_by_id(cluster, model_id=420)
 
 
