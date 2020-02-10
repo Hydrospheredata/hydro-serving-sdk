@@ -108,7 +108,7 @@ class LocalModel:
     def __repr__(self):
         return "LocalModel {}".format(self.name)
 
-    def deploy(self, cluster):
+    def upload(self, cluster):
         logger = logging.getLogger("ModelDeploy")
         now_time = datetime.datetime.now()
         hs_folder = ".hs"
