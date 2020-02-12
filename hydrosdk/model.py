@@ -15,6 +15,7 @@ from requests_toolbelt.multipart.encoder import MultipartEncoder
 from hydrosdk.contract import name2dtype, contract_from_dict, contract_to_dict
 from hydrosdk.errors import InvalidYAMLFile
 from hydrosdk.image import DockerImage
+from hydrosdk.monitoring import Monitoring, UploadResponse, CustomModelMetricSpec
 
 
 def resolve_paths(path, payload):
@@ -67,7 +68,25 @@ def read_py(path):
     pass
 
 
-class LocalModel:
+class BaseModel:
+    """
+    Base class for LocalModel and Model
+    """
+    def as_metric(self, threshold: int, comparator: CustomModelMetricSpec) -> Monitoring:
+        """
+        Turns model into Metric
+        """
+        return Monitoring(model=self, threshold=threshold, comparator=comparator, name=self.name)
+
+    def with_metrics(self, metrics: list):
+        """
+        Adds metrics to the model
+        """
+        self.metrics = metrics
+        return self
+
+
+class LocalModel(BaseModel):
     @staticmethod
     def create(path, name, runtime, contract=None, install_command=None):
         if contract:
@@ -158,12 +177,12 @@ class LocalModel:
                 runtime=self.runtime,
                 image=DockerImage(json_res['image'].get('name'), json_res['image'].get('tag'), json_res['image'].get('sha256')),
                 cluster=cluster)
-            return model, logs_iterator
+            return UploadResponse(model=model, logs_iterator=logs_iterator)
         else:
             raise ValueError("Error during model upload. {}".format(result.text))
 
 
-class Model:
+class Model(BaseModel):
     BASE_URL = "/api/v2/model"
 
     @staticmethod
@@ -220,6 +239,7 @@ class Model:
 
     def __repr__(self):
         return "Model {}:{}".format(self.name, self.version)
+
 
 
 
