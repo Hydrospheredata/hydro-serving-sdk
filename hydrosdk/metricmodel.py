@@ -4,7 +4,7 @@ from enum import Enum
 import sseclient
 
 
-class Monitoring:
+class MetricModel:
     def __init__(self, model, threshold, comparator, name=None):
         self.name = name
         self.model = model

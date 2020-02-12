@@ -15,7 +15,7 @@ from requests_toolbelt.multipart.encoder import MultipartEncoder
 from hydrosdk.contract import name2dtype, contract_from_dict, contract_to_dict
 from hydrosdk.errors import InvalidYAMLFile
 from hydrosdk.image import DockerImage
-from hydrosdk.monitoring import Monitoring, UploadResponse, MetricSpec
+from hydrosdk.metricmodel import MetricModel, UploadResponse, MetricSpec
 
 
 def resolve_paths(path, payload):
@@ -72,11 +72,11 @@ class BaseModel:
     """
     Base class for LocalModel and Model
     """
-    def as_metric(self, threshold: int, comparator: MetricSpec) -> Monitoring:
+    def as_metric(self, threshold: int, comparator: MetricSpec) -> MetricModel:
         """
         Turns model into Metric
         """
-        return Monitoring(model=self, threshold=threshold, comparator=comparator, name=self.name)
+        return MetricModel(model=self, threshold=threshold, comparator=comparator, name=self.name)
 
     def with_metrics(self, metrics: list):
         """
