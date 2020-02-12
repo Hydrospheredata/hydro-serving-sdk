@@ -12,7 +12,7 @@ class Monitoring:
         self.comparator = comparator
 
 
-class CustomModelMetricSpec(Enum):
+class MetricSpec(Enum):
     EQ = "Eq"
     NOT_EQ = "NotEq"
     GREATER = "Gt"

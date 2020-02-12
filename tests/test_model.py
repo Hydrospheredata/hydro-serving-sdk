@@ -5,7 +5,7 @@ from hydrosdk.cluster import Cluster
 from hydrosdk.contract import SignatureBuilder
 from hydrosdk.image import DockerImage
 from hydrosdk.model import Model, LocalModel, resolve_paths
-from hydrosdk.monitoring import CustomModelMetricSpec as metric_spec
+from hydrosdk.monitoring import MetricSpec as metric_spec
 from tests.resources.test_config import CLUSTER_ENDPOINT, PATH_TO_SERVING
 
 
