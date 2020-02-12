@@ -1,4 +1,7 @@
+import logging
 from enum import Enum
+
+import sseclient
 
 
 class Monitoring:
@@ -25,27 +28,35 @@ class BuildStatus(Enum):
 
 
 class UploadResponse:
-    def __init__(self, model, logs_iterator):
+    def __init__(self, model, version_id):
         self.cluster = model.cluster
         self.model = model
-        self.model_version_id = model.id
+        self.model_version_id = version_id
         self.cluster = self.model.cluster
-        self._logs_iterator = logs_iterator
-        self.last_log = None
+        self._logs_iterator = self.logs()
+        self.last_log = ""
         self._status = ""
 
     def logs(self):
+        logger = logging.getLogger("ModelDeploy")
+        try:
+            url = "/api/v2/model/version/{}/logs".format(self.model_version_id)
+            logs_response = self.model.cluster.request("GET", url, stream=True)
+            self._logs_iterator = sseclient.SSEClient(logs_response).events()
+        except RuntimeError:
+            logger.exception("Unable to get build logs")
+            self._logs_iterator = None
         return self._logs_iterator
 
     def set_status(self) -> None:
         try:
-            self.last_log = next(self.logs()).data
             if self.last_log.startswith("Successfully tagged"):
                 self._status = BuildStatus.FINISHED
             else:
+                self.last_log = next(self._logs_iterator).data
                 self._status = BuildStatus.BUILDING
         except StopIteration:
-            if self.last_log == "":
+            if not self._status == BuildStatus.FINISHED:
                 self._status = BuildStatus.FAILED
 
     def get_status(self):
