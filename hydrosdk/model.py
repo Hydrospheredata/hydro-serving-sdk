@@ -162,13 +162,6 @@ class LocalModel(BaseModel):
             json_res = result.json()
             print(json_res)
             version_id = json_res['id']
-            try:
-                url = "/api/v2/model/version/{}/logs".format(version_id)
-                logs_response = cluster.request("GET", url, stream=True)
-                logs_iterator = sseclient.SSEClient(logs_response).events()
-            except RuntimeError:
-                logger.exception("Unable to get build logs")
-                logs_iterator = None
             model = Model(
                 id=version_id,
                 name=json_res['model']['name'],
@@ -177,7 +170,7 @@ class LocalModel(BaseModel):
                 runtime=self.runtime,
                 image=DockerImage(json_res['image'].get('name'), json_res['image'].get('tag'), json_res['image'].get('sha256')),
                 cluster=cluster)
-            return UploadResponse(model=model, logs_iterator=logs_iterator)
+            return UploadResponse(model=model, version_id=version_id)
         else:
             raise ValueError("Error during model upload. {}".format(result.text))
 
