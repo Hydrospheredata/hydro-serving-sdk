@@ -167,7 +167,7 @@ class Model:
     BASE_URL = "/api/v2/model"
 
     @staticmethod
-    def find(cluster, name=None, version=None, id=None):
+    def find(cluster, name=None, version=None):
         pass
 
     @staticmethod

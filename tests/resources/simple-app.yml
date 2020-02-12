@@ -1,0 +1,4 @@
+version: "2"
+kind: Application
+singular:
+  model: "test-model:2"
