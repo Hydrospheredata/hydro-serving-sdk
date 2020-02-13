@@ -72,10 +72,21 @@ class LocalApplication:
         self.streaming_config = streaming_config
 
 
-
 class Application:
     @staticmethod
     def create(cluster, local_application):
+        pass
+
+    @staticmethod
+    def list(cluster):
+        pass
+
+    @staticmethod
+    def get_by_id(cluster, id):
+        pass
+
+    @staticmethod
+    def get_by_name(cluster, name):
         pass
 
     def __init__(self, cluster, id, name, graph, contract, streaming_config, status):
@@ -86,3 +97,9 @@ class Application:
         self.streaming_config = streaming_config
         self.contract = contract
         self.status = status
+
+    def update(self, name, graph, streaming_config):
+        pass
+
+    def delete(self):
+        pass
