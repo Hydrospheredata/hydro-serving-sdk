@@ -8,7 +8,7 @@ import functools
 
 class Cluster:
     @staticmethod
-    def connect(address):
+    def connect(address: str):
         """
         The preferrable factory method for Cluster creation. Use it.
 
@@ -22,14 +22,14 @@ class Cluster:
         logging.info("Connected to the {} cluster".format(info))
         return cl
 
-    def __init__(self, address):
+    def __init__(self, address: str):
         """
         Cluster ctor. Don't use it unless you understand what you are doing.
         """
         parse.urlsplit(address)  # check if address is ok
         self.address = address
 
-    def request(self, method, url, **kwargs):
+    def request(self, method: str, url: str, **kwargs):
         url = parse.urljoin(self.address, url)
         return requests.request(method, url, **kwargs)
 
@@ -63,7 +63,7 @@ class Cluster:
             "sonar": sonar_bl
         }
 
-    def safe_buildinfo(self, url):
+    def safe_buildinfo(self, url: str):
         try:
             result = self.request("GET", url).json()
             if 'status' not in result:
