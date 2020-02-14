@@ -3,6 +3,7 @@ import json
 import logging
 import os
 import tarfile
+from enum import Enum
 from numbers import Number
 
 import sseclient
@@ -15,7 +16,7 @@ from requests_toolbelt.multipart.encoder import MultipartEncoder
 from hydrosdk.contract import name2dtype, contract_from_dict, contract_to_dict
 from hydrosdk.errors import InvalidYAMLFile
 from hydrosdk.image import DockerImage
-from hydrosdk.metricmodel import MetricModel, UploadResponse, MetricSpec
+from hydrosdk.monitoring import MetricModel, MetricSpec
 
 
 def resolve_paths(path, payload):
@@ -234,6 +235,58 @@ class Model(BaseModel):
         return "Model {}:{}".format(self.name, self.version)
 
 
+class BuildStatus(Enum):
+    BUILDING = "BUILDING"
+    FINISHED = "FINISHED"
+    FAILED = "FAILED"
 
 
+class UploadResponse:
+    def __init__(self, model, version_id):
+        self.cluster = model.cluster
+        self.model = model
+        self.model_version_id = version_id
+        self.cluster = self.model.cluster
+        self._logs_iterator = self.logs()
+        self.last_log = ""
+        self._status = ""
 
+    def logs(self):
+        logger = logging.getLogger("ModelDeploy")
+        try:
+            url = "/api/v2/model/version/{}/logs".format(self.model_version_id)
+            logs_response = self.model.cluster.request("GET", url, stream=True)
+            self._logs_iterator = sseclient.SSEClient(logs_response).events()
+        except RuntimeError:
+            logger.exception("Unable to get build logs")
+            self._logs_iterator = None
+        return self._logs_iterator
+
+    def set_status(self) -> None:
+        try:
+            if self.last_log.startswith("Successfully tagged"):
+                self._status = BuildStatus.FINISHED
+            else:
+                self.last_log = next(self._logs_iterator).data
+                self._status = BuildStatus.BUILDING
+        except StopIteration:
+            if not self._status == BuildStatus.FINISHED:
+                self._status = BuildStatus.FAILED
+
+    def get_status(self):
+        return self._status
+
+    def not_ok(self) -> bool:
+        self.set_status()
+        return self.get_status() == BuildStatus.FAILED
+
+    def ok(self):
+        self.set_status()
+        return self.get_status() == BuildStatus.FINISHED
+
+    def building(self):
+        self.set_status()
+        return self.get_status() == BuildStatus.BUILDING
+
+    def request_model(self):
+        return self.cluster.request("GET", f"api/v2/model/{self.model.id}")
