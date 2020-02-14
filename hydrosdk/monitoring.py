@@ -3,18 +3,17 @@ from typing import Union
 from urllib.parse import urljoin
 
 from hydrosdk.cluster import Cluster
-from hydrosdk.model import BaseModel
 
 
 class MetricModel:
-    def __init__(self, model: BaseModel, threshold, comparator, name=None):
+    def __init__(self, model, threshold, comparator, name=None):
         self.name = name
         self.model = model
         self.threshold = threshold
         self.comparator = comparator
 
 
-class TresholdCmpOp(Enum):
+class TresholdCmpOp:
     EQ = "Eq"
     NOT_EQ = "NotEq"
     GREATER = "Gt"
@@ -32,15 +31,15 @@ class MetricSpecConfig:
 
 
 class MetricSpec:
-    BASE_URL="/api/v2/monitoring/metricspec"
+    BASE_URL = "/api/v2/monitoring/metricspec/"
 
     @staticmethod
     def __parse_json(cluster, json_dict):
-        MetricSpec(
-            cluster = cluster,
+        return MetricSpec(
+            cluster=cluster,
             name=json_dict['name'],
             model_version_id=json_dict['modelVersionId'],
-            config = MetricSpecConfig(
+            config=MetricSpecConfig(
                 model_version_id=json_dict['config']['modelVersionId'],
                 threshold=json_dict['config']['threshold'],
                 threshold_op=json_dict['config']['thresholdCmpOperator']['kind'],
@@ -66,7 +65,8 @@ class MetricSpec:
         if resp.ok:
             return MetricSpec.__parse_json(cluster, resp.json())
         else:
-            raise Exception(f"Failed to create a MetricSpec. Name={name}, model_version_id={model_version_id}. {resp.status_code} {resp.text}")
+            raise Exception(
+                f"Failed to create a MetricSpec. Name={name}, model_version_id={model_version_id}. {resp.status_code} {resp.text}")
 
     @staticmethod
     def list_all(cluster: Cluster):
@@ -79,11 +79,13 @@ class MetricSpec:
     @staticmethod
     def list_for_model(cluster: Cluster, model_version_id: int):
         url = urljoin(MetricSpec.BASE_URL, f"modelversion/{model_version_id}")
+        print(url)
         resp = cluster.request("get", url)
         if resp.ok:
             return [MetricSpec.__parse_json(cluster, x) for x in resp.json()]
         else:
-            raise Exception(f"Failed to list MetricSpecs for model_version_id={model_version_id}. {resp.status_code} {resp.text}")
+            raise Exception(
+                f"Failed to list MetricSpecs for model_version_id={model_version_id}. {resp.status_code} {resp.text}")
 
     @staticmethod
     def get(cluster: Cluster, metric_spec_id: int):
@@ -94,9 +96,11 @@ class MetricSpec:
         elif resp.status_code == 404:
             return None
         else:
-            raise Exception(f"Failed to list MetricSpecs for metric_spec_id={metric_spec_id}. {resp.status_code} {resp.text}")
+            raise Exception(
+                f"Failed to list MetricSpecs for metric_spec_id={metric_spec_id}. {resp.status_code} {resp.text}")
 
-    def __init__(self, cluster: Cluster, metric_spec_id: int, name: str, model_version_id: int, config: MetricSpecConfig):
+    def __init__(self, cluster: Cluster, metric_spec_id: int, name: str, model_version_id: int,
+                 config: MetricSpecConfig):
         self.cluster = cluster
         self.metric_spec_id = metric_spec_id
         self.config = config
@@ -111,4 +115,5 @@ class MetricSpec:
         elif resp.status_code == 404:
             return False
         else:
-            raise Exception(f"Failed to delete MetricSpecs for metric_spec_id={self.metric_spec_id}. {resp.status_code} {resp.text}")
+            raise Exception(
+                f"Failed to delete MetricSpecs for metric_spec_id={self.metric_spec_id}. {resp.status_code} {resp.text}")

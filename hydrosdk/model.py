@@ -161,7 +161,6 @@ class LocalModel(BaseModel):
                                  headers={'Content-Type': encoder.content_type})
         if result.ok:
             json_res = result.json()
-            print(json_res)
             version_id = json_res['id']
             model = Model(
                 id=version_id,
