@@ -16,7 +16,7 @@ from requests_toolbelt.multipart.encoder import MultipartEncoder
 from hydrosdk.contract import name2dtype, contract_from_dict, contract_to_dict
 from hydrosdk.errors import InvalidYAMLFile
 from hydrosdk.image import DockerImage
-from hydrosdk.monitoring import MetricModel, MetricSpec
+from hydrosdk.monitoring import MetricModel, MetricSpec, MetricSpecConfig
 
 
 def resolve_paths(path, payload):
@@ -73,6 +73,9 @@ class BaseModel:
     """
     Base class for LocalModel and Model
     """
+    def __init__(self):
+        self.metrics: [BaseModel] = []
+
     def as_metric(self, threshold: int, comparator: MetricSpec) -> MetricModel:
         """
         Turns model into Metric
@@ -110,6 +113,8 @@ class LocalModel(BaseModel):
             raise ValueError("Unsupported file extension: {}".format(ext))
 
     def __init__(self, name, contract, runtime, payload, path=None):
+        super().__init__()
+
         if not isinstance(name, str):
             raise TypeError("name is not a string")
         self.name = name
@@ -128,7 +133,10 @@ class LocalModel(BaseModel):
     def __repr__(self):
         return "LocalModel {}".format(self.name)
 
-    def upload(self, cluster):
+    def __upload(self, cluster):
+        """
+        Direct implementation of uploading one model to the server. For internal usage
+        """
         logger = logging.getLogger("ModelDeploy")
         now_time = datetime.datetime.now()
         hs_folder = ".hs"
@@ -174,6 +182,24 @@ class LocalModel(BaseModel):
         else:
             raise ValueError("Error during model upload. {}".format(result.text))
 
+    def upload(self, cluster) -> dict:
+        root_model_version_id = self.__upload(cluster)
+
+        models_dict = {} # {model_obj: upload_resp}
+        if self.metrics:
+            for metric in self.metrics:
+                upload_response = metric.upload(cluster)
+                msc = MetricSpecConfig(model_version_id=upload_response.model_version_id,
+                                       threshold=upload_response.model.threshold,
+                                       threshold_op=upload_response.model.comparator)
+
+                ms = MetricSpec.create(cluster=upload_response.model.cluster,
+                                       name=upload_response.model.name,
+                                       model_version_id=root_model_version_id.model_version_id,
+                                       config=msc)
+                models_dict[upload_response.model] = upload_response
+
+        return models_dict
 
 class Model(BaseModel):
     BASE_URL = "/api/v2/model"
@@ -222,6 +248,8 @@ class Model(BaseModel):
         )
 
     def __init__(self, id, name, version, contract, runtime, image, cluster):
+        super().__init__()
+
         self.cluster = cluster
         self.id = id
         self.name = name
