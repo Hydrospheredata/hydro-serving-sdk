@@ -54,9 +54,12 @@ def test_model_find_in_cluster():
     # mock answer from server
     # check model objects
     cluster = Cluster(CLUSTER_ENDPOINT)
-    model = Model.find(cluster, name="test_model", version=1)
-    model_by_id = Model.find_by_id(12)
+    loc_model = get_local_model("test_model")
+    ur = loc_model._LocalModel__upload(cluster)
 
+    model_by_id = Model.find_by_id(cluster, ur.model.id)
+
+    assert model_by_id
 
 def test_model_create_payload_dict():
     test_model = get_local_model("test_model")

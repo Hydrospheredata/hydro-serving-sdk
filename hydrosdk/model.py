@@ -208,8 +208,18 @@ class Model(Metricable):
         pass
 
     @staticmethod
-    def find_by_id(cluster, id=None):
-        pass
+    def find_by_id(cluster, model_id):
+        resp = cluster.request("GET", Model.BASE_URL + "/version")
+
+        if resp.ok:
+            for model_json in resp.json():
+                if model_json['id'] == model_id:
+                    return model_json
+            return "Not Found"
+        else:
+            raise Exception(
+                f"Failed to find_by_id Model for model_id={model_id}. {resp.status_code} {resp.text}")
+
 
     @staticmethod
     def from_proto(proto, cluster):
