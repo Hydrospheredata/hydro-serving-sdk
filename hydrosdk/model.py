@@ -205,7 +205,14 @@ class Model(Metricable):
 
     @staticmethod
     def find(cluster, name=None, version=None):
-        pass
+        resp = cluster.request("GET", Model.BASE_URL + "/version/{}/{}".format(name, version))
+
+        if resp.ok:
+            return resp.json()
+
+        else:
+            raise Exception(
+                f"Failed to find Model for name={name}, version={version} . {resp.status_code} {resp.text}")
 
     @staticmethod
     def find_by_id(cluster, model_id):

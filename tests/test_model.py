@@ -10,7 +10,7 @@ from tests.resources.test_config import CLUSTER_ENDPOINT, PATH_TO_SERVING
 
 
 def get_payload():
-    return {'/Users/techkuz/PycharmProjects/hydro-venv/src/func_main.py': './src/func_main.py'}
+    return {'/home/user/folder/model/cool/src/func_main.py': './src/func_main.py'}
 
 
 def get_cluster():
@@ -55,11 +55,21 @@ def test_model_find_in_cluster():
     # check model objects
     cluster = Cluster(CLUSTER_ENDPOINT)
     loc_model = get_local_model("test_model")
-    ur = loc_model._LocalModel__upload(cluster)
+    upload_response = loc_model._LocalModel__upload(cluster)
 
-    model_by_id = Model.find_by_id(cluster, ur.model.id)
+    model_by_id = Model.find_by_id(cluster, upload_response.model.id)
 
-    assert model_by_id
+    assert model_by_id['id'] == upload_response.model.id
+
+
+def test_model_find():
+    cluster = Cluster(CLUSTER_ENDPOINT)
+    loc_model = get_local_model("test_model")
+    upload_response = loc_model._LocalModel__upload(cluster)
+
+    model = Model.find(cluster, upload_response.model.name, upload_response.model.version)
+    assert model['id'] == upload_response.model.id
+
 
 def test_model_create_payload_dict():
     test_model = get_local_model("test_model")
