@@ -1,4 +1,3 @@
-from enum import Enum
 from typing import Union
 from urllib.parse import urljoin
 
@@ -14,6 +13,13 @@ class TresholdCmpOp:
     LESS_EQ = "LessEq"
 
 
+class MetricModel:
+    def __init__(self, model, threshold, comparator):
+        self.model = model
+        self.threshold = threshold
+        self.comparator = comparator
+
+
 class MetricSpecConfig:
     def __init__(self, model_version_id: int, threshold: Union[int, float], threshold_op: TresholdCmpOp, servable=None):
         self.servable = servable
@@ -23,7 +29,8 @@ class MetricSpecConfig:
 
 
 class MetricSpec:
-    BASE_URL = "/api/v2/monitoring/metricspec/"
+    BASE_URL = "/api/v2/monitoring/metricspec"
+    GET_SPEC_URL = BASE_URL + "/"
 
     @staticmethod
     def __parse_json(cluster, json_dict):
@@ -70,7 +77,7 @@ class MetricSpec:
 
     @staticmethod
     def list_for_model(cluster: Cluster, model_version_id: int):
-        url = urljoin(MetricSpec.BASE_URL, f"modelversion/{model_version_id}")
+        url = urljoin(MetricSpec.GET_SPEC_URL, f"modelversion/{model_version_id}")
         print(url)
         resp = cluster.request("get", url)
         if resp.ok:

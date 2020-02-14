@@ -10,7 +10,7 @@ from tests.resources.test_config import CLUSTER_ENDPOINT, PATH_TO_SERVING
 
 
 def get_payload():
-    return {'/home/user/folder/src/file.py': './src/file.py'}
+    return {'/Users/techkuz/PycharmProjects/hydro-venv/src/func_main.py': './src/func_main.py'}
 
 
 def get_cluster():
@@ -99,10 +99,10 @@ def test_local_model_upload():
 
     progress = production_model.upload(get_cluster())
 
-    while progress.building():
+    while progress[m1].building():
         pass
 
-    assert progress.ok()
+    assert progress[m1].ok()
 
 
 @pytest.mark.skip("IMPLEMENT LATER")

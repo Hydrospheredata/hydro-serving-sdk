@@ -14,7 +14,7 @@ from requests_toolbelt.multipart.encoder import MultipartEncoder
 from hydrosdk.contract import contract_from_dict, contract_to_dict
 from hydrosdk.errors import InvalidYAMLFile
 from hydrosdk.image import DockerImage
-from hydrosdk.monitoring import MetricSpec, MetricSpecConfig
+from hydrosdk.monitoring import MetricSpec, MetricSpecConfig, MetricModel
 
 
 def resolve_paths(path, payload):
@@ -67,12 +67,49 @@ def read_py(path):
     pass
 
 
-class BaseModel:
-    """
-    Base class for LocalModel and Model
-    """
+class Metricable:
+    def __init__(self):
+        self.metrics: [Metricable] = []
 
-    def __init__(self, name, contract, runtime):
+    def as_metric(self, threshold: int, comparator: MetricSpec) -> MetricModel:
+        """
+        Turns model into Metric
+        """
+        return MetricModel(model=self, threshold=threshold, comparator=comparator)
+
+    def with_metrics(self, metrics: list):
+        """
+        Adds metrics to the model
+        """
+        self.metrics = metrics
+        return self
+
+
+class LocalModel(Metricable):
+    @staticmethod
+    def create(path, name, runtime, contract=None, install_command=None):
+        if contract:
+            contract.validate()
+        else:
+            pass  # infer the contract
+        pass
+
+    @staticmethod
+    def from_file(path):
+        """
+        Reads model definition from .yaml file or serving.py
+        """
+        ext = os.path.splitext(path)[1]
+        if ext in ['.yml', '.yaml']:
+            return read_yaml(path)
+        elif ext == '.py':
+            return read_py(path)
+        else:
+            raise ValueError("Unsupported file extension: {}".format(ext))
+
+    def __init__(self, name, contract, runtime, payload, path=None):
+        super().__init__()
+
         if not isinstance(name, str):
             raise TypeError("name is not a string")
         self.name = name
@@ -82,6 +119,15 @@ class BaseModel:
         if contract and not isinstance(contract, ModelContract):
             raise TypeError("contract is not a ModelContract")
         self.contract = contract
+
+        if isinstance(payload, list):
+            self.payload = resolve_paths(path=path, payload=payload)
+            self.path = path
+        if isinstance(payload, dict):
+            self.payload = payload
+
+    def __repr__(self):
+        return "LocalModel {}".format(self.name)
 
     def __upload(self, cluster):
         """
@@ -134,89 +180,27 @@ class BaseModel:
             raise ValueError("Error during model upload. {}".format(result.text))
 
     def upload(self, cluster) -> dict:
-        root_model_version_id = self.__upload(cluster)
+        root_model_upload_response = self.__upload(cluster)
 
-        models_dict = {}
+        models_dict = {self: root_model_upload_response}
         if self.metrics:
             for metric in self.metrics:
-                upload_response = metric.upload(cluster)
+                upload_response = metric.model.__upload(cluster)
+
                 msc = MetricSpecConfig(model_version_id=upload_response.model_version_id,
-                                       threshold=upload_response.model.threshold,
-                                       threshold_op=upload_response.model.comparator)
+                                       threshold=metric.threshold,
+                                       threshold_op=metric.comparator)
 
                 ms = MetricSpec.create(cluster=upload_response.model.cluster,
                                        name=upload_response.model.name,
-                                       model_version_id=root_model_version_id.model_version_id,
+                                       model_version_id=root_model_upload_response.model_version_id,
                                        config=msc)
-                models_dict[upload_response.model] = upload_response
+                models_dict[metric] = upload_response
 
         return models_dict  # {model_obj: upload_resp}
 
 
-class MetricModel(BaseModel):
-
-    def __init__(self, name, contract, runtime, model, threshold, comparator):
-        super(MetricModel, self).__init__(name, contract, runtime)
-        self.model = model
-        self.threshold = threshold
-        self.comparator = comparator
-
-
-class Metricable:
-    def __init__(self):
-        self.metrics: [Metricable] = []
-
-    def as_metric(self, threshold: int, comparator: MetricSpec) -> MetricModel:
-        """
-        Turns model into Metric
-        """
-        return MetricModel(model=self, threshold=threshold, comparator=comparator, name=self.name,
-                           contract=self.contract, runtime=self.runtime)
-
-    def with_metrics(self, metrics: list):
-        """
-        Adds metrics to the model
-        """
-        self.metrics = metrics
-        return self
-
-
-class LocalModel(BaseModel, Metricable):
-    @staticmethod
-    def create(path, name, runtime, contract=None, install_command=None):
-        if contract:
-            contract.validate()
-        else:
-            pass  # infer the contract
-        pass
-
-    @staticmethod
-    def from_file(path):
-        """
-        Reads model definition from .yaml file or serving.py
-        """
-        ext = os.path.splitext(path)[1]
-        if ext in ['.yml', '.yaml']:
-            return read_yaml(path)
-        elif ext == '.py':
-            return read_py(path)
-        else:
-            raise ValueError("Unsupported file extension: {}".format(ext))
-
-    def __init__(self, name, contract, runtime, payload, path=None):
-        super(LocalModel, self).__init__(name, contract, runtime)
-
-        if isinstance(payload, list):
-            self.payload = resolve_paths(path=path, payload=payload)
-            self.path = path
-        if isinstance(payload, dict):
-            self.payload = payload
-
-    def __repr__(self):
-        return "LocalModel {}".format(self.name)
-
-
-class Model(BaseModel, Metricable):
+class Model(Metricable):
     BASE_URL = "/api/v2/model"
 
     @staticmethod
@@ -263,8 +247,11 @@ class Model(BaseModel, Metricable):
         )
 
     def __init__(self, id, name, version, contract, runtime, image, cluster):
-        super(Model, self).__init__(name, contract, runtime)
+        super().__init__()
 
+        self.name = name
+        self.runtime = runtime
+        self.contract = contract
         self.cluster = cluster
         self.id = id
         self.version = version

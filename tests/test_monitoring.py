@@ -13,8 +13,8 @@ def cluster():
 
 def test_create(cluster):
     model = LocalModel.from_file(PATH_TO_SERVING)
-    model1 = model.upload(cluster)
-    model2 = model.upload(cluster)
+    model1 = model._LocalModel__upload(cluster)
+    model2 = model._LocalModel__upload(cluster)
     ms_config = MetricSpecConfig(model2.model_version_id, 10, TresholdCmpOp.NOT_EQ)
     result = MetricSpec.create(cluster, "test", model1.model_version_id, ms_config)
     assert isinstance(result, MetricSpec)
