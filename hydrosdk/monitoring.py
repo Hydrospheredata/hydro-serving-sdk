@@ -5,14 +5,6 @@ from urllib.parse import urljoin
 from hydrosdk.cluster import Cluster
 
 
-class MetricModel:
-    def __init__(self, model, threshold, comparator, name=None):
-        self.name = name
-        self.model = model
-        self.threshold = threshold
-        self.comparator = comparator
-
-
 class TresholdCmpOp:
     EQ = "Eq"
     NOT_EQ = "NotEq"

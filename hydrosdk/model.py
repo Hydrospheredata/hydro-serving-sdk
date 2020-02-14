@@ -4,19 +4,17 @@ import logging
 import os
 import tarfile
 from enum import Enum
-from numbers import Number
 
 import sseclient
 import yaml
-from hydro_serving_grpc import DT_INVALID, TensorShapeProto, DataType
-from hydro_serving_grpc.contract import DataProfileType, ModelField, ModelSignature, ModelContract
+from hydro_serving_grpc.contract import ModelContract
 from hydro_serving_grpc.manager import ModelVersion, DockerImage as DockerImageProto
 from requests_toolbelt.multipart.encoder import MultipartEncoder
 
-from hydrosdk.contract import name2dtype, contract_from_dict, contract_to_dict
+from hydrosdk.contract import contract_from_dict, contract_to_dict
 from hydrosdk.errors import InvalidYAMLFile
 from hydrosdk.image import DockerImage
-from hydrosdk.monitoring import MetricModel, MetricSpec, MetricSpecConfig
+from hydrosdk.monitoring import MetricSpec, MetricSpecConfig
 
 
 def resolve_paths(path, payload):
@@ -73,48 +71,8 @@ class BaseModel:
     """
     Base class for LocalModel and Model
     """
-    def __init__(self):
-        self.metrics: [BaseModel] = []
 
-    def as_metric(self, threshold: int, comparator: MetricSpec) -> MetricModel:
-        """
-        Turns model into Metric
-        """
-        return MetricModel(model=self, threshold=threshold, comparator=comparator, name=self.name)
-
-    def with_metrics(self, metrics: list):
-        """
-        Adds metrics to the model
-        """
-        self.metrics = metrics
-        return self
-
-
-class LocalModel(BaseModel):
-    @staticmethod
-    def create(path, name, runtime, contract=None, install_command=None):
-        if contract:
-            contract.validate()
-        else:
-            pass  # infer the contract
-        pass
-
-    @staticmethod
-    def from_file(path):
-        """
-        Reads model definition from .yaml file or serving.py
-        """
-        ext = os.path.splitext(path)[1]
-        if ext in ['.yml', '.yaml']:
-            return read_yaml(path)
-        elif ext == '.py':
-            return read_py(path)
-        else:
-            raise ValueError("Unsupported file extension: {}".format(ext))
-
-    def __init__(self, name, contract, runtime, payload, path=None):
-        super().__init__()
-
+    def __init__(self, name, contract, runtime):
         if not isinstance(name, str):
             raise TypeError("name is not a string")
         self.name = name
@@ -124,14 +82,6 @@ class LocalModel(BaseModel):
         if contract and not isinstance(contract, ModelContract):
             raise TypeError("contract is not a ModelContract")
         self.contract = contract
-        if isinstance(payload, list):
-            self.payload = resolve_paths(path=path, payload=payload)
-            self.path = path
-        if isinstance(payload, dict):
-            self.payload = payload
-
-    def __repr__(self):
-        return "LocalModel {}".format(self.name)
 
     def __upload(self, cluster):
         """
@@ -176,7 +126,8 @@ class LocalModel(BaseModel):
                 version=json_res['modelVersion'],
                 contract=contract_to_dict(self.contract),
                 runtime=self.runtime,
-                image=DockerImage(json_res['image'].get('name'), json_res['image'].get('tag'), json_res['image'].get('sha256')),
+                image=DockerImage(json_res['image'].get('name'), json_res['image'].get('tag'),
+                                  json_res['image'].get('sha256')),
                 cluster=cluster)
             return UploadResponse(model=model, version_id=version_id)
         else:
@@ -185,7 +136,7 @@ class LocalModel(BaseModel):
     def upload(self, cluster) -> dict:
         root_model_version_id = self.__upload(cluster)
 
-        models_dict = {} # {model_obj: upload_resp}
+        models_dict = {}
         if self.metrics:
             for metric in self.metrics:
                 upload_response = metric.upload(cluster)
@@ -199,13 +150,77 @@ class LocalModel(BaseModel):
                                        config=msc)
                 models_dict[upload_response.model] = upload_response
 
-        return models_dict
+        return models_dict  # {model_obj: upload_resp}
 
-class Model(BaseModel):
+
+class MetricModel(BaseModel):
+
+    def __init__(self, name, contract, runtime, model, threshold, comparator):
+        super(MetricModel, self).__init__(name, contract, runtime)
+        self.model = model
+        self.threshold = threshold
+        self.comparator = comparator
+
+
+class Metricable:
+    def __init__(self):
+        self.metrics: [Metricable] = []
+
+    def as_metric(self, threshold: int, comparator: MetricSpec) -> MetricModel:
+        """
+        Turns model into Metric
+        """
+        return MetricModel(model=self, threshold=threshold, comparator=comparator, name=self.name,
+                           contract=self.contract, runtime=self.runtime)
+
+    def with_metrics(self, metrics: list):
+        """
+        Adds metrics to the model
+        """
+        self.metrics = metrics
+        return self
+
+
+class LocalModel(BaseModel, Metricable):
+    @staticmethod
+    def create(path, name, runtime, contract=None, install_command=None):
+        if contract:
+            contract.validate()
+        else:
+            pass  # infer the contract
+        pass
+
+    @staticmethod
+    def from_file(path):
+        """
+        Reads model definition from .yaml file or serving.py
+        """
+        ext = os.path.splitext(path)[1]
+        if ext in ['.yml', '.yaml']:
+            return read_yaml(path)
+        elif ext == '.py':
+            return read_py(path)
+        else:
+            raise ValueError("Unsupported file extension: {}".format(ext))
+
+    def __init__(self, name, contract, runtime, payload, path=None):
+        super(LocalModel, self).__init__(name, contract, runtime)
+
+        if isinstance(payload, list):
+            self.payload = resolve_paths(path=path, payload=payload)
+            self.path = path
+        if isinstance(payload, dict):
+            self.payload = payload
+
+    def __repr__(self):
+        return "LocalModel {}".format(self.name)
+
+
+class Model(BaseModel, Metricable):
     BASE_URL = "/api/v2/model"
 
     @staticmethod
-    def find(cluster, name=None, version=None, id=None):
+    def find(cluster, name=None, version=None):
         pass
 
     @staticmethod
@@ -248,15 +263,12 @@ class Model(BaseModel):
         )
 
     def __init__(self, id, name, version, contract, runtime, image, cluster):
-        super().__init__()
+        super(Model, self).__init__(name, contract, runtime)
 
         self.cluster = cluster
         self.id = id
-        self.name = name
         self.version = version
-        self.runtime = runtime
         self.image = image
-        self.contract = contract
 
     def __repr__(self):
         return "Model {}:{}".format(self.name, self.version)
