@@ -21,13 +21,16 @@ def get_contract():
     return ModelContract(predict=get_signature())
 
 
-def get_local_model(name, payload=None, path=None):
+def get_local_model(name, contract=None, payload=None, path=None):
     if payload is None:
         payload = get_payload()
 
+    if not contract:
+        contract = get_contract()
+
     local_model = LocalModel(
         name=name,
-        contract=get_contract(),
+        contract=contract,
         runtime=DockerImage("hydrosphere/serving-runtime-python-3.6", "2.1.0", None),
         payload=payload,
         path=path  # build programmatically
@@ -64,11 +67,18 @@ def test_model_find_in_cluster():
 
 def test_model_find():
     cluster = Cluster(CLUSTER_ENDPOINT)
-    loc_model = get_local_model("test_model")
+    signature = SignatureBuilder('infer') \
+        .with_input('in1', 'double', [-1, 2], 'numerical') \
+        .with_output('out1', 'double', [-1], 'numerical').build()
+
+    contract = ModelContract(predict=signature)
+
+    loc_model = get_local_model("test_model", contract=contract)
     upload_response = loc_model._LocalModel__upload(cluster)
 
     model = Model.find(cluster, upload_response.model.name, upload_response.model.version)
-    assert model['id'] == upload_response.model.id
+    assert model.id == upload_response.model.id
+
 
 
 def test_model_create_payload_dict():

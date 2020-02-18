@@ -11,7 +11,7 @@ from hydro_serving_grpc.contract import ModelContract
 from hydro_serving_grpc.manager import ModelVersion, DockerImage as DockerImageProto
 from requests_toolbelt.multipart.encoder import MultipartEncoder
 
-from hydrosdk.contract import contract_from_dict, contract_to_dict
+from hydrosdk.contract import contract_from_dict_yaml, contract_to_dict, contract_from_dict
 from hydrosdk.errors import InvalidYAMLFile
 from hydrosdk.image import DockerImage
 from hydrosdk.monitoring import MetricSpec, MetricSpecConfig, MetricModel
@@ -50,7 +50,7 @@ def read_yaml(path):
     )
     contract = model_doc.get('contract')
     if contract:
-        protocontract = contract_from_dict(contract)
+        protocontract = contract_from_dict_yaml(contract)
     else:
         protocontract = None
     model = LocalModel(
@@ -208,7 +208,22 @@ class Model(Metricable):
         resp = cluster.request("GET", Model.BASE_URL + "/version/{}/{}".format(name, version))
 
         if resp.ok:
-            return resp.json()
+            print(80)
+            model_json = resp.json()
+            model_id = model_json["id"]
+            model_name = model_json["model"]["name"]
+            model_version = model_json["modelVersion"]
+            model_contract = contract_from_dict(model_json["modelContract"])
+
+            model_runtime = DockerImage(model_json["runtime"].get("name"), model_json["runtime"].get("tag"),
+                                        model_json["runtime"].get("sha256"))
+            model_image = model_json["image"]
+            model_cluster = cluster
+
+            res_model = Model(model_id, model_name, model_version, model_contract,
+                              model_runtime, model_image, model_cluster)
+
+            return res_model
 
         else:
             raise Exception(
@@ -226,7 +241,6 @@ class Model(Metricable):
         else:
             raise Exception(
                 f"Failed to find_by_id Model for model_id={model_id}. {resp.status_code} {resp.text}")
-
 
     @staticmethod
     def from_proto(proto, cluster):
