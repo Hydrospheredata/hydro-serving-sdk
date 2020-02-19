@@ -6,6 +6,7 @@ import numbers
 import numpy as np
 from hydro_serving_grpc.tf.types_pb2 import *
 from hydro_serving_grpc.contract import ModelContract, ModelSignature, ModelField, DataProfileType
+from hydro_serving_grpc import DataType
 
 from hydrosdk.data.types import name2dtype, shape_to_proto, PY_TO_DTYPE, np2proto_dtype, proto2np_dtype
 

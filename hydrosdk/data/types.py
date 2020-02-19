@@ -75,7 +75,6 @@ DTYPE_ALIASES_REVERSE = {
     "float32": DT_FLOAT,
     "float64": DT_DOUBLE,
     "double": DT_DOUBLE,
-    "DT_DOUBLE": DT_DOUBLE,
 
     "int8": DT_INT8,
     "int16": DT_INT16,
@@ -102,7 +101,14 @@ scalar = "scalar"
 
 
 def name2dtype(name):
-    return DTYPE_ALIASES_REVERSE.get(name, DT_INVALID)
+    type_ = DTYPE_ALIASES_REVERSE.get(name, DT_INVALID)
+    if not type_:
+        try:
+            type_ = DataType.Value(name)
+        except ValueError:
+            type_ = DT_INVALID
+
+    return type_
 
 
 def dtype2name(dtype):
