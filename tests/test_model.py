@@ -62,7 +62,7 @@ def test_model_find_in_cluster():
 
     model_by_id = Model.find_by_id(cluster, upload_response.model.id)
 
-    assert model_by_id['id'] == upload_response.model.id
+    assert model_by_id.id == upload_response.model.id
 
 
 def test_model_find():

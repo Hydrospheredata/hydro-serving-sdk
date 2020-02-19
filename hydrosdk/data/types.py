@@ -75,6 +75,7 @@ DTYPE_ALIASES_REVERSE = {
     "float32": DT_FLOAT,
     "float64": DT_DOUBLE,
     "double": DT_DOUBLE,
+    "DT_DOUBLE": DT_DOUBLE,
 
     "int8": DT_INT8,
     "int16": DT_INT16,
@@ -113,6 +114,9 @@ def dtype_field(dtype):
 
 
 def shape_to_proto(user_shape):
+    if isinstance(user_shape, dict):
+        user_shape = user_shape.get("dim")
+
     if user_shape == "scalar":
         shape = TensorShapeProto()
     elif user_shape is None:
@@ -121,7 +125,10 @@ def shape_to_proto(user_shape):
         dims = []
         for dim in user_shape:
             if not isinstance(dim, numbers.Number):
-                raise TypeError("shape_list contains incorrect dim", user_shape, dim)
+                if isinstance(dim, dict):
+                    dim = dim.get("size")
+                else:
+                    raise TypeError("shape_list contains incorrect dim", user_shape, dim)
             converted = TensorShapeProto.Dim(size=dim)
             dims.append(converted)
         shape = TensorShapeProto(dim=dims)

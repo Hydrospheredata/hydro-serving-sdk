@@ -236,7 +236,20 @@ class Model(Metricable):
         if resp.ok:
             for model_json in resp.json():
                 if model_json['id'] == model_id:
-                    return model_json
+                    model_id = model_json["id"]
+                    model_name = model_json["model"]["name"]
+                    model_version = model_json["modelVersion"]
+                    model_contract = contract_from_dict(model_json["modelContract"])
+
+                    model_runtime = DockerImage(model_json["runtime"].get("name"), model_json["runtime"].get("tag"),
+                                                model_json["runtime"].get("sha256"))
+                    model_image = model_json["image"]
+                    model_cluster = cluster
+
+                    res_model = Model(model_id, model_name, model_version, model_contract,
+                                      model_runtime, model_image, model_cluster)
+
+                    return res_model
             return "Not Found"
         else:
             raise Exception(

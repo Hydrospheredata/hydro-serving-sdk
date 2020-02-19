@@ -7,7 +7,7 @@ import numpy as np
 from hydro_serving_grpc.tf.types_pb2 import *
 from hydro_serving_grpc.contract import ModelContract, ModelSignature, ModelField, DataProfileType
 
-from hydrosdk.data.types import name2dtype, shape_to_proto, PY_TO_DTYPE, np2proto_dtype, proto2np_dtype, dtype2name
+from hydrosdk.data.types import name2dtype, shape_to_proto, PY_TO_DTYPE, np2proto_dtype, proto2np_dtype
 
 
 class ContractViolationException(Exception):
@@ -32,6 +32,51 @@ class ProfilingType(Enum):
 def field_from_dict(name, data_dict):
     shape = data_dict.get("shape")
     dtype = data_dict.get("type")
+    subfields = data_dict.get("fields")
+    raw_profile = data_dict.get("profile", "NONE")
+    profile = raw_profile.upper()
+
+    if profile not in DataProfileType.keys():
+        profile = "NONE"
+
+    result_dtype = None
+    result_subfields = None
+    if dtype is None:
+        if subfields is None:
+            raise ValueError("Invalid field. Neither dtype nor subfields are present in dict", name, data_dict)
+        else:
+            subfields_buffer = []
+            for k, v in subfields.items():
+                subfield = field_from_dict(k, v)
+                subfields_buffer.append(subfield)
+            result_subfields = subfields_buffer
+    else:
+        result_dtype = name2dtype(dtype)
+        if result_dtype == DT_INVALID:
+            raise ValueError("Invalid contract: {} field has invalid datatype {}".format(name, dtype))
+
+    if result_dtype is not None:
+        result_field = ModelField(
+            name=name,
+            shape=shape_to_proto(shape),
+            dtype=result_dtype,
+            profile=profile
+        )
+    elif result_subfields is not None:
+        result_field = ModelField(
+            name=name,
+            shape=shape_to_proto(shape),
+            subfields=ModelField.Subfield(data=result_subfields),
+            profile=profile
+        )
+    else:
+        raise ValueError("Invalid field. Neither dtype nor subfields are present in dict", name, data_dict)
+    return result_field
+
+
+def field_from_dict_new(name, data_dict):
+    shape = data_dict.get("shape")
+    dtype = data_dict.get("dtype")
     subfields = data_dict.get("fields")
     raw_profile = data_dict.get("profile", "NONE")
     profile = raw_profile.upper()
@@ -168,16 +213,12 @@ def contract_from_dict(data_dict):
     inputs = []
     outputs = []
     for item in data_dict["predict"]["inputs"]:
-        # TODO: FIX field_from dict
-        # input_item = field_from_dict(name, item)
-        # inputs.append(input_item)
-        pass
+        input_item = field_from_dict_new(name, item)
+        inputs.append(input_item)
 
     for item in data_dict["predict"]["outputs"]:
-        # TODO: FIX field_from dict
-        # output_item = field_from_dict(name, item)
-        # outputs.append(output_item)
-        pass
+        output_item = field_from_dict_new(name, item)
+        outputs.append(output_item)
 
     signature = ModelSignature(
         signature_name=name,
