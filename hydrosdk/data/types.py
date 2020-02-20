@@ -101,7 +101,14 @@ scalar = "scalar"
 
 
 def name2dtype(name):
-    return DTYPE_ALIASES_REVERSE.get(name, DT_INVALID)
+    type_ = DTYPE_ALIASES_REVERSE.get(name, DT_INVALID)
+    if not type_:
+        try:
+            type_ = DataType.Value(name)
+        except ValueError:
+            type_ = DT_INVALID
+
+    return type_
 
 
 def dtype2name(dtype):
@@ -113,6 +120,9 @@ def dtype_field(dtype):
 
 
 def shape_to_proto(user_shape):
+    if isinstance(user_shape, dict):
+        user_shape = user_shape.get("dim")
+
     if user_shape == "scalar":
         shape = TensorShapeProto()
     elif user_shape is None:
@@ -121,7 +131,10 @@ def shape_to_proto(user_shape):
         dims = []
         for dim in user_shape:
             if not isinstance(dim, numbers.Number):
-                raise TypeError("shape_list contains incorrect dim", user_shape, dim)
+                if isinstance(dim, dict):
+                    dim = dim.get("size")
+                else:
+                    raise TypeError("shape_list contains incorrect dim", user_shape, dim)
             converted = TensorShapeProto.Dim(size=dim)
             dims.append(converted)
         shape = TensorShapeProto(dim=dims)

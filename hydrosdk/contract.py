@@ -6,6 +6,7 @@ import numbers
 import numpy as np
 from hydro_serving_grpc.tf.types_pb2 import *
 from hydro_serving_grpc.contract import ModelContract, ModelSignature, ModelField, DataProfileType
+from hydro_serving_grpc import DataType
 
 from hydrosdk.data.types import name2dtype, shape_to_proto, PY_TO_DTYPE, np2proto_dtype, proto2np_dtype
 
@@ -27,6 +28,7 @@ class ProfilingType(Enum):
     VIDEO = 4
     AUDIO = 5
     TEXT = 6
+
 
 def field_from_dict(name, data_dict):
     shape = data_dict.get("shape")
@@ -73,15 +75,15 @@ def field_from_dict(name, data_dict):
     return result_field
 
 
-def field_from_dict(name, data_dict):
+def field_from_dict_new(name, data_dict):
     shape = data_dict.get("shape")
-    dtype = data_dict.get("type")
+    dtype = data_dict.get("dtype")
     subfields = data_dict.get("fields")
-    raw_profile = data_dict.get("profile", "NONE").upper()
-    if raw_profile not in DataProfileType.keys():
+    raw_profile = data_dict.get("profile", "NONE")
+    profile = raw_profile.upper()
+
+    if profile not in DataProfileType.keys():
         profile = "NONE"
-    else:
-        profile = raw_profile
 
     result_dtype = None
     result_subfields = None
@@ -133,6 +135,8 @@ def signature_to_dict(signature):
         "outputs": outputs
     }
     return result_dict
+
+
 def contract_to_dict(contract):
     if contract is None:
         return None
@@ -144,7 +148,6 @@ def contract_to_dict(contract):
         "predict": signature
     }
     return result_dict
-
 
 
 def field_to_dict(field):
@@ -159,7 +162,6 @@ def field_to_dict(field):
 
     attach_ds(result_dict, field)
     return result_dict
-
 
 
 def attach_ds(result_dict, field):
@@ -185,7 +187,7 @@ def shape_to_dict(shape):
     return result_dict
 
 
-def contract_from_dict(data_dict):
+def contract_from_dict_yaml(data_dict):
     if data_dict is None:
         return None
     name = data_dict.get("name", "Predict")
@@ -197,6 +199,28 @@ def contract_from_dict(data_dict):
     for out_key, out_value in data_dict["outputs"].items():
         output = field_from_dict(out_key, out_value)
         outputs.append(output)
+    signature = ModelSignature(
+        signature_name=name,
+        inputs=inputs,
+        outputs=outputs
+    )
+    return ModelContract(model_name="model", predict=signature)
+
+
+def contract_from_dict(data_dict):
+    if data_dict is None:
+        return None
+    name = data_dict.get("modelName", "Predict")
+    inputs = []
+    outputs = []
+    for item in data_dict["predict"]["inputs"]:
+        input_item = field_from_dict_new(name, item)
+        inputs.append(input_item)
+
+    for item in data_dict["predict"]["outputs"]:
+        output_item = field_from_dict_new(name, item)
+        outputs.append(output_item)
+
     signature = ModelSignature(
         signature_name=name,
         inputs=inputs,
