@@ -250,10 +250,9 @@ class Model(Metricable):
                                       model_runtime, model_image, model_cluster)
 
                     return res_model
-            return "Not Found"
-        else:
-            raise Exception(
-                f"Failed to find_by_id Model for model_id={model_id}. {resp.status_code} {resp.text}")
+
+        raise Exception(
+            f"Failed to find_by_id Model for model_id={model_id}. {resp.status_code} {resp.text}")
 
     @staticmethod
     def from_proto(proto, cluster):
