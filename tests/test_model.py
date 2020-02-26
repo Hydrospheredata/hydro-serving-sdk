@@ -67,9 +67,7 @@ def test_model_find_in_cluster():
 
 def test_model_find():
     cluster = Cluster(CLUSTER_ENDPOINT)
-    signature = SignatureBuilder('infer') \
-        .with_input('in1', 'double', [-1, 2], 'numerical') \
-        .with_output('out1', 'double', [-1], 'numerical').build()
+    signature = get_signature()
 
     contract = ModelContract(predict=signature)
 

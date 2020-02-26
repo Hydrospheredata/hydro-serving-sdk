@@ -214,11 +214,11 @@ def contract_from_dict(data_dict):
     inputs = []
     outputs = []
     for item in data_dict["predict"]["inputs"]:
-        input_item = field_from_dict_new(name, item)
+        input_item = field_from_dict_new(item.get("name"), item)
         inputs.append(input_item)
 
     for item in data_dict["predict"]["outputs"]:
-        output_item = field_from_dict_new(name, item)
+        output_item = field_from_dict_new(item.get("name"), item)
         outputs.append(output_item)
 
     signature = ModelSignature(
