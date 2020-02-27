@@ -2,6 +2,9 @@ from urllib.parse import urljoin
 
 import sseclient
 
+from .contract import contract_from_dict
+from .image import DockerImage
+from .model import Model
 from .predictor import GRPCPredictor, ShadowlessGRPCPredictor
 
 
@@ -12,13 +15,31 @@ class ServableException(BaseException):
 class Servable:
     BASE_URL = "/api/v2/servable"
 
+    @staticmethod
+    def model_version_json_to_servable(mv_json: dict, cluster):
+        model_data = mv_json['modelVersion']
+        model = Model(
+            id=model_data['model']['id'],
+            name=model_data['model']['name'],
+            version=model_data['modelVersion'],
+            contract=contract_from_dict(model_data.get('modelContract')),
+            runtime=model_data['runtime'],
+            image=DockerImage(model_data['image'].get('name'), model_data['image'].get('tag'),
+                              model_data['image'].get('sha256')),
+            cluster=cluster,
+            metadata=model_data['metadata'],
+            install_command=model_data.get('installCommand'))
+        return Servable(cluster=cluster, model=model, servable_name=mv_json['fullName'],
+                        metadata=model_data['metadata'])
+
     def get(self, servable_name):
         res = self.cluster.request("GET", self.BASE_URL + "/{}".format(servable_name))
-        print(res)
+
         if res.ok:
-            return res.json()
+            json_res = res.json()
+            return self.model_version_json_to_servable(mv_json=json_res, cluster=self.cluster)
         else:
-            return None
+            raise ServableException(res)
 
     # def list_for_model(self, model_name, model_version):
     #     res = self.cluster.request("GET", self.BASE_URL)
@@ -34,9 +55,10 @@ class Servable:
         }
         res = self.cluster.request(method='POST', url='/api/v2/servable', json=msg)
         if res.ok:
-            return res.json()
+            json_res = res.json()
+            return self.model_version_json_to_servable(mv_json=json_res, cluster=self.cluster)
         else:
-            raise Exception(res.content)
+            raise ServableException(res)
 
     def __init__(self, cluster, model, servable_name, metadata=None):
         if metadata is None:
