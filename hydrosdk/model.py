@@ -107,7 +107,7 @@ class LocalModel(Metricable):
         else:
             raise ValueError("Unsupported file extension: {}".format(ext))
 
-    def __init__(self, name, contract, runtime, payload, path=None):
+    def __init__(self, name, contract, runtime, payload, path=None, metadata=None, install_command=None):
         super().__init__()
 
         if not isinstance(name, str):
@@ -126,10 +126,13 @@ class LocalModel(Metricable):
         if isinstance(payload, dict):
             self.payload = payload
 
+        self.metadata = metadata
+        self.install_command = install_command
+
     def __repr__(self):
         return "LocalModel {}".format(self.name)
 
-    def __upload(self, cluster):
+    def  __upload(self, cluster):
         """
         Direct implementation of uploading one model to the server. For internal usage
         """
@@ -151,7 +154,9 @@ class LocalModel(Metricable):
             "runtime": {"name": self.runtime.name,
                         "tag": self.runtime.tag,
                         "sha256": self.runtime.sha256},
-            "contract": contract_to_dict(self.contract)
+            "contract": contract_to_dict(self.contract),
+            "installCommand": self.install_command,
+            "metadata": self.metadata
         }
 
         encoder = MultipartEncoder(
@@ -174,7 +179,9 @@ class LocalModel(Metricable):
                 runtime=self.runtime,
                 image=DockerImage(json_res['image'].get('name'), json_res['image'].get('tag'),
                                   json_res['image'].get('sha256')),
-                cluster=cluster)
+                cluster=cluster,
+                metadata=json_res['metadata'],
+                install_command=json_res.get('installCommand'))
             return UploadResponse(model=model, version_id=version_id)
         else:
             raise ValueError("Error during model upload. {}".format(result.text))
@@ -289,7 +296,7 @@ class Model(Metricable):
             image_sha=self.image.sha256
         )
 
-    def __init__(self, id, name, version, contract, runtime, image, cluster):
+    def __init__(self, id, name, version, contract, runtime, image, cluster, metadata=None, install_command=None):
         super().__init__()
 
         self.name = name
@@ -299,6 +306,9 @@ class Model(Metricable):
         self.id = id
         self.version = version
         self.image = image
+
+        self.metadata = metadata
+        self.install_command = install_command
 
     def __repr__(self):
         return "Model {}:{}".format(self.name, self.version)
