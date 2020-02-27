@@ -1,5 +1,16 @@
+from hydrosdk.servable import Servable
+from tests.test_model import get_cluster, get_local_model
+
+
 def test_servable_list_all():
-    pass
+    cluster = get_cluster()
+    model = get_local_model()
+    ur = model.upload(cluster)
+
+    servable = Servable(cluster=cluster, model=model, servable_name="servable_name", host=None, port=None)
+    servable.create(model_name=ur[model].model.name, model_version=ur[model].model.version)
+
+    assert servable.list()
 
 
 def test_servable_find_by_name():

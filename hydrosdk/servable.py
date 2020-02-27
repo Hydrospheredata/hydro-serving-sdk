@@ -1,3 +1,4 @@
+import json
 from urllib.parse import urljoin
 import sseclient
 from .predictor import GRPCPredictor, ShadowlessGRPCPredictor
@@ -9,13 +10,33 @@ class ServableException(BaseException):
 class Servable:
     BASE_URL = "/api/v2/servable"
 
-    @staticmethod
-    def find(servable_name):
-        pass
+    def find(self, servable_name):
+        res = self.cluster.request("GET", self.BASE_URL + "/{}".format(servable_name))
+        if res.ok:
+            return res.json()
+        else:
+            return None
 
-    @staticmethod
-    def list_for_model(model_name, model_version):
-        pass
+    def list_for_model(self, model_name, model_version):
+        res = self.cluster.request("GET", self.BASE_URL)
+        if res.ok:
+            return res.json()
+        else:
+            return None
+
+    def create(self, model_name, model_version):
+
+        msg = {
+            "modelName": model_name,
+            "version": model_version
+        }
+        print(msg)
+        res = self.cluster.request(method='POST', url='/api/v2/servable', json=msg)
+        print(res)
+        if res.ok:
+            return res.json()
+        else:
+            raise Exception(res.content)
 
     def __init__(self, cluster, model, servable_name, host, port,  metadata=None):
         if metadata is None:
@@ -47,6 +68,9 @@ class Servable:
             predictor = ShadowlessGRPCPredictor(channel, self.name, self.model.contract.predict)
 
         return predictor
+
+    def list(self):
+        return self.cluster.request("GET", "/api/v2/servable").json()
 
     def logs(self, follow=False):
         if follow:
