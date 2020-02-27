@@ -10,8 +10,9 @@ class ServableException(BaseException):
 class Servable:
     BASE_URL = "/api/v2/servable"
 
-    def find(self, servable_name):
+    def get(self, servable_name):
         res = self.cluster.request("GET", self.BASE_URL + "/{}".format(servable_name))
+        print(res)
         if res.ok:
             return res.json()
         else:
@@ -25,14 +26,11 @@ class Servable:
             return None
 
     def create(self, model_name, model_version):
-
         msg = {
             "modelName": model_name,
             "version": model_version
         }
-        print(msg)
         res = self.cluster.request(method='POST', url='/api/v2/servable', json=msg)
-        print(res)
         if res.ok:
             return res.json()
         else:

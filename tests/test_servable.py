@@ -26,4 +26,13 @@ def test_servable_delete():
 
 
 def test_servable_create():
-    pass
+    cluster = get_cluster()
+    model = get_local_model()
+    ur = model.upload(cluster)
+
+    servable = Servable(cluster=cluster, model=model, servable_name="servable_name", host=None, port=None)
+    created_servable = servable.create(model_name=ur[model].model.name, model_version=ur[model].model.version)
+    found_servable = servable.get(created_servable['fullName'])
+
+    assert found_servable
+
