@@ -1,7 +1,9 @@
-import json
 from urllib.parse import urljoin
+
 import sseclient
+
 from .predictor import GRPCPredictor, ShadowlessGRPCPredictor
+
 
 class ServableException(BaseException):
     pass
@@ -18,12 +20,12 @@ class Servable:
         else:
             return None
 
-    def list_for_model(self, model_name, model_version):
-        res = self.cluster.request("GET", self.BASE_URL)
-        if res.ok:
-            return res.json()
-        else:
-            return None
+    # def list_for_model(self, model_name, model_version):
+    #     res = self.cluster.request("GET", self.BASE_URL)
+    #     if res.ok:
+    #         return res.json()
+    #     else:
+    #         return None
 
     def create(self, model_name, model_version):
         msg = {
@@ -36,23 +38,13 @@ class Servable:
         else:
             raise Exception(res.content)
 
-    def __init__(self, cluster, model, servable_name, host, port,  metadata=None):
+    def __init__(self, cluster, model, servable_name, metadata=None):
         if metadata is None:
             metadata = {}
         self.model = model
         self.name = servable_name
         self.meta = metadata
         self.cluster = cluster
-        self.host = host
-        self.port = port
-
-    def remove(self):
-        url = urljoin(self.BASE_URL, self.name)
-        resp = self.cluster.request(method="DELETE", url=url)
-        if resp.ok:
-            return resp.json()
-        else:
-            raise ServableException(resp)
 
     def predictor(self, secure=False, shadowed=True):
         if secure:
@@ -83,3 +75,9 @@ class Servable:
         else:
             raise ServableException(resp)
 
+    def delete(self, servable_name):
+        res = self.cluster.request("DELETE", "/api/v2/servable/{}".format(servable_name))
+        if res.ok:
+            return res.json()
+        else:
+            raise ServableException(res)
