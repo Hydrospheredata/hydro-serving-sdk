@@ -126,6 +126,16 @@ class LocalModel(Metricable):
         if isinstance(payload, dict):
             self.payload = payload
 
+        if metadata:
+            if not isinstance(metadata, dict):
+                raise TypeError("metadata is not a dict")
+
+            for key, value in metadata.items():
+                if not isinstance(key, str):
+                    raise TypeError(str(key) + " key from metadata is not a dict")
+                if not isinstance(value, str):
+                    raise TypeError(str(value) + " value from metadata is not a dict")
+
         self.metadata = metadata
         self.install_command = install_command
 
