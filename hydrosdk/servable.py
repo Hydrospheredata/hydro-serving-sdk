@@ -32,31 +32,44 @@ class Servable:
         return Servable(cluster=cluster, model=model, servable_name=mv_json['fullName'],
                         metadata=model_data['metadata'])
 
-    def get(self, servable_name):
-        res = self.cluster.request("GET", self.BASE_URL + "/{}".format(servable_name))
-
-        if res.ok:
-            json_res = res.json()
-            return self.model_version_json_to_servable(mv_json=json_res, cluster=self.cluster)
-        else:
-            raise ServableException(res)
-
     # def list_for_model(self, model_name, model_version):
     #     res = self.cluster.request("GET", self.BASE_URL)
     #     if res.ok:
     #         return res.json()
     #     else:
     #         return None
-
-    def create(self, model_name, model_version):
+    @staticmethod
+    def create(cluster, model_name, model_version):
         msg = {
             "modelName": model_name,
             "version": model_version
         }
-        res = self.cluster.request(method='POST', url='/api/v2/servable', json=msg)
+        res = cluster.request(method='POST', url='/api/v2/servable', json=msg)
         if res.ok:
             json_res = res.json()
-            return self.model_version_json_to_servable(mv_json=json_res, cluster=self.cluster)
+            return Servable.model_version_json_to_servable(mv_json=json_res, cluster=cluster)
+        else:
+            raise ServableException(res)
+
+    @staticmethod
+    def get(cluster, servable_name):
+        res = cluster.request("GET", Servable.BASE_URL + "/{}".format(servable_name))
+
+        if res.ok:
+            json_res = res.json()
+            return Servable.model_version_json_to_servable(mv_json=json_res, cluster=cluster)
+        else:
+            raise ServableException(res)
+
+    @staticmethod
+    def list(cluster):
+        return cluster.request("GET", "/api/v2/servable").json()
+
+    @staticmethod
+    def delete(cluster, servable_name):
+        res = cluster.request("DELETE", "/api/v2/servable/{}".format(servable_name))
+        if res.ok:
+            return res.json()
         else:
             raise ServableException(res)
 
@@ -81,9 +94,6 @@ class Servable:
 
         return predictor
 
-    def list(self):
-        return self.cluster.request("GET", "/api/v2/servable").json()
-
     def logs(self, follow=False):
         if follow:
             url_suffix = "{}/logs?follow=true".format(self.name)
@@ -97,9 +107,3 @@ class Servable:
         else:
             raise ServableException(resp)
 
-    def delete(self, servable_name):
-        res = self.cluster.request("DELETE", "/api/v2/servable/{}".format(servable_name))
-        if res.ok:
-            return res.json()
-        else:
-            raise ServableException(res)

@@ -9,10 +9,10 @@ def test_servable_list_all():
     model = get_local_model()
     upload_resp = model.upload(cluster)
 
-    servable = Servable(cluster=cluster, model=model, servable_name="servable_name")
-    servable.create(model_name=upload_resp[model].model.name, model_version=upload_resp[model].model.version)
+    Servable.create(model_name=upload_resp[model].model.name,
+                    model_version=upload_resp[model].model.version, cluster=cluster)
 
-    assert servable.list()
+    assert Servable.list(cluster=cluster)
 
 
 def test_servable_find_by_name():
@@ -27,15 +27,16 @@ def test_servable_delete():
     cluster = get_cluster()
     model = get_local_model()
     ur = model.upload(cluster)
-    servable = Servable(cluster=cluster, model=model, servable_name="servable_name")
-    created_servable = servable.create(model_name=ur[model].model.name, model_version=ur[model].model.version)
+
+    created_servable = Servable.create(model_name=ur[model].model.name,
+                                       model_version=ur[model].model.version, cluster=cluster)
     time.sleep(1)
 
-    deleted_servable = servable.delete(created_servable.name)
+    deleted_servable = Servable.delete(cluster, created_servable.name)
 
     time.sleep(3)
 
-    assert not servable.get(created_servable.name)
+    assert not Servable.get(cluster, created_servable.name)
 
 
 def test_servable_create():
@@ -43,8 +44,8 @@ def test_servable_create():
     model = get_local_model()
     upload_resp = model.upload(cluster)
 
-    servable = Servable(cluster=cluster, model=model, servable_name="servable_name")
-    created_servable = servable.create(model_name=upload_resp[model].model.name, model_version=upload_resp[model].model.version)
-    found_servable = servable.get(created_servable.name)
+    created_servable = Servable.create(model_name=upload_resp[model].model.name,
+                                       model_version=upload_resp[model].model.version, cluster=cluster)
+    found_servable = Servable.get(cluster, created_servable.name)
 
     assert found_servable
