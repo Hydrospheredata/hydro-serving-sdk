@@ -5,7 +5,6 @@ import sseclient
 from .contract import contract_from_dict
 from .image import DockerImage
 from .model import Model
-from .predictor import GRPCPredictor, ShadowlessGRPCPredictor
 
 
 class ServableException(BaseException):
@@ -32,12 +31,6 @@ class Servable:
         return Servable(cluster=cluster, model=model, servable_name=mv_json['fullName'],
                         metadata=model_data['metadata'])
 
-    # def list_for_model(self, model_name, model_version):
-    #     res = self.cluster.request("GET", self.BASE_URL)
-    #     if res.ok:
-    #         return res.json()
-    #     else:
-    #         return None
     @staticmethod
     def create(cluster, model_name, model_version):
         msg = {
@@ -80,19 +73,6 @@ class Servable:
         self.name = servable_name
         self.meta = metadata
         self.cluster = cluster
-
-    def predictor(self, secure=False, shadowed=True):
-        if secure:
-            channel = self.cluster.grpc_secure()
-        else:
-            channel = self.cluster.grpc_insecure()
-
-        if shadowed:
-            predictor = GRPCPredictor(channel, self.name, self.model.contract.predict)
-        else:
-            predictor = ShadowlessGRPCPredictor(channel, self.name, self.model.contract.predict)
-
-        return predictor
 
     def logs(self, follow=False):
         if follow:
