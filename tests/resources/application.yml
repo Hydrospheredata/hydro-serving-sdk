@@ -1,0 +1,6 @@
+version: 2
+kind: Application
+name: test-app
+
+singular:
+  model: upload-model-test
