@@ -1,4 +1,5 @@
 import pytest
+import os
 from hydro_serving_grpc.contract import ModelContract
 
 from hydrosdk.cluster import Cluster
@@ -10,7 +11,7 @@ from tests.resources.test_config import CLUSTER_ENDPOINT, PATH_TO_SERVING
 
 
 def get_payload():
-    return {'/home/user/folder/model/cool/src/func_main.py': './src/func_main.py'}
+    return{os.path.dirname(os.path.abspath(__file__)) + '/resources/model_1/src/func_main.py': './src/func_main.py'}
 
 
 def get_cluster():
@@ -21,7 +22,7 @@ def get_contract():
     return ModelContract(predict=get_signature())
 
 
-def get_local_model(name="test_local_model", contract=None, payload=None, path=None):
+def get_local_model(name="upload-model-test", contract=None, payload=None, path=None):
     if payload is None:
         payload = get_payload()
 
@@ -49,7 +50,6 @@ def get_signature():
 
 def test_local_model_file_deserialization():
     model = LocalModel.from_file(PATH_TO_SERVING)
-    print(model)
     assert model is not None
 
 
@@ -57,7 +57,8 @@ def test_model_find_in_cluster():
     # mock answer from server
     # check model objects
     cluster = Cluster(CLUSTER_ENDPOINT)
-    loc_model = get_local_model("test_model")
+    loc_model = get_local_model()
+
     upload_response = loc_model._LocalModel__upload(cluster)
 
     model_by_id = Model.find_by_id(cluster, upload_response.model.id)
@@ -71,7 +72,7 @@ def test_model_find():
 
     contract = ModelContract(predict=signature)
 
-    loc_model = get_local_model("test_model", contract=contract)
+    loc_model = get_local_model(contract=contract)
     upload_response = loc_model._LocalModel__upload(cluster)
 
     model = Model.find(cluster, upload_response.model.name, upload_response.model.version)
@@ -80,7 +81,7 @@ def test_model_find():
 
 
 def test_model_create_payload_dict():
-    test_model = get_local_model("test_model")
+    test_model = get_local_model()
     assert test_model.payload == get_payload()
 
 
@@ -93,7 +94,7 @@ def test_model_create_payload_list():
 
     path = "/home/user/folder/model/cool/"
 
-    test_model = get_local_model("test_model", payload=payload, path=path)
+    test_model = get_local_model(payload=payload, path=path)
 
     assert test_model.payload == {'/home/user/folder/model/cool/src/func_main.py': './src/func_main.py',
                                   '/home/user/folder/model/cool/data/*': './data/*',
@@ -106,7 +107,7 @@ def test_model_create_programmatically():
         .with_output('out1', 'double', [-1], 'numerical').build()
 
     contract = ModelContract(predict=signature)
-    test_model = get_local_model("test_image")
+    test_model = get_local_model()
 
 
 def test_local_model_upload():
@@ -122,7 +123,6 @@ def test_local_model_upload():
 
     while progress[m1].building():
         pass
-
     assert progress[m1].ok()
 
 
@@ -154,5 +154,4 @@ def test_resolve_paths():
     ]
     folder = "/home/user/dev/model/cool/"
     result = resolve_paths(folder, payload)
-    print(result)
     assert result['/home/user/dev/model/cool/src/func_main.py'] == './src/func_main.py'
