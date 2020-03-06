@@ -1,10 +1,10 @@
 import os
 import time
 import pytest
+import yaml
 
 from hydrosdk.application import Application
 from tests.test_model import get_cluster, get_local_model
-from util.yamlutil import yaml_file
 
 
 DEFAULT_APP_NAME = "test-app"
@@ -12,7 +12,7 @@ DEFAULT_APP_NAME = "test-app"
 
 def create_test_application(cluster, upload_response, model):
     with open(os.path.dirname(os.path.abspath(__file__)) + '/resources/application.yml') as f:
-        d = yaml_file(f)
+        d = yaml.safe_load(f)
         app = Application.parse_application(d)
         app_as_dict = app._asdict()
         app_as_dict["executionGraph"]["stages"][0]["modelVariants"][0]["modelVersionId"] = upload_response[model].model_version_id
