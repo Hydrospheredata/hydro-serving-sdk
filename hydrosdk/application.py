@@ -73,7 +73,8 @@ class Application:
         resp = cluster.request(method="POST", url="/api/v2/application", json=application)
         if resp.ok:
             resp_json = resp.json()
-            return resp_json
+            app = Application.app_json_to_app_obj(resp_json)
+            return app
 
         raise Exception(
             f"Failed to create application. Application = {application}. {resp.status_code} {resp.text}")
