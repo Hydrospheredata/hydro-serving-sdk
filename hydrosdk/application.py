@@ -1,4 +1,3 @@
-
 from collections import namedtuple
 
 
@@ -13,44 +12,69 @@ def streaming_params(in_topic, out_topic):
 
 
 class Application:
-    def __init__(self, cluster, model_service):
-        self.cluster = cluster
-        self.model_service = model_service
+    def __init__(self, name, execution_graph, kafka_streaming, metadata):
+        self.name = name
+        self.execution_graph = execution_graph
+        self.kafka_streaming = kafka_streaming
+        self.metadata = metadata
+
+    @staticmethod
+    def app_json_to_app_obj(application_json):
+        app_name = application_json.get("name")
+        app_execution_graph = application_json.get("executionGraph")
+        app_kafka_streaming = application_json.get("kafkaStreaming")
+        app_metadata = application_json.get("metadata")
+        app = Application(name=app_name, execution_graph=app_execution_graph,
+                          kafka_streaming=app_kafka_streaming, metadata=app_metadata)
+        return app
 
     @staticmethod
     def list_all(cluster):
         """
         Returns:
-            list of dict:
+            list of app_objs:
         """
         resp = cluster.request("GET", "/api/v2/application")
         if resp.ok:
-            return resp.json()
-        return None
+            resp_json = resp.json()
+            applications = [Application.app_json_to_app_obj(app_json) for app_json in resp_json]
+            return applications
+
+        raise Exception(
+            f"Failed to list all models. {resp.status_code} {resp.text}")
 
     @staticmethod
     def find_by_name(cluster, app_name):
         """
         Args:
+            cluster (Cluster)
             app_name (str):
         """
         resp = cluster.request("GET", "/api/v2/application/{}".format(app_name))
         if resp.ok:
-            return resp.json()
-        return None
+            resp_json = resp.json()
+            app = Application.app_json_to_app_obj(resp_json)
+            return app
+
+        raise Exception(
+            f"Failed to find by name. Name = {app_name}. {resp.status_code} {resp.text}")
 
     @staticmethod
     def delete(cluster, app_name):
         resp = cluster.request("DELETE", "/api/v2/application/{}".format(app_name))
         if resp.ok:
             return resp.json()
-        return None
+        raise Exception(
+            f"Failed to delete application. Name = {app_name}. {resp.status_code} {resp.text}")
 
     @staticmethod
-    def create(cluster, application):
-        res = cluster.request(method="POST", url="/api/v2/application", json=application)
-        res_json = res.json()
-        return res_json
+    def create(cluster, application: dict):
+        resp = cluster.request(method="POST", url="/api/v2/application", json=application)
+        if resp.ok:
+            resp_json = resp.json()
+            return resp_json
+        raise Exception(
+            f"Failed to create application. Application = {application}. {resp.status_code} {resp.text}")
 
     @staticmethod
     def parse_streaming_params(in_list):
