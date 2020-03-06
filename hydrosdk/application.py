@@ -64,6 +64,7 @@ class Application:
         resp = cluster.request("DELETE", "/api/v2/application/{}".format(app_name))
         if resp.ok:
             return resp.json()
+
         raise Exception(
             f"Failed to delete application. Name = {app_name}. {resp.status_code} {resp.text}")
 
@@ -73,6 +74,7 @@ class Application:
         if resp.ok:
             resp_json = resp.json()
             return resp_json
+
         raise Exception(
             f"Failed to create application. Application = {application}. {resp.status_code} {resp.text}")
 
