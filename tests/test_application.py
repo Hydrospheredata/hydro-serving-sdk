@@ -59,6 +59,8 @@ def test_delete():
     created_application = create_test_application(cluster=cluster, model=local_model,
                                                   upload_response=upload_response)
 
+    deleted_application = Application.delete(cluster=cluster, app_name=DEFAULT_APP_NAME)
+
     found_application = Application.find_by_name(cluster=cluster, app_name=DEFAULT_APP_NAME)
     assert not found_application
 
