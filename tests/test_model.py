@@ -21,7 +21,7 @@ def get_contract():
     return ModelContract(predict=get_signature())
 
 
-def get_local_model(name, contract=None, payload=None, path=None):
+def get_local_model(name="test_local_model", contract=None, payload=None, path=None):
     if payload is None:
         payload = get_payload()
 
