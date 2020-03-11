@@ -44,7 +44,7 @@ class Servable:
             json_res = res.json()
             return Servable.model_version_json_to_servable(mv_json=json_res, cluster=cluster)
         else:
-            raise ServableException(res)
+            raise ServableException(f"{res.status_code} : {res.text}")
 
     @staticmethod
     def get(cluster, servable_name):
@@ -54,7 +54,7 @@ class Servable:
             json_res = res.json()
             return Servable.model_version_json_to_servable(mv_json=json_res, cluster=cluster)
         else:
-            raise ServableException(res)
+            raise ServableException(f"{res.status_code} : {res.text}")
 
     @staticmethod
     def list(cluster):
@@ -66,7 +66,7 @@ class Servable:
         if res.ok:
             return res.json()
         else:
-            raise ServableException(res)
+            raise ServableException(f"{res.status_code} : {res.text}")
 
     def __init__(self, cluster, model, servable_name, metadata=None):
         if metadata is None:
@@ -83,9 +83,9 @@ class Servable:
             url_suffix = "{}/logs".format(self.name)
 
         url = urljoin(self.BASE_URL, url_suffix)
-        resp = self.cluster.request(method="GET", url=url)
-        if resp.ok:
-            return sseclient.SSEClient(resp).events()
+        res = self.cluster.request(method="GET", url=url)
+        if res.ok:
+            return sseclient.SSEClient(res).events()
         else:
-            raise ServableException(resp)
+            raise ServableException(f"{res.status_code} : {res.text}")
 
