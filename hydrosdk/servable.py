@@ -32,11 +32,13 @@ class Servable:
                         metadata=model_data['metadata'])
 
     @staticmethod
-    def create(cluster, model_name, model_version):
+    def create(cluster, model_name, model_version, metadata=None):
         msg = {
             "modelName": model_name,
-            "version": model_version
+            "version": model_version,
+            "metadata": metadata
         }
+
         res = cluster.request(method='POST', url='/api/v2/servable', json=msg)
         if res.ok:
             json_res = res.json()
