@@ -1,5 +1,3 @@
-import time
-
 import pytest
 import os
 from hydro_serving_grpc.contract import ModelContract
@@ -91,7 +89,7 @@ def test_external_model_delete():
     ext_model = get_ext_model()
 
     created_model = ExternalModel.create(cluster=cluster, ext_model=ext_model)
-    ExternalModel.delete_by_id(cluster=cluster, model_id=created_model.version)
+    ExternalModel.delete_by_id(cluster=cluster, model_id=created_model.id_)
 
     with pytest.raises(Exception, match=r"Failed to find Model for name.*"):
         found_model = ExternalModel.find_by_name(cluster=cluster, name=created_model.name,

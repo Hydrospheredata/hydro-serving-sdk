@@ -346,8 +346,9 @@ class ExternalModel:
     @staticmethod
     def ext_model_json_to_ext_model(ext_model_json: dict):
         return ExternalModel(name=ext_model_json["model"]["name"],
+                             id_=ext_model_json["model"]["id"],
                              contract=contract_from_dict(ext_model_json["modelContract"]),
-                             metadata=ext_model_json.get("metadata"), version=ext_model_json["model"]["id"])
+                             metadata=ext_model_json.get("metadata"), version=ext_model_json["modelVersion"])
 
     @staticmethod
     def create(cluster, ext_model: dict):
@@ -367,11 +368,12 @@ class ExternalModel:
     def delete_by_id(cluster, model_id):
         Model.delete_by_id(cluster=cluster, model_id=model_id)
 
-    def __init__(self, name, contract, version, metadata):
+    def __init__(self, name, id_, contract, version, metadata):
         self.name = name
         self.contract = contract
         self.version = version
         self.metadata = metadata
+        self.id_ = id_
 
 
 class BuildStatus(Enum):
