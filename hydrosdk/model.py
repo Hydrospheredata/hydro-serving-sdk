@@ -212,11 +212,17 @@ class LocalModel(Metricable):
                 msc = MetricSpecConfig(model_version_id=upload_response.model_version_id,
                                        threshold=metric.threshold,
                                        threshold_op=metric.comparator)
-                time.sleep(3)
-                ms = MetricSpec.create(cluster=upload_response.model.cluster,
-                                       name=upload_response.model.name,
-                                       model_version_id=root_model_upload_response.model_version_id,
-                                       config=msc)
+                ms_created = False
+
+                while not ms_created:
+                    try:
+                        ms = MetricSpec.create(cluster=upload_response.model.cluster,
+                                               name=upload_response.model.name,
+                                               model_version_id=root_model_upload_response.model_version_id,
+                                               config=msc)
+                        ms_created = True
+                    except Exception:
+                        time.sleep(1)
                 models_dict[metric] = upload_response
 
         return models_dict  # {model_obj: upload_resp}
