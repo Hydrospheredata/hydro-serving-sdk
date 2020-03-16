@@ -3,6 +3,7 @@ import json
 import logging
 import os
 import tarfile
+import time
 from enum import Enum
 
 import sseclient
@@ -95,6 +96,22 @@ class LocalModel(Metricable):
         pass
 
     @staticmethod
+    def model_json_to_upload_response(cluster, model_json, contract, runtime):
+        version_id = model_json['id']
+        model = Model(
+            id=version_id,
+            name=model_json['model']['name'],
+            version=model_json['modelVersion'],
+            contract=contract_to_dict(contract),
+            runtime=runtime,
+            image=DockerImage(model_json['image'].get('name'), model_json['image'].get('tag'),
+                              model_json['image'].get('sha256')),
+            cluster=cluster,
+            metadata=model_json['metadata'],
+            install_command=model_json.get('installCommand'))
+        return UploadResponse(model=model, version_id=version_id)
+
+    @staticmethod
     def from_file(path):
         """
         Reads model definition from .yaml file or serving.py
@@ -180,25 +197,13 @@ class LocalModel(Metricable):
                                  headers={'Content-Type': encoder.content_type})
         if result.ok:
             json_res = result.json()
-            version_id = json_res['id']
-            model = Model(
-                id=version_id,
-                name=json_res['model']['name'],
-                version=json_res['modelVersion'],
-                contract=contract_to_dict(self.contract),
-                runtime=self.runtime,
-                image=DockerImage(json_res['image'].get('name'), json_res['image'].get('tag'),
-                                  json_res['image'].get('sha256')),
-                cluster=cluster,
-                metadata=json_res['metadata'],
-                install_command=json_res.get('installCommand'))
-            return UploadResponse(model=model, version_id=version_id)
+            return LocalModel.model_json_to_upload_response(cluster=cluster, model_json=json_res,
+                                                            contract=self.contract, runtime=self.runtime)
         else:
             raise ValueError("Error during model upload. {}".format(result.text))
 
     def upload(self, cluster) -> dict:
         root_model_upload_response = self.__upload(cluster)
-
         models_dict = {self: root_model_upload_response}
         if self.metrics:
             for metric in self.metrics:
@@ -207,7 +212,7 @@ class LocalModel(Metricable):
                 msc = MetricSpecConfig(model_version_id=upload_response.model_version_id,
                                        threshold=metric.threshold,
                                        threshold_op=metric.comparator)
-
+                time.sleep(3)
                 ms = MetricSpec.create(cluster=upload_response.model.cluster,
                                        name=upload_response.model.name,
                                        model_version_id=root_model_upload_response.model_version_id,
@@ -221,7 +226,7 @@ class Model(Metricable):
     BASE_URL = "/api/v2/model"
 
     @staticmethod
-    def find(cluster, name=None, version=None):
+    def find(cluster, name, version):
         resp = cluster.request("GET", Model.BASE_URL + "/version/{}/{}".format(name, version))
 
         if resp.ok:
@@ -232,9 +237,14 @@ class Model(Metricable):
             model_version = model_json["modelVersion"]
             model_contract = contract_from_dict(model_json["modelContract"])
 
+            # external model deserialization handling
+            # TODO: get its own endpoint for external model
+            if not model_json.get("runtime"):
+                model_json["runtime"] = {}
+
             model_runtime = DockerImage(model_json["runtime"].get("name"), model_json["runtime"].get("tag"),
                                         model_json["runtime"].get("sha256"))
-            model_image = model_json["image"]
+            model_image = model_json.get("image")
             model_cluster = cluster
 
             res_model = Model(model_id, model_name, model_version, model_contract,
@@ -322,6 +332,40 @@ class Model(Metricable):
 
     def __repr__(self):
         return "Model {}:{}".format(self.name, self.version)
+
+
+class ExternalModel:
+    BASE_URL = "/api/v2/externalmodel"
+
+    @staticmethod
+    def ext_model_json_to_ext_model(ext_model_json: dict):
+        return ExternalModel(name=ext_model_json["model"]["name"],
+                             contract=contract_from_dict(ext_model_json["modelContract"]),
+                             metadata=ext_model_json.get("metadata"), version=ext_model_json["model"]["id"])
+
+    @staticmethod
+    def create(cluster, ext_model: dict):
+        resp = cluster.request(method="POST", url=ExternalModel.BASE_URL, json=ext_model)
+        if resp.ok:
+            resp_json = resp.json()
+            return ExternalModel.ext_model_json_to_ext_model(resp_json)
+        raise Exception(
+            f"Failed to create external model. External model = {ext_model}. {resp.status_code} {resp.text}")
+
+    @staticmethod
+    def find_by_name(cluster, name, version):
+        found_model = Model.find(cluster=cluster, name=name, version=version)
+        return found_model
+
+    @staticmethod
+    def delete_by_id(cluster, model_id):
+        Model.delete_by_id(cluster=cluster, model_id=model_id)
+
+    def __init__(self, name, contract, version, metadata):
+        self.name = name
+        self.contract = contract
+        self.version = version
+        self.metadata = metadata
 
 
 class BuildStatus(Enum):
