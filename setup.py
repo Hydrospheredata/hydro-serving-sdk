@@ -1,5 +1,8 @@
 from setuptools import setup, find_packages
 
+with open("version", 'r') as f:
+    version = f.read()
+
 pkgs = find_packages(exclude=['tests', 'tests.*'])
 print("FOUND PKGS", pkgs)
 
@@ -16,7 +19,7 @@ test_reqs = ['pytest>=3.8.0', 'requests_mock>=1.7.0']
 
 setup(
     name='hydrosdk',
-    version='2.2.0-dev',
+    version=version,
     description="Hydro-serving SDK",
     url="https://hydrosphere.io/",
     license="Apache 2.0",
