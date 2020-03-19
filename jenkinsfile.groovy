@@ -27,11 +27,11 @@ def collectTestResults = {
 }
 
 pipelineCommon(
-        repository,
-        false, //needSonarQualityGate,
-        [],
-        collectTestResults,
-        buildAndPublishReleaseFunction,
-        buildFunction,
-        buildFunction
+    repository,
+    false, //needSonarQualityGate,
+    [],
+    collectTestResults,
+    buildAndPublishReleaseFunction,
+    buildFunction,
+    buildFunction
 )
