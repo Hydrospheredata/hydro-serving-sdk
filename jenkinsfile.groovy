@@ -4,7 +4,7 @@ def buildAndPublishReleaseFunction={
 //   need  python3-venv on Jenkins slave
 //    sh "python3 -m venv venv"
 //    sh "source venv/bin/activate"
-    sh "sudo pip install -r requirements.txt"
+    sh "pip install -r requirements.txt"
     sh "python setup.py bdist_wheel"
 //    sh "pytest"   //NB(bulat): commented because there are no mocks for tests
     configFileProvider([configFile(fileId: 'PYPIDeployConfiguration', targetLocation: '.pypirc', variable: 'PYPI_SETTINGS')]) {
@@ -16,7 +16,7 @@ def buildAndPublishReleaseFunction={
 def buildFunction={
 //    sh "python3 -m venv venv"
 //    sh "source venv/bin/activate"
-    sh "sudo pip install -r requirements.txt"
+    sh "pip install -r requirements.txt"
     sh "python setup.py bdist_wheel"
     //    sh "pytest"   //NB(bulat): commented because there are no mocks for tests
 //    sh "deactivate"
