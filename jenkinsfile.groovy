@@ -1,6 +1,7 @@
 def repository = 'hydro-serving-sdk'
 
 def buildAndPublishReleaseFunction={
+    sh "sudo apt-get install python3-venv"
     sh "python3 -m venv venv"
     sh "source venv/bin/activate"
     sh "pip install -r requirements.txt"
@@ -13,6 +14,7 @@ def buildAndPublishReleaseFunction={
 }
 
 def buildFunction={
+    sh "sudo apt-get install python3-venv"
     sh "python3 -m venv venv"
     sh "source venv/bin/activate"
     sh "pip install -r requirements.txt"
