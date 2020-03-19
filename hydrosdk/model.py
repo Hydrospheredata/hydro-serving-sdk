@@ -14,6 +14,7 @@ from requests_toolbelt.multipart.encoder import MultipartEncoder
 
 from hydrosdk.contract import contract_from_dict_yaml, contract_to_dict, contract_from_dict
 from hydrosdk.errors import InvalidYAMLFile
+from hydrosdk.exceptions import MetricSpecException
 from hydrosdk.image import DockerImage
 from hydrosdk.monitoring import MetricSpec, MetricSpecConfig, MetricModel
 
@@ -221,7 +222,7 @@ class LocalModel(Metricable):
                                                model_version_id=root_model_upload_response.model_version_id,
                                                config=msc)
                         ms_created = True
-                    except Exception:
+                    except MetricSpecException:
                         time.sleep(1)
                 models_dict[metric] = upload_response
 

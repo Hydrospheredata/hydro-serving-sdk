@@ -7,10 +7,6 @@ from .image import DockerImage
 from .model import Model
 
 
-class ServableException(BaseException):
-    pass
-
-
 class Servable:
     BASE_URL = "/api/v2/servable"
 
