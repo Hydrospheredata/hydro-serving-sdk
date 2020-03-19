@@ -1,9 +1,10 @@
-import pytest
 import os
+
+import pytest
 from hydro_serving_grpc.contract import ModelContract
 
 from hydrosdk.cluster import Cluster
-from hydrosdk.contract import SignatureBuilder, contract_to_dict
+from hydrosdk.contract import SignatureBuilder
 from hydrosdk.image import DockerImage
 from hydrosdk.model import Model, LocalModel, resolve_paths, ExternalModel
 from hydrosdk.monitoring import TresholdCmpOp
@@ -11,7 +12,7 @@ from tests.resources.test_config import CLUSTER_ENDPOINT, PATH_TO_SERVING
 
 
 def get_payload():
-    return{os.path.dirname(os.path.abspath(__file__)) + '/resources/model_1/src/func_main.py': './src/func_main.py'}
+    return {os.path.dirname(os.path.abspath(__file__)) + '/resources/model_1/src/func_main.py': './src/func_main.py'}
 
 
 def get_cluster():
@@ -40,17 +41,12 @@ def get_local_model(name="upload-model-test", contract=None, payload=None, path=
     return local_model
 
 
-def get_ext_model() -> dict:
+def get_ext_model_fields() -> tuple:
     name = "ext-model-test"
     contract = get_contract()
     metadata = {"additionalProp1": "prop"}
 
-    ext_model = {
-        "name": name,
-        "contract": contract_to_dict(contract),
-        "metadata": metadata
-    }
-    return ext_model
+    return name, contract, metadata
 
 
 def get_signature():
@@ -63,22 +59,22 @@ def get_signature():
 def test_external_model_create():
     cluster = get_cluster()
 
-    ext_model = get_ext_model()
+    name, contract, metadata = get_ext_model_fields()
 
-    created_model = ExternalModel.create(cluster=cluster, ext_model=ext_model)
+    created_model = ExternalModel.create(cluster=cluster, name=name, contract=contract, metadata=metadata)
     found_model = ExternalModel.find_by_name(cluster=cluster, name=created_model.name,
-                                     version=created_model.version)
+                                             version=created_model.version)
     assert found_model
 
 
 def test_external_model_find_by_name():
     cluster = get_cluster()
 
-    ext_model = get_ext_model()
+    name, contract, metadata = get_ext_model_fields()
 
-    created_model = ExternalModel.create(cluster=cluster, ext_model=ext_model)
+    created_model = ExternalModel.create(cluster=cluster, name=name, contract=contract, metadata=metadata)
     found_model = ExternalModel.find_by_name(cluster=cluster, name=created_model.name,
-                                     version=created_model.version)
+                                             version=created_model.version)
 
     assert found_model
 
@@ -86,9 +82,9 @@ def test_external_model_find_by_name():
 def test_external_model_delete():
     cluster = get_cluster()
 
-    ext_model = get_ext_model()
+    name, contract, metadata = get_ext_model_fields()
 
-    created_model = ExternalModel.create(cluster=cluster, ext_model=ext_model)
+    created_model = ExternalModel.create(cluster=cluster, name=name, contract=contract, metadata=metadata)
     ExternalModel.delete_by_id(cluster=cluster, model_id=created_model.id_)
 
     with pytest.raises(Exception, match=r"Failed to find Model for name.*"):

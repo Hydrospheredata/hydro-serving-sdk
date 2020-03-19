@@ -3,6 +3,7 @@ from urllib.parse import urljoin
 import sseclient
 
 from .contract import contract_from_dict
+from .exceptions import ServableException
 from .image import DockerImage
 from .model import Model
 

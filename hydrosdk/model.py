@@ -5,6 +5,7 @@ import os
 import tarfile
 import time
 from enum import Enum
+from typing import Optional
 
 import sseclient
 import yaml
@@ -160,7 +161,7 @@ class LocalModel(Metricable):
     def __repr__(self):
         return "LocalModel {}".format(self.name)
 
-    def  __upload(self, cluster):
+    def __upload(self, cluster):
         """
         Direct implementation of uploading one model to the server. For internal usage
         """
@@ -352,7 +353,13 @@ class ExternalModel:
                              metadata=ext_model_json.get("metadata"), version=ext_model_json["modelVersion"])
 
     @staticmethod
-    def create(cluster, ext_model: dict):
+    def create(cluster, name: str, contract: ModelContract, metadata: Optional[dict] = None):
+        ext_model = {
+            "name": name,
+            "contract": contract_to_dict(contract),
+            "metadata": metadata
+        }
+
         resp = cluster.request(method="POST", url=ExternalModel.BASE_URL, json=ext_model)
         if resp.ok:
             resp_json = resp.json()

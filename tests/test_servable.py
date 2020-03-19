@@ -1,7 +1,8 @@
 import time
 import pytest
 
-from hydrosdk.servable import Servable, ServableException
+from hydrosdk.exceptions import ServableException
+from hydrosdk.servable import Servable
 from tests.test_model import get_cluster, get_local_model
 
 
@@ -35,7 +36,6 @@ def test_servable_delete():
                                        model_version=ur[model].model.version, cluster=cluster,
                                        metadata={"additionalProp1":"prop"})
     time.sleep(1)
-
 
     deleted_servable = Servable.delete(cluster, created_servable.name)
 
