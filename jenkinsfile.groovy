@@ -7,9 +7,8 @@ def buildAndPublishReleaseFunction={
     sh "pip3 install -r requirements.txt"
     sh "python3 setup.py bdist_wheel"
 //    sh "pytest"   //NB(bulat): commented because there are no mocks for tests
-    sh 'sudo pip3 install twine'  // NB(bulat) needs venv
     configFileProvider([configFile(fileId: 'PYPIDeployConfiguration', targetLocation: '.pypirc', variable: 'PYPI_SETTINGS')]) {
-        sh "twine upload --config-file ${env.WORKSPACE}/.pypirc -r pypi ${env.WORKSPACE}/dist/*"
+        sh "python3 -m twine upload --config-file ${env.WORKSPACE}/.pypirc -r pypi ${env.WORKSPACE}/dist/*"
     }
 //    sh "deactivate"
 }
