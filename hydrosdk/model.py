@@ -238,7 +238,7 @@ class Model(Metricable):
         resp = cluster.request("GET", Model.BASE_URL + "/version/{}/{}".format(name, version))
 
         if resp.ok:
-            print(80)
+            # print(80)
             model_json = resp.json()
             model_id = model_json["id"]
             model_name = model_json["model"]["name"]
