@@ -8,8 +8,8 @@ from hydrosdk.exceptions import MetricSpecException
 class TresholdCmpOp:
     EQ = "Eq"
     NOT_EQ = "NotEq"
-    GREATER = "Gt"
-    GREATER_EQ = "GtEq"
+    GREATER = "Greater"
+    GREATER_EQ = "GreaterEq"
     LESS = "Less"
     LESS_EQ = "LessEq"
 
