@@ -1,3 +1,4 @@
+wheel~=0.34.2
 sseclient-py~=1.7
 numpy
 twine~=3.1.1
