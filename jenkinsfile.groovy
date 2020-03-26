@@ -14,12 +14,14 @@ def buildAndPublishReleaseFunction={
 }
 
 def buildFunction={
-    sh "python3 -m venv venv"
-    sh ". venv/bin/activate"
-    sh "pip install -r requirements.txt"
-    sh "python setup.py bdist_wheel"
-//        sh "pytest"   //NB(bulat): commented because there are no mocks for tests
-    sh "deactivate"
+    sh """#!/bin/bash
+        python3 -m venv venv
+        source venv/bin/activate
+        pip install -r requirements.txt
+        python setup.py bdist_wheel
+        #pytest
+        deactivate
+    """
 }
 
 def collectTestResults = {
