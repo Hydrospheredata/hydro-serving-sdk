@@ -15,7 +15,7 @@ def buildAndPublishReleaseFunction={
 
 def buildFunction={
     sh "python3 -m venv venv"
-    sh "source venv/bin/activate"
+    sh ". venv/bin/activate"
     sh "pip install -r requirements.txt"
     sh "python setup.py bdist_wheel"
 //        sh "pytest"   //NB(bulat): commented because there are no mocks for tests
