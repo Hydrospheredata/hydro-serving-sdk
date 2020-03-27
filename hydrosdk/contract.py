@@ -12,10 +12,16 @@ from hydrosdk.data.types import name2dtype, shape_to_proto, PY_TO_DTYPE, np2prot
 
 
 class ContractViolationException(Exception):
+    """
+    Exception raised when contract is violated
+    """
     pass
 
 
 class ProfilingType(Enum):
+    """
+
+    """
     NONE = 0
     CATEGORICAL = 1
     NOMINAL = 11
@@ -31,6 +37,9 @@ class ProfilingType(Enum):
 
 
 def field_from_dict(name, data_dict):
+    """
+    Old version of deserialization *data_dict* into ModelField. Should not be used or tested first
+    """
     shape = data_dict.get("shape")
     dtype = data_dict.get("type")
     subfields = data_dict.get("fields")
@@ -76,6 +85,14 @@ def field_from_dict(name, data_dict):
 
 
 def field_from_dict_new(name, data_dict):
+    """
+    Deserialization of *data_dict* into ModelField.
+
+    :param name: name of passed data
+    :param data_dict: data
+    :raises ValueError: If data_dict is invalid
+    :return: ModelField
+    """
     shape = data_dict.get("shape")
     dtype = data_dict.get("dtype")
     subfields = data_dict.get("fields")
@@ -93,6 +110,7 @@ def field_from_dict_new(name, data_dict):
         else:
             subfields_buffer = []
             for k, v in subfields.items():
+                # TODO: why is here field_from_dict old?
                 subfield = field_from_dict(k, v)
                 subfields_buffer.append(subfield)
             result_subfields = subfields_buffer
@@ -120,7 +138,14 @@ def field_from_dict_new(name, data_dict):
     return result_field
 
 
-def signature_to_dict(signature):
+def signature_to_dict(signature: ModelSignature):
+    """
+    Serializes signature into signature_name, inputs, outputs
+
+    :param signature: model signature obj
+    :raises TypeError: If signature invalid
+    :return: dict with signature_name, inputs, outputs
+    """
     if not isinstance(signature, ModelSignature):
         raise TypeError("signature is not ModelSignature")
     inputs = []
@@ -137,7 +162,13 @@ def signature_to_dict(signature):
     return result_dict
 
 
-def contract_to_dict(contract):
+def contract_to_dict(contract: ModelContract):
+    """
+    Serializes model contract into model_name, predict
+
+    :param contract: model contract
+    :return: dict with model_name, predict
+    """
     if contract is None:
         return None
     if not isinstance(contract, ModelContract):
@@ -150,7 +181,14 @@ def contract_to_dict(contract):
     return result_dict
 
 
-def field_to_dict(field):
+def field_to_dict(field: ModelField):
+    """
+    Serializes model field into name, profile and optional shape
+
+    :param field: model field
+    :raises TypeError: If field is invalid
+    :return: dict with name and profile
+    """
     if not isinstance(field, ModelField):
         raise TypeError("field is not ModelField")
     result_dict = {
@@ -165,6 +203,14 @@ def field_to_dict(field):
 
 
 def attach_ds(result_dict, field):
+    """
+    Adds dtype or subfields
+
+    :param result_dict:
+    :param field:
+    :raises ValueError: If field invalid
+    :return: result_dict with dtype or subfields
+    """
     if field.dtype is not None:
         result_dict["dtype"] = DataType.Name(field.dtype)
     elif field.subfields is not None:
@@ -176,7 +222,14 @@ def attach_ds(result_dict, field):
         raise ValueError("Invalid ModelField type")
     return result_dict
 
+
 def shape_to_dict(shape):
+    """
+    Serializes model field's shape to dict
+
+    :param shape: TensorShapeProto
+    :return: dict with dim and unknown rank
+    """
     dims = []
     for d in shape.dim:
         dims.append({"size": d.size, "name": d.name})
@@ -188,6 +241,12 @@ def shape_to_dict(shape):
 
 
 def contract_from_dict_yaml(data_dict):
+    """
+    Old version of deserialization of yaml dict into model contract. Should not be used or tested first
+
+    :param data_dict: contract from yaml
+    :return: model contract
+    """
     if data_dict is None:
         return None
     name = data_dict.get("name", "Predict")
@@ -208,6 +267,13 @@ def contract_from_dict_yaml(data_dict):
 
 
 def contract_from_dict(data_dict):
+    """
+    Deserialization of yaml dict into model contract
+
+    :param data_dict: contract from yaml
+    :return: model contract
+    """
+
     if data_dict is None:
         return None
     name = data_dict.get("modelName", "Predict")
@@ -230,6 +296,16 @@ def contract_from_dict(data_dict):
 
 
 def parse_field(name, dtype, shape, profile=ProfilingType.NONE):
+    """
+    Deserializes into model field
+
+    :param name: name of model field
+    :param dtype: data type of model field
+    :param shape: shape of model field
+    :param profile: profile of model field
+    :raises ValueError: If dtype is invalid
+    :return: model field obj
+    """
     if profile not in DataProfileType.keys():
         profile = "NONE"
 
@@ -271,18 +347,44 @@ def parse_field(name, dtype, shape, profile=ProfilingType.NONE):
 
 
 class SignatureBuilder:
+    """
+    Build Model Signature
+    """
     def __init__(self, name):
         self.name = name
         self.inputs = []
         self.outputs = []
 
     def with_input(self, name, dtype, shape, profile=ProfilingType.NONE):
+        """
+        Adds input to the SignatureBuilder
+
+        :param name:
+        :param dtype:
+        :param shape:
+        :param profile:
+        :return: self SignatureBuilder
+        """
         return self.__with_field(self.inputs, name, dtype, shape, profile)
 
     def with_output(self, name, dtype, shape, profile=ProfilingType.NONE):
+        """
+        Adds output to the SignatureBuilder
+
+        :param name:
+        :param dtype:
+        :param shape:
+        :param profile:
+        :return: self SignatureBuilder
+        """
         return self.__with_field(self.outputs, name, dtype, shape, profile)
 
     def build(self):
+        """
+        Creates Model Signature
+
+        :return: ModelSignature obj
+        """
         return ModelSignature(
             signature_name=self.name,
             inputs=self.inputs,
@@ -290,20 +392,48 @@ class SignatureBuilder:
         )
 
     def __with_field(self, collection, name, dtype, shape, profile=ProfilingType.NONE):
+        """
+        Adds fields to the SignatureBuilder
+
+        :param collection: input or output
+        :param name:
+        :param dtype:
+        :param shape:
+        :param profile:
+        :return: self SignatureBuilder obj
+        """
         proto_field = parse_field(name, dtype, shape, profile)
         collection.append(proto_field)
         return self
 
 
 class AnyDimSize(object):
+    """
+    Validation class for dimensions
+    """
     def __eq__(self, other):
+        """
+        If dimension is of Number type than equal
+
+        :param other: dimension
+        :raises TypeError: If other not Number
+        :return:
+        """
         if isinstance(other, numbers.Number):
             return True
         else:
             raise TypeError("Unexpected other argument {}".format(other))
 
-
+# TODO: method not used
 def are_shapes_compatible(a, b):
+    """
+    Compares if shapes are compatible
+
+    :param a:
+    :param b:
+    :return: result of comparision as bool
+    """
+
     if len(a) == 0:
         # scalar input can be used in following scenarios
         if b == tuple():
@@ -320,8 +450,16 @@ def are_shapes_compatible(a, b):
         is_valid = False
     return is_valid
 
-
+# TODO: method not used
 def are_dtypes_compatible(a, b, strict=False):
+    """
+    Compares if data types are compatible
+
+    :param a:
+    :param b:
+    :param strict:
+    :return: result of comparision as bool
+    """
     if strict:
         if a == b:
             return True, None
@@ -341,6 +479,7 @@ def validate(self, t, strict=False):
     """
     Return bool whether array is valid for this field and error message, if not valid.
     Error message is None if array is valid.
+
     :param strict: Strict comparison for dtypes.
     :param t: input Tensor
     :return: is_valid, error_message
@@ -350,7 +489,7 @@ def validate(self, t, strict=False):
     error_message = ', '.join(filter(None, (shape_error_message, dtype_error_message)))
     return is_dtype_valid & is_dtype_valid, error_message if error_message else None
 
-
+#TODO: method not used
 def check_tensor_fields(tensors, fields):
     is_valid = True
     error_messages = []
@@ -379,7 +518,13 @@ def check_tensor_fields(tensors, fields):
     return is_valid, error_messages if error_messages else None
 
 
-def mock_input_data(signature):
+def mock_input_data(signature: ModelSignature):
+    """
+    Creates dummy input data
+
+    :param signature:
+    :return: list of input tensors
+    """
     input_tensors = []
     for field in signature.inputs:
         simple_shape = []

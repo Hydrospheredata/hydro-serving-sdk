@@ -189,7 +189,7 @@ def np2proto_dtype(dt):
     else:
         raise KeyError("Datatype {} is not supported in HydroSDK".format(dt))
 
-
+# TODO: method not used
 def proto2np_shape(tsp):
     if tsp is None or len(tsp.dim) == 0:
         return tuple()
@@ -197,7 +197,7 @@ def proto2np_shape(tsp):
         shape = tuple([int(s.size) for s in tsp.dim])
     return shape
 
-
+# TODO: method not used
 def np2proto_shape(np_shape):
     shape = TensorShapeProto(dim=[TensorShapeProto.Dim(size=x) for x in np_shape])
     return shape
