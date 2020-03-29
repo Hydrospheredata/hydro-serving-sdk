@@ -6,6 +6,9 @@ from hydrosdk.exceptions import MetricSpecException
 
 
 class TresholdCmpOp:
+    """
+    Threshold comparison operator
+    """
     EQ = "Eq"
     NOT_EQ = "NotEq"
     GREATER = "Gt"
@@ -15,6 +18,9 @@ class TresholdCmpOp:
 
 
 class MetricModel:
+    """
+    Model having extra metric fields
+    """
     def __init__(self, model, threshold, comparator):
         self.model = model
         self.threshold = threshold
@@ -22,6 +28,9 @@ class MetricModel:
 
 
 class MetricSpecConfig:
+    """
+    Metric specification config
+    """
     def __init__(self, model_version_id: int, threshold: Union[int, float], threshold_op: TresholdCmpOp, servable=None):
         self.servable = servable
         self.threshold_op = threshold_op
@@ -30,11 +39,21 @@ class MetricSpecConfig:
 
 
 class MetricSpec:
+    """
+    Metric specification
+    """
     BASE_URL = "/api/v2/monitoring/metricspec"
     GET_SPEC_URL = BASE_URL + "/"
 
     @staticmethod
     def __parse_json(cluster, json_dict):
+        """
+        Deserialize metric spec from json
+
+        :param cluster: active cluster
+        :param json_dict:
+        :return: MetricSpec obj
+        """
         return MetricSpec(
             cluster=cluster,
             name=json_dict['name'],
@@ -50,6 +69,16 @@ class MetricSpec:
 
     @staticmethod
     def create(cluster: Cluster, name: str, model_version_id: int, config: MetricSpecConfig):
+        """
+        Sends request to create metric spec and returns it
+
+        :param cluster: active cluster
+        :param name:
+        :param model_version_id:
+        :param config:
+        :raises MetricSpecException: If server returned not 200
+        :return: metricSpec
+        """
         d = {
             'name': name,
             'modelVersionId': model_version_id,
@@ -70,6 +99,13 @@ class MetricSpec:
 
     @staticmethod
     def list_all(cluster: Cluster):
+        """
+        Sends request and returns list with all available metric specs
+
+        :param cluster: active cluster
+        :raises MetricSpecException: If server returned not 200
+        :return: list with all available metric specs
+        """
         resp = cluster.request("get", MetricSpec.BASE_URL)
         if resp.ok:
             return [MetricSpec.__parse_json(cluster, x) for x in resp.json()]
@@ -78,8 +114,16 @@ class MetricSpec:
 
     @staticmethod
     def list_for_model(cluster: Cluster, model_version_id: int):
+        """
+        Sends request and returns list with specs by model version
+
+        :param cluster: active cluster
+        :param model_version_id:
+        :raises MetricSpecException: If server returned not 200
+        :return: list of metric spec objs
+        """
         url = urljoin(MetricSpec.GET_SPEC_URL, f"modelversion/{model_version_id}")
-        print(url)
+        # print(url)
         resp = cluster.request("get", url)
         if resp.ok:
             return [MetricSpec.__parse_json(cluster, x) for x in resp.json()]
@@ -89,6 +133,14 @@ class MetricSpec:
 
     @staticmethod
     def get(cluster: Cluster, metric_spec_id: int):
+        """
+        Sends request and returns metric spec by its id
+
+        :param cluster: active cluster
+        :param metric_spec_id:
+        :raises MetricSpecException: If server returned not 200
+        :return: MetricSpec or None if nout found
+        """
         url = urljoin(MetricSpec.BASE_URL, str(metric_spec_id))
         resp = cluster.request("get", url)
         if resp.ok:
@@ -107,7 +159,13 @@ class MetricSpec:
         self.model_version_id = model_version_id
         self.name = name
 
-    def delete(self):
+    def delete(self) -> bool:
+        """
+        Deletes self (metric spec)
+
+        :raises MetricSpecException: If server returned not 200
+        :return: result of deletion
+        """
         url = urljoin(MetricSpec.BASE_URL, str(self.metric_spec_id))
         resp = self.cluster.request("delete", url)
         if resp.ok:

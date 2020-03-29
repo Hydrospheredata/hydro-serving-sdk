@@ -1,10 +1,17 @@
 from collections import namedtuple
-
+from typing import List
 
 ApplicationDef = namedtuple('ApplicationDef', ('name', 'executionGraph', 'kafkaStreaming'))
 
 
 def streaming_params(in_topic, out_topic):
+    """
+    Deserializes topics into StreamingParams
+
+    :param in_topic: input topic
+    :param out_topic: output topic
+    :return: StreamingParams
+    """
     return {
         'sourceTopic': in_topic,
         'destinationTopic': out_topic
@@ -12,6 +19,9 @@ def streaming_params(in_topic, out_topic):
 
 
 class Application:
+    """
+    An application is a publicly available endpoint to reach your models (https://hydrosphere.io/serving-docs/latest/overview/concepts.html#applications)
+    """
     def __init__(self, name, execution_graph, kafka_streaming, metadata):
         self.name = name
         self.execution_graph = execution_graph
@@ -20,6 +30,12 @@ class Application:
 
     @staticmethod
     def app_json_to_app_obj(application_json):
+        """
+        Deserializes json into Application
+
+        :param application_json: input json with application object fields
+        :return Application : application object
+        """
         app_name = application_json.get("name")
         app_execution_graph = application_json.get("executionGraph")
         app_kafka_streaming = application_json.get("kafkaStreaming")
@@ -31,8 +47,11 @@ class Application:
     @staticmethod
     def list_all(cluster):
         """
-        Returns:
-            list of app_objs:
+        Lists all available applications from server
+
+        :param cluster: active cluster
+        :raises Exception: If response from server is not 200
+        :return: deserialized list of application objects
         """
         resp = cluster.request("GET", "/api/v2/application")
         if resp.ok:
@@ -46,9 +65,11 @@ class Application:
     @staticmethod
     def find_by_name(cluster, app_name):
         """
-        Args:
-            cluster (Cluster)
-            app_name (str):
+        By the *app_name* searches for the Application
+
+        :param cluster: active cluster
+        :raises Exception: If response from server is not 200
+        :return: deserialized Application object
         """
         resp = cluster.request("GET", "/api/v2/application/{}".format(app_name))
         if resp.ok:
@@ -61,6 +82,13 @@ class Application:
 
     @staticmethod
     def delete(cluster, app_name):
+        """
+        By the *app_name* deletes Application
+
+        :param cluster: active cluster
+        :raises Exception: If response from server is not 200
+        :return: response from the server
+        """
         resp = cluster.request("DELETE", "/api/v2/application/{}".format(app_name))
         if resp.ok:
             return resp.json()
@@ -70,6 +98,14 @@ class Application:
 
     @staticmethod
     def create(cluster, application: dict):
+        """
+        By the *app_name* searches for the Application
+
+        :param cluster: active cluster
+        :param application: dict with necessary to create application fields
+        :raises Exception: If response from server is not 200
+        :return: deserialized Application object
+        """
         resp = cluster.request(method="POST", url="/api/v2/application", json=application)
         if resp.ok:
             resp_json = resp.json()
@@ -80,12 +116,12 @@ class Application:
             f"Failed to create application. Application = {application}. {resp.status_code} {resp.text}")
 
     @staticmethod
-    def parse_streaming_params(in_list):
+    def parse_streaming_params(in_list: List[dict]) -> list:
         """
-        Args:
-            in_list (list of dict):
-        Returns:
-            StreamingParams:
+        Deserializes from input list StreamingParams
+
+        :param in_list: input list of dicts
+        :return: list ofr StreamingParams
         """
         params = []
         for item in in_list:
@@ -94,6 +130,12 @@ class Application:
 
     @staticmethod
     def parse_singular_app(in_dict):
+        """
+        Part of parse_application method, parses singular
+
+        :param in_dict: singular def
+        :return: stages with model variants
+        """
         return {
             "stages": [
                 {
@@ -104,13 +146,25 @@ class Application:
 
     @staticmethod
     def parse_singular(in_dict):
+        """
+        Part of parse_application method, parses singular pipeline stage
+
+        :param in_dict: pipieline stage
+        :return: model version id and weight
+        """
         return {
             'modelVersionId': in_dict['model'],
             'weight': 100
         }
 
     @staticmethod
-    def parse_model_variant_list(in_list):
+    def parse_model_variant_list(in_list) -> list:
+        """
+        Part of parse_application method, parses list of model variants
+
+        :param in_list: dict with list model variants
+        :return: list of services
+        """
         services = [
             Application.parse_model_variant(x)
             for x in in_list
@@ -119,6 +173,12 @@ class Application:
 
     @staticmethod
     def parse_model_variant(in_dict):
+        """
+        Part of parse_application method, parses model variant
+
+        :param in_dict: dict with model variant
+        :return: dict with model version and weight
+        """
         return {
             'modelVersion': in_dict['model'],
             'weight': in_dict['weight']
@@ -126,6 +186,12 @@ class Application:
 
     @staticmethod
     def parse_pipeline_stage(stage_dict):
+        """
+        Part of parse_application method, parses pipeline stages
+
+        :param stage_dict: dict with list of pipeline stages
+        :return: dict with list of model variants
+        """
         if len(stage_dict) == 1:
             parsed_variants = [Application.parse_singular(stage_dict[0])]
         else:
@@ -134,6 +200,12 @@ class Application:
 
     @staticmethod
     def parse_pipeline(in_list):
+        """
+        Part of parse_application method, parses pipeline
+
+        :param in_list: input list with info about pipeline
+        :return: dict with list of pipeline stages
+        """
         pipeline_stages = []
         for i, stage in enumerate(in_list):
             pipeline_stages.append(Application.parse_pipeline_stage(stage))
@@ -141,6 +213,13 @@ class Application:
 
     @staticmethod
     def parse_application(in_dict):
+        """
+        Deserializes received from yaml file dict into Application Definition
+
+        :param in_dict: received from yaml file dict
+        :raises ValueError: If wrong definitions are provided
+        :return: Application Definition
+        """
         singular_def = in_dict.get("singular")
         pipeline_def = in_dict.get("pipeline")
 

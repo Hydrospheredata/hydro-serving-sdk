@@ -1,3 +1,5 @@
+# TODO: whole file is not used
+
 import logging
 
 from hydro_serving_grpc.gateway import ServablePredictRequest

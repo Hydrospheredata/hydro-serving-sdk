@@ -9,10 +9,21 @@ from .model import Model
 
 
 class Servable:
+    """
+    Servable is an instance of a model version which could be used in application or by itself as it exposes various endpoints to your model version: HTTP, gRPC, and Kafka.
+    (https://hydrosphere.io/serving-docs/latest/overview/concepts.html#servable)
+    """
     BASE_URL = "/api/v2/servable"
 
     @staticmethod
     def model_version_json_to_servable(mv_json: dict, cluster):
+        """
+        Deserializes model version json to servable object
+
+        :param mv_json: model version json
+        :param cluster: active cluster
+        :return: servable object
+        """
         model_data = mv_json['modelVersion']
         model = Model(
             id=model_data['model']['id'],
@@ -30,6 +41,17 @@ class Servable:
 
     @staticmethod
     def create(cluster, model_name, model_version, metadata=None):
+        """
+        Sends request to server and returns servable object
+
+        :param cluster:
+        :param model_name:
+        :param model_version:
+        :param metadata:
+        :raises ServableException: If server returned not 200
+
+        :return: servable
+        """
         msg = {
             "modelName": model_name,
             "version": model_version,
@@ -45,6 +67,14 @@ class Servable:
 
     @staticmethod
     def get(cluster, servable_name):
+        """
+        Sends request to server and return servable object by name
+
+        :param cluster: active cluster
+        :param servable_name:
+        :raises ServableException: If server returned not 200
+        :return: servable
+        """
         res = cluster.request("GET", Servable.BASE_URL + "/{}".format(servable_name))
 
         if res.ok:
@@ -55,10 +85,23 @@ class Servable:
 
     @staticmethod
     def list(cluster):
+        """
+        Sends request to server and returns list of all servables
+        :param cluster: active cluster
+        :return: json with request result
+        """
         return cluster.request("GET", "/api/v2/servable").json()
 
     @staticmethod
     def delete(cluster, servable_name):
+        """
+        Sends request to delete servable by name
+
+        :param cluster:
+        :param servable_name:
+        :raises ServableException: If server returned not 200
+        :return: json response from server
+        """
         res = cluster.request("DELETE", "/api/v2/servable/{}".format(servable_name))
         if res.ok:
             return res.json()
@@ -73,6 +116,7 @@ class Servable:
         self.meta = metadata
         self.cluster = cluster
 
+    # TODO: method not used
     def logs(self, follow=False):
         if follow:
             url_suffix = "{}/logs?follow=true".format(self.name)

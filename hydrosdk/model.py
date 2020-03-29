@@ -21,10 +21,24 @@ from hydrosdk.monitoring import MetricSpec, MetricSpecConfig, MetricModel
 
 
 def resolve_paths(path, payload):
+    """
+    Appends each element of payload to the path and makes {resolved_path: payload_element} dict
+
+    :param path: absolute path
+    :param payload: list of relative paths
+    :return: dict with {resolved_path: payload_element}
+    """
     return {os.path.normpath(os.path.join(path, v)): v for v in payload}
 
 
 def read_yaml(path):
+    """
+    Deserializes LocalModel from yaml definition
+
+    :param path:
+    :raises InvalidYAMLFile: if passed yamls are invalid
+    :return: LocalModel obj
+    """
     logger = logging.getLogger('read_yaml')
     with open(path, 'r') as f:
         model_docs = [x for x in yaml.safe_load_all(f) if x.get("kind").lower() == "model"]
@@ -66,31 +80,58 @@ def read_yaml(path):
     return model
 
 
+# TODO: to be implemented
 def read_py(path):
     pass
 
 
 class Metricable:
+    """
+    Every model can be monitored with a set of metrics (https://hydrosphere.io/serving-docs/latest/overview/concepts.html#metrics)
+    """
+
     def __init__(self):
         self.metrics: [Metricable] = []
 
     def as_metric(self, threshold: int, comparator: MetricSpec) -> MetricModel:
         """
-        Turns model into Metric
+        Turns model into Metric Model
+
+        :param threshold:
+        :param comparator:
+        :return: MetricModel
         """
+
         return MetricModel(model=self, threshold=threshold, comparator=comparator)
 
     def with_metrics(self, metrics: list):
         """
         Adds metrics to the model
+
+        :param metrics: list of metrics
+        :return: self Metricable
         """
+
         self.metrics = metrics
         return self
 
 
 class LocalModel(Metricable):
+    """
+    Local Model (A model is a machine learning model or a processing function that consumes provided inputs and produces predictions or transformations, https://hydrosphere.io/serving-docs/latest/overview/concepts.html#models)
+    """
+
     @staticmethod
     def create(path, name, runtime, contract=None, install_command=None):
+        """
+        Validates contract
+        :param path:
+        :param name:
+        :param runtime:
+        :param contract:
+        :param install_command:
+        :return: None
+        """
         if contract:
             contract.validate()
         else:
@@ -99,6 +140,15 @@ class LocalModel(Metricable):
 
     @staticmethod
     def model_json_to_upload_response(cluster, model_json, contract, runtime):
+        """
+        Deserialize model json into UploadResponse object
+
+        :param cluster:
+        :param model_json:
+        :param contract:
+        :param runtime:
+        :return: UploadResponse obj
+        """
         version_id = model_json['id']
         model = Model(
             id=version_id,
@@ -117,6 +167,9 @@ class LocalModel(Metricable):
     def from_file(path):
         """
         Reads model definition from .yaml file or serving.py
+        :param path:
+        :raises ValueError: If not yaml or py
+        :return: LocalModel obj
         """
         ext = os.path.splitext(path)[1]
         if ext in ['.yml', '.yaml']:
@@ -164,6 +217,10 @@ class LocalModel(Metricable):
     def __upload(self, cluster):
         """
         Direct implementation of uploading one model to the server. For internal usage
+
+        :param cluster: active cluster
+        :raises ValueError: If server returned not 200
+        :return: UploadResponse obj
         """
         logger = logging.getLogger("ModelDeploy")
         now_time = datetime.datetime.now()
@@ -205,6 +262,12 @@ class LocalModel(Metricable):
             raise ValueError("Error during model upload. {}".format(result.text))
 
     def upload(self, cluster) -> dict:
+        """
+        Uploads Local Model
+        :param cluster: active cluster
+        :raises MetricSpecException: If model not uploaded yet
+        :return: {model_obj: upload_resp}
+        """
         root_model_upload_response = self.__upload(cluster)
         models_dict = {self: root_model_upload_response}
         if self.metrics:
@@ -227,18 +290,30 @@ class LocalModel(Metricable):
                         time.sleep(1)
                 models_dict[metric] = upload_response
 
-        return models_dict  # {model_obj: upload_resp}
+        return models_dict
 
 
 class Model(Metricable):
+    """
+    Model (A model is a machine learning model or a processing function that consumes provided inputs and produces predictions or transformations, https://hydrosphere.io/serving-docs/latest/overview/concepts.html#models)
+    """
     BASE_URL = "/api/v2/model"
 
     @staticmethod
     def find(cluster, name, version):
+        """
+        Finds a model on server by name and model version
+
+        :param cluster: active cluster
+        :param name: model name
+        :param version: model version
+        :raises Exception: if server returned not 200
+        :return: Model obj
+        """
         resp = cluster.request("GET", Model.BASE_URL + "/version/{}/{}".format(name, version))
 
         if resp.ok:
-            print(80)
+            # print(80)
             model_json = resp.json()
             model_id = model_json["id"]
             model_name = model_json["model"]["name"]
@@ -266,6 +341,15 @@ class Model(Metricable):
 
     @staticmethod
     def find_by_id(cluster, model_id):
+        """
+        Finds a model on server by id
+
+        :param cluster: active cluster
+        :param model_id: model id
+        :raises Exception: if server returned not 200
+        :return: Model obj
+        """
+
         resp = cluster.request("GET", Model.BASE_URL + "/version")
 
         if resp.ok:
@@ -289,6 +373,7 @@ class Model(Metricable):
         raise Exception(
             f"Failed to find_by_id Model for model_id={model_id}. {resp.status_code} {resp.text}")
 
+    # TODO: method not used
     @staticmethod
     def from_proto(proto, cluster):
         Model(
@@ -303,17 +388,35 @@ class Model(Metricable):
 
     @staticmethod
     def delete_by_id(cluster, model_id):
+        """
+        Deletes model by id
+        :param cluster: active cluster
+        :param model_id: model id
+        :return: if 200, json. Otherwise None
+        """
         res = cluster.request("DELETE", Model.BASE_URL + "/{}".format(model_id))
         if res.ok:
             return res.json()
         return None
 
+    # TODO: add deserialization
     @staticmethod
     def list_models(cluster):
+        """
+        List all models on server
+
+        :param cluster: active cluster
+        :return: json-response from server
+        """
         result = cluster.request("GET", Model.BASE_URL)
         return result.json()
 
     def to_proto(self):
+        """
+        Turns Model to Model version
+
+        :return: model version obj
+        """
         return ModelVersion(
             _id=self.id,
             name=self.name,
@@ -343,10 +446,19 @@ class Model(Metricable):
 
 
 class ExternalModel:
+    """
+    External models running outside of the Hydrosphere platform (https://hydrosphere.io/serving-docs/latest/how-to/monitoring-external-models.html)
+    """
     BASE_URL = "/api/v2/externalmodel"
 
     @staticmethod
     def ext_model_json_to_ext_model(ext_model_json: dict):
+        """
+        Deserializes external model json to external model
+
+        :param ext_model_json: external model json
+        :return: external model obj
+        """
         return ExternalModel(name=ext_model_json["model"]["name"],
                              id_=ext_model_json["model"]["id"],
                              contract=contract_from_dict(ext_model_json["modelContract"]),
@@ -354,6 +466,16 @@ class ExternalModel:
 
     @staticmethod
     def create(cluster, name: str, contract: ModelContract, metadata: Optional[dict] = None):
+        """
+        Creates external model on the server
+
+        :param cluster: active cluster
+        :param name: name of ext model
+        :param contract:
+        :param metadata:
+        :raises Exception: If server returned not 200
+        :return: external model
+        """
         ext_model = {
             "name": name,
             "contract": contract_to_dict(contract),
@@ -367,13 +489,29 @@ class ExternalModel:
         raise Exception(
             f"Failed to create external model. External model = {ext_model}. {resp.status_code} {resp.text}")
 
+    # TODO: return ExternalModel rather than Model
     @staticmethod
     def find_by_name(cluster, name, version):
+        """
+        Finds ext model on server by name and version
+
+        :param cluster: active cluster
+        :param name:
+        :param version:
+        :return: Model
+        """
         found_model = Model.find(cluster=cluster, name=name, version=version)
         return found_model
 
     @staticmethod
     def delete_by_id(cluster, model_id):
+        """
+        Deletes external model by model id
+
+        :param cluster: active cluster
+        :param model_id:
+        :return: None
+        """
         Model.delete_by_id(cluster=cluster, model_id=model_id)
 
     def __init__(self, name, id_, contract, version, metadata):
@@ -385,12 +523,18 @@ class ExternalModel:
 
 
 class BuildStatus(Enum):
+    """
+    Model building statuses
+    """
     BUILDING = "BUILDING"
     FINISHED = "FINISHED"
     FAILED = "FAILED"
 
 
 class UploadResponse:
+    """
+    Received status from server about uploading
+    """
     def __init__(self, model, version_id):
         self.cluster = model.cluster
         self.model = model
@@ -401,6 +545,10 @@ class UploadResponse:
         self._status = ""
 
     def logs(self):
+        """
+        Sends request, saves and returns logs iterator
+        :return: log iterator
+        """
         logger = logging.getLogger("ModelDeploy")
         try:
             url = "/api/v2/model/version/{}/logs".format(self.model_version_id)
@@ -412,6 +560,11 @@ class UploadResponse:
         return self._logs_iterator
 
     def set_status(self) -> None:
+        """
+        Checks last log record and sets upload status
+        :raises StopIteration: If something went wrong with iteration over logs
+        :return: None
+        """
         try:
             if self.last_log.startswith("Successfully tagged"):
                 self._status = BuildStatus.FINISHED
@@ -423,19 +576,37 @@ class UploadResponse:
                 self._status = BuildStatus.FAILED
 
     def get_status(self):
+        """
+        Gets current status of upload
+
+        :return: status
+        """
         return self._status
 
     def not_ok(self) -> bool:
+        """
+        Checks current status and returns if it is not ok
+        :return: if not uploaded
+        """
         self.set_status()
         return self.get_status() == BuildStatus.FAILED
 
-    def ok(self):
+    def ok(self) -> bool:
+        """
+        Checks current status and returns if it is ok
+        :return: if uploaded
+        """
         self.set_status()
         return self.get_status() == BuildStatus.FINISHED
 
-    def building(self):
+    def building(self) -> bool:
+        """
+        Checks current status and returns if it is building
+        :return: if building
+        """
         self.set_status()
         return self.get_status() == BuildStatus.BUILDING
 
+    # TODO: not used method
     def request_model(self):
         return self.cluster.request("GET", f"api/v2/model/{self.model.id}")
