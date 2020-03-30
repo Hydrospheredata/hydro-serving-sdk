@@ -1,3 +1,4 @@
+from enum import Enum
 from urllib.parse import urljoin
 
 import sseclient
@@ -6,6 +7,21 @@ from .contract import contract_from_dict
 from .exceptions import ServableException
 from .image import DockerImage
 from .model import Model
+
+
+class ServableStatus(Enum):
+    """
+    # TODO add more information about statuses
+    Servable can be in one of four states:
+        1. STARTING -
+        2. SERVING -
+        3. NOT_SERVING -
+        4. NOT_AVAILABLE -
+    """
+    STARTING = 0
+    SERVING = 1
+    NOT_SERVING = 2
+    NOT_AVAILABLE = 3
 
 
 class Servable:
@@ -116,6 +132,19 @@ class Servable:
         self.meta = metadata
         self.cluster = cluster
 
+    def status(self):
+        """
+        Returns current status of the servable. Possible statuses are described in ServableStatus
+
+        :raises ServableException: If server returned not 200
+        :return: ServableStatus
+        """
+        res = self.cluster.request("GET", "/api/v2/servable/{}".format(self.name))
+        if res.ok:
+            return ServableStatus[res.json()['status']['status'].upper()]
+        else:
+            raise ServableException(f"{res.status_code} : {res.text}")
+
     # TODO: method not used
     def logs(self, follow=False):
         if follow:
@@ -129,4 +158,3 @@ class Servable:
             return sseclient.SSEClient(res).events()
         else:
             raise ServableException(f"{res.status_code} : {res.text}")
-
