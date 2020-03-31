@@ -1,44 +1,68 @@
-# TODO: re-write predictors
+import grpc
+from hydro_serving_grpc.tf.api import predict_pb2, PredictionServiceStub
 
-import abc
-import requests
-import hydro_serving_grpc as hsg
-import hydro_serving_grpc.gateway as hsgateway
+from hydrosdk.cluster import Cluster
 
 
-class AbstractPredictor(abc.ABC):
-    @abc.abstractmethod
-    def predict(self, data):
-        pass
+class PredictServiceClient:
+    def __init__(self, cluster: Cluster):
+        self.channel = cluster.grpc_insecure()
+        self.stub = PredictionServiceStub(self.channel)
+
+    def predict(self, inputs, model_spec=None):
+        request = predict_pb2.PredictRequest(model_spec=model_spec, inputs=inputs)
+
+        try:
+            response = self.stub.Predict(request)
+            print("Predict fetched")
+            print(response)
+            return response
+        except grpc.RpcError as err:
+            print(err)
 
 
-class JSONPredictor(AbstractPredictor):
-    def __init__(self, url, target_name, signature):
-        self.url = url
-
-    def predict(self, data):
-        return requests.post(url=self.url, json=data)
 
 
-class GRPCPredictor(AbstractPredictor):
 
-    def __init__(self, channel, target_name, signature):
-        self.channel = channel
-        self.target_name = target_name
-        self.contract = signature
-        self.stub = hsg.PredictionServiceStub(self.channel)
-
-    def predict(self, data):
-        return self.stub.Predict(data)
-
-
-class ShadowlessGRPCPredictor(GRPCPredictor):
-    def __init__(self, channel, target_name, signature):
-        super().__init__(channel, target_name, signature)
-        self.stub = hsgateway.GatewayServiceStub(self.channel)
-
-    def predict(self, data):
-        return self.stub.ShadowlessPredictServable(data)
+# import abc
+# import requests
+# import hydro_serving_grpc as hsg
+# import hydro_serving_grpc.gateway as hsgateway
+#
+#
+# class AbstractPredictor(abc.ABC):
+#     @abc.abstractmethod
+#     def predict(self, data):
+#         pass
+#
+#
+# class JSONPredictor(AbstractPredictor):
+#     def __init__(self, url, target_name, signature):
+#         self.url = url
+#
+#     def predict(self, data):
+#         return requests.post(url=self.url, json=data)
+#
+#
+# class GRPCPredictor(AbstractPredictor):
+#
+#     def __init__(self, channel, target_name, signature):
+#         self.channel = channel
+#         self.target_name = target_name
+#         self.contract = signature
+#         self.stub = hsg.PredictionServiceStub(self.channel)
+#
+#     def predict(self, data):
+#         return self.stub.Predict(data)
+#
+#
+# class ShadowlessGRPCPredictor(GRPCPredictor):
+#     def __init__(self, channel, target_name, signature):
+#         super().__init__(channel, target_name, signature)
+#         self.stub = hsgateway.GatewayServiceStub(self.channel)
+#
+#     def predict(self, data):
+#         return self.stub.ShadowlessPredictServable(data)
 
     # def __call__(self, profile=True, *args, **kwargs):
     #     input_tensors = []
