@@ -157,7 +157,7 @@ def test_local_model_upload():
     # mock answer from server
     # check that correct JSON is sent to cluster
 
-    m1 = get_local_model("linear_regression_1").as_metric(threshold=100, comparator=TresholdCmpOp.LESS_EQ)
+    m1 = get_local_model("linear_regression_1").as_metric(threshold=100, comparator=TresholdCmpOp.GREATER_EQ)
     m2 = get_local_model("linear_regression_2").as_metric(threshold=100, comparator=TresholdCmpOp.LESS_EQ)
 
     production_model = get_local_model("linear_regression_prod").with_metrics([m1, m2])
