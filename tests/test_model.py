@@ -179,9 +179,16 @@ def test_upload_logs_fail():
     pass
 
 
+# TODO: add asserts, add model
 def test_model_list():
     cluster = Cluster(CLUSTER_ENDPOINT)
+
+    name, contract, metadata = get_ext_model_fields()
+    created_model = ExternalModel.create(cluster=cluster, name=name, contract=contract, metadata=metadata)
+
     res_list = Model.list_models(cluster)
+
+    assert res_list
 
 
 def test_model_delete_by_id():
