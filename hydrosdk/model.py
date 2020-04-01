@@ -70,12 +70,16 @@ def read_yaml(path):
         protocontract = contract_from_dict_yaml(contract)
     else:
         protocontract = None
+
     model = LocalModel(
         name=name,
         contract=protocontract,
         runtime=runtime,
         payload=payload,
-        path=path
+        path=path,
+        install_command=model_doc.get('install-command'),
+        training_data=model_doc.get('training-data'),
+        metadata=model_doc.get('metadata')
     )
     return model
 
@@ -179,7 +183,7 @@ class LocalModel(Metricable):
         else:
             raise ValueError("Unsupported file extension: {}".format(ext))
 
-    def __init__(self, name, contract, runtime, payload, path=None, metadata=None, install_command=None):
+    def __init__(self, name, contract, runtime, payload, path=None, metadata=None, install_command=None, training_data=None):
         super().__init__()
 
         if not isinstance(name, str):
@@ -204,12 +208,19 @@ class LocalModel(Metricable):
 
             for key, value in metadata.items():
                 if not isinstance(key, str):
-                    raise TypeError(str(key) + " key from metadata is not a dict")
+                    raise TypeError(str(key) + " key from metadata is not a string")
                 if not isinstance(value, str):
-                    raise TypeError(str(value) + " value from metadata is not a dict")
+                    raise TypeError(str(value) + " value from metadata is not a string")
 
         self.metadata = metadata
+
+        if install_command and not isinstance(install_command, str):
+            raise TypeError("install-command should be a string")
         self.install_command = install_command
+
+        if training_data and not isinstance(training_data, str):
+            raise TypeError("training-data should be a string")
+        self.training_data = training_data
 
     def __repr__(self):
         return "LocalModel {}".format(self.name)
