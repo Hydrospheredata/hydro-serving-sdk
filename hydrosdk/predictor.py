@@ -4,11 +4,20 @@ from hydrosdk.cluster import Cluster
 
 
 class PredictServiceClient:
+    """Client to use with Predict. Have to be created in order to do predict"""
+
     def __init__(self, cluster: Cluster):
         self.channel = cluster.grpc_insecure()
         self.stub = PredictionServiceStub(self.channel)
 
-    def predict(self, inputs:dict, model_spec: ModelSpec) -> PredictResponse:
+    def predict(self, inputs: dict, model_spec: ModelSpec) -> PredictResponse:
+        """
+        It forms a PredictRequest. PredictRequest specifies which TensorFlow model to run, as well as
+        how inputs are mapped to tensors and how outputs are filtered before returning to user.
+        :param inputs: dict in the format of {string: tensorProto} with contract info
+        :param model_spec: model specification created for associated servable
+        :return: PredictResponse with outputs in protobuf format
+        """
         request = predict_pb2.PredictRequest(model_spec=model_spec, inputs=inputs)
         try:
             response = self.stub.Predict(request)
@@ -57,33 +66,33 @@ class PredictServiceClient:
 #     def predict(self, data):
 #         return self.stub.ShadowlessPredictServable(data)
 
-    # def __call__(self, profile=True, *args, **kwargs):
-    #     input_tensors = []
-    #
-    #     for arg in args:
-    #         input_tensors.extend(decompose_arg_to_tensors(arg))
-    #
-    #     for key, arg in kwargs.items():
-    #         input_tensors.append(decompose_kwarg_to_tensor(key, arg))
-    #
-    #     is_valid, error_msg = self.model.contract.signature.validate_input(input_tensors)
-    #     if not is_valid:
-    #         return ContractViolationException(error_msg)
-    #
-    #     input_proto_dict = dict((map(lambda x: (x.name, x.proto), input_tensors)))
-    #     predict_request = ServablePredictRequest(servable_name=self.name, data=input_proto_dict)
-    #
-    #     if profile:
-    #         result = self.model.cluster.gateway_stub.PredictServable(predict_request)
-    #     else:
-    #         result = self.model.cluster.gateway_stub.ShadowlessPredictServable(predict_request)
-    #
-    #     output_tensors = []
-    #     for tensor_name, tensor_proto in result.outputs:
-    #         output_tensors.append(Tensor.from_proto(tensor_name, tensor_proto))
-    #
-    #     is_valid, error_msg = self.model.contract.signature.validate_output(output_tensors)
-    #     if not is_valid:
-    #         warnings.warn("Output is not valid.\n" + error_msg)
-    #
-    #     return output_tensors
+# def __call__(self, profile=True, *args, **kwargs):
+#     input_tensors = []
+#
+#     for arg in args:
+#         input_tensors.extend(decompose_arg_to_tensors(arg))
+#
+#     for key, arg in kwargs.items():
+#         input_tensors.append(decompose_kwarg_to_tensor(key, arg))
+#
+#     is_valid, error_msg = self.model.contract.signature.validate_input(input_tensors)
+#     if not is_valid:
+#         return ContractViolationException(error_msg)
+#
+#     input_proto_dict = dict((map(lambda x: (x.name, x.proto), input_tensors)))
+#     predict_request = ServablePredictRequest(servable_name=self.name, data=input_proto_dict)
+#
+#     if profile:
+#         result = self.model.cluster.gateway_stub.PredictServable(predict_request)
+#     else:
+#         result = self.model.cluster.gateway_stub.ShadowlessPredictServable(predict_request)
+#
+#     output_tensors = []
+#     for tensor_name, tensor_proto in result.outputs:
+#         output_tensors.append(Tensor.from_proto(tensor_name, tensor_proto))
+#
+#     is_valid, error_msg = self.model.contract.signature.validate_output(output_tensors)
+#     if not is_valid:
+#         warnings.warn("Output is not valid.\n" + error_msg)
+#
+#     return output_tensors
