@@ -15,8 +15,8 @@ def get_payload():
     return {os.path.dirname(os.path.abspath(__file__)) + '/resources/model_1/src/func_main.py': './src/func_main.py'}
 
 
-def get_cluster():
-    return Cluster(CLUSTER_ENDPOINT)
+def get_cluster(cluster_enpdoint=CLUSTER_ENDPOINT):
+    return Cluster(cluster_enpdoint)
 
 
 def get_contract():
