@@ -1,5 +1,4 @@
-import grpc
-from hydro_serving_grpc.tf.api import predict_pb2, PredictionServiceStub
+from hydro_serving_grpc.tf.api import predict_pb2, PredictionServiceStub, ModelSpec, PredictResponse
 
 from hydrosdk.cluster import Cluster
 
@@ -9,21 +8,15 @@ class PredictServiceClient:
         self.channel = cluster.grpc_insecure()
         self.stub = PredictionServiceStub(self.channel)
 
-    def predict(self, inputs, model_spec=None):
+    def predict(self, inputs:dict, model_spec: ModelSpec) -> PredictResponse:
         request = predict_pb2.PredictRequest(model_spec=model_spec, inputs=inputs)
-
         try:
             response = self.stub.Predict(request)
-            print("Predict fetched")
-            print(response)
             return response
-        except grpc.RpcError as err:
-            print(err)
+        except Exception as err:
+            raise Exception(f"Failed to predict.{str(err)} ")
 
-
-
-
-
+# TODO: delete if not needed
 # import abc
 # import requests
 # import hydro_serving_grpc as hsg
