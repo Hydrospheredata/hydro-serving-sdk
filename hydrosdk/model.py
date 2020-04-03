@@ -349,7 +349,7 @@ class Model(Metricable):
         :raises Exception: if server returned not 200
         :return: Model obj
         """
-        resp = cluster.request("GET", Model.BASE_URL + f"/{model_id}")
+        resp = cluster.request("GET", Model.BASE_URL + "/version")
 
         if resp.ok:
             for model_json in resp.json():
