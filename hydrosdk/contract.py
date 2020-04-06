@@ -116,8 +116,6 @@ def field_from_dict_new(name, data_dict):
             result_subfields = subfields_buffer
     else:
         result_dtype = name2dtype(dtype)
-        if result_dtype == DT_INVALID:
-            raise ValueError("Invalid contract: {} field has invalid datatype {}".format(name, dtype))
 
     if result_dtype is not None:
         result_field = ModelField(
