@@ -1,9 +1,29 @@
 import time
 import pytest
+from hydro_serving_grpc.contract import ModelContract
 
 from hydrosdk.exceptions import ServableException
 from hydrosdk.servable import Servable
-from tests.test_model import get_cluster, get_local_model
+from tests.test_model import get_cluster, get_local_model, get_signature
+
+
+def create_test_servable():
+    http_cluster = get_cluster()
+
+    signature = get_signature()
+    contract = ModelContract(predict=signature)
+
+    model = get_local_model(contract=contract)
+
+    upload_resp = model.upload(http_cluster)
+
+    # wait for model to upload
+    time.sleep(10)
+
+    created_servable = Servable.create(model_name=upload_resp[model].model.name,
+                                       model_version=upload_resp[model].model.version, cluster=http_cluster)
+
+    return created_servable
 
 
 def test_servable_list_all():
