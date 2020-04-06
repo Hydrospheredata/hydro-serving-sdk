@@ -1,6 +1,8 @@
 from collections import namedtuple
 from typing import List
 
+from hydrosdk.predictor import Predictable
+
 ApplicationDef = namedtuple('ApplicationDef', ('name', 'executionGraph', 'kafkaStreaming'))
 
 
@@ -18,7 +20,7 @@ def streaming_params(in_topic, out_topic):
     }
 
 
-class Application:
+class Application(Predictable):
     """
     An application is a publicly available endpoint to reach your models (https://hydrosphere.io/serving-docs/latest/overview/concepts.html#applications)
     """
