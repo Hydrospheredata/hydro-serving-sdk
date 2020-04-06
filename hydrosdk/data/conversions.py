@@ -1,7 +1,8 @@
-from hydro_serving_grpc import TensorProto
-from hydrosdk.data.types import NP_TO_HS_DTYPE, DTYPE_TO_FIELDNAME, np2proto_shape, PY_TO_DTYPE
 import numpy as np
 import pandas as pd
+from hydro_serving_grpc import TensorProto
+
+from hydrosdk.data.types import NP_TO_HS_DTYPE, DTYPE_TO_FIELDNAME, np2proto_shape, PY_TO_DTYPE
 
 
 def numpy_data_to_tensor_proto(data, dtype, shape):
@@ -12,6 +13,7 @@ def numpy_data_to_tensor_proto(data, dtype, shape):
         "shape": np2proto_shape(shape)
     }
     return TensorProto(**kwargs)
+
 
 def python_dtype_to_proto(value, key, signature) -> TensorProto:
     return numpy_data_to_tensor_proto(value, signature.inputs[key].dtype, signature.inputs[key].shape)
@@ -30,13 +32,15 @@ def convert_inputs_to_tensor_proto(x, signature) -> tuple:
         return_type = dict
         for key, value in x.items():
             if type(value) in PY_TO_DTYPE:  # x: 1
-                tensors[key] = numpy_data_to_tensor_proto(value, signature.inputs[key].dtype, signature.inputs[key].shape) # получить данные о k,v
+                tensors[key] = numpy_data_to_tensor_proto(value, signature.inputs[key].dtype,
+                                                          signature.inputs[key].shape)  # получить данные о k,v
             elif isinstance(value, list):  # x: [1,2,3,4]
                 for list_el in value:
-                    tensors[key] = numpy_data_to_tensor_proto(list_el, signature.inputs[key].dtype, signature.inputs[key].shape) # получить данные о k,v
-            elif isinstance(value, np.ndarray): # x: np.ndarray(1,2,3,4)
+                    tensors[key] = numpy_data_to_tensor_proto(list_el, signature.inputs[key].dtype,
+                                                              signature.inputs[key].shape)  # получить данные о k,v
+            elif isinstance(value, np.ndarray):  # x: np.ndarray(1,2,3,4)
                 return_type = np.ndarray
-                tensors[key] = numpy_data_to_tensor_proto(value, value.dtype, value.shape) # получить данные о k,v
+                tensors[key] = numpy_data_to_tensor_proto(value, value.dtype, value.shape)  # получить данные о k,v
             else:
                 raise TypeError("Unsupported objects in dict values {}".format(type(value)))
     elif isinstance(x, pd.DataFrame):
@@ -53,17 +57,6 @@ def convert_inputs_to_tensor_proto(x, signature) -> tuple:
             "Conversion failed. Expected [pandas.DataFrame, pd.Series, dict[str, numpy.ndarray]], got {}".format(
                 type(x)))
     return tensors, return_type
-
-
-
-
-
-
-
-
-
-
-
 
 # TODO: delete if not needed
 #
@@ -137,4 +130,3 @@ def convert_inputs_to_tensor_proto(x, signature) -> tuple:
 #                     type(x)))
 #         return tensor
 #
-
