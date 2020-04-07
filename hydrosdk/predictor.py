@@ -8,7 +8,7 @@ from hydro_serving_grpc.contract import ModelSignature
 from hydro_serving_grpc.gateway import GatewayServiceStub
 
 from hydrosdk.data.conversions import convert_inputs_to_tensor_proto
-from hydrosdk.data.types import PredictorDT
+from hydrosdk.data.types import PredictorDT, proto2np_dtype
 
 
 class PredictImplementation(ABC):
@@ -57,7 +57,7 @@ class PredictServiceClient:
         self.model_spec = ModelSpec(model_name=target)
         self.signature = signature
     # TODO: fix doc
-    def predict(self, inputs: Union[pd.DataFrame, dict]) -> Union[pd.DataFrame, dict]:
+    def predict(self, inputs: Union[pd.DataFrame, dict, pd.Series]) -> Union[pd.DataFrame, dict, pd.Series]:
         """
         It forms a PredictRequest. PredictRequest specifies which TensorFlow model to run, as well as
         how inputs are mapped to tensors and how outputs are filtered before returning to user.
@@ -74,20 +74,63 @@ class PredictServiceClient:
         try:
             response = self.impl.send_data(model_spec=self.model_spec, inputs=inputs)
 
-            # TODO: add reverse conversion
-
             if is_dataframe(inputs_dtype):
-                # convert
-                pass
+                df = pd.DataFrame()
+                for key, value in response.outputs.items():
+                    current_index = key
+                    tensor_shape = value.tensor_shape
 
-            if is_npArray(inputs_dtype):
-                # convert
-                pass
-            if is_dict(inputs_dtype):
-                # convert
-                pass
+                    dims = pd.Series([dim.size for dim in tensor_shape.dim])
+                    df[current_index] = dims.values
+                return df
 
-            return response
+            elif is_npArray(inputs_dtype):
+                output_tensors_dict = {}
+                for key, value in response.outputs.items():
+
+                    key_str = key
+
+                    tensor_shape = value.tensor_shape
+
+                    dims = [dim.size for dim in tensor_shape.dim]
+
+                    dtype = proto2np_dtype(value.dtype)
+                    output_tensors_dict[key_str] = np.asarray(dims, dtype=dtype)
+
+                return output_tensors_dict
+
+            elif is_dict(inputs_dtype):
+                output_tensors_dict = {}
+                for key, value in response.outputs.items():
+
+                    key_str = key
+
+                    tensor_shape = value.tensor_shape
+
+                    dims = [dim.size for dim in tensor_shape.dim]
+
+                    output_tensors_dict[key_str] = dims
+                return output_tensors_dict
+
+            elif is_pdSeries(inputs_dtype):
+                indices = []
+                data = []
+                for key, value in response.outputs.items():
+                    current_index = key
+                    tensor_shape = value.tensor_shape
+
+                    indices.append(current_index)
+                    dims = [dim.size for dim in tensor_shape.dim]
+                    data.append(dims)
+
+                series = pd.Series(data, index=indices)
+                return series
+
+            else:
+                raise ValueError(
+                    "Conversion failed. Expected [pandas.DataFrame, pd.Series, dict[str, numpy.ndarray]], got {}".format(
+                        inputs_dtype))
+
             # проверка response на соответствие сигнатуре
         except Exception as err:
             raise Exception(f"Failed to predict.{str(err)} ")
