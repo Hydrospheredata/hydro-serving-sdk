@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from hydro_serving_grpc import TensorProto
 
-from hydrosdk.data.types import NP_TO_HS_DTYPE, DTYPE_TO_FIELDNAME, np2proto_shape, PY_TO_DTYPE
+from hydrosdk.data.types import NP_TO_HS_DTYPE, DTYPE_TO_FIELDNAME, np2proto_shape, PY_TO_DTYPE, PredictorDT
 
 
 def numpy_data_to_tensor_proto(data, dtype, shape):
@@ -29,7 +29,7 @@ def convert_inputs_to_tensor_proto(x, signature) -> tuple:
     return_type = None
     tensors = {}
     if isinstance(x, dict):
-        return_type = dict
+        return_type = PredictorDT.DICT
         for key, value in x.items():
             if type(value) in PY_TO_DTYPE:  # x: 1
                 tensors[key] = numpy_data_to_tensor_proto(value, signature.inputs[key].dtype,
@@ -39,16 +39,16 @@ def convert_inputs_to_tensor_proto(x, signature) -> tuple:
                     tensors[key] = numpy_data_to_tensor_proto(list_el, signature.inputs[key].dtype,
                                                               signature.inputs[key].shape)  # получить данные о k,v
             elif isinstance(value, np.ndarray):  # x: np.ndarray(1,2,3,4)
-                return_type = np.ndarray
+                return_type = PredictorDT.NP_ARRAY
                 tensors[key] = numpy_data_to_tensor_proto(value, value.dtype, value.shape)  # получить данные о k,v
             else:
                 raise TypeError("Unsupported objects in dict values {}".format(type(value)))
     elif isinstance(x, pd.DataFrame):
-        return_type = pd.DataFrame
+        return_type = PredictorDT.PD_DF
         for key, value in dict(x).items():
             tensors[key] = numpy_data_to_tensor_proto(value, value.type, value.shape)
     elif isinstance(x, pd.Series):
-        return_type = pd.Series
+        return_type = PredictorDT.PD_SERIES
         x_as_df = x.to_frame()
         for key, value in dict(x_as_df).items():
             tensors[key] = numpy_data_to_tensor_proto(value, value.type, value.shape)

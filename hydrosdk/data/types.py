@@ -1,4 +1,5 @@
 import numbers
+from enum import Enum
 
 from hydro_serving_grpc import DT_STRING, DT_BOOL, \
     DT_HALF, DT_FLOAT, DT_DOUBLE, DT_INT8, DT_INT16, \
@@ -201,3 +202,10 @@ def proto2np_shape(tsp):
 def np2proto_shape(np_shape):
     shape = TensorShapeProto(dim=[TensorShapeProto.Dim(size=x) for x in np_shape])
     return shape
+
+
+class PredictorDT(Enum):
+    DICT = "dict"
+    NP_ARRAY = "nparray"
+    PD_DF = "dataframe"
+    PD_SERIES = "series"

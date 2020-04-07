@@ -8,6 +8,7 @@ from hydro_serving_grpc.contract import ModelSignature
 from hydro_serving_grpc.gateway import GatewayServiceStub
 
 from hydrosdk.data.conversions import convert_inputs_to_tensor_proto
+from hydrosdk.data.types import PredictorDT
 
 
 class PredictImplementation(ABC):
@@ -33,19 +34,19 @@ class UnmetricableImplementation(PredictImplementation):
 
 
 def is_dataframe(obj):
-    return isinstance(obj, pd.DataFrame)
+    return obj == PredictorDT.PD_DF
 
 
 def is_dict(obj):
-    return isinstance(obj, dict)
+    return obj == PredictorDT.DICT
 
 
 def is_pdSeries(obj):
-    return isinstance(obj, pd.Series)
+    return obj == PredictorDT.PD_SERIES
 
 
 def is_npArray(obj):
-    return isinstance(obj, np.ndarray)
+    return obj == PredictorDT.NP_ARRAY
 
 
 class PredictServiceClient:
@@ -55,13 +56,11 @@ class PredictServiceClient:
         self.impl = impl
         self.model_spec = ModelSpec(model_name=target)
         self.signature = signature
-
+    # TODO: fix doc
     def predict(self, inputs: Union[pd.DataFrame, dict]) -> Union[pd.DataFrame, dict]:
         """
         It forms a PredictRequest. PredictRequest specifies which TensorFlow model to run, as well as
         how inputs are mapped to tensors and how outputs are filtered before returning to user.
-        + int, str, float, list, (later support of dict)
-        when непонятное говно object, bytestring - raise ValueError()
         :param inputs: dict in the format of {string: Union[python_primitive_types, numpy_primitive_type]} with contract info
         :param model_spec: model specification created for associated servable
         :return: PredictResponse with outputs in protobuf format
