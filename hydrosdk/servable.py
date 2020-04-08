@@ -17,7 +17,7 @@ class Servable(Predictable):
     BASE_URL = "/api/v2/servable"
 
     @staticmethod
-    def model_version_json_to_servable(mv_json: dict, cluster):
+    def model_version_json_to_servable(mv_json: dict, cluster, grpc_cluster):
         """
         Deserializes model version json to servable object
 
@@ -38,17 +38,18 @@ class Servable(Predictable):
             metadata=model_data['metadata'],
             install_command=model_data.get('installCommand'))
         return Servable(cluster=cluster, model=model, servable_name=mv_json['fullName'],
-                        metadata=model_data['metadata'])
+                        metadata=model_data['metadata'], grpc_cluster=grpc_cluster)
 
     @staticmethod
-    def create(cluster, model_name, model_version, metadata=None):
+    def create(cluster, model_name, model_version, metadata=None, grpc_cluster=None):
         """
         Sends request to server and returns servable object
 
-        :param cluster:
+        :param cluster: http cluster
         :param model_name:
         :param model_version:
         :param metadata:
+        :param grpc_cluster: grpc cluster
         :raises ServableException: If server returned not 200
 
         :return: servable
@@ -62,7 +63,7 @@ class Servable(Predictable):
         res = cluster.request(method='POST', url='/api/v2/servable', json=msg)
         if res.ok:
             json_res = res.json()
-            return Servable.model_version_json_to_servable(mv_json=json_res, cluster=cluster)
+            return Servable.model_version_json_to_servable(mv_json=json_res, cluster=cluster, grpc_cluster=grpc_cluster)
         else:
             raise ServableException(f"{res.status_code} : {res.text}")
 
@@ -109,13 +110,14 @@ class Servable(Predictable):
         else:
             raise ServableException(f"{res.status_code} : {res.text}")
 
-    def __init__(self, cluster, model, servable_name, metadata=None):
+    def __init__(self, cluster, model, servable_name, grpc_cluster, metadata=None):
         if metadata is None:
             metadata = {}
         self.model = model
         self.name = servable_name
         self.meta = metadata
         self.cluster = cluster
+        self.grpc_cluster = grpc_cluster
 
     # TODO: method not used
     def logs(self, follow=False):
