@@ -68,9 +68,9 @@ def test_servable_status():
     created_servable = Servable.create(model_name=upload_resp[model].model.name,
                                        model_version=upload_resp[model].model.version, cluster=cluster)
 
-    assert created_servable.status() in {ServableStatus.STARTING, ServableStatus.SERVING}
+    assert created_servable.status == ServableStatus.STARTING
 
-    time.sleep(5)
+    time.sleep(10)
     found_servable = Servable.get(cluster, created_servable.name)
 
-    assert found_servable.status() in {ServableStatus.STARTING, ServableStatus.SERVING}
+    assert found_servable.status == ServableStatus.SERVING

@@ -52,7 +52,11 @@ class Servable:
             cluster=cluster,
             metadata=model_data['metadata'],
             install_command=model_data.get('installCommand'))
-        return Servable(cluster=cluster, model=model, servable_name=mv_json['fullName'],
+        return Servable(cluster=cluster,
+                        model=model,
+                        servable_name=mv_json['fullName'],
+                        status=ServableStatus[mv_json['status']['status'].upper()],
+                        status_message=mv_json['status']['msg'],
                         metadata=model_data['metadata'])
 
     @staticmethod
@@ -124,26 +128,15 @@ class Servable:
         else:
             raise ServableException(f"{res.status_code} : {res.text}")
 
-    def __init__(self, cluster, model, servable_name, metadata=None):
+    def __init__(self, cluster, model, servable_name, status, status_message, metadata=None):
         if metadata is None:
             metadata = {}
         self.model = model
         self.name = servable_name
         self.meta = metadata
         self.cluster = cluster
-
-    def status(self):
-        """
-        Returns current status of the servable. Possible statuses are described in ServableStatus
-
-        :raises ServableException: If server returned not 200
-        :return: ServableStatus
-        """
-        res = self.cluster.request("GET", "/api/v2/servable/{}".format(self.name))
-        if res.ok:
-            return ServableStatus[res.json()['status']['status'].upper()]
-        else:
-            raise ServableException(f"{res.status_code} : {res.text}")
+        self.status = status
+        self.status_message = status_message
 
     # TODO: method not used
     def logs(self, follow=False):
