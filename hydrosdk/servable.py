@@ -1,3 +1,4 @@
+from enum import Enum
 from urllib.parse import urljoin
 
 import sseclient
@@ -6,6 +7,21 @@ from .contract import contract_from_dict
 from .exceptions import ServableException
 from .image import DockerImage
 from .model import Model
+
+
+class ServableStatus(Enum):
+    """
+    # TODO add more information about statuses
+    Servable can be in one of four states:
+        1. STARTING -
+        2. SERVING -
+        3. NOT_SERVING -
+        4. NOT_AVAILABLE -
+    """
+    STARTING = 0
+    SERVING = 1
+    NOT_SERVING = 2
+    NOT_AVAILABLE = 3
 
 
 class Servable:
@@ -36,7 +52,11 @@ class Servable:
             cluster=cluster,
             metadata=model_data['metadata'],
             install_command=model_data.get('installCommand'))
-        return Servable(cluster=cluster, model=model, servable_name=mv_json['fullName'],
+        return Servable(cluster=cluster,
+                        model=model,
+                        servable_name=mv_json['fullName'],
+                        status=ServableStatus[mv_json['status']['status'].upper()],
+                        status_message=mv_json['status']['msg'],
                         metadata=model_data['metadata'])
 
     @staticmethod
@@ -108,13 +128,15 @@ class Servable:
         else:
             raise ServableException(f"{res.status_code} : {res.text}")
 
-    def __init__(self, cluster, model, servable_name, metadata=None):
+    def __init__(self, cluster, model, servable_name, status, status_message, metadata=None):
         if metadata is None:
             metadata = {}
         self.model = model
         self.name = servable_name
         self.meta = metadata
         self.cluster = cluster
+        self.status = status
+        self.status_message = status_message
 
     # TODO: method not used
     def logs(self, follow=False):
@@ -129,4 +151,3 @@ class Servable:
             return sseclient.SSEClient(res).events()
         else:
             raise ServableException(f"{res.status_code} : {res.text}")
-
