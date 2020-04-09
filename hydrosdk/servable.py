@@ -18,10 +18,10 @@ class ServableStatus(Enum):
         3. NOT_SERVING -
         4. NOT_AVAILABLE -
     """
-    STARTING = 0
-    SERVING = 1
-    NOT_SERVING = 2
-    NOT_AVAILABLE = 3
+    STARTING = 2
+    SERVING = 3
+    NOT_SERVING = 0
+    NOT_AVAILABLE = 1
 
 
 class Servable:
