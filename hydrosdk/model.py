@@ -183,7 +183,8 @@ class LocalModel(Metricable):
         else:
             raise ValueError("Unsupported file extension: {}".format(ext))
 
-    def __init__(self, name, contract, runtime, payload, path=None, metadata=None, install_command=None, training_data=None):
+    def __init__(self, name, contract, runtime, payload, path=None, metadata=None, install_command=None,
+                 training_data=None):
         super().__init__()
 
         if not isinstance(name, str):
@@ -304,9 +305,20 @@ class LocalModel(Metricable):
         return models_dict
 
 
+class ModelStatus(Enum):
+    """
+    Model building statuses
+    """
+    Assembling = "Assembling"
+    Released = "Released"
+    Failed = "Failed"
+
+
 class Model(Metricable):
     """
-    Model (A model is a machine learning model or a processing function that consumes provided inputs and produces predictions or transformations, https://hydrosphere.io/serving-docs/latest/overview/concepts.html#models)
+    Model (A model is a machine learning model or a processing function that consumes provided inputs
+    and produces predictions or transformations
+    https://hydrosphere.io/serving-docs/latest/overview/concepts.html#models)
     """
     BASE_URL = "/api/v2/model"
 
@@ -326,25 +338,7 @@ class Model(Metricable):
         if resp.ok:
             # print(80)
             model_json = resp.json()
-            model_id = model_json["id"]
-            model_name = model_json["model"]["name"]
-            model_version = model_json["modelVersion"]
-            model_contract = contract_from_dict(model_json["modelContract"])
-
-            # external model deserialization handling
-            # TODO: get its own endpoint for external model
-            if not model_json.get("runtime"):
-                model_json["runtime"] = {}
-
-            model_runtime = DockerImage(model_json["runtime"].get("name"), model_json["runtime"].get("tag"),
-                                        model_json["runtime"].get("sha256"))
-            model_image = model_json.get("image")
-            model_cluster = cluster
-
-            res_model = Model(model_id, model_name, model_version, model_contract,
-                              model_runtime, model_image, model_cluster)
-
-            return res_model
+            return Model.from_json(cluster, model_json)
 
         else:
             raise Exception(
@@ -366,20 +360,7 @@ class Model(Metricable):
         if resp.ok:
             for model_json in resp.json():
                 if model_json['id'] == model_id:
-                    model_id = model_json["id"]
-                    model_name = model_json["model"]["name"]
-                    model_version = model_json["modelVersion"]
-                    model_contract = contract_from_dict(model_json["modelContract"])
-
-                    model_runtime = DockerImage(model_json["runtime"].get("name"), model_json["runtime"].get("tag"),
-                                                model_json["runtime"].get("sha256"))
-                    model_image = model_json["image"]
-                    model_cluster = cluster
-
-                    res_model = Model(model_id, model_name, model_version, model_contract,
-                                      model_runtime, model_image, model_cluster)
-
-                    return res_model
+                    return Model.from_json(cluster, model_json)
 
         raise Exception(
             f"Failed to find_by_id Model for model_id={model_id}. {resp.status_code} {resp.text}")
@@ -395,6 +376,38 @@ class Model(Metricable):
             runtime=proto.runtime,
             image=DockerImage(name=proto.image.name, tag=proto.image.tag, sha256=proto.image_sha),
             cluster=cluster
+        )
+
+    @staticmethod
+    def from_json(cluster, model_json):
+        model_id = model_json["id"]
+        model_name = model_json["model"]["name"]
+        model_version = model_json["modelVersion"]
+        model_contract = contract_from_dict(model_json["modelContract"])
+
+        # external model deserialization handling
+        # TODO: get its own endpoint for external model
+        if not model_json.get("runtime"):
+            model_json["runtime"] = {}
+
+        model_runtime = DockerImage(model_json["runtime"].get("name"), model_json["runtime"].get("tag"),
+                                    model_json["runtime"].get("sha256"))
+        model_image = model_json.get("image")
+        model_cluster = cluster
+
+        status = ModelStatus[model_json['status']]
+        metadata = model_json['metadata']
+
+        return Model(
+            id=model_id,
+            name=model_name,
+            version=model_version,
+            contract=model_contract,
+            runtime=model_runtime,
+            image=model_image,
+            cluster=model_cluster,
+            status=status,
+            metadata=metadata,
         )
 
     @staticmethod
@@ -426,24 +439,11 @@ class Model(Metricable):
             models = []
 
             for model_version_json in model_versions_json:
-
                 if model_version_json['isExternal']:
                     ext_model = ExternalModel.ext_model_json_to_ext_model(model_version_json)
                     models.append(ext_model)
                 else:
-                    #TODO: move deserialization out
-                    model_id = model_version_json["id"]
-                    model_name = model_version_json["model"]["name"]
-                    model_version = model_version_json["modelVersion"]
-                    model_contract = contract_from_dict(model_version_json["modelContract"])
-
-                    model_runtime = DockerImage(model_version_json["runtime"].get("name"), model_version_json["runtime"].get("tag"),
-                                                model_version_json["runtime"].get("sha256"))
-                    model_image = model_version_json.get("image")
-                    model_cluster = cluster
-
-                    model = Model(model_id, model_name, model_version, model_contract,
-                                      model_runtime, model_image, model_cluster)
+                    model = Model.from_json(cluster, model_version_json)
                     models.append(model)
             return models
 
@@ -466,7 +466,8 @@ class Model(Metricable):
             image_sha=self.image.sha256
         )
 
-    def __init__(self, id, name, version, contract, runtime, image, cluster, metadata=None, install_command=None):
+    def __init__(self, id, name, version, contract, runtime, image, cluster, status, metadata=None,
+                 install_command=None):
         super().__init__()
 
         self.name = name
@@ -476,6 +477,8 @@ class Model(Metricable):
         self.id = id
         self.version = version
         self.image = image
+
+        self.status = status
 
         self.metadata = metadata
         self.install_command = install_command
@@ -561,58 +564,38 @@ class ExternalModel:
         self.id_ = id_
 
 
-class BuildStatus(Enum):
-    """
-    Model building statuses
-    """
-    BUILDING = "BUILDING"
-    FINISHED = "FINISHED"
-    FAILED = "FAILED"
-
-
 class UploadResponse:
     """
     Received status from server about uploading
     """
+
     def __init__(self, model, version_id):
         self.cluster = model.cluster
         self.model = model
         self.model_version_id = version_id
         self.cluster = self.model.cluster
-        self._logs_iterator = self.logs()
-        self.last_log = ""
-        self._status = ""
 
     def logs(self):
         """
         Sends request, saves and returns logs iterator
         :return: log iterator
         """
-        logger = logging.getLogger("ModelDeploy")
-        try:
-            url = "/api/v2/model/version/{}/logs".format(self.model_version_id)
-            logs_response = self.model.cluster.request("GET", url, stream=True)
-            self._logs_iterator = sseclient.SSEClient(logs_response).events()
-        except RuntimeError:
-            logger.exception("Unable to get build logs")
-            self._logs_iterator = None
-        return self._logs_iterator
+        url = "/api/v2/model/version/{}/logs".format(self.model_version_id)
+        logs_response = self.model.cluster.request("GET", url, stream=True)
+        return sseclient.SSEClient(logs_response).events()
 
-    def set_status(self) -> None:
+    def poll_model(self) -> None:
         """
         Checks last log record and sets upload status
         :raises StopIteration: If something went wrong with iteration over logs
         :return: None
         """
-        try:
-            if self.last_log.startswith("Successfully tagged"):
-                self._status = BuildStatus.FINISHED
-            else:
-                self.last_log = next(self._logs_iterator).data
-                self._status = BuildStatus.BUILDING
-        except StopIteration:
-            if not self._status == BuildStatus.FINISHED:
-                self._status = BuildStatus.FAILED
+        model = Model.find(self.cluster, self.model.name, self.model.version)
+        if model:
+            self.model = model
+        else:
+            raise ValueError(
+                "Can't find a model to pull status from: {}:{}".format(self.model.name, self.model.version))
 
     def get_status(self):
         """
@@ -620,32 +603,28 @@ class UploadResponse:
 
         :return: status
         """
-        return self._status
+        return self.model.status
 
     def not_ok(self) -> bool:
         """
         Checks current status and returns if it is not ok
         :return: if not uploaded
         """
-        self.set_status()
-        return self.get_status() == BuildStatus.FAILED
+        self.poll_model()
+        return self.get_status() == ModelStatus.Failed
 
     def ok(self) -> bool:
         """
         Checks current status and returns if it is ok
         :return: if uploaded
         """
-        self.set_status()
-        return self.get_status() == BuildStatus.FINISHED
+        self.poll_model()
+        return self.get_status() == ModelStatus.Released
 
     def building(self) -> bool:
         """
         Checks current status and returns if it is building
         :return: if building
         """
-        self.set_status()
-        return self.get_status() == BuildStatus.BUILDING
-
-    # TODO: not used method
-    def request_model(self):
-        return self.cluster.request("GET", f"api/v2/model/{self.model.id}")
+        self.poll_model()
+        return self.get_status() == ModelStatus.Assembling
