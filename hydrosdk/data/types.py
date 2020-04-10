@@ -215,7 +215,6 @@ def signature_get_item(signature: ModelSignature, item: str):
 
 
 class PredictorDT(Enum):
-    DICT = "dict"
-    NP_ARRAY = "nparray"
-    PD_DF = "dataframe"
-    PD_SERIES = "series"
+    DICT_PYTHON = "dict"
+    DICT_NP_ARRAY = "nparray"
+    DF = "dataframe"
