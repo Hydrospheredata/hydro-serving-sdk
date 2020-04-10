@@ -122,7 +122,11 @@ class Metricable:
 
 class LocalModel(Metricable):
     """
-    Local Model (A model is a machine learning model or a processing function that consumes provided inputs and produces predictions or transformations, https://hydrosphere.io/serving-docs/latest/overview/concepts.html#models)
+    Local Model
+    A model is a machine learning model or a processing function that consumes provided inputs
+    and produces predictions or transformations
+
+    https://hydrosphere.io/serving-docs/latest/overview/concepts.html#models
     """
 
     @staticmethod
@@ -143,29 +147,16 @@ class LocalModel(Metricable):
         pass
 
     @staticmethod
-    def model_json_to_upload_response(cluster, model_json, contract, runtime):
+    def model_json_to_upload_response(cluster, model_json):
         """
         Deserialize model json into UploadResponse object
 
         :param cluster:
         :param model_json:
-        :param contract:
-        :param runtime:
         :return: UploadResponse obj
         """
-        version_id = model_json['id']
-        model = Model(
-            id=version_id,
-            name=model_json['model']['name'],
-            version=model_json['modelVersion'],
-            contract=contract_to_dict(contract),
-            runtime=runtime,
-            image=DockerImage(model_json['image'].get('name'), model_json['image'].get('tag'),
-                              model_json['image'].get('sha256')),
-            cluster=cluster,
-            metadata=model_json['metadata'],
-            install_command=model_json.get('installCommand'))
-        return UploadResponse(model=model, version_id=version_id)
+        model = Model.from_json(cluster, model_json)
+        return UploadResponse(model=model)
 
     @staticmethod
     def from_file(path):
@@ -268,8 +259,7 @@ class LocalModel(Metricable):
                                  headers={'Content-Type': encoder.content_type})
         if result.ok:
             json_res = result.json()
-            return LocalModel.model_json_to_upload_response(cluster=cluster, model_json=json_res,
-                                                            contract=self.contract, runtime=self.runtime)
+            return LocalModel.model_json_to_upload_response(cluster=cluster, model_json=json_res)
         else:
             raise ValueError("Error during model upload. {}".format(result.text))
 
@@ -295,7 +285,7 @@ class LocalModel(Metricable):
                     try:
                         ms = MetricSpec.create(cluster=upload_response.model.cluster,
                                                name=upload_response.model.name,
-                                               model_version_id=root_model_upload_response.model_version_id,
+                                               model_version_id=root_model_upload_response.model.id,
                                                config=msc)
                         ms_created = True
                     except MetricSpecException:
@@ -365,21 +355,14 @@ class Model(Metricable):
         raise Exception(
             f"Failed to find_by_id Model for model_id={model_id}. {resp.status_code} {resp.text}")
 
-    # TODO: method not used
-    @staticmethod
-    def from_proto(proto, cluster):
-        Model(
-            id=proto.id,
-            name=proto.name,
-            version=proto.version,
-            contract=proto.contract,
-            runtime=proto.runtime,
-            image=DockerImage(name=proto.image.name, tag=proto.image.tag, sha256=proto.image_sha),
-            cluster=cluster
-        )
-
     @staticmethod
     def from_json(cluster, model_json):
+        """
+        Internal method used for deserealization of a Model from json object
+        :param cluster:
+        :param model_json: a dictionary
+        :return: A Model instance
+        """
         model_id = model_json["id"]
         model_name = model_json["model"]["name"]
         model_version = model_json["modelVersion"]
@@ -489,7 +472,9 @@ class Model(Metricable):
 
 class ExternalModel:
     """
-    External models running outside of the Hydrosphere platform (https://hydrosphere.io/serving-docs/latest/how-to/monitoring-external-models.html)
+    External models running outside of the Hydrosphere platform
+
+    https://hydrosphere.io/serving-docs/latest/how-to/monitoring-external-models.html
     """
     BASE_URL = "/api/v2/externalmodel"
 
@@ -566,21 +551,22 @@ class ExternalModel:
 
 class UploadResponse:
     """
-    Received status from server about uploading
+    Class that wraps assembly status and logs logic.
+
+    Check the status of the assembly using `get_status()`
+    Check the build logs using `logs()`
     """
 
-    def __init__(self, model, version_id):
+    def __init__(self, model):
         self.cluster = model.cluster
         self.model = model
-        self.model_version_id = version_id
-        self.cluster = self.model.cluster
 
     def logs(self):
         """
         Sends request, saves and returns logs iterator
         :return: log iterator
         """
-        url = "/api/v2/model/version/{}/logs".format(self.model_version_id)
+        url = "/api/v2/model/version/{}/logs".format(self.model.id)
         logs_response = self.model.cluster.request("GET", url, stream=True)
         return sseclient.SSEClient(logs_response).events()
 
@@ -590,12 +576,7 @@ class UploadResponse:
         :raises StopIteration: If something went wrong with iteration over logs
         :return: None
         """
-        model = Model.find(self.cluster, self.model.name, self.model.version)
-        if model:
-            self.model = model
-        else:
-            raise ValueError(
-                "Can't find a model to pull status from: {}:{}".format(self.model.name, self.model.version))
+        self.model = Model.find(self.cluster, self.model.name, self.model.version)
 
     def get_status(self):
         """
@@ -603,6 +584,7 @@ class UploadResponse:
 
         :return: status
         """
+        self.poll_model()
         return self.model.status
 
     def not_ok(self) -> bool:
@@ -610,7 +592,6 @@ class UploadResponse:
         Checks current status and returns if it is not ok
         :return: if not uploaded
         """
-        self.poll_model()
         return self.get_status() == ModelStatus.Failed
 
     def ok(self) -> bool:
@@ -618,7 +599,6 @@ class UploadResponse:
         Checks current status and returns if it is ok
         :return: if uploaded
         """
-        self.poll_model()
         return self.get_status() == ModelStatus.Released
 
     def building(self) -> bool:
@@ -626,5 +606,4 @@ class UploadResponse:
         Checks current status and returns if it is building
         :return: if building
         """
-        self.poll_model()
         return self.get_status() == ModelStatus.Assembling
