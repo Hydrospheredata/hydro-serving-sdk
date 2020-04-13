@@ -70,12 +70,16 @@ def read_yaml(path):
         protocontract = contract_from_dict_yaml(contract)
     else:
         protocontract = None
+
     model = LocalModel(
         name=name,
         contract=protocontract,
         runtime=runtime,
         payload=payload,
-        path=path
+        path=path,
+        install_command=model_doc.get('install-command'),
+        training_data=model_doc.get('training-data'),
+        metadata=model_doc.get('metadata')
     )
     return model
 
@@ -179,7 +183,7 @@ class LocalModel(Metricable):
         else:
             raise ValueError("Unsupported file extension: {}".format(ext))
 
-    def __init__(self, name, contract, runtime, payload, path=None, metadata=None, install_command=None):
+    def __init__(self, name, contract, runtime, payload, path=None, metadata=None, install_command=None, training_data=None):
         super().__init__()
 
         if not isinstance(name, str):
@@ -204,12 +208,19 @@ class LocalModel(Metricable):
 
             for key, value in metadata.items():
                 if not isinstance(key, str):
-                    raise TypeError(str(key) + " key from metadata is not a dict")
+                    raise TypeError(str(key) + " key from metadata is not a string")
                 if not isinstance(value, str):
-                    raise TypeError(str(value) + " value from metadata is not a dict")
+                    raise TypeError(str(value) + " value from metadata is not a string")
 
         self.metadata = metadata
+
+        if install_command and not isinstance(install_command, str):
+            raise TypeError("install-command should be a string")
         self.install_command = install_command
+
+        if training_data and not isinstance(training_data, str):
+            raise TypeError("training-data should be a string")
+        self.training_data = training_data
 
     def __repr__(self):
         return "LocalModel {}".format(self.name)
@@ -398,17 +409,45 @@ class Model(Metricable):
             return res.json()
         return None
 
-    # TODO: add deserialization
     @staticmethod
-    def list_models(cluster):
+    def list_models(cluster) -> list:
         """
         List all models on server
 
         :param cluster: active cluster
-        :return: json-response from server
+        :return: list of extModel and Model
         """
-        result = cluster.request("GET", Model.BASE_URL)
-        return result.json()
+        resp = cluster.request("GET", Model.BASE_URL + "/version")
+
+        if resp.ok:
+            model_versions_json = resp.json()
+
+            models = []
+
+            for model_version_json in model_versions_json:
+
+                if model_version_json['isExternal']:
+                    ext_model = ExternalModel.ext_model_json_to_ext_model(model_version_json)
+                    models.append(ext_model)
+                else:
+                    #TODO: move deserialization out
+                    model_id = model_version_json["id"]
+                    model_name = model_version_json["model"]["name"]
+                    model_version = model_version_json["modelVersion"]
+                    model_contract = contract_from_dict(model_version_json["modelContract"])
+
+                    model_runtime = DockerImage(model_version_json["runtime"].get("name"), model_version_json["runtime"].get("tag"),
+                                                model_version_json["runtime"].get("sha256"))
+                    model_image = model_version_json.get("image")
+                    model_cluster = cluster
+
+                    model = Model(model_id, model_name, model_version, model_contract,
+                                      model_runtime, model_image, model_cluster)
+                    models.append(model)
+            return models
+
+        raise Exception(
+            f"Failed to list model versions. {resp.status_code} {resp.text}")
 
     def to_proto(self):
         """

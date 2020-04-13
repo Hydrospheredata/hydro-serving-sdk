@@ -35,12 +35,12 @@ def test_predict_list():
     time.sleep(20)
 
 
-predictor_client = created_servable.predictor(return_type=PredictorDT.DICT_PYTHON)
+    predictor_client = created_servable.predictor(return_type=PredictorDT.DICT_PYTHON)
 
-inputs = {'in1': [-1, 2]}
-predictions = predictor_client.predict(inputs=inputs)
+    inputs = {'in1': [-1, 2]}
+    predictions = predictor_client.predict(inputs=inputs)
 
-assert isinstance(predictions, dict)
+    assert isinstance(predictions, dict)
 
 
 def test_predict_pythontype():

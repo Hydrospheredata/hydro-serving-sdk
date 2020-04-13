@@ -1,3 +1,4 @@
+from enum import Enum
 from urllib.parse import urljoin
 
 import sseclient
@@ -9,6 +10,18 @@ from .model import Model
 from .predictor import Predictable
 
 
+class ServableStatus(Enum):
+    """
+    # TODO add more information about statuses
+    Servable can be in one of four states
+    """
+    STARTING = 2
+    UNKNOWN = 2
+    SERVING = 3
+    NOT_SERVING = 0
+    NOT_AVAILABLE = 1
+
+
 class Servable(Predictable):
     """
     Servable is an instance of a model version which could be used in application or by itself as it exposes various endpoints to your model version: HTTP, gRPC, and Kafka.
@@ -17,7 +30,7 @@ class Servable(Predictable):
     BASE_URL = "/api/v2/servable"
 
     @staticmethod
-    def model_version_json_to_servable(mv_json: dict, cluster, grpc_cluster):
+    def model_version_json_to_servable(mv_json: dict, cluster, grpc_cluster=None):
         """
         Deserializes model version json to servable object
 
@@ -37,8 +50,14 @@ class Servable(Predictable):
             cluster=cluster,
             metadata=model_data['metadata'],
             install_command=model_data.get('installCommand'))
-        return Servable(cluster=cluster, model=model, servable_name=mv_json['fullName'],
-                        metadata=model_data['metadata'], grpc_cluster=grpc_cluster)
+
+        return Servable(cluster=cluster,
+                        model=model,
+                        servable_name=mv_json['fullName'],
+                        grpc_cluster=grpc_cluster,
+                        status=ServableStatus[mv_json['status']['status'].upper()],
+                        status_message=mv_json['status']['msg'],
+                        metadata=model_data['metadata'])
 
     @staticmethod
     def create(cluster, model_name, model_version, metadata=None, grpc_cluster=None):
@@ -110,7 +129,7 @@ class Servable(Predictable):
         else:
             raise ServableException(f"{res.status_code} : {res.text}")
 
-    def __init__(self, cluster, model, servable_name, grpc_cluster, metadata=None):
+    def __init__(self, cluster, model, servable_name, grpc_cluster, status, status_message, metadata=None):
         if metadata is None:
             metadata = {}
         self.model = model
@@ -118,6 +137,8 @@ class Servable(Predictable):
         self.meta = metadata
         self.cluster = cluster
         self.grpc_cluster = grpc_cluster
+        self.status = status
+        self.status_message = status_message
 
     # TODO: method not used
     def logs(self, follow=False):
@@ -132,4 +153,3 @@ class Servable(Predictable):
             return sseclient.SSEClient(res).events()
         else:
             raise ServableException(f"{res.status_code} : {res.text}")
-

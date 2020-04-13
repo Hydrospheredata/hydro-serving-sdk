@@ -157,7 +157,7 @@ def test_local_model_upload():
     # mock answer from server
     # check that correct JSON is sent to cluster
 
-    m1 = get_local_model("linear_regression_1").as_metric(threshold=100, comparator=TresholdCmpOp.LESS_EQ)
+    m1 = get_local_model("linear_regression_1").as_metric(threshold=100, comparator=TresholdCmpOp.GREATER_EQ)
     m2 = get_local_model("linear_regression_2").as_metric(threshold=100, comparator=TresholdCmpOp.LESS_EQ)
 
     production_model = get_local_model("linear_regression_prod").with_metrics([m1, m2])
@@ -179,9 +179,16 @@ def test_upload_logs_fail():
     pass
 
 
+# TODO: add asserts, add model
 def test_model_list():
     cluster = Cluster(CLUSTER_ENDPOINT)
+
+    name, contract, metadata = get_ext_model_fields()
+    created_model = ExternalModel.create(cluster=cluster, name=name, contract=contract, metadata=metadata)
+
     res_list = Model.list_models(cluster)
+
+    assert res_list
 
 
 def test_model_delete_by_id():
