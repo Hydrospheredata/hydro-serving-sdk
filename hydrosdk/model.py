@@ -84,9 +84,18 @@ def read_yaml(path):
     return model
 
 
-# TODO: to be implemented
-def read_py(path):
-    pass
+def parse_model_from_json_dict(cluster, json_dict):
+    """
+    Parses json dict which could contain ExternalModel or Model
+    :param cluster:
+    :param json_dict:
+    :return:
+    """
+    is_external = json_dict.get("isExternal", True)
+    if is_external:
+        return ExternalModel.ext_model_json_to_ext_model(json_dict)
+    else:
+        return Model.from_json(cluster, json_dict)
 
 
 class Metricable:
@@ -170,7 +179,7 @@ class LocalModel(Metricable):
         if ext in ['.yml', '.yaml']:
             return read_yaml(path)
         elif ext == '.py':
-            return read_py(path)
+            raise NotImplementedError(".py file parsing is not supported yet")
         else:
             raise ValueError("Unsupported file extension: {}".format(ext))
 
@@ -327,7 +336,7 @@ class Model(Metricable):
 
         if resp.ok:
             model_json = resp.json()
-            return Model.from_json(cluster, model_json)
+            return parse_model_from_json_dict(cluster, model_json)
 
         else:
             raise Exception(
@@ -349,7 +358,7 @@ class Model(Metricable):
         if resp.ok:
             for model_json in resp.json():
                 if model_json['id'] == model_id:
-                    return Model.from_json(cluster, model_json)
+                    return parse_model_from_json_dict(cluster, model_json)
 
         raise Exception(
             f"Failed to find_by_id Model for model_id={model_id}. {resp.status_code} {resp.text}")
@@ -362,8 +371,6 @@ class Model(Metricable):
         :param model_json: a dictionary
         :return: A Model instance
         """
-        if model_json['isExternal']:
-            return ExternalModel.ext_model_json_to_ext_model(model_json)
 
         model_id = model_json["id"]
         model_name = model_json["model"]["name"]
@@ -424,7 +431,7 @@ class Model(Metricable):
             models = []
 
             for model_version_json in model_versions_json:
-                model = Model.from_json(cluster, model_version_json)
+                model = parse_model_from_json_dict(cluster, model_version_json)
                 models.append(model)
             return models
 
