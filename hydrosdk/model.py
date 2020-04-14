@@ -276,7 +276,7 @@ class LocalModel(Metricable):
             for metric in self.metrics:
                 upload_response = metric.model.__upload(cluster)
 
-                msc = MetricSpecConfig(model_version_id=upload_response.model_version_id,
+                msc = MetricSpecConfig(model_version_id=upload_response.model.id,
                                        threshold=metric.threshold,
                                        threshold_op=metric.comparator)
                 ms_created = False
@@ -326,7 +326,6 @@ class Model(Metricable):
         resp = cluster.request("GET", Model.BASE_URL + "/version/{}/{}".format(name, version))
 
         if resp.ok:
-            # print(80)
             model_json = resp.json()
             return Model.from_json(cluster, model_json)
 
@@ -363,6 +362,9 @@ class Model(Metricable):
         :param model_json: a dictionary
         :return: A Model instance
         """
+        if model_json['isExternal']:
+            return ExternalModel.ext_model_json_to_ext_model(model_json)
+
         model_id = model_json["id"]
         model_name = model_json["model"]["name"]
         model_version = model_json["modelVersion"]
@@ -422,12 +424,8 @@ class Model(Metricable):
             models = []
 
             for model_version_json in model_versions_json:
-                if model_version_json['isExternal']:
-                    ext_model = ExternalModel.ext_model_json_to_ext_model(model_version_json)
-                    models.append(ext_model)
-                else:
-                    model = Model.from_json(cluster, model_version_json)
-                    models.append(model)
+                model = Model.from_json(cluster, model_version_json)
+                models.append(model)
             return models
 
         raise Exception(
