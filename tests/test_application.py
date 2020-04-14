@@ -3,7 +3,7 @@ import time
 import pytest
 import yaml
 
-from hydrosdk.application import Application
+from hydrosdk.application import Application, ApplicationStatus
 from tests.test_model import get_cluster, get_local_model
 
 
@@ -76,3 +76,21 @@ def test_create():
             break
 
     assert found_application
+
+
+def test_application_status():
+    cluster = get_cluster()
+    local_model = get_local_model()
+    upload_response = local_model.upload(cluster=cluster)
+
+    Application.delete(cluster, DEFAULT_APP_NAME)
+    created_application = create_test_application(cluster=cluster, model=local_model,
+                                                  upload_response=upload_response)
+
+    assert created_application.status == ApplicationStatus.ASSEMBLING
+
+    time.sleep(10)
+
+    found_application = Application.find_by_name(cluster=cluster, app_name=DEFAULT_APP_NAME)
+
+    assert found_application.status == ApplicationStatus.READY
