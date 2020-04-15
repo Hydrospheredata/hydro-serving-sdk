@@ -1,4 +1,8 @@
-Check `requirements.txt` file, but it may be incomplete
+There are examples in `_build` folder, to build from scratch
+
+Install sphinx `pip install -U sphinx`
+
+Install reqs from `requirements.txt` file, but the list may be incomplete
 
 To populate hydrosdk automodule documentation run
 ```
