@@ -194,6 +194,15 @@ class LocalModel(Metricable):
         self.runtime = runtime
         if contract and not isinstance(contract, ModelContract):
             raise TypeError("contract is not a ModelContract")
+
+        # ModelField should not have DT_INVALID dtype (0), HYD-171
+        for model_field in contract.predict.inputs:
+            if model_field.dtype == 0:
+                raise ValueError("Creating contract with invalid dtype is not allowed")
+        for model_field in contract.predict.outputs:
+            if model_field.dtype == 0:
+                raise ValueError("Creating contract with invalid dtype is not allowed")
+
         self.contract = contract
 
         if isinstance(payload, list):
