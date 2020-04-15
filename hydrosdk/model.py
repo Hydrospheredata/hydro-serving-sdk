@@ -91,7 +91,10 @@ def parse_model_from_json_dict(cluster, json_dict):
     :param json_dict:
     :return:
     """
-    is_external = json_dict.get("isExternal", True)
+
+    # assumption that a model is internal by default.
+    # Externals are obligated to have "isExternal": true
+    is_external = json_dict.get("isExternal", False)
     if is_external:
         return ExternalModel.ext_model_json_to_ext_model(json_dict)
     else:
