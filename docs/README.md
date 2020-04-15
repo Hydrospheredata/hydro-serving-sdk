@@ -1,3 +1,5 @@
+Check `requirements.txt` file, but it may be incomplete
+
 To populate hydrosdk automodule documentation run
 ```
 sphinx-apidoc -f -e -o hydro_sdk_docs ../hydrosdk
