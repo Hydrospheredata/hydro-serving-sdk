@@ -1,0 +1,5 @@
+hydrosdk
+recommonmark
+sphinxcontrib-globalsubs
+git+https://github.com/pandas-dev/pydata-sphinx-theme.git@master
+sphinx-markdown-builder
