@@ -8,7 +8,7 @@ from hydro_serving_grpc.contract import ModelSignature
 from hydro_serving_grpc.gateway import GatewayServiceStub
 
 from hydrosdk.data.conversions import convert_inputs_to_tensor_proto
-from hydrosdk.data.types import PredictorDT, proto2np_dtype
+from hydrosdk.data.types import PredictorDT, proto2np_dtype, DTYPE_TO_FIELDNAME
 
 
 class PredictImplementation(ABC):
@@ -83,31 +83,30 @@ class PredictServiceClient:
 
             dims = [dim.size for dim in tensor_shape.dim]
 
-            output_tensors_dict[key_str] = dims
+            # FIXME value is not extracted from tensor_proto, see  predict_resp_to_dict_nparray
+            output_tensors_dict[key_str] = dims  # FIXME dims is not a value! it is dimenshion shape
         return output_tensors_dict
 
     @staticmethod
     def predict_resp_to_dict_nparray(response: PredictResponse) -> dict:
         output_tensors_dict = {}
-        for key, value in response.outputs.items():
-            key_str = key
-
-            tensor_shape = value.tensor_shape
-
-            dims = [dim.size for dim in tensor_shape.dim]
-
-            dtype = proto2np_dtype(value.dtype)
-            output_tensors_dict[key_str] = np.asarray(dims, dtype=dtype)
+        for tensor_name, tensor_proto in response.outputs.items():
+            array_shape = [dim.size for dim in tensor_proto.tensor_shape.dim]
+            np_dtype = proto2np_dtype(tensor_proto.dtype)
+            value = getattr(tensor_proto, DTYPE_TO_FIELDNAME[tensor_proto.dtype])
+            output_tensors_dict[tensor_name] = np.asarray(value, dtype=np_dtype).reshape(*array_shape if array_shape else (-1,))
 
         return output_tensors_dict
 
     @staticmethod
     def predict_resp_to_df(response: PredictResponse) -> pd.DataFrame:
         df = pd.DataFrame()
-        for key, value in response.outputs.items():
+        for key, tensor_proto in response.outputs.items():
             current_index = key
-            tensor_shape = value.tensor_shape
+            tensor_shape = tensor_proto.tensor_shape
 
+            # FIXME create pd.Dataframe, not pd.Series. reuse code from predict_resp_to_dict_nparray?
+            # FIXME value is not extracted from tensor_proto, see  predict_resp_to_dict_nparray
             dims = pd.Series([dim.size for dim in tensor_shape.dim])
             df[current_index] = dims.values
         return df

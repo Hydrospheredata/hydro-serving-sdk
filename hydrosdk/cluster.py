@@ -58,7 +58,7 @@ class Cluster:
         :return: grpc secure channel
         """
         if credentials is None:
-            credentials = grpc.ChannelCredentials(None)
+            credentials = grpc.ssl_channel_credentials()
         return grpc.secure_channel(self.address, credentials, options=options, compression=compression)
 
     def grpc_insecure(self, options=None, compression=None):

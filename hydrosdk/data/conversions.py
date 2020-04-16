@@ -49,7 +49,8 @@ def convert_inputs_to_tensor_proto(inputs, signature) -> dict:
                     current_signature = signature_get_item(signature=signature, item=key)
                     tensors[key] = dtype_to_tensor_proto(list_el, current_signature.dtype,
                                                          current_signature.shape)
-            elif isinstance(value, np.ndarray):  # x: np.ndarray(1,2,3,4)
+            elif isinstance(value, np.ndarray) or isinstance(value, np.ScalarType):
+                # Support both np.ndarray and np.scalar since they support same operations on them
                 tensors[key] = numpy_data_to_tensor_proto(value, value.dtype, value.shape)
             else:
                 raise TypeError("Unsupported objects in dict values {}".format(type(value)))
