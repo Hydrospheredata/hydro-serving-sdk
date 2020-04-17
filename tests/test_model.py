@@ -6,7 +6,7 @@ from hydro_serving_grpc.contract import ModelContract
 from hydrosdk.cluster import Cluster
 from hydrosdk.contract import SignatureBuilder
 from hydrosdk.image import DockerImage
-from hydrosdk.model import Model, LocalModel, resolve_paths, ExternalModel
+from hydrosdk.model import Model, LocalModel, resolve_paths, ExternalModel, parse_model_from_json_dict
 from hydrosdk.monitoring import TresholdCmpOp
 from tests.resources.test_config import CLUSTER_ENDPOINT, PATH_TO_SERVING
 
@@ -75,7 +75,6 @@ def test_external_model_find_by_name():
     created_model = ExternalModel.create(cluster=cluster, name=name, contract=contract, metadata=metadata)
     found_model = ExternalModel.find_by_name(cluster=cluster, name=created_model.name,
                                              version=created_model.version)
-
     assert found_model
 
 
@@ -205,3 +204,62 @@ def test_resolve_paths():
     folder = "/home/user/dev/model/cool/"
     result = resolve_paths(folder, payload)
     assert result['/home/user/dev/model/cool/src/func_main.py'] == './src/func_main.py'
+
+
+MODEL_JSONS = [
+    {'applications': [],
+     'model': {'id': 1, 'name': 'ext-model-test'},
+     'finished': '2020-04-17T07:02:43.429Z',
+     'modelContract': {
+         'modelName': '',
+         'predict': {
+             'signatureName': 'infer',
+             'inputs': [
+                 {'profile': 'NONE', 'dtype': 'DT_DOUBLE', 'name': 'in1', 'shape': {
+                     'dim': [{'size': -1, 'name': ''},
+                             {'size': 2, 'name': ''}],
+                     'unknownRank': False}}],
+             'outputs': [
+                 {'profile': 'NONE', 'dtype': 'DT_DOUBLE', 'name': 'out1', 'shape': {
+                     'dim': [
+                         {'size': -1, 'name': ''}],
+                     'unknownRank': False}}]}
+     },
+     'isExternal': True,
+     'id': 3,
+     'status': 'Released',
+     'metadata': {'additionalProp1': 'prop'},
+     'modelVersion': 3,
+     'created': '2020-04-17T07:02:43.429Z'
+     },
+    {'applications': [],
+     'model': {'id': 1, 'name': 'ext-model-test'},
+     'finished': '2020-04-17T07:02:43.429Z',
+     'modelContract': {
+         'modelName': '',
+         'predict': {
+             'signatureName': 'infer',
+             'inputs': [
+                 {'profile': 'NONE', 'dtype': 'DT_DOUBLE', 'name': 'in1', 'shape': {
+                     'dim': [{'size': -1, 'name': ''},
+                             {'size': 2, 'name': ''}],
+                     'unknownRank': False}}],
+             'outputs': [
+                 {'profile': 'NONE', 'dtype': 'DT_DOUBLE', 'name': 'out1', 'shape': {
+                     'dim': [
+                         {'size': -1, 'name': ''}],
+                     'unknownRank': False}}]}
+     },
+     'id': 3,
+     'metadata': {'additionalProp1': 'prop'},
+     'modelVersion': 3,
+     'created': '2020-04-17T07:02:43.429Z'
+     }
+]
+
+
+@pytest.mark.parametrize('input', MODEL_JSONS)
+@pytest.mark.parametrize('cluster', [Cluster(CLUSTER_ENDPOINT)])
+def test_model_json_parser(cluster, input):
+    result = parse_model_from_json_dict(cluster, input)
+    assert result
