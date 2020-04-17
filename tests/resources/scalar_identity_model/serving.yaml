@@ -1,0 +1,20 @@
+kind: Model
+name: upload-model-test
+runtime: test:latest
+payload:
+  - 'file1.txt'
+  - '../file2.txt'
+  - "src/"
+  - "requirements.txt"
+contract:
+  name: test_contract
+  inputs:
+    input:
+      shape: [1]
+      type: int64
+      profile: numerical
+  outputs:
+    output:
+      shape: [1]
+      type: int64
+      profile: numerical
