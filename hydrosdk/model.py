@@ -188,8 +188,7 @@ class LocalModel(Metricable):
         else:
             raise ValueError("Unsupported file extension: {}".format(ext))
 
-    def __init__(self, name, contract, runtime, payload, path=None, metadata=None, install_command=None,
-                 training_data=None):
+    def __init__(self, name, runtime, payload, contract=None, path=None, metadata=None, install_command=None, training_data=None):
         super().__init__()
 
         if not isinstance(name, str):
@@ -198,8 +197,23 @@ class LocalModel(Metricable):
         if not isinstance(runtime, DockerImage):
             raise TypeError("runtime is not a DockerImage")
         self.runtime = runtime
-        if contract and not isinstance(contract, ModelContract):
-            raise TypeError("contract is not a ModelContract")
+        if contract:
+            if not isinstance(contract, ModelContract):
+                raise TypeError("contract is not a ModelContract")
+
+            # TODO: move out contract validation
+            # HYD-171
+            if not contract.HasField("predict"):
+                raise ValueError("Creating model without contract.predict is not allowed")
+            if not contract.predict.signature_name:
+                raise ValueError("Creating model without contract.predict.signature_name is not allowed")
+            for model_field in contract.predict.inputs:
+                if model_field.dtype == 0:
+                    raise ValueError("Creating model with invalid dtype in contract-input is not allowed")
+            for model_field in contract.predict.outputs:
+                if model_field.dtype == 0:
+                    raise ValueError("Creating model with invalid dtype in contract-output is not allowed")
+
         self.contract = contract
 
         if isinstance(payload, list):

@@ -1,7 +1,8 @@
 import os
 
 import pytest
-from hydro_serving_grpc.contract import ModelContract
+from hydro_serving_grpc import TensorShapeProto, DataType
+from hydro_serving_grpc.contract import ModelContract, ModelField, ModelSignature
 
 from hydrosdk.cluster import Cluster
 from hydrosdk.contract import SignatureBuilder
@@ -19,8 +20,10 @@ def get_cluster():
     return Cluster(CLUSTER_ENDPOINT)
 
 
-def get_contract():
-    return ModelContract(predict=get_signature())
+def get_contract(signature=None):
+    if not signature:
+        signature = get_signature()
+    return ModelContract(predict=signature)
 
 
 def get_local_model(name="upload-model-test", contract=None, payload=None, path=None):
@@ -188,6 +191,39 @@ def test_model_list():
     res_list = Model.list_models(cluster)
 
     assert res_list
+
+def test_ModelField_dt_invalid_input():
+    signature = ModelSignature(signature_name="test", inputs=[ModelField(name="test", shape=TensorShapeProto())],
+                               outputs=[ModelField(name="test", dtype=DataType.Name(2), shape=TensorShapeProto())])
+
+    contract = get_contract(signature=signature)
+
+    with pytest.raises(ValueError, match=r"Creating model with invalid dtype in contract-input.*"):
+        get_local_model(contract=contract)
+
+
+def test_ModelField_dt_invalid_output():
+    signature = ModelSignature(signature_name="test", inputs=[ModelField(name="test", dtype=DataType.Name(2), shape=TensorShapeProto())],
+                               outputs=[ModelField(name="test", shape=TensorShapeProto())])
+
+    contract = get_contract(signature=signature)
+
+    with pytest.raises(ValueError, match=r"Creating model with invalid dtype in contract-output.*"):
+        get_local_model(contract=contract)
+
+def test_ModelField_contract_predict_None():
+    contract = ModelContract(predict=None)
+    with pytest.raises(ValueError, match=r"Creating model without contract.predict is not allowed.*"):
+        get_local_model(contract=contract)
+
+def test_ModelField_contact_signatue_name_none():
+    signature = ModelSignature(inputs=[ModelField(name="test", dtype=DataType.Name(2), shape=TensorShapeProto())],
+                               outputs=[ModelField(name="test", dtype=DataType.Name(2), shape=TensorShapeProto())])
+
+    contract = get_contract(signature=signature)
+
+    with pytest.raises(ValueError, match=r"Creating model without contract.predict.signature_name is not allowed.*"):
+        get_local_model(contract=contract)
 
 
 def test_model_delete_by_id():

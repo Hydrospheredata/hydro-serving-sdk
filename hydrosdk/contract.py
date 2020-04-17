@@ -472,7 +472,7 @@ def are_dtypes_compatible(a, b, strict=False):
         else:
             return False
 
-
+# TODO: what is it doing here? should contract validation be moved out of LocalModel create?
 def validate(self, t, strict=False):
     """
     Return bool whether array is valid for this field and error message, if not valid.
