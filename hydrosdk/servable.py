@@ -7,7 +7,7 @@ from .contract import contract_from_dict
 from .exceptions import ServableException
 from .image import DockerImage
 from .model import Model
-from .predictor import Predictable
+from .predictor import PredictableServable
 
 
 class ServableStatus(Enum):
@@ -22,7 +22,7 @@ class ServableStatus(Enum):
     NOT_AVAILABLE = 1
 
 
-class Servable(Predictable):
+class Servable(PredictableServable):
     """
     Servable is an instance of a model version which could be used in application or by itself as it exposes various endpoints to your model version: HTTP, gRPC, and Kafka.
     (https://hydrosphere.io/serving-docs/latest/overview/concepts.html#servable)

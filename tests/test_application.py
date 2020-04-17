@@ -26,7 +26,13 @@ def create_test_application(cluster):
 
         time.sleep(3)
 
-        application = Application.create(cluster, app_as_dict)
+        try:
+            application = Application.create(cluster, app_as_dict)
+        except Exception:
+            # if app already existed, delete first
+            deleted_application = Application.delete(cluster=cluster, app_name=DEFAULT_APP_NAME)
+            application = Application.create(cluster, app_as_dict)
+
         return application
 
 

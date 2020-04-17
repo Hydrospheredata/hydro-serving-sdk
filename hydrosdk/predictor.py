@@ -100,10 +100,45 @@ class PredictServiceClient:
         return pd.DataFrame(response_dict)
 
 
-class Predictable:
+class Predictable(ABC):
+    @abstractmethod
+    def predictor(self):
+        pass
+
+
+class PredictableApplication(Predictable):
+    """Adds Predictor functionality"""
+
+    def predictor(self, ssl=False, return_type=PredictorDT.DICT_NP_ARRAY) -> PredictServiceClient:
+        """
+
+        :param ssl:
+        :param return_type:
+        :return:
+        """
+        if ssl:
+            self.channel = self.grpc_cluster.grpc_secure()
+        else:
+            self.channel = self.grpc_cluster.grpc_insecure()
+
+        self.impl = MetricableImplementation(self.channel)
+        self.predictor_return_type = return_type
+
+        return PredictServiceClient(self.impl, self.name, self.model.contract.predict,
+                                    return_type=self.predictor_return_type)
+
+
+class PredictableServable(Predictable):
     """Adds Predictor functionality"""
 
     def predictor(self, shadowless=False, ssl=False, return_type=PredictorDT.DICT_NP_ARRAY) -> PredictServiceClient:
+        """
+
+        :param shadowless:
+        :param ssl:
+        :param return_type:
+        :return:
+        """
         if ssl:
             self.channel = self.grpc_cluster.grpc_secure()
         else:
