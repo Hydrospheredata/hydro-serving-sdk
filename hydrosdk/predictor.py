@@ -79,8 +79,14 @@ class PredictServiceClient:
         for tensor_name, tensor_proto in response.outputs.items():
             dims = [dim.size for dim in tensor_proto.tensor_shape.dim]
             value = getattr(tensor_proto, DTYPE_TO_FIELDNAME[tensor_proto.dtype])
-            value = np.reshape(value, dims).tolist()
-            output_tensors_dict[tensor_name] = value
+
+            # If no dims specified in TensorShapeProto, then it is scalar
+            if dims:
+                value = np.reshape(value, dims).tolist()
+                output_tensors_dict[tensor_name] = value
+            else:
+                output_tensors_dict[tensor_name] = value[0]
+
         return output_tensors_dict
 
     @staticmethod
@@ -90,7 +96,13 @@ class PredictServiceClient:
             array_shape = [dim.size for dim in tensor_proto.tensor_shape.dim]
             np_dtype = proto2np_dtype(tensor_proto.dtype)
             value = getattr(tensor_proto, DTYPE_TO_FIELDNAME[tensor_proto.dtype])
-            output_tensors_dict[tensor_name] = np.asarray(value, dtype=np_dtype).reshape(*array_shape if array_shape else (-1,))
+            np_array_value = np.array(value, dtype=np_dtype)
+
+            # If no dims specified in TensorShapeProto, then it is scalar
+            if array_shape:
+                output_tensors_dict[tensor_name] = np_array_value.reshape(*array_shape)
+            else:
+                output_tensors_dict[tensor_name] = np.asscalar(np_array_value)
 
         return output_tensors_dict
 

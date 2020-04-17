@@ -36,7 +36,7 @@ def tensor_servable():
                                grpc_cluster=grpc_cluster)
 
     # wait for servable to assemble
-    time.sleep(15)
+    time.sleep(20)
     return servable
 
 
@@ -72,7 +72,8 @@ def scalar_servable():
                                grpc_cluster=grpc_cluster)
 
     # wait for servable to assemble
-    time.sleep(15)
+    time.sleep(20)
+
     return servable
 
 
@@ -101,7 +102,6 @@ def test_predict_nparray(tensor_servable):
     assert predictions['output'] == np.array([value])
 
 
-@pytest.mark.skip(reason="Discussing whether scalar signture should return scalar or tensor")
 def test_predict_np_scalar_type(scalar_servable):
     value = np.int(random() * 1e5)
 
@@ -111,6 +111,18 @@ def test_predict_np_scalar_type(scalar_servable):
 
     assert isinstance(predictions, dict)
     assert isinstance(predictions['output'], np.ScalarType)
+    assert predictions['output'] == value
+
+
+def test_predict_python_scalar_type(scalar_servable):
+    value = int(random() * 1e5)
+
+    predictor_client = scalar_servable.predictor(return_type=PredictorDT.DICT_NP_ARRAY)
+    inputs = {'input': value}
+    predictions = predictor_client.predict(inputs=inputs)
+
+    assert isinstance(predictions, dict)
+    assert isinstance(predictions['output'], int)
     assert predictions['output'] == value
 
 
