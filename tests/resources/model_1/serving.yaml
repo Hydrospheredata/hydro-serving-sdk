@@ -6,16 +6,15 @@ payload:
   - '../file2.txt'
   - "src/"
   - "requirements.txt"
-
 contract:
   name: test_contract
   inputs:
-    x:
-      shape: [-1, 2]
-      type: double
+    input:
+      shape: [1]
+      type: int64
       profile: numerical
   outputs:
-    y:
-      shape: [-1]
-      type: double
+    output:
+      shape: [1]
+      type: int64
       profile: numerical

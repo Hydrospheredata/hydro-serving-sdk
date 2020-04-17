@@ -10,11 +10,11 @@ contract:
   name: test_contract
   inputs:
     input:
-      shape: [1]
+      shape: scalar
       type: int64
       profile: numerical
   outputs:
     output:
-      shape: [1]
+      shape: scalar
       type: int64
       profile: numerical

@@ -1,5 +1,5 @@
 from abc import abstractmethod, ABC
-from typing import Union
+from typing import Union, Dict
 
 import numpy as np
 import pandas as pd
@@ -76,15 +76,11 @@ class PredictServiceClient:
     @staticmethod
     def predict_resp_to_dict_pydtype(response: PredictResponse) -> dict:
         output_tensors_dict = {}
-        for key, value in response.outputs.items():
-            key_str = key
-
-            tensor_shape = value.tensor_shape
-
-            dims = [dim.size for dim in tensor_shape.dim]
-
-            # FIXME value is not extracted from tensor_proto, see  predict_resp_to_dict_nparray
-            output_tensors_dict[key_str] = dims  # FIXME dims is not a value! it is dimenshion shape
+        for tensor_name, tensor_proto in response.outputs.items():
+            dims = [dim.size for dim in tensor_proto.tensor_shape.dim]
+            value = getattr(tensor_proto, DTYPE_TO_FIELDNAME[tensor_proto.dtype])
+            value = np.reshape(value, dims).tolist()
+            output_tensors_dict[tensor_name] = value
         return output_tensors_dict
 
     @staticmethod
@@ -100,16 +96,8 @@ class PredictServiceClient:
 
     @staticmethod
     def predict_resp_to_df(response: PredictResponse) -> pd.DataFrame:
-        df = pd.DataFrame()
-        for key, tensor_proto in response.outputs.items():
-            current_index = key
-            tensor_shape = tensor_proto.tensor_shape
-
-            # FIXME create pd.Dataframe, not pd.Series. reuse code from predict_resp_to_dict_nparray?
-            # FIXME value is not extracted from tensor_proto, see  predict_resp_to_dict_nparray
-            dims = pd.Series([dim.size for dim in tensor_shape.dim])
-            df[current_index] = dims.values
-        return df
+        response_dict: Dict[str, np.array] = PredictServiceClient.predict_resp_to_dict_nparray(response)
+        return pd.DataFrame(response_dict)
 
 
 class Predictable:
