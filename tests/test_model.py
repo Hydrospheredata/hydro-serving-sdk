@@ -41,6 +41,7 @@ def get_local_model(name="upload-model-test", contract=None, payload=None, path=
     return local_model
 
 
+
 def get_ext_model_fields() -> tuple:
     name = "ext-model-test"
     contract = get_contract()
@@ -51,9 +52,11 @@ def get_ext_model_fields() -> tuple:
 
 def get_signature():
     signature = SignatureBuilder('infer') \
-        .with_input('in1', 'double', [-1, 2], 'numerical') \
-        .with_output('out1', 'double', [-1], 'numerical').build()
+        .with_input('input', 'int64', [1], 'numerical') \
+        .with_output('output', 'int64', [1], 'numerical').build()
     return signature
+
+
 
 
 def test_external_model_create():
