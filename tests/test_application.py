@@ -15,7 +15,7 @@ def create_test_application(cluster, upload_response, model):
         d = yaml.safe_load(f)
         app = Application.parse_application(d)
         app_as_dict = app._asdict()
-        app_as_dict["executionGraph"]["stages"][0]["modelVariants"][0]["modelVersionId"] = upload_response[model].model_version_id
+        app_as_dict["executionGraph"]["stages"][0]["modelVariants"][0]["modelVersionId"] = upload_response[model].model.id
 
         while upload_response[model].building():
             print("building")
