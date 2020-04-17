@@ -195,13 +195,18 @@ class LocalModel(Metricable):
         if contract and not isinstance(contract, ModelContract):
             raise TypeError("contract is not a ModelContract")
 
-        # ModelField should not have DT_INVALID dtype (0), HYD-171
+        # TODO: move out contract validation
+        # HYD-171
+        if not contract.HasField("predict"):
+            raise ValueError("Creating model without contract.predict is not allowed")
+        if not contract.predict.signature_name:
+            raise ValueError("Creating model without contract.predict.signature_name is not allowed")
         for model_field in contract.predict.inputs:
             if model_field.dtype == 0:
-                raise ValueError("Creating contract with invalid dtype is not allowed")
+                raise ValueError("Creating model with invalid dtype in contract-input is not allowed")
         for model_field in contract.predict.outputs:
             if model_field.dtype == 0:
-                raise ValueError("Creating contract with invalid dtype is not allowed")
+                raise ValueError("Creating model with invalid dtype in contract-output is not allowed")
 
         self.contract = contract
 
