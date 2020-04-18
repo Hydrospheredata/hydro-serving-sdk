@@ -117,9 +117,9 @@ class PredictableApplication(Predictable):
         :return:
         """
         if ssl:
-            self.channel = self.grpc_cluster.grpc_secure()
+            self.channel = self.cluster.grpc_secure()
         else:
-            self.channel = self.grpc_cluster.grpc_insecure()
+            self.channel = self.cluster.grpc_insecure()
 
         self.impl = MetricableImplementation(self.channel)
         self.predictor_return_type = return_type
@@ -140,9 +140,9 @@ class PredictableServable(Predictable):
         :return:
         """
         if ssl:
-            self.channel = self.grpc_cluster.grpc_secure()
+            self.channel = self.cluster.grpc_secure()
         else:
-            self.channel = self.grpc_cluster.grpc_insecure()
+            self.channel = self.cluster.grpc_insecure()
         if shadowless:
             self.impl = UnmetricableImplementation(self.channel)
         else:

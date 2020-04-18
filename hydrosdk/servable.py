@@ -29,7 +29,7 @@ class Servable(PredictableServable):
     BASE_URL = "/api/v2/servable"
 
     @staticmethod
-    def model_version_json_to_servable(mv_json: dict, cluster, grpc_cluster=None):
+    def model_version_json_to_servable(mv_json: dict, cluster):
         """
         Deserializes model version json to servable object
 
@@ -53,13 +53,12 @@ class Servable(PredictableServable):
         return Servable(cluster=cluster,
                         model=model,
                         servable_name=mv_json['fullName'],
-                        grpc_cluster=grpc_cluster,
                         status=ServableStatus[mv_json['status']['status'].upper()],
                         status_message=mv_json['status']['msg'],
                         metadata=model_data['metadata'])
 
     @staticmethod
-    def create(cluster, model_name, model_version, metadata=None, grpc_cluster=None):
+    def create(cluster, model_name, model_version, metadata=None):
         """
         Sends request to server and returns servable object
 
@@ -67,7 +66,6 @@ class Servable(PredictableServable):
         :param model_name:
         :param model_version:
         :param metadata:
-        :param grpc_cluster: grpc cluster
         :raises ServableException: If server returned not 200
 
         :return: servable
@@ -81,7 +79,7 @@ class Servable(PredictableServable):
         res = cluster.request(method='POST', url='/api/v2/servable', json=msg)
         if res.ok:
             json_res = res.json()
-            return Servable.model_version_json_to_servable(mv_json=json_res, cluster=cluster, grpc_cluster=grpc_cluster)
+            return Servable.model_version_json_to_servable(mv_json=json_res, cluster=cluster)
         else:
             raise ServableException(f"{res.status_code} : {res.text}")
 
@@ -128,14 +126,13 @@ class Servable(PredictableServable):
         else:
             raise ServableException(f"{res.status_code} : {res.text}")
 
-    def __init__(self, cluster, model, servable_name, grpc_cluster, status, status_message, metadata=None):
+    def __init__(self, cluster, model, servable_name, status, status_message, metadata=None):
         if metadata is None:
             metadata = {}
         self.model = model
         self.name = servable_name
         self.meta = metadata
         self.cluster = cluster
-        self.grpc_cluster = grpc_cluster
         self.status = status
         self.status_message = status_message
 

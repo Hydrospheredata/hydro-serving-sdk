@@ -11,30 +11,33 @@ class Cluster:
     Cluster responsible for server interactions
     """
     @staticmethod
-    def connect(address):
+    def connect(http_address, grpc_address=None):
         """
         The preferable factory method for Cluster creation. Use it.
 
-        :param address: connection address
+        :param http_address: connection address
         :raises ConnectionError: if no connection with cluster
         :return: cluster object
 
         Checks the address, the connectivity, and creates an instance of Cluster.
         """
-        cl = Cluster(address)
-        logging.info("Connecting to {} cluster".format(cl.address))
+        cl = Cluster(http_address=http_address, grpc_address=grpc_address)
+        logging.info("Connecting to {} cluster".format(cl.http_address))
         info = cl.build_info()
         if info['manager']['status'] != 'Ok':
-            raise ConnectionError("Couldn't establish connection with cluster {}. {}".format(address, info['manager'].get('reason')))
+            raise ConnectionError("Couldn't establish connection with cluster {}. {}".format(http_address, info['manager'].get('reason')))
         logging.info("Connected to the {} cluster".format(info))
         return cl
 
-    def __init__(self, address):
+    def __init__(self, http_address, grpc_address=None):
         """
         Cluster ctor. Don't use it unless you understand what you are doing.
+        :param http_address:
+        :param grpc_address:
         """
-        parse.urlsplit(address)  # check if address is ok
-        self.address = address
+        parse.urlsplit(http_address)  # check if address is ok
+        self.http_address = http_address
+        self.grpc_address = grpc_address
 
     def request(self, method, url, **kwargs):
         """
@@ -45,7 +48,7 @@ class Cluster:
         :param kwargs: additional args
         :return: request res
         """
-        url = parse.urljoin(self.address, url)
+        url = parse.urljoin(self.http_address, url)
         return requests.request(method, url, **kwargs)
 
     def grpc_secure(self, credentials=None, options=None, compression=None):
@@ -59,7 +62,9 @@ class Cluster:
         """
         if credentials is None:
             credentials = grpc.ssl_channel_credentials()
-        return grpc.secure_channel(self.address, credentials, options=options, compression=compression)
+        if not self.grpc_address:
+            raise ValueError("Grpc address is not set")
+        return grpc.secure_channel(self.grpc_address, credentials, options=options, compression=compression)
 
     def grpc_insecure(self, options=None, compression=None):
         """
@@ -69,7 +74,10 @@ class Cluster:
         :param compression:
         :return: grpc insecure channel
         """
-        return grpc.insecure_channel(self.address, options=options, compression=compression)
+        if not self.grpc_address:
+            raise ValueError("Grpc address is not set")
+        
+        return grpc.insecure_channel(self.grpc_address, options=options, compression=compression)
 
     def host_selectors(self):
         return []

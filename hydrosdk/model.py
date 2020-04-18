@@ -192,6 +192,7 @@ class LocalModel(Metricable):
         if not isinstance(runtime, DockerImage):
             raise TypeError("runtime is not a DockerImage")
         self.runtime = runtime
+
         if contract and not isinstance(contract, ModelContract):
             raise TypeError("contract is not a ModelContract")
         self.contract = contract
