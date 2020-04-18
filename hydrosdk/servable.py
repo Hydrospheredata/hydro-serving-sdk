@@ -16,7 +16,6 @@ class ServableStatus(Enum):
     Servable can be in one of four states
     """
     STARTING = 2
-    UNKNOWN = 2
     SERVING = 3
     NOT_SERVING = 0
     NOT_AVAILABLE = 1
