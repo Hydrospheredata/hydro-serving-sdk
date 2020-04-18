@@ -5,17 +5,17 @@ from hydro_serving_grpc.contract import ModelContract
 
 from hydrosdk.exceptions import ServableException
 from hydrosdk.servable import Servable, ServableStatus
-from tests.test_model import get_cluster, get_local_model
-from tests.test_model import get_signature
+from tests.test_model import create_test_cluster, create_test_local_model
+from tests.test_model import create_test_signature
 
 
 def create_test_servable():
-    http_cluster = get_cluster()
+    http_cluster = create_test_cluster()
 
-    signature = get_signature()
+    signature = create_test_signature()
     contract = ModelContract(predict=signature)
 
-    model = get_local_model(contract=contract)
+    model = create_test_local_model(contract=contract)
 
     upload_resp = model.upload(http_cluster)
 
@@ -29,8 +29,8 @@ def create_test_servable():
 
 
 def test_servable_list_all():
-    cluster = get_cluster()
-    model = get_local_model()
+    cluster = create_test_cluster()
+    model = create_test_local_model()
     upload_resp = model.upload(cluster)
 
     time.sleep(3)
@@ -49,8 +49,8 @@ def test_servable_list_for_modelversion():
 
 
 def test_servable_delete():
-    cluster = get_cluster()
-    model = get_local_model()
+    cluster = create_test_cluster()
+    model = create_test_local_model()
     ur = model.upload(cluster)
 
     time.sleep(3)
@@ -68,8 +68,8 @@ def test_servable_delete():
 
 
 def test_servable_create():
-    cluster = get_cluster()
-    model = get_local_model()
+    cluster = create_test_cluster()
+    model = create_test_local_model()
     upload_resp = model.upload(cluster)
 
     time.sleep(3)
@@ -81,8 +81,8 @@ def test_servable_create():
 
 
 def test_servable_status():
-    cluster = get_cluster()
-    model = get_local_model()
+    cluster = create_test_cluster()
+    model = create_test_local_model()
     upload_resp = model.upload(cluster)
 
     time.sleep(3)

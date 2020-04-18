@@ -5,13 +5,12 @@ import pytest
 import yaml
 
 from hydrosdk.application import Application
-from tests.test_model import get_cluster, get_local_model
-
-DEFAULT_APP_NAME = "test-app"
+from tests.resources.test_config import DEFAULT_APP_NAME
+from tests.test_model import create_test_cluster, create_test_local_model
 
 
 def create_test_application(cluster):
-    local_model = get_local_model()
+    local_model = create_test_local_model()
     upload_response = local_model.upload(cluster=cluster)
 
     with open(os.path.dirname(os.path.abspath(__file__)) + '/resources/application.yml') as f:
@@ -37,7 +36,7 @@ def create_test_application(cluster):
 
 
 def test_list_all():
-    cluster = get_cluster()
+    cluster = create_test_cluster()
 
     created_application = create_test_application(cluster=cluster)
     all_applications = Application.list_all(cluster)
@@ -46,7 +45,7 @@ def test_list_all():
 
 
 def test_find_by_name():
-    cluster = get_cluster()
+    cluster = create_test_cluster()
 
     created_application = create_test_application(cluster)
     found_application = Application.find_by_name(cluster=cluster, app_name=DEFAULT_APP_NAME)
@@ -54,7 +53,7 @@ def test_find_by_name():
 
 
 def test_delete():
-    cluster = get_cluster()
+    cluster = create_test_cluster()
 
     created_application = create_test_application(cluster=cluster)
     deleted_application = Application.delete(cluster=cluster, app_name=DEFAULT_APP_NAME)
@@ -64,7 +63,7 @@ def test_delete():
 
 
 def test_create():
-    cluster = get_cluster()
+    cluster = create_test_cluster()
 
     created_application = create_test_application(cluster=cluster)
 

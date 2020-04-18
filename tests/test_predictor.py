@@ -12,28 +12,26 @@ from hydrosdk.data.types import PredictorDT
 from hydrosdk.image import DockerImage
 from hydrosdk.model import LocalModel
 from hydrosdk.servable import Servable
-from tests.test_model import get_cluster, get_local_model, get_signature
+from tests.test_model import create_test_cluster, create_test_local_model, create_test_signature
 
 
 @pytest.fixture
 def tensor_servable():
-    grpc_cluster = get_cluster("0.0.0.0:9090")
-    http_cluster = get_cluster()
+    cluster = create_test_cluster()
 
-    signature = get_signature()
+    signature = create_test_signature()
 
     contract = ModelContract(predict=signature)
 
-    model = get_local_model(contract=contract)
+    model = create_test_local_model(contract=contract)
 
-    upload_resp = model.upload(http_cluster)
+    upload_resp = model.upload(cluster=cluster)
 
     # wait for model to upload
     time.sleep(10)
 
     servable = Servable.create(model_name=upload_resp[model].model.name,
-                               model_version=upload_resp[model].model.version, cluster=http_cluster,
-                               grpc_cluster=grpc_cluster)
+                               model_version=upload_resp[model].model.version, cluster=cluster)
 
     # wait for servable to assemble
     time.sleep(15)
@@ -42,8 +40,7 @@ def tensor_servable():
 
 @pytest.fixture
 def scalar_servable():
-    grpc_cluster = get_cluster("0.0.0.0:9090")
-    http_cluster = get_cluster()
+    cluster = create_test_cluster()
 
     signature = SignatureBuilder('infer') \
         .with_input('input', 'int64', "scalar", 'numerical') \
@@ -61,15 +58,14 @@ def scalar_servable():
         path=None
     )
 
-    upload_resp = local_model.upload(http_cluster)
+    upload_resp = local_model.upload(cluster)
 
     # wait for model to upload
     time.sleep(10)
 
     servable = Servable.create(model_name=upload_resp[local_model].model.name,
                                model_version=upload_resp[local_model].model.version,
-                               cluster=http_cluster,
-                               grpc_cluster=grpc_cluster)
+                               cluster=cluster)
 
     # wait for servable to assemble
     time.sleep(15)
