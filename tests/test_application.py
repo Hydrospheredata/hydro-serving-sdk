@@ -1,12 +1,11 @@
 import os
 import time
-
 import pytest
 import yaml
 
-from hydrosdk.application import Application
 from tests.resources.test_config import DEFAULT_APP_NAME
 from tests.test_model import create_test_cluster, create_test_local_model
+from hydrosdk.application import Application, ApplicationStatus
 
 
 def create_test_application(cluster):
@@ -17,8 +16,7 @@ def create_test_application(cluster):
         d = yaml.safe_load(f)
         app = Application.parse_application(d)
         app_as_dict = app._asdict()
-        app_as_dict["executionGraph"]["stages"][0]["modelVariants"][0]["modelVersionId"] = upload_response[
-            local_model].model_version_id
+        app_as_dict["executionGraph"]["stages"][0]["modelVariants"][0]["modelVersionId"] = upload_response[local_model].model.id
 
         while upload_response[local_model].building():
             print("building")
@@ -76,3 +74,18 @@ def test_create():
             break
 
     assert found_application
+
+
+def test_application_status():
+    cluster = create_test_cluster()
+
+    Application.delete(cluster, DEFAULT_APP_NAME)
+    created_application = create_test_application(cluster=cluster)
+
+    assert created_application.status == ApplicationStatus.ASSEMBLING
+
+    time.sleep(10)
+
+    found_application = Application.find_by_name(cluster=cluster, app_name=DEFAULT_APP_NAME)
+
+    assert found_application.status == ApplicationStatus.READY

@@ -1,12 +1,13 @@
 import os
 
 import pytest
-from hydro_serving_grpc.contract import ModelContract
+from hydro_serving_grpc import TensorShapeProto, DataType
+from hydro_serving_grpc.contract import ModelContract, ModelField, ModelSignature
 
 from hydrosdk.cluster import Cluster
 from hydrosdk.contract import SignatureBuilder
 from hydrosdk.image import DockerImage
-from hydrosdk.model import Model, LocalModel, resolve_paths, ExternalModel
+from hydrosdk.model import Model, LocalModel, resolve_paths, ExternalModel, parse_model_from_json_dict
 from hydrosdk.monitoring import TresholdCmpOp
 from tests.resources.test_config import HTTP_CLUSTER_ENDPOINT, GRPC_CLUSTER_ENDPOINT, PATH_TO_SERVING
 
@@ -19,8 +20,10 @@ def create_test_cluster(http_address=HTTP_CLUSTER_ENDPOINT, grpc_address=GRPC_CL
     return Cluster(http_address=http_address, grpc_address=grpc_address)
 
 
-def create_test_contract():
-    return ModelContract(predict=create_test_signature())
+def create_test_contract(signature=None):
+    if not signature:
+        signature = create_test_signature()
+    return ModelContract(predict=signature)
 
 
 def create_test_local_model(name="upload-model-test", contract=None, payload=None, path=None):
@@ -75,7 +78,6 @@ def test_external_model_find_by_name():
     created_model = ExternalModel.create(cluster=cluster, name=name, contract=contract, metadata=metadata)
     found_model = ExternalModel.find_by_name(cluster=cluster, name=created_model.name,
                                              version=created_model.version)
-
     assert found_model
 
 
@@ -190,6 +192,39 @@ def test_model_list():
 
     assert res_list
 
+def test_ModelField_dt_invalid_input():
+    signature = ModelSignature(signature_name="test", inputs=[ModelField(name="test", shape=TensorShapeProto())],
+                               outputs=[ModelField(name="test", dtype=DataType.Name(2), shape=TensorShapeProto())])
+
+    contract = create_test_contract(signature=signature)
+
+    with pytest.raises(ValueError, match=r"Creating model with invalid dtype in contract-input.*"):
+        create_test_local_model(contract=contract)
+
+
+def test_ModelField_dt_invalid_output():
+    signature = ModelSignature(signature_name="test", inputs=[ModelField(name="test", dtype=DataType.Name(2), shape=TensorShapeProto())],
+                               outputs=[ModelField(name="test", shape=TensorShapeProto())])
+
+    contract = create_test_contract(signature=signature)
+
+    with pytest.raises(ValueError, match=r"Creating model with invalid dtype in contract-output.*"):
+        create_test_local_model(contract=contract)
+
+def test_ModelField_contract_predict_None():
+    contract = ModelContract(predict=None)
+    with pytest.raises(ValueError, match=r"Creating model without contract.predict is not allowed.*"):
+        create_test_local_model(contract=contract)
+
+def test_ModelField_contact_signatue_name_none():
+    signature = ModelSignature(inputs=[ModelField(name="test", dtype=DataType.Name(2), shape=TensorShapeProto())],
+                               outputs=[ModelField(name="test", dtype=DataType.Name(2), shape=TensorShapeProto())])
+
+    contract = create_test_contract(signature=signature)
+
+    with pytest.raises(ValueError, match=r"Creating model without contract.predict.signature_name is not allowed.*"):
+        create_test_local_model(contract=contract)
+
 
 def test_model_delete_by_id():
     cluster = create_test_cluster()
@@ -205,3 +240,62 @@ def test_resolve_paths():
     folder = "/home/user/dev/model/cool/"
     result = resolve_paths(folder, payload)
     assert result['/home/user/dev/model/cool/src/func_main.py'] == './src/func_main.py'
+
+
+MODEL_JSONS = [
+    {'applications': [],
+     'model': {'id': 1, 'name': 'ext-model-test'},
+     'finished': '2020-04-17T07:02:43.429Z',
+     'modelContract': {
+         'modelName': '',
+         'predict': {
+             'signatureName': 'infer',
+             'inputs': [
+                 {'profile': 'NONE', 'dtype': 'DT_DOUBLE', 'name': 'in1', 'shape': {
+                     'dim': [{'size': -1, 'name': ''},
+                             {'size': 2, 'name': ''}],
+                     'unknownRank': False}}],
+             'outputs': [
+                 {'profile': 'NONE', 'dtype': 'DT_DOUBLE', 'name': 'out1', 'shape': {
+                     'dim': [
+                         {'size': -1, 'name': ''}],
+                     'unknownRank': False}}]}
+     },
+     'isExternal': True,
+     'id': 3,
+     'status': 'Released',
+     'metadata': {'additionalProp1': 'prop'},
+     'modelVersion': 3,
+     'created': '2020-04-17T07:02:43.429Z'
+     },
+    {'applications': [],
+     'model': {'id': 1, 'name': 'ext-model-test'},
+     'finished': '2020-04-17T07:02:43.429Z',
+     'modelContract': {
+         'modelName': '',
+         'predict': {
+             'signatureName': 'infer',
+             'inputs': [
+                 {'profile': 'NONE', 'dtype': 'DT_DOUBLE', 'name': 'in1', 'shape': {
+                     'dim': [{'size': -1, 'name': ''},
+                             {'size': 2, 'name': ''}],
+                     'unknownRank': False}}],
+             'outputs': [
+                 {'profile': 'NONE', 'dtype': 'DT_DOUBLE', 'name': 'out1', 'shape': {
+                     'dim': [
+                         {'size': -1, 'name': ''}],
+                     'unknownRank': False}}]}
+     },
+     'id': 3,
+     'metadata': {'additionalProp1': 'prop'},
+     'modelVersion': 3,
+     'created': '2020-04-17T07:02:43.429Z'
+     }
+]
+
+
+@pytest.mark.parametrize('input', MODEL_JSONS)
+@pytest.mark.parametrize('cluster', [Cluster(HTTP_CLUSTER_ENDPOINT)])
+def test_model_json_parser(cluster, input):
+    result = parse_model_from_json_dict(cluster, input)
+    assert result

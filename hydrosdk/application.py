@@ -1,4 +1,5 @@
 from collections import namedtuple
+from enum import Enum
 from typing import List
 
 from hydrosdk.predictor import PredictableApplication
@@ -20,15 +21,22 @@ def streaming_params(in_topic, out_topic):
     }
 
 
+class ApplicationStatus(Enum):
+    FAILED = 0
+    ASSEMBLING = 1
+    READY = 2
+
+
 class Application(PredictableApplication):
     """
     An application is a publicly available endpoint to reach your models (https://hydrosphere.io/serving-docs/latest/overview/concepts.html#applications)
     """
-    def __init__(self, name, execution_graph, kafka_streaming, metadata):
+    def __init__(self, name, execution_graph, kafka_streaming, metadata, status):
         self.name = name
         self.execution_graph = execution_graph
         self.kafka_streaming = kafka_streaming
         self.metadata = metadata
+        self.status = status
 
     @staticmethod
     def app_json_to_app_obj(application_json):
@@ -42,8 +50,9 @@ class Application(PredictableApplication):
         app_execution_graph = application_json.get("executionGraph")
         app_kafka_streaming = application_json.get("kafkaStreaming")
         app_metadata = application_json.get("metadata")
+        app_status = ApplicationStatus[application_json.get("status").upper()]
         app = Application(name=app_name, execution_graph=app_execution_graph,
-                          kafka_streaming=app_kafka_streaming, metadata=app_metadata)
+                          kafka_streaming=app_kafka_streaming, metadata=app_metadata, status=app_status)
         return app
 
     @staticmethod

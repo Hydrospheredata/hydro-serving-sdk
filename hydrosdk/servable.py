@@ -3,9 +3,7 @@ from urllib.parse import urljoin
 
 import sseclient
 
-from .contract import contract_from_dict
 from .exceptions import ServableException
-from .image import DockerImage
 from .model import Model
 from .predictor import PredictableServable
 
@@ -38,18 +36,8 @@ class Servable(PredictableServable):
         :return: servable object
         """
         model_data = mv_json['modelVersion']
-        model = Model(
-            id=model_data['model']['id'],
-            name=model_data['model']['name'],
-            version=model_data['modelVersion'],
-            contract=contract_from_dict(model_data.get('modelContract')),
-            runtime=model_data['runtime'],
-            image=DockerImage(model_data['image'].get('name'), model_data['image'].get('tag'),
-                              model_data['image'].get('sha256')),
-            cluster=cluster,
-            metadata=model_data['metadata'],
-            install_command=model_data.get('installCommand'))
 
+        model = Model.from_json(cluster, model_data)
         return Servable(cluster=cluster,
                         model=model,
                         servable_name=mv_json['fullName'],
@@ -62,7 +50,7 @@ class Servable(PredictableServable):
         """
         Sends request to server and returns servable object
 
-        :param cluster: http cluster
+        :param cluster:
         :param model_name:
         :param model_version:
         :param metadata:

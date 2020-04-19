@@ -84,9 +84,23 @@ def read_yaml(path):
     return model
 
 
-# TODO: to be implemented
-def read_py(path):
-    pass
+def parse_model_from_json_dict(cluster, json_dict):
+    """
+    Parses json dict which could contain ExternalModel or Model
+    :param cluster:
+    :param json_dict:
+    :return:
+    """
+
+    # assumption that a model is internal by default.
+    # Externals are obligated to have "isExternal": true
+    # if status is not in dict, then it's external
+    # internal otherwise
+    is_external = json_dict.get("isExternal", "status" not in json_dict)
+    if is_external:
+        return ExternalModel.ext_model_json_to_ext_model(json_dict)
+    else:
+        return Model.from_json(cluster, json_dict)
 
 
 class Metricable:
@@ -122,7 +136,11 @@ class Metricable:
 
 class LocalModel(Metricable):
     """
-    Local Model (A model is a machine learning model or a processing function that consumes provided inputs and produces predictions or transformations, https://hydrosphere.io/serving-docs/latest/overview/concepts.html#models)
+    Local Model
+    A model is a machine learning model or a processing function that consumes provided inputs
+    and produces predictions or transformations
+
+    https://hydrosphere.io/serving-docs/latest/overview/concepts.html#models
     """
 
     @staticmethod
@@ -143,29 +161,16 @@ class LocalModel(Metricable):
         pass
 
     @staticmethod
-    def model_json_to_upload_response(cluster, model_json, contract, runtime):
+    def model_json_to_upload_response(cluster, model_json):
         """
         Deserialize model json into UploadResponse object
 
         :param cluster:
         :param model_json:
-        :param contract:
-        :param runtime:
         :return: UploadResponse obj
         """
-        version_id = model_json['id']
-        model = Model(
-            id=version_id,
-            name=model_json['model']['name'],
-            version=model_json['modelVersion'],
-            contract=contract_to_dict(contract),
-            runtime=runtime,
-            image=DockerImage(model_json['image'].get('name'), model_json['image'].get('tag'),
-                              model_json['image'].get('sha256')),
-            cluster=cluster,
-            metadata=model_json['metadata'],
-            install_command=model_json.get('installCommand'))
-        return UploadResponse(model=model, version_id=version_id)
+        model = Model.from_json(cluster, model_json)
+        return UploadResponse(model=model)
 
     @staticmethod
     def from_file(path):
@@ -179,11 +184,11 @@ class LocalModel(Metricable):
         if ext in ['.yml', '.yaml']:
             return read_yaml(path)
         elif ext == '.py':
-            return read_py(path)
+            raise NotImplementedError(".py file parsing is not supported yet")
         else:
             raise ValueError("Unsupported file extension: {}".format(ext))
 
-    def __init__(self, name, contract, runtime, payload, path=None, metadata=None, install_command=None, training_data=None):
+    def __init__(self, name, runtime, payload, contract=None, path=None, metadata=None, install_command=None, training_data=None):
         super().__init__()
 
         if not isinstance(name, str):
@@ -192,9 +197,23 @@ class LocalModel(Metricable):
         if not isinstance(runtime, DockerImage):
             raise TypeError("runtime is not a DockerImage")
         self.runtime = runtime
+        if contract:
+            if not isinstance(contract, ModelContract):
+                raise TypeError("contract is not a ModelContract")
 
-        if contract and not isinstance(contract, ModelContract):
-            raise TypeError("contract is not a ModelContract")
+            # TODO: move out contract validation
+            # HYD-171
+            if not contract.HasField("predict"):
+                raise ValueError("Creating model without contract.predict is not allowed")
+            if not contract.predict.signature_name:
+                raise ValueError("Creating model without contract.predict.signature_name is not allowed")
+            for model_field in contract.predict.inputs:
+                if model_field.dtype == 0:
+                    raise ValueError("Creating model with invalid dtype in contract-input is not allowed")
+            for model_field in contract.predict.outputs:
+                if model_field.dtype == 0:
+                    raise ValueError("Creating model with invalid dtype in contract-output is not allowed")
+
         self.contract = contract
 
         if isinstance(payload, list):
@@ -268,8 +287,7 @@ class LocalModel(Metricable):
                                  headers={'Content-Type': encoder.content_type})
         if result.ok:
             json_res = result.json()
-            return LocalModel.model_json_to_upload_response(cluster=cluster, model_json=json_res,
-                                                            contract=self.contract, runtime=self.runtime)
+            return LocalModel.model_json_to_upload_response(cluster=cluster, model_json=json_res)
         else:
             raise ValueError("Error during model upload. {}".format(result.text))
 
@@ -286,7 +304,7 @@ class LocalModel(Metricable):
             for metric in self.metrics:
                 upload_response = metric.model.__upload(cluster)
 
-                msc = MetricSpecConfig(model_version_id=upload_response.model_version_id,
+                msc = MetricSpecConfig(model_version_id=upload_response.model.id,
                                        threshold=metric.threshold,
                                        threshold_op=metric.comparator)
                 ms_created = False
@@ -295,7 +313,7 @@ class LocalModel(Metricable):
                     try:
                         ms = MetricSpec.create(cluster=upload_response.model.cluster,
                                                name=upload_response.model.name,
-                                               model_version_id=root_model_upload_response.model_version_id,
+                                               model_version_id=root_model_upload_response.model.id,
                                                config=msc)
                         ms_created = True
                     except MetricSpecException:
@@ -305,9 +323,20 @@ class LocalModel(Metricable):
         return models_dict
 
 
+class ModelStatus(Enum):
+    """
+    Model building statuses
+    """
+    Assembling = "Assembling"
+    Released = "Released"
+    Failed = "Failed"
+
+
 class Model(Metricable):
     """
-    Model (A model is a machine learning model or a processing function that consumes provided inputs and produces predictions or transformations, https://hydrosphere.io/serving-docs/latest/overview/concepts.html#models)
+    Model (A model is a machine learning model or a processing function that consumes provided inputs
+    and produces predictions or transformations
+    https://hydrosphere.io/serving-docs/latest/overview/concepts.html#models)
     """
     BASE_URL = "/api/v2/model"
 
@@ -325,27 +354,8 @@ class Model(Metricable):
         resp = cluster.request("GET", Model.BASE_URL + "/version/{}/{}".format(name, version))
 
         if resp.ok:
-            # print(80)
             model_json = resp.json()
-            model_id = model_json["id"]
-            model_name = model_json["model"]["name"]
-            model_version = model_json["modelVersion"]
-            model_contract = contract_from_dict(model_json["modelContract"])
-
-            # external model deserialization handling
-            # TODO: get its own endpoint for external model
-            if not model_json.get("runtime"):
-                model_json["runtime"] = {}
-
-            model_runtime = DockerImage(model_json["runtime"].get("name"), model_json["runtime"].get("tag"),
-                                        model_json["runtime"].get("sha256"))
-            model_image = model_json.get("image")
-            model_cluster = cluster
-
-            res_model = Model(model_id, model_name, model_version, model_contract,
-                              model_runtime, model_image, model_cluster)
-
-            return res_model
+            return parse_model_from_json_dict(cluster, model_json)
 
         else:
             raise Exception(
@@ -366,35 +376,48 @@ class Model(Metricable):
         if resp.ok:
             for model_json in resp.json():
                 if model_json['id'] == model_id:
-                    model_id = model_json["id"]
-                    model_name = model_json["model"]["name"]
-                    model_version = model_json["modelVersion"]
-                    model_contract = contract_from_dict(model_json["modelContract"])
-
-                    model_runtime = DockerImage(model_json["runtime"].get("name"), model_json["runtime"].get("tag"),
-                                                model_json["runtime"].get("sha256"))
-                    model_image = model_json["image"]
-                    model_cluster = cluster
-
-                    res_model = Model(model_id, model_name, model_version, model_contract,
-                                      model_runtime, model_image, model_cluster)
-
-                    return res_model
+                    return parse_model_from_json_dict(cluster, model_json)
 
         raise Exception(
             f"Failed to find_by_id Model for model_id={model_id}. {resp.status_code} {resp.text}")
 
-    # TODO: method not used
     @staticmethod
-    def from_proto(proto, cluster):
-        Model(
-            id=proto.id,
-            name=proto.name,
-            version=proto.version,
-            contract=proto.contract,
-            runtime=proto.runtime,
-            image=DockerImage(name=proto.image.name, tag=proto.image.tag, sha256=proto.image_sha),
-            cluster=cluster
+    def from_json(cluster, model_json):
+        """
+        Internal method used for deserealization of a Model from json object
+        :param cluster:
+        :param model_json: a dictionary
+        :return: A Model instance
+        """
+
+        model_id = model_json["id"]
+        model_name = model_json["model"]["name"]
+        model_version = model_json["modelVersion"]
+        model_contract = contract_from_dict(model_json["modelContract"])
+
+        # external model deserialization handling
+        # TODO: get its own endpoint for external model
+        if not model_json.get("runtime"):
+            model_json["runtime"] = {}
+
+        model_runtime = DockerImage(model_json["runtime"].get("name"), model_json["runtime"].get("tag"),
+                                    model_json["runtime"].get("sha256"))
+        model_image = model_json.get("image")
+        model_cluster = cluster
+
+        status = ModelStatus[model_json['status']]
+        metadata = model_json['metadata']
+
+        return Model(
+            id=model_id,
+            name=model_name,
+            version=model_version,
+            contract=model_contract,
+            runtime=model_runtime,
+            image=model_image,
+            cluster=model_cluster,
+            status=status,
+            metadata=metadata,
         )
 
     @staticmethod
@@ -426,25 +449,8 @@ class Model(Metricable):
             models = []
 
             for model_version_json in model_versions_json:
-
-                if model_version_json['isExternal']:
-                    ext_model = ExternalModel.ext_model_json_to_ext_model(model_version_json)
-                    models.append(ext_model)
-                else:
-                    #TODO: move deserialization out
-                    model_id = model_version_json["id"]
-                    model_name = model_version_json["model"]["name"]
-                    model_version = model_version_json["modelVersion"]
-                    model_contract = contract_from_dict(model_version_json["modelContract"])
-
-                    model_runtime = DockerImage(model_version_json["runtime"].get("name"), model_version_json["runtime"].get("tag"),
-                                                model_version_json["runtime"].get("sha256"))
-                    model_image = model_version_json.get("image")
-                    model_cluster = cluster
-
-                    model = Model(model_id, model_name, model_version, model_contract,
-                                      model_runtime, model_image, model_cluster)
-                    models.append(model)
+                model = parse_model_from_json_dict(cluster, model_version_json)
+                models.append(model)
             return models
 
         raise Exception(
@@ -466,7 +472,8 @@ class Model(Metricable):
             image_sha=self.image.sha256
         )
 
-    def __init__(self, id, name, version, contract, runtime, image, cluster, metadata=None, install_command=None):
+    def __init__(self, id, name, version, contract, runtime, image, cluster, status, metadata=None,
+                 install_command=None):
         super().__init__()
 
         self.name = name
@@ -477,6 +484,8 @@ class Model(Metricable):
         self.version = version
         self.image = image
 
+        self.status = status
+
         self.metadata = metadata
         self.install_command = install_command
 
@@ -486,7 +495,9 @@ class Model(Metricable):
 
 class ExternalModel:
     """
-    External models running outside of the Hydrosphere platform (https://hydrosphere.io/serving-docs/latest/how-to/monitoring-external-models.html)
+    External models running outside of the Hydrosphere platform
+
+    https://hydrosphere.io/serving-docs/latest/how-to/monitoring-external-models.html
     """
     BASE_URL = "/api/v2/externalmodel"
 
@@ -561,58 +572,34 @@ class ExternalModel:
         self.id_ = id_
 
 
-class BuildStatus(Enum):
-    """
-    Model building statuses
-    """
-    BUILDING = "BUILDING"
-    FINISHED = "FINISHED"
-    FAILED = "FAILED"
-
-
 class UploadResponse:
     """
-    Received status from server about uploading
+    Class that wraps assembly status and logs logic.
+
+    Check the status of the assembly using `get_status()`
+    Check the build logs using `logs()`
     """
-    def __init__(self, model, version_id):
+
+    def __init__(self, model):
         self.cluster = model.cluster
         self.model = model
-        self.model_version_id = version_id
-        self.cluster = self.model.cluster
-        self._logs_iterator = self.logs()
-        self.last_log = ""
-        self._status = ""
 
     def logs(self):
         """
         Sends request, saves and returns logs iterator
         :return: log iterator
         """
-        logger = logging.getLogger("ModelDeploy")
-        try:
-            url = "/api/v2/model/version/{}/logs".format(self.model_version_id)
-            logs_response = self.model.cluster.request("GET", url, stream=True)
-            self._logs_iterator = sseclient.SSEClient(logs_response).events()
-        except RuntimeError:
-            logger.exception("Unable to get build logs")
-            self._logs_iterator = None
-        return self._logs_iterator
+        url = "/api/v2/model/version/{}/logs".format(self.model.id)
+        logs_response = self.model.cluster.request("GET", url, stream=True)
+        return sseclient.SSEClient(logs_response).events()
 
-    def set_status(self) -> None:
+    def poll_model(self) -> None:
         """
         Checks last log record and sets upload status
         :raises StopIteration: If something went wrong with iteration over logs
         :return: None
         """
-        try:
-            if self.last_log.startswith("Successfully tagged"):
-                self._status = BuildStatus.FINISHED
-            else:
-                self.last_log = next(self._logs_iterator).data
-                self._status = BuildStatus.BUILDING
-        except StopIteration:
-            if not self._status == BuildStatus.FINISHED:
-                self._status = BuildStatus.FAILED
+        self.model = Model.find(self.cluster, self.model.name, self.model.version)
 
     def get_status(self):
         """
@@ -620,32 +607,26 @@ class UploadResponse:
 
         :return: status
         """
-        return self._status
+        self.poll_model()
+        return self.model.status
 
     def not_ok(self) -> bool:
         """
         Checks current status and returns if it is not ok
         :return: if not uploaded
         """
-        self.set_status()
-        return self.get_status() == BuildStatus.FAILED
+        return self.get_status() == ModelStatus.Failed
 
     def ok(self) -> bool:
         """
         Checks current status and returns if it is ok
         :return: if uploaded
         """
-        self.set_status()
-        return self.get_status() == BuildStatus.FINISHED
+        return self.get_status() == ModelStatus.Released
 
     def building(self) -> bool:
         """
         Checks current status and returns if it is building
         :return: if building
         """
-        self.set_status()
-        return self.get_status() == BuildStatus.BUILDING
-
-    # TODO: not used method
-    def request_model(self):
-        return self.cluster.request("GET", f"api/v2/model/{self.model.id}")
+        return self.get_status() == ModelStatus.Assembling
