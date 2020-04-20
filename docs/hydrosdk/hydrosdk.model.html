@@ -1,0 +1,602 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>hydrosdk.model module &mdash; hydrosdk 2.3.0 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/favicon.svg"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="hydrosdk.monitoring module" href="hydrosdk.monitoring.html" />
+    <link rel="prev" title="hydrosdk.image module" href="hydrosdk.image.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> hydrosdk
+          
+
+          
+            
+            <img src="../_static/logo.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../whats_new.html">What’s new in 2.3.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="hydrosdk.html">hydrosdk package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="hydrosdk.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="hydrosdk.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="hydrosdk.application.html">hydrosdk.application module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="hydrosdk.cluster.html">hydrosdk.cluster module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="hydrosdk.contract.html">hydrosdk.contract module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="hydrosdk.errors.html">hydrosdk.errors module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="hydrosdk.exceptions.html">hydrosdk.exceptions module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="hydrosdk.host_selector.html">hydrosdk.host_selector module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="hydrosdk.image.html">hydrosdk.image module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">hydrosdk.model module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="hydrosdk.monitoring.html">hydrosdk.monitoring module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="hydrosdk.predictor.html">hydrosdk.predictor module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="hydrosdk.servable.html">hydrosdk.servable module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="hydrosdk.html#module-hydrosdk">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">hydrosdk</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="hydrosdk.html">hydrosdk package</a> &raquo;</li>
+        
+      <li>hydrosdk.model module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/hydrosdk/hydrosdk.model.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-hydrosdk.model">
+<span id="hydrosdk-model-module"></span><h1>hydrosdk.model module<a class="headerlink" href="#module-hydrosdk.model" title="Permalink to this headline">¶</a></h1>
+<dl class="field-list simple">
+<dt class="field-odd">show-inheritance</dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
+<dl class="py class">
+<dt id="hydrosdk.model.ExternalModel">
+<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.model.</code><code class="sig-name descname">ExternalModel</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">id_</span></em>, <em class="sig-param"><span class="n">contract</span></em>, <em class="sig-param"><span class="n">version</span></em>, <em class="sig-param"><span class="n">metadata</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.model.ExternalModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>External models running outside of the Hydrosphere platform</p>
+<p><a class="reference external" href="https://hydrosphere.io/serving-docs/latest/how-to/monitoring-external-models.html">https://hydrosphere.io/serving-docs/latest/how-to/monitoring-external-models.html</a></p>
+<dl class="py method">
+<dt id="hydrosdk.model.ExternalModel.create">
+<em class="property">static </em><code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cluster</span></em>, <em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">contract</span><span class="p">:</span> <span class="n">hydro_serving_grpc.contract.model_contract_pb2.ModelContract</span></em>, <em class="sig-param"><span class="n">metadata</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.model.ExternalModel.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates external model on the server</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cluster</strong> – active cluster</p></li>
+<li><p><strong>name</strong> – name of ext model</p></li>
+<li><p><strong>contract</strong> – </p></li>
+<li><p><strong>metadata</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.8)"><strong>Exception</strong></a> – If server returned not 200</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>external model</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hydrosdk.model.ExternalModel.delete_by_id">
+<em class="property">static </em><code class="sig-name descname">delete_by_id</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cluster</span></em>, <em class="sig-param"><span class="n">model_id</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.model.ExternalModel.delete_by_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletes external model by model id</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cluster</strong> – active cluster</p></li>
+<li><p><strong>model_id</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hydrosdk.model.ExternalModel.ext_model_json_to_ext_model">
+<em class="property">static </em><code class="sig-name descname">ext_model_json_to_ext_model</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ext_model_json</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.model.ExternalModel.ext_model_json_to_ext_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deserializes external model json to external model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ext_model_json</strong> – external model json</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>external model obj</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hydrosdk.model.ExternalModel.find_by_name">
+<em class="property">static </em><code class="sig-name descname">find_by_name</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cluster</span></em>, <em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">version</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.model.ExternalModel.find_by_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds ext model on server by name and version</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cluster</strong> – active cluster</p></li>
+<li><p><strong>name</strong> – </p></li>
+<li><p><strong>version</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Model</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="hydrosdk.model.LocalModel">
+<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.model.</code><code class="sig-name descname">LocalModel</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">runtime</span></em>, <em class="sig-param"><span class="n">payload</span></em>, <em class="sig-param"><span class="n">contract</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">metadata</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">install_command</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">training_data</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.model.LocalModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Local Model
+A model is a machine learning model or a processing function that consumes provided inputs
+and produces predictions or transformations</p>
+<p><a class="reference external" href="https://hydrosphere.io/serving-docs/latest/overview/concepts.html#models">https://hydrosphere.io/serving-docs/latest/overview/concepts.html#models</a></p>
+<dl class="py method">
+<dt id="hydrosdk.model.LocalModel.create">
+<em class="property">static </em><code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span></em>, <em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">runtime</span></em>, <em class="sig-param"><span class="n">contract</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">install_command</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.model.LocalModel.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validates contract
+:param path:
+:param name:
+:param runtime:
+:param contract:
+:param install_command:
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hydrosdk.model.LocalModel.from_file">
+<em class="property">static </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.model.LocalModel.from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads model definition from .yaml file or serving.py
+:param path:
+:raises ValueError: If not yaml or py
+:return: LocalModel obj</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hydrosdk.model.LocalModel.model_json_to_upload_response">
+<em class="property">static </em><code class="sig-name descname">model_json_to_upload_response</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cluster</span></em>, <em class="sig-param"><span class="n">model_json</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.model.LocalModel.model_json_to_upload_response" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deserialize model json into UploadResponse object</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cluster</strong> – </p></li>
+<li><p><strong>model_json</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>UploadResponse obj</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hydrosdk.model.LocalModel.upload">
+<code class="sig-name descname">upload</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cluster</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a><a class="headerlink" href="#hydrosdk.model.LocalModel.upload" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uploads Local Model
+:param cluster: active cluster
+:raises MetricSpecException: If model not uploaded yet
+:return: {model_obj: upload_resp}</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="hydrosdk.model.Metricable">
+<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.model.</code><code class="sig-name descname">Metricable</code><a class="headerlink" href="#hydrosdk.model.Metricable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Every model can be monitored with a set of metrics (<a class="reference external" href="https://hydrosphere.io/serving-docs/latest/overview/concepts.html#metrics">https://hydrosphere.io/serving-docs/latest/overview/concepts.html#metrics</a>)</p>
+<dl class="py method">
+<dt id="hydrosdk.model.Metricable.as_metric">
+<code class="sig-name descname">as_metric</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">threshold</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></span></em>, <em class="sig-param"><span class="n">comparator</span><span class="p">:</span> <span class="n"><a class="reference internal" href="hydrosdk.monitoring.html#hydrosdk.monitoring.MetricSpec" title="hydrosdk.monitoring.MetricSpec">hydrosdk.monitoring.MetricSpec</a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="hydrosdk.monitoring.html#hydrosdk.monitoring.MetricModel" title="hydrosdk.monitoring.MetricModel">hydrosdk.monitoring.MetricModel</a><a class="headerlink" href="#hydrosdk.model.Metricable.as_metric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Turns model into Metric Model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>threshold</strong> – </p></li>
+<li><p><strong>comparator</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>MetricModel</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hydrosdk.model.Metricable.with_metrics">
+<code class="sig-name descname">with_metrics</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">metrics</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)">list</a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.model.Metricable.with_metrics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds metrics to the model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>metrics</strong> – list of metrics</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>self Metricable</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="hydrosdk.model.Model">
+<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.model.</code><code class="sig-name descname">Model</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">id</span></em>, <em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">version</span></em>, <em class="sig-param"><span class="n">contract</span></em>, <em class="sig-param"><span class="n">runtime</span></em>, <em class="sig-param"><span class="n">image</span></em>, <em class="sig-param"><span class="n">cluster</span></em>, <em class="sig-param"><span class="n">status</span></em>, <em class="sig-param"><span class="n">metadata</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">install_command</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.model.Model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Model (A model is a machine learning model or a processing function that consumes provided inputs
+and produces predictions or transformations
+<a class="reference external" href="https://hydrosphere.io/serving-docs/latest/overview/concepts.html#models">https://hydrosphere.io/serving-docs/latest/overview/concepts.html#models</a>)</p>
+<dl class="py method">
+<dt id="hydrosdk.model.Model.delete_by_id">
+<em class="property">static </em><code class="sig-name descname">delete_by_id</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cluster</span></em>, <em class="sig-param"><span class="n">model_id</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.model.Model.delete_by_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletes model by id
+:param cluster: active cluster
+:param model_id: model id
+:return: if 200, json. Otherwise None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hydrosdk.model.Model.find">
+<em class="property">static </em><code class="sig-name descname">find</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cluster</span></em>, <em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">version</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.model.Model.find" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds a model on server by name and model version</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cluster</strong> – active cluster</p></li>
+<li><p><strong>name</strong> – model name</p></li>
+<li><p><strong>version</strong> – model version</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.8)"><strong>Exception</strong></a> – if server returned not 200</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Model obj</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hydrosdk.model.Model.find_by_id">
+<em class="property">static </em><code class="sig-name descname">find_by_id</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cluster</span></em>, <em class="sig-param"><span class="n">model_id</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.model.Model.find_by_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds a model on server by id</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cluster</strong> – active cluster</p></li>
+<li><p><strong>model_id</strong> – model id</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.8)"><strong>Exception</strong></a> – if server returned not 200</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Model obj</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hydrosdk.model.Model.from_json">
+<em class="property">static </em><code class="sig-name descname">from_json</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cluster</span></em>, <em class="sig-param"><span class="n">model_json</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.model.Model.from_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Internal method used for deserealization of a Model from json object
+:param cluster:
+:param model_json: a dictionary
+:return: A Model instance</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hydrosdk.model.Model.list_models">
+<em class="property">static </em><code class="sig-name descname">list_models</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cluster</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)">list</a><a class="headerlink" href="#hydrosdk.model.Model.list_models" title="Permalink to this definition">¶</a></dt>
+<dd><p>List all models on server</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cluster</strong> – active cluster</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of extModel and Model</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hydrosdk.model.Model.to_proto">
+<code class="sig-name descname">to_proto</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.model.Model.to_proto" title="Permalink to this definition">¶</a></dt>
+<dd><p>Turns Model to Model version</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>model version obj</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="hydrosdk.model.ModelStatus">
+<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.model.</code><code class="sig-name descname">ModelStatus</code><a class="headerlink" href="#hydrosdk.model.ModelStatus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Model building statuses</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="hydrosdk.model.UploadResponse">
+<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.model.</code><code class="sig-name descname">UploadResponse</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.model.UploadResponse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class that wraps assembly status and logs logic.</p>
+<p>Check the status of the assembly using <cite>get_status()</cite>
+Check the build logs using <cite>logs()</cite></p>
+<dl class="py method">
+<dt id="hydrosdk.model.UploadResponse.building">
+<code class="sig-name descname">building</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><a class="headerlink" href="#hydrosdk.model.UploadResponse.building" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks current status and returns if it is building
+:return: if building</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hydrosdk.model.UploadResponse.get_status">
+<code class="sig-name descname">get_status</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.model.UploadResponse.get_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets current status of upload</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>status</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hydrosdk.model.UploadResponse.logs">
+<code class="sig-name descname">logs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.model.UploadResponse.logs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sends request, saves and returns logs iterator
+:return: log iterator</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hydrosdk.model.UploadResponse.not_ok">
+<code class="sig-name descname">not_ok</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><a class="headerlink" href="#hydrosdk.model.UploadResponse.not_ok" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks current status and returns if it is not ok
+:return: if not uploaded</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hydrosdk.model.UploadResponse.ok">
+<code class="sig-name descname">ok</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><a class="headerlink" href="#hydrosdk.model.UploadResponse.ok" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks current status and returns if it is ok
+:return: if uploaded</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hydrosdk.model.UploadResponse.poll_model">
+<code class="sig-name descname">poll_model</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#hydrosdk.model.UploadResponse.poll_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks last log record and sets upload status
+:raises StopIteration: If something went wrong with iteration over logs
+:return: None</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="hydrosdk.model.parse_model_from_json_dict">
+<code class="sig-prename descclassname">hydrosdk.model.</code><code class="sig-name descname">parse_model_from_json_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cluster</span></em>, <em class="sig-param"><span class="n">json_dict</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.model.parse_model_from_json_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses json dict which could contain ExternalModel or Model
+:param cluster:
+:param json_dict:
+:return:</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="hydrosdk.model.read_yaml">
+<code class="sig-prename descclassname">hydrosdk.model.</code><code class="sig-name descname">read_yaml</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.model.read_yaml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deserializes LocalModel from yaml definition</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> – </p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference internal" href="hydrosdk.errors.html#hydrosdk.errors.InvalidYAMLFile" title="hydrosdk.errors.InvalidYAMLFile"><strong>InvalidYAMLFile</strong></a> – if passed yamls are invalid</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>LocalModel obj</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="hydrosdk.model.resolve_paths">
+<code class="sig-prename descclassname">hydrosdk.model.</code><code class="sig-name descname">resolve_paths</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span></em>, <em class="sig-param"><span class="n">payload</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.model.resolve_paths" title="Permalink to this definition">¶</a></dt>
+<dd><p>Appends each element of payload to the path and makes {resolved_path: payload_element} dict</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> – absolute path</p></li>
+<li><p><strong>payload</strong> – list of relative paths</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dict with {resolved_path: payload_element}</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="hydrosdk.monitoring.html" class="btn btn-neutral float-right" title="hydrosdk.monitoring module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="hydrosdk.image.html" class="btn btn-neutral float-left" title="hydrosdk.image module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Hydrosphere.io
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
