@@ -73,7 +73,6 @@ def scalar_servable():
     return servable
 
 
-# TODO: Add more valid assert
 def test_predict_list(tensor_servable):
     value = int(random() * 1e5)
     predictor_client = tensor_servable.predictor(return_type=PredictorDT.DICT_PYTHON)

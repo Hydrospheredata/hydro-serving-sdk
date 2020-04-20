@@ -59,7 +59,7 @@ def convert_inputs_to_tensor_proto(inputs, signature) -> dict:
             tensors[key] = numpy_data_to_tensor_proto(value.ravel(), value.dtype, value.shape)
     else:
         raise ValueError(
-            "Conversion failed. Expected [pandas.DataFrame, pd.Series, dict[str, numpy.ndarray]], got {}".format(
+            "Conversion failed. Expected [pandas.DataFrame, dict[str, numpy.ndarray], dict[str, list], dict[str, python_primitive]], got {}".format(
                 type(inputs)))
 
     return tensors
