@@ -1,0 +1,530 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>hydrosdk.contract module &mdash; hydrosdk 2.3.0 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/favicon.svg"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="hydrosdk.errors module" href="hydrosdk.errors.html" />
+    <link rel="prev" title="hydrosdk.cluster module" href="hydrosdk.cluster.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> hydrosdk
+          
+
+          
+            
+            <img src="../_static/logo_white.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../whats_new.html">What’s new in 2.3.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Sample tutorial</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="hydrosdk.html">hydrosdk package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="hydrosdk.application.html">hydrosdk.application module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hydrosdk.cluster.html">hydrosdk.cluster module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">hydrosdk.contract module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hydrosdk.errors.html">hydrosdk.errors module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hydrosdk.exceptions.html">hydrosdk.exceptions module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hydrosdk.host_selector.html">hydrosdk.host_selector module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hydrosdk.image.html">hydrosdk.image module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hydrosdk.model.html">hydrosdk.model module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hydrosdk.monitoring.html">hydrosdk.monitoring module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hydrosdk.predictor.html">hydrosdk.predictor module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hydrosdk.servable.html">hydrosdk.servable module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_help.html">Getting Help</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Hydrospheredata/hydro-serving-sdk">Github Repository</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pypi.org/project/hydrosdk/">PyPi package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">hydrosdk</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="hydrosdk.html">hydrosdk package</a> &raquo;</li>
+        
+      <li>hydrosdk.contract module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/hydrosdk/hydrosdk.contract.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-hydrosdk.contract">
+<span id="hydrosdk-contract-module"></span><h1>hydrosdk.contract module<a class="headerlink" href="#module-hydrosdk.contract" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="hydrosdk.contract.AnyDimSize">
+<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.contract.</code><code class="sig-name descname">AnyDimSize</code><a class="headerlink" href="#hydrosdk.contract.AnyDimSize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Validation class for dimensions</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt id="hydrosdk.contract.ContractViolationException">
+<em class="property">exception </em><code class="sig-prename descclassname">hydrosdk.contract.</code><code class="sig-name descname">ContractViolationException</code><a class="headerlink" href="#hydrosdk.contract.ContractViolationException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
+<p>Exception raised when contract is violated</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="hydrosdk.contract.ProfilingType">
+<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.contract.</code><code class="sig-name descname">ProfilingType</code><a class="headerlink" href="#hydrosdk.contract.ProfilingType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="hydrosdk.contract.SignatureBuilder">
+<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.contract.</code><code class="sig-name descname">SignatureBuilder</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.contract.SignatureBuilder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Build Model Signature</p>
+<dl class="py method">
+<dt id="hydrosdk.contract.SignatureBuilder.build">
+<code class="sig-name descname">build</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.contract.SignatureBuilder.build" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates Model Signature</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>ModelSignature obj</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hydrosdk.contract.SignatureBuilder.with_input">
+<code class="sig-name descname">with_input</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">dtype</em>, <em class="sig-param">shape</em>, <em class="sig-param">profile=&lt;ProfilingType.NONE: 0&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.contract.SignatureBuilder.with_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds input to the SignatureBuilder</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – </p></li>
+<li><p><strong>dtype</strong> – </p></li>
+<li><p><strong>shape</strong> – </p></li>
+<li><p><strong>profile</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>self SignatureBuilder</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hydrosdk.contract.SignatureBuilder.with_output">
+<code class="sig-name descname">with_output</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">dtype</em>, <em class="sig-param">shape</em>, <em class="sig-param">profile=&lt;ProfilingType.NONE: 0&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.contract.SignatureBuilder.with_output" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds output to the SignatureBuilder</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – </p></li>
+<li><p><strong>dtype</strong> – </p></li>
+<li><p><strong>shape</strong> – </p></li>
+<li><p><strong>profile</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>self SignatureBuilder</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="hydrosdk.contract.are_dtypes_compatible">
+<code class="sig-prename descclassname">hydrosdk.contract.</code><code class="sig-name descname">are_dtypes_compatible</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">a</span></em>, <em class="sig-param"><span class="n">b</span></em>, <em class="sig-param"><span class="n">strict</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.contract.are_dtypes_compatible" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compares if data types are compatible</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a</strong> – </p></li>
+<li><p><strong>b</strong> – </p></li>
+<li><p><strong>strict</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>result of comparision as bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="hydrosdk.contract.are_shapes_compatible">
+<code class="sig-prename descclassname">hydrosdk.contract.</code><code class="sig-name descname">are_shapes_compatible</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">a</span></em>, <em class="sig-param"><span class="n">b</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.contract.are_shapes_compatible" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compares if shapes are compatible</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a</strong> – </p></li>
+<li><p><strong>b</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>result of comparision as bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="hydrosdk.contract.attach_ds">
+<code class="sig-prename descclassname">hydrosdk.contract.</code><code class="sig-name descname">attach_ds</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">result_dict</span></em>, <em class="sig-param"><span class="n">field</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.contract.attach_ds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds dtype or subfields</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>result_dict</strong> – </p></li>
+<li><p><strong>field</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.8)"><strong>ValueError</strong></a> – If field invalid</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>result_dict with dtype or subfields</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="hydrosdk.contract.contract_from_dict">
+<code class="sig-prename descclassname">hydrosdk.contract.</code><code class="sig-name descname">contract_from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data_dict</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.contract.contract_from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deserialization of yaml dict into model contract</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data_dict</strong> – contract from yaml</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>model contract</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="hydrosdk.contract.contract_from_dict_yaml">
+<code class="sig-prename descclassname">hydrosdk.contract.</code><code class="sig-name descname">contract_from_dict_yaml</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data_dict</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.contract.contract_from_dict_yaml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Old version of deserialization of yaml dict into model contract. Should not be used or tested first</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data_dict</strong> – contract from yaml</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>model contract</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="hydrosdk.contract.contract_to_dict">
+<code class="sig-prename descclassname">hydrosdk.contract.</code><code class="sig-name descname">contract_to_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">contract</span><span class="p">:</span> <span class="n">hydro_serving_grpc.contract.model_contract_pb2.ModelContract</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.contract.contract_to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serializes model contract into model_name, predict</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>contract</strong> – model contract</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dict with model_name, predict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="hydrosdk.contract.field_from_dict">
+<code class="sig-prename descclassname">hydrosdk.contract.</code><code class="sig-name descname">field_from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">data_dict</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.contract.field_from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Old version of deserialization <em>data_dict</em> into ModelField. Should not be used or tested first</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="hydrosdk.contract.field_from_dict_new">
+<code class="sig-prename descclassname">hydrosdk.contract.</code><code class="sig-name descname">field_from_dict_new</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">data_dict</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.contract.field_from_dict_new" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deserialization of <em>data_dict</em> into ModelField.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – name of passed data</p></li>
+<li><p><strong>data_dict</strong> – data</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.8)"><strong>ValueError</strong></a> – If data_dict is invalid</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>ModelField</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="hydrosdk.contract.field_to_dict">
+<code class="sig-prename descclassname">hydrosdk.contract.</code><code class="sig-name descname">field_to_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">field</span><span class="p">:</span> <span class="n">hydro_serving_grpc.contract.model_field_pb2.ModelField</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.contract.field_to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serializes model field into name, profile and optional shape</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>field</strong> – model field</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.8)"><strong>TypeError</strong></a> – If field is invalid</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>dict with name and profile</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="hydrosdk.contract.mock_input_data">
+<code class="sig-prename descclassname">hydrosdk.contract.</code><code class="sig-name descname">mock_input_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">signature</span><span class="p">:</span> <span class="n">hydro_serving_grpc.contract.model_signature_pb2.ModelSignature</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.contract.mock_input_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates dummy input data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>signature</strong> – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of input tensors</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="hydrosdk.contract.parse_field">
+<code class="sig-prename descclassname">hydrosdk.contract.</code><code class="sig-name descname">parse_field</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">dtype</em>, <em class="sig-param">shape</em>, <em class="sig-param">profile=&lt;ProfilingType.NONE: 0&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.contract.parse_field" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deserializes into model field</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – name of model field</p></li>
+<li><p><strong>dtype</strong> – data type of model field</p></li>
+<li><p><strong>shape</strong> – shape of model field</p></li>
+<li><p><strong>profile</strong> – profile of model field</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.8)"><strong>ValueError</strong></a> – If dtype is invalid</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>model field obj</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="hydrosdk.contract.shape_to_dict">
+<code class="sig-prename descclassname">hydrosdk.contract.</code><code class="sig-name descname">shape_to_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">shape</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.contract.shape_to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serializes model field’s shape to dict</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>shape</strong> – TensorShapeProto</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dict with dim and unknown rank</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="hydrosdk.contract.signature_to_dict">
+<code class="sig-prename descclassname">hydrosdk.contract.</code><code class="sig-name descname">signature_to_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">signature</span><span class="p">:</span> <span class="n">hydro_serving_grpc.contract.model_signature_pb2.ModelSignature</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.contract.signature_to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serializes signature into signature_name, inputs, outputs</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>signature</strong> – model signature obj</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.8)"><strong>TypeError</strong></a> – If signature invalid</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>dict with signature_name, inputs, outputs</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="hydrosdk.contract.validate">
+<code class="sig-prename descclassname">hydrosdk.contract.</code><code class="sig-name descname">validate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">strict</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.contract.validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return bool whether array is valid for this field and error message, if not valid.
+Error message is None if array is valid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>strict</strong> – Strict comparison for dtypes.</p></li>
+<li><p><strong>t</strong> – input Tensor</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>is_valid, error_message</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="hydrosdk.errors.html" class="btn btn-neutral float-right" title="hydrosdk.errors module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="hydrosdk.cluster.html" class="btn btn-neutral float-left" title="hydrosdk.cluster module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Hydrosphere.io
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
