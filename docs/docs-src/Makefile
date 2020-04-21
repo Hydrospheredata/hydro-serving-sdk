@@ -20,6 +20,6 @@ help:
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 github:
-	@find .. ! -name docs-src -maxdepth 1 -delete
+	@find .. ! -name docs-src -name .nojekyll -name README.md -maxdepth 1 -delete
 	@make clean && make html -b coverage
 	@cp -a build/html/. ../../docs
