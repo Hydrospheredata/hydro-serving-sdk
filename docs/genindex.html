@@ -56,7 +56,7 @@
 
           
             
-            <img src="_static/logo.svg" class="logo" alt="Logo"/>
+            <img src="_static/logo_white.svg" class="logo" alt="Logo"/>
           
           </a>
 
@@ -87,9 +87,12 @@
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="whats_new.html">What’s new in 2.3.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Sample tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydrosdk/hydrosdk.html">hydrosdk package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_help.html">Getting Help</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Hydrospheredata/hydro-serving-sdk">Github Repository</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pypi.org/project/hydrosdk/">PyPi package</a></li>
 </ul>
 
             
@@ -165,6 +168,7 @@
  | <a href="#G"><strong>G</strong></a>
  | <a href="#H"><strong>H</strong></a>
  | <a href="#I"><strong>I</strong></a>
+ | <a href="#J"><strong>J</strong></a>
  | <a href="#K"><strong>K</strong></a>
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
@@ -182,6 +186,8 @@
 <h2 id="A">A</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="hydrosdk/hydrosdk.predictor.html#hydrosdk.predictor.AbstractPredictor">AbstractPredictor (class in hydrosdk.predictor)</a>
+</li>
       <li><a href="hydrosdk/hydrosdk.contract.html#hydrosdk.contract.AnyDimSize">AnyDimSize (class in hydrosdk.contract)</a>
 </li>
       <li><a href="hydrosdk/hydrosdk.application.html#hydrosdk.application.Application.app_json_to_app_obj">app_json_to_app_obj() (hydrosdk.application.Application static method)</a>
@@ -210,11 +216,13 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="hydrosdk/hydrosdk.contract.html#hydrosdk.contract.SignatureBuilder.build">build() (hydrosdk.contract.SignatureBuilder method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="hydrosdk/hydrosdk.cluster.html#hydrosdk.cluster.Cluster.build_info">build_info() (hydrosdk.cluster.Cluster method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="hydrosdk/hydrosdk.model.html#hydrosdk.model.UploadResponse.building">building() (hydrosdk.model.UploadResponse method)</a>
+</li>
+      <li><a href="hydrosdk/hydrosdk.model.html#hydrosdk.model.BuildStatus">BuildStatus (class in hydrosdk.model)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -232,11 +240,9 @@
 </li>
       <li><a href="hydrosdk/hydrosdk.contract.html#hydrosdk.contract.contract_to_dict">contract_to_dict() (in module hydrosdk.contract)</a>
 </li>
-      <li><a href="hydrosdk/hydrosdk.contract.html#hydrosdk.contract.ContractViolationException">ContractViolationException</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="hydrosdk/hydrosdk.data.conversions.html#hydrosdk.data.conversions.convert_inputs_to_tensor_proto">convert_inputs_to_tensor_proto() (in module hydrosdk.data.conversions)</a>
+      <li><a href="hydrosdk/hydrosdk.contract.html#hydrosdk.contract.ContractViolationException">ContractViolationException</a>
 </li>
       <li><a href="hydrosdk/hydrosdk.application.html#hydrosdk.application.Application.create">create() (hydrosdk.application.Application static method)</a>
 
@@ -314,8 +320,6 @@
       </ul></li>
       <li><a href="hydrosdk/hydrosdk.model.html#hydrosdk.model.LocalModel.from_file">from_file() (hydrosdk.model.LocalModel static method)</a>
 </li>
-      <li><a href="hydrosdk/hydrosdk.model.html#hydrosdk.model.Model.from_json">from_json() (hydrosdk.model.Model static method)</a>
-</li>
   </ul></td>
 </tr></table>
 
@@ -328,13 +332,15 @@
         <li><a href="hydrosdk/hydrosdk.servable.html#hydrosdk.servable.Servable.get">(hydrosdk.servable.Servable static method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="hydrosdk/hydrosdk.model.html#hydrosdk.model.UploadResponse.get_status">get_status() (hydrosdk.model.UploadResponse method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="hydrosdk/hydrosdk.cluster.html#hydrosdk.cluster.Cluster.grpc_insecure">grpc_insecure() (hydrosdk.cluster.Cluster method)</a>
 </li>
       <li><a href="hydrosdk/hydrosdk.cluster.html#hydrosdk.cluster.Cluster.grpc_secure">grpc_secure() (hydrosdk.cluster.Cluster method)</a>
+</li>
+      <li><a href="hydrosdk/hydrosdk.predictor.html#hydrosdk.predictor.GRPCPredictor">GRPCPredictor (class in hydrosdk.predictor)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -342,13 +348,6 @@
 <h2 id="H">H</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li>
-    hydrosdk
-
-      <ul>
-        <li><a href="hydrosdk/hydrosdk.html#module-hydrosdk">module</a>
-</li>
-      </ul></li>
       <li>
     hydrosdk.application
 
@@ -378,13 +377,6 @@
 </li>
       </ul></li>
       <li>
-    hydrosdk.data.conversions
-
-      <ul>
-        <li><a href="hydrosdk/hydrosdk.data.conversions.html#module-hydrosdk.data.conversions">module</a>
-</li>
-      </ul></li>
-      <li>
     hydrosdk.data.types
 
       <ul>
@@ -398,8 +390,6 @@
         <li><a href="hydrosdk/hydrosdk.errors.html#module-hydrosdk.errors">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     hydrosdk.exceptions
 
@@ -407,6 +397,8 @@
         <li><a href="hydrosdk/hydrosdk.exceptions.html#module-hydrosdk.exceptions">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     hydrosdk.host_selector
 
@@ -460,6 +452,14 @@
   </ul></td>
 </tr></table>
 
+<h2 id="J">J</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="hydrosdk/hydrosdk.predictor.html#hydrosdk.predictor.JSONPredictor">JSONPredictor (class in hydrosdk.predictor)</a>
+</li>
+  </ul></td>
+</tr></table>
+
 <h2 id="K">K</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -497,8 +497,6 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="hydrosdk/hydrosdk.model.html#hydrosdk.model.Metricable">Metricable (class in hydrosdk.model)</a>
 </li>
-      <li><a href="hydrosdk/hydrosdk.predictor.html#hydrosdk.predictor.MetricableImplementation">MetricableImplementation (class in hydrosdk.predictor)</a>
-</li>
       <li><a href="hydrosdk/hydrosdk.monitoring.html#hydrosdk.monitoring.MetricModel">MetricModel (class in hydrosdk.monitoring)</a>
 </li>
       <li><a href="hydrosdk/hydrosdk.monitoring.html#hydrosdk.monitoring.MetricSpec">MetricSpec (class in hydrosdk.monitoring)</a>
@@ -515,14 +513,10 @@
 </li>
       <li><a href="hydrosdk/hydrosdk.servable.html#hydrosdk.servable.Servable.model_version_json_to_servable">model_version_json_to_servable() (hydrosdk.servable.Servable static method)</a>
 </li>
-      <li><a href="hydrosdk/hydrosdk.model.html#hydrosdk.model.ModelStatus">ModelStatus (class in hydrosdk.model)</a>
-</li>
       <li>
     module
 
       <ul>
-        <li><a href="hydrosdk/hydrosdk.html#module-hydrosdk">hydrosdk</a>
-</li>
         <li><a href="hydrosdk/hydrosdk.application.html#module-hydrosdk.application">hydrosdk.application</a>
 </li>
         <li><a href="hydrosdk/hydrosdk.cluster.html#module-hydrosdk.cluster">hydrosdk.cluster</a>
@@ -530,8 +524,6 @@
         <li><a href="hydrosdk/hydrosdk.contract.html#module-hydrosdk.contract">hydrosdk.contract</a>
 </li>
         <li><a href="hydrosdk/hydrosdk.data.html#module-hydrosdk.data">hydrosdk.data</a>
-</li>
-        <li><a href="hydrosdk/hydrosdk.data.conversions.html#module-hydrosdk.data.conversions">hydrosdk.data.conversions</a>
 </li>
         <li><a href="hydrosdk/hydrosdk.data.types.html#module-hydrosdk.data.types">hydrosdk.data.types</a>
 </li>
@@ -586,14 +578,14 @@
 </li>
       <li><a href="hydrosdk/hydrosdk.contract.html#hydrosdk.contract.parse_field">parse_field() (in module hydrosdk.contract)</a>
 </li>
-      <li><a href="hydrosdk/hydrosdk.model.html#hydrosdk.model.parse_model_from_json_dict">parse_model_from_json_dict() (in module hydrosdk.model)</a>
-</li>
       <li><a href="hydrosdk/hydrosdk.application.html#hydrosdk.application.Application.parse_model_variant">parse_model_variant() (hydrosdk.application.Application static method)</a>
 </li>
       <li><a href="hydrosdk/hydrosdk.application.html#hydrosdk.application.Application.parse_model_variant_list">parse_model_variant_list() (hydrosdk.application.Application static method)</a>
 </li>
       <li><a href="hydrosdk/hydrosdk.application.html#hydrosdk.application.Application.parse_pipeline">parse_pipeline() (hydrosdk.application.Application static method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="hydrosdk/hydrosdk.application.html#hydrosdk.application.Application.parse_pipeline_stage">parse_pipeline_stage() (hydrosdk.application.Application static method)</a>
 </li>
       <li><a href="hydrosdk/hydrosdk.application.html#hydrosdk.application.Application.parse_singular">parse_singular() (hydrosdk.application.Application static method)</a>
@@ -601,30 +593,6 @@
       <li><a href="hydrosdk/hydrosdk.application.html#hydrosdk.application.Application.parse_singular_app">parse_singular_app() (hydrosdk.application.Application static method)</a>
 </li>
       <li><a href="hydrosdk/hydrosdk.application.html#hydrosdk.application.Application.parse_streaming_params">parse_streaming_params() (hydrosdk.application.Application static method)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="hydrosdk/hydrosdk.model.html#hydrosdk.model.UploadResponse.poll_model">poll_model() (hydrosdk.model.UploadResponse method)</a>
-</li>
-      <li><a href="hydrosdk/hydrosdk.predictor.html#hydrosdk.predictor.PredictServiceClient.predict">predict() (hydrosdk.predictor.PredictServiceClient method)</a>
-</li>
-      <li><a href="hydrosdk/hydrosdk.predictor.html#hydrosdk.predictor.Predictable">Predictable (class in hydrosdk.predictor)</a>
-</li>
-      <li><a href="hydrosdk/hydrosdk.predictor.html#hydrosdk.predictor.PredictableApplication">PredictableApplication (class in hydrosdk.predictor)</a>
-</li>
-      <li><a href="hydrosdk/hydrosdk.predictor.html#hydrosdk.predictor.PredictableServable">PredictableServable (class in hydrosdk.predictor)</a>
-</li>
-      <li><a href="hydrosdk/hydrosdk.predictor.html#hydrosdk.predictor.PredictImplementation">PredictImplementation (class in hydrosdk.predictor)</a>
-</li>
-      <li><a href="hydrosdk/hydrosdk.predictor.html#hydrosdk.predictor.PredictableApplication.predictor">predictor() (hydrosdk.predictor.PredictableApplication method)</a>
-
-      <ul>
-        <li><a href="hydrosdk/hydrosdk.predictor.html#hydrosdk.predictor.PredictableServable.predictor">(hydrosdk.predictor.PredictableServable method)</a>
-</li>
-      </ul></li>
-      <li><a href="hydrosdk/hydrosdk.data.types.html#hydrosdk.data.types.PredictorDT">PredictorDT (class in hydrosdk.data.types)</a>
-</li>
-      <li><a href="hydrosdk/hydrosdk.predictor.html#hydrosdk.predictor.PredictServiceClient">PredictServiceClient (class in hydrosdk.predictor)</a>
 </li>
       <li><a href="hydrosdk/hydrosdk.contract.html#hydrosdk.contract.ProfilingType">ProfilingType (class in hydrosdk.contract)</a>
 </li>
@@ -656,9 +624,13 @@
 </li>
       <li><a href="hydrosdk/hydrosdk.servable.html#hydrosdk.servable.ServableStatus">ServableStatus (class in hydrosdk.servable)</a>
 </li>
+      <li><a href="hydrosdk/hydrosdk.model.html#hydrosdk.model.UploadResponse.set_status">set_status() (hydrosdk.model.UploadResponse method)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="hydrosdk/hydrosdk.image.html#hydrosdk.image.DockerImage.sha256">sha256() (hydrosdk.image.DockerImage property)</a>
+</li>
+      <li><a href="hydrosdk/hydrosdk.predictor.html#hydrosdk.predictor.ShadowlessGRPCPredictor">ShadowlessGRPCPredictor (class in hydrosdk.predictor)</a>
 </li>
       <li><a href="hydrosdk/hydrosdk.contract.html#hydrosdk.contract.shape_to_dict">shape_to_dict() (in module hydrosdk.contract)</a>
 </li>
@@ -688,12 +660,10 @@
 <h2 id="U">U</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="hydrosdk/hydrosdk.predictor.html#hydrosdk.predictor.UnmetricableImplementation">UnmetricableImplementation (class in hydrosdk.predictor)</a>
+      <li><a href="hydrosdk/hydrosdk.model.html#hydrosdk.model.LocalModel.upload">upload() (hydrosdk.model.LocalModel method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="hydrosdk/hydrosdk.model.html#hydrosdk.model.LocalModel.upload">upload() (hydrosdk.model.LocalModel method)</a>
-</li>
       <li><a href="hydrosdk/hydrosdk.model.html#hydrosdk.model.UploadResponse">UploadResponse (class in hydrosdk.model)</a>
 </li>
   </ul></td>

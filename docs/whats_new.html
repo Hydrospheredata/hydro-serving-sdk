@@ -37,8 +37,8 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Installation" href="installation.html" />
-    <link rel="prev" title="Welcome to hydrosdk’s documentation!" href="index.html" /> 
+    <link rel="next" title="Quickstart" href="quickstart.html" />
+    <link rel="prev" title="hydrosdk - SDK for Hydrosphere.io" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -57,7 +57,7 @@
 
           
             
-            <img src="_static/logo.svg" class="logo" alt="Logo"/>
+            <img src="_static/logo_white.svg" class="logo" alt="Logo"/>
           
           </a>
 
@@ -88,9 +88,12 @@
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">What’s new in 2.3.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Sample tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydrosdk/hydrosdk.html">hydrosdk package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_help.html">Getting Help</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Hydrospheredata/hydro-serving-sdk">Github Repository</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pypi.org/project/hydrosdk/">PyPi package</a></li>
 </ul>
 
             
@@ -158,40 +161,7 @@
   <div class="section" id="what-s-new-in-release">
 <h1>What’s new in 2.3.0<a class="headerlink" href="#what-s-new-in-release" title="Permalink to this headline">¶</a></h1>
 <ul class="simple">
-<li><p>Predictors</p></li>
-</ul>
-<div class="highlight-default notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
- 2
- 3
- 4
- 5
- 6
- 7
- 8
- 9
-10
-11
-12
-13
-14
-15</pre></div></td><td class="code"><div class="highlight"><pre><span></span> import pandas as pd​
- from hydrosdk.cluster import Cluster
- from hydrosdk.servable import Servable
- ​
- cluster = Cluster(http_address=&quot;https://hydro-serving.dev.hydrosphere.io&quot;,
-                   grpc_address=&quot;hydro-serving.dev.hydrosphere.io&quot;)
- ​
- servable = Servable.get(cluster, &quot;adult-classification-1-wild-flower&quot;)
- predictor = servable.predictor(ssl=True)
- ​
- data = pd.read_csv(&quot;private_hydrosphere_examples/examples/adult/data/validation.csv&quot;)
- data.columns = [s.lower().replace(&quot; &quot;, &quot;_&quot;) for s in data.columns]
- ​
- for row in data.itertuples(index=False):
-     prediction = predictor.predict(row._asdict())
-</pre></div>
-</td></tr></table></div>
-<ul class="simple">
+<li><p>Predictors. Now you can easily send data to your deployed models from Python.</p></li>
 <li><p>Bug fixes</p></li>
 <li><p>Other things</p></li>
 </ul>
@@ -205,10 +175,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="installation.html" class="btn btn-neutral float-right" title="Installation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="quickstart.html" class="btn btn-neutral float-right" title="Quickstart" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to hydrosdk’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="index.html" class="btn btn-neutral float-left" title="hydrosdk - SDK for Hydrosphere.io" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Welcome to hydrosdk’s documentation! &mdash; hydrosdk 2.3.0 documentation</title>
+  <title>hydrosdk - SDK for Hydrosphere.io &mdash; hydrosdk 2.3.0 documentation</title>
   
 
   
@@ -56,7 +56,7 @@
 
           
             
-            <img src="_static/logo.svg" class="logo" alt="Logo"/>
+            <img src="_static/logo_white.svg" class="logo" alt="Logo"/>
           
           </a>
 
@@ -87,9 +87,12 @@
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="whats_new.html">What’s new in 2.3.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Sample tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydrosdk/hydrosdk.html">hydrosdk package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_help.html">Getting Help</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Hydrospheredata/hydro-serving-sdk">Github Repository</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pypi.org/project/hydrosdk/">PyPi package</a></li>
 </ul>
 
             
@@ -135,7 +138,7 @@
     
       <li><a href="#">Docs</a> &raquo;</li>
         
-      <li>Welcome to hydrosdk’s documentation!</li>
+      <li>hydrosdk - SDK for Hydrosphere.io</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -154,40 +157,42 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="welcome-to-hydrosdk-s-documentation">
-<h1>Welcome to hydrosdk’s documentation!<a class="headerlink" href="#welcome-to-hydrosdk-s-documentation" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="hydrosdk-sdk-for-hydrosphere-io">
+<h1>hydrosdk - SDK for Hydrosphere.io<a class="headerlink" href="#hydrosdk-sdk-for-hydrosphere-io" title="Permalink to this headline">¶</a></h1>
+<p>hydrosdk is the Hydrosphere.io SDK for Python. It enables Python developers to configure, and manage model lifecycle on Hydrosphere.io platform.
+hydrosdk provides an easy to use, object-oriented API.</p>
 <div class="toctree-wrapper compound">
 <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="whats_new.html">What’s new in 2.3.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#using-hydrosdk">Using hydrosdk</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Sample tutorial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#upload-your-code-as-a-local-model">Upload your code as a Local Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#attach-monitoring-model-to-your-inference-model">Attach monitoring model to your inference model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#connect-to-your-deployed-model">Connect to your deployed model</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="hydrosdk/hydrosdk.html">hydrosdk package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="hydrosdk/hydrosdk.html#subpackages">Subpackages</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="hydrosdk/hydrosdk.data.html">hydrosdk.data package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="hydrosdk/hydrosdk.data.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="hydrosdk/hydrosdk.data.html#module-hydrosdk.data">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hydrosdk/hydrosdk.application.html">hydrosdk.application module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hydrosdk/hydrosdk.cluster.html">hydrosdk.cluster module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hydrosdk/hydrosdk.contract.html">hydrosdk.contract module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hydrosdk/hydrosdk.errors.html">hydrosdk.errors module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hydrosdk/hydrosdk.exceptions.html">hydrosdk.exceptions module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hydrosdk/hydrosdk.host_selector.html">hydrosdk.host_selector module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hydrosdk/hydrosdk.image.html">hydrosdk.image module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hydrosdk/hydrosdk.model.html">hydrosdk.model module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hydrosdk/hydrosdk.monitoring.html">hydrosdk.monitoring module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hydrosdk/hydrosdk.predictor.html">hydrosdk.predictor module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hydrosdk/hydrosdk.servable.html">hydrosdk.servable module</a></li>
 </ul>
 </li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="hydrosdk/hydrosdk.html#submodules">Submodules</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="hydrosdk/hydrosdk.application.html">hydrosdk.application module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="hydrosdk/hydrosdk.cluster.html">hydrosdk.cluster module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="hydrosdk/hydrosdk.contract.html">hydrosdk.contract module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="hydrosdk/hydrosdk.errors.html">hydrosdk.errors module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="hydrosdk/hydrosdk.exceptions.html">hydrosdk.exceptions module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="hydrosdk/hydrosdk.host_selector.html">hydrosdk.host_selector module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="hydrosdk/hydrosdk.image.html">hydrosdk.image module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="hydrosdk/hydrosdk.model.html">hydrosdk.model module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="hydrosdk/hydrosdk.monitoring.html">hydrosdk.monitoring module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="hydrosdk/hydrosdk.predictor.html">hydrosdk.predictor module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="hydrosdk/hydrosdk.servable.html">hydrosdk.servable module</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="hydrosdk/hydrosdk.html#module-hydrosdk">Module contents</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="getting_help.html">Getting Help</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Hydrospheredata/hydro-serving-sdk">Github Repository</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pypi.org/project/hydrosdk/">PyPi package</a></li>
 </ul>
 </div>
 </div>

@@ -1,19 +1,8 @@
 hydrosdk package
 ================
 
-Subpackages
------------
-
 .. toctree::
-   :maxdepth: 4
-
-   hydrosdk.data
-
-Submodules
-----------
-
-.. toctree::
-   :maxdepth: 4
+   :maxdepth: 2
 
    hydrosdk.application
    hydrosdk.cluster
@@ -26,11 +15,3 @@ Submodules
    hydrosdk.monitoring
    hydrosdk.predictor
    hydrosdk.servable
-
-Module contents
----------------
-
-.. automodule:: hydrosdk
-   :members:
-
-   :show-inheritance:

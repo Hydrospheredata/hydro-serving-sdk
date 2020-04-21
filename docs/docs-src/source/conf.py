@@ -13,7 +13,7 @@
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.abspath('../..'))
 
 # -- Project information -----------------------------------------------------
 from recommonmark.transform import AutoStructify
@@ -33,6 +33,7 @@ release = '2.3.0'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = ['sphinx.ext.autodoc',
+              'sphinx.ext.napoleon',
               'sphinx.ext.intersphinx',
               'recommonmark',
               'sphinx.ext.coverage',
@@ -68,7 +69,7 @@ exclude_patterns = []
 #
 
 html_theme = "sphinx_rtd_theme"
-html_logo = '_static/logo.svg'
+html_logo = '_static/logo_white.svg'
 html_favicon = '_static/favicon.svg'
 
 html_theme_options = {

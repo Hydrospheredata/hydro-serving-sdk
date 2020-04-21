@@ -20,6 +20,6 @@ help:
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 github:
-	@find . ! -name make.bat ! -name Makefile ! -name source ! -name .nojekyll -maxdepth 1 -delete
-	@make html -b coverage
-	@cp -a build/html/. ../docs
+	@find .. ! -name docs-src -maxdepth 1 -delete
+	@make clean && make html -b coverage
+	@cp -a build/html/. ../../docs

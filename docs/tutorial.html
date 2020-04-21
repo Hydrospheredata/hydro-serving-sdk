@@ -1,0 +1,386 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Sample tutorial &mdash; hydrosdk 2.3.0 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="_static/favicon.svg"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="hydrosdk package" href="hydrosdk/hydrosdk.html" />
+    <link rel="prev" title="Quickstart" href="quickstart.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> hydrosdk
+          
+
+          
+            
+            <img src="_static/logo_white.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="whats_new.html">What’s new in 2.3.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Sample tutorial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#upload-your-code-as-a-local-model">Upload your code as a Local Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#attach-monitoring-model-to-your-inference-model">Attach monitoring model to your inference model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#connect-to-your-deployed-model">Connect to your deployed model</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="hydrosdk/hydrosdk.html">hydrosdk package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_help.html">Getting Help</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Hydrospheredata/hydro-serving-sdk">Github Repository</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pypi.org/project/hydrosdk/">PyPi package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">hydrosdk</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Sample tutorial</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/tutorial.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="sample-tutorial">
+<h1>Sample tutorial<a class="headerlink" href="#sample-tutorial" title="Permalink to this headline">¶</a></h1>
+<p>This tutorial will show you how to use hydrosdk.You will learn how to upload your code as a model to Hydrosphere.io,
+attach a monitoring metric to it and setup your client code to make inference.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>This tutorials is written for hydrosdk~=2.3</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you haven’t launched Hydrosphere.io platform, please do so before proceeding with this tutorial. You can learn how to do it here - <a class="reference external" href="https://hydrosphere.io/serving-docs/latest/install/index.html">https://hydrosphere.io/serving-docs/latest/install/index.html</a>.</p>
+</div>
+<div class="section" id="upload-your-code-as-a-local-model">
+<h2>Upload your code as a Local Model<a class="headerlink" href="#upload-your-code-as-a-local-model" title="Permalink to this headline">¶</a></h2>
+<p>First we need to connect to the Hydrosphere.io platform by creating <a class="reference internal" href="hydrosdk/hydrosdk.cluster.html"><span class="doc">Cluster</span></a> object.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">hydrosdk.cluster</span> <span class="kn">import</span> <span class="n">Cluster</span>
+<span class="n">cluster</span> <span class="o">=</span> <span class="n">Cluster</span><span class="p">(</span><span class="s2">&quot;your-hydrosphere-cluster-address&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Next we need to write the script which will be uploaded to the Hydrosphere platform. For the simplicity of this tutorial let’s imagine
+that our model will be calculating square root of a double value provided.</p>
+<p>We’ll call this script ‘func_main.py’ and put it in “model/src/func_main.py”.</p>
+<div class="literal-block-wrapper docutils container" id="id1">
+<div class="code-block-caption"><span class="caption-text">model/src/func_main.py</span><a class="headerlink" href="#id1" title="Permalink to this code">¶</a></div>
+<div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">sqrt</span>
+
+<span class="k">def</span> <span class="nf">infer</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+   <span class="k">return</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</pre></div>
+</td></tr></table></div>
+</div>
+<p>Our file structure at this point should look like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>.
+└── model
+    └── src
+        └── func_main.py
+</pre></div>
+</div>
+<p>To let hydrosdk know which files needs to be uploaded to the Hydrosphere.io platform we will capture all
+necessary file paths in a <code class="docutils literal notranslate"><span class="pre">payload</span></code> variable.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">payload</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;model/src/func_main.py&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Hydrosphere Serving is a strictly typed inference engine, so before uploading our model we need to specify it’s signature with
+<code class="docutils literal notranslate"><span class="pre">SignatureBuilder</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">hydrosdk.contract</span> <span class="kn">import</span> <span class="n">SignatureBuilder</span><span class="p">,</span> <span class="n">ModelContract</span>
+
+<span class="n">signature</span> <span class="o">=</span> <span class="n">SignatureBuilder</span><span class="p">(</span><span class="s1">&#39;infer&#39;</span><span class="p">)</span> \
+                <span class="o">.</span><span class="n">with_input</span><span class="p">(</span><span class="s1">&#39;input_&#39;</span><span class="p">,</span> <span class="s1">&#39;double&#39;</span><span class="p">,</span> <span class="s2">&quot;scalar&quot;</span><span class="p">)</span> \
+                <span class="o">.</span><span class="n">with_output</span><span class="p">(</span><span class="s1">&#39;output&#39;</span><span class="p">,</span> <span class="s1">&#39;double&#39;</span><span class="p">,</span> <span class="s2">&quot;scalar&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
+<span class="n">contract</span> <span class="o">=</span> <span class="n">ModelContract</span><span class="p">(</span><span class="n">predict</span><span class="o">=</span><span class="n">signature</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>At this point we can combine all our efforts into LocalModel object. We’ll call it <code class="docutils literal notranslate"><span class="pre">&quot;sqrt_model&quot;</span></code>. Moreover, we need to
+specify environment in which our model will run. Such environments are called Runtimes. You can learn more about them <a class="reference external" href="https://hydrosphere.io/serving-docs/latest/overview/concepts.html#runtimes">here</a>.
+In this tutorial we will use default Python 3.6 runtime. This runtime uses <code class="docutils literal notranslate"><span class="pre">src/func_main.py</span></code> script as an entry point, that’s why
+we organised our files as we did.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">hydrosdk.model</span> <span class="kn">import</span> <span class="n">LocalModel</span>
+<span class="kn">from</span> <span class="nn">hydrosdk.image</span> <span class="kn">import</span> <span class="n">DockerImage</span>
+
+<span class="n">sqrt_local_model</span> <span class="o">=</span> <span class="n">LocalModel</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;sqrt_model&quot;</span><span class="p">,</span>
+                              <span class="n">contract</span><span class="o">=</span><span class="n">contract</span><span class="p">,</span>
+                              <span class="n">runtime</span><span class="o">=</span><span class="n">DockerImage</span><span class="p">(</span><span class="s2">&quot;hydrosphere/serving-runtime-python-3.6&quot;</span><span class="p">,</span> <span class="s2">&quot;2.1.0&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
+                              <span class="n">payload</span><span class="o">=</span><span class="n">payload</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>After packing all necessary information into LocalModel, we finally can upload it.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">upload_response</span> <span class="o">=</span> <span class="n">sqrt_local_model</span><span class="o">.</span><span class="n">_LocalModel__upload</span><span class="p">(</span><span class="n">cluster</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Let’s check whether our model was successfuly uploaded to the platform by looking for it by id returned in <code class="docutils literal notranslate"><span class="pre">upload_response</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">hydrosdk.model</span> <span class="kn">import</span> <span class="n">Model</span>
+<span class="n">sqrt_model</span> <span class="o">=</span> <span class="n">Model</span><span class="o">.</span><span class="n">find_by_id</span><span class="p">(</span><span class="n">cluster</span><span class="p">,</span> <span class="n">upload_response</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We are finished with uploading our model. In the next section we will attach monitoring model to this model to monitor
+quality of our incoming data to prevent “thrash-in thrash out” situation.</p>
+</div>
+<div class="section" id="attach-monitoring-model-to-your-inference-model">
+<h2>Attach monitoring model to your inference model<a class="headerlink" href="#attach-monitoring-model-to-your-inference-model" title="Permalink to this headline">¶</a></h2>
+<p>Similarly, we define another <code class="docutils literal notranslate"><span class="pre">func_main.py</span></code> and put it in “monitoring_model/src/monitoring_main.py”.</p>
+<div class="literal-block-wrapper docutils container" id="id2">
+<div class="code-block-caption"><span class="caption-text">monitoring_model/src/func_main.py</span><a class="headerlink" href="#id2" title="Permalink to this code">¶</a></div>
+<div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="c1"># return 1 if our `input_` is non-negative and 0 otherwise.</span>
+<span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="n">input_</span><span class="p">,</span> <span class="n">output</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">input_</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</td></tr></table></div>
+</div>
+<p>So our file structure will look like</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>.
+└── model
+    └── src
+        └── func_main.py
+└── monitoring_model
+    └── src
+        └── func_main.py
+</pre></div>
+</div>
+<p>And our payload is</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">payload</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;monitoring_model/src/func_main.py&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>To attach one model as a metric to another model it’s signature should combine both input and output of monitored model
+with a single scalar value in the output.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">signature</span> <span class="o">=</span> <span class="n">SignatureBuilder</span><span class="p">(</span><span class="s1">&#39;predict&#39;</span><span class="p">)</span> \
+               <span class="o">.</span><span class="n">with_input</span><span class="p">(</span><span class="s1">&#39;input_&#39;</span><span class="p">,</span> <span class="s1">&#39;double&#39;</span><span class="p">,</span> <span class="s2">&quot;scalar&quot;</span><span class="p">)</span> \
+               <span class="o">.</span><span class="n">with_intput</span><span class="p">(</span><span class="s1">&#39;output&#39;</span><span class="p">,</span> <span class="s1">&#39;double&#39;</span><span class="p">,</span> <span class="s2">&quot;scalar&quot;</span><span class="p">)</span> \
+               <span class="o">.</span><span class="n">with_output</span><span class="p">(</span><span class="s1">&#39;value&#39;</span><span class="p">,</span> <span class="s1">&#39;double&#39;</span><span class="p">,</span> <span class="s2">&quot;scalar&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
+<span class="n">contract</span> <span class="o">=</span> <span class="n">ModelContract</span><span class="p">(</span><span class="n">predict</span><span class="o">=</span><span class="n">signature</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Similarly we create a LocalModel and upload it to Hydrosphere.io</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">monitoring_model</span> <span class="o">=</span> <span class="n">LocalModel</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;multiplication_model&quot;</span><span class="p">,</span>
+                         <span class="n">contract</span><span class="o">=</span><span class="n">contract</span><span class="p">,</span>
+                         <span class="n">runtime</span><span class="o">=</span><span class="n">DockerImage</span><span class="p">(</span><span class="s2">&quot;hydrosphere/serving-runtime-python-3.6&quot;</span><span class="p">,</span> <span class="s2">&quot;2.1.0&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
+                         <span class="n">payload</span><span class="o">=</span><span class="n">payload</span><span class="p">)</span>
+
+<span class="n">monitoring_upload_response</span> <span class="o">=</span> <span class="n">monitoring_model</span><span class="o">.</span><span class="n">_LocalModel__upload</span><span class="p">(</span><span class="n">cluster</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Check that model is uploaded successfully:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">monitoring_model</span> <span class="o">=</span> <span class="n">Model</span><span class="o">.</span><span class="n">find_by_id</span><span class="p">(</span><span class="n">cluster</span><span class="p">,</span> <span class="n">monitoring_upload_response</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Finally we attach this freshly uploaded model to our first one. To attach model as a metric to another model we need to</p>
+<ol class="simple">
+<li><p>Create metric configuration as a MetricSpecConfig object. In configuration we specify id of monitoring model,
+threshold and comparison operator to compare output of monitoring model with threshold. Model considered healthy if comparison
+is <code class="docutils literal notranslate"><span class="pre">True</span></code></p></li>
+<li><p>Create new metric by calling <code class="docutils literal notranslate"><span class="pre">MetricSpec.create</span></code> and providing id of monitored model with metric config.</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">hydrosdk.monitoring</span> <span class="kn">import</span> <span class="n">MetricSpec</span><span class="p">,</span> <span class="n">MetricSpecConfig</span><span class="p">,</span> <span class="n">TresholdCmpOp</span>
+<span class="n">metric_config</span> <span class="o">=</span> <span class="n">MetricSpecConfig</span><span class="p">(</span><span class="n">monitoring_model</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">TresholdCmpOp</span><span class="o">.</span><span class="n">NOT_EQ</span><span class="p">)</span>
+<span class="n">metric_spec</span> <span class="o">=</span> <span class="n">MetricSpec</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">cluster</span><span class="p">,</span> <span class="s2">&quot;test&quot;</span><span class="p">,</span> <span class="n">sqrt_model</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">metric_config</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We have attached monitoring model to our previously uploaded model to check input data. Now we can get to the part
+where we develop a client code for our model.</p>
+</div>
+<div class="section" id="connect-to-your-deployed-model">
+<h2>Connect to your deployed model<a class="headerlink" href="#connect-to-your-deployed-model" title="Permalink to this headline">¶</a></h2>
+<p>We have uploaded our model - it’s stored and versioned, but it’s not running yet - we need to deploy it.
+To send data through our model we need create an instance of our model version. Such instances are called Servables.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">hydrosdk.servable</span> <span class="kn">import</span> <span class="n">Servable</span>
+<span class="n">sqrt_servable</span> <span class="o">=</span> <span class="n">Servable</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">cluster</span><span class="p">,</span> <span class="n">model_name</span><span class="o">=</span><span class="n">sqrt_model</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">model_version</span><span class="o">=</span><span class="n">sqrt_model</span><span class="o">.</span><span class="n">version</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Servables provide <a class="reference internal" href="hydrosdk/hydrosdk.predictor.html"><span class="doc">Predictor</span></a> objects, which should be used for data inference.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">predictor</span> <span class="o">=</span> <span class="n">sqrt_servable</span><span class="o">.</span><span class="n">predictor</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Predictors provide <code class="docutils literal notranslate"><span class="pre">predict</span></code> method which we can use to send data through.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">random</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span><span class="mi">1000</span><span class="p">),</span> <span class="mi">100</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">predictor</span><span class="o">.</span><span class="n">predict</span><span class="p">({</span><span class="s2">&quot;in&quot;</span><span class="p">:</span> <span class="n">x</span><span class="p">})</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>All the data we sent through <code class="docutils literal notranslate"><span class="pre">sqrt_model</span></code>, together with results of inference is shadowed through all monitoring metrics.
+You can explore how metrics behave in the web interface.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="hydrosdk/hydrosdk.html" class="btn btn-neutral float-right" title="hydrosdk package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="quickstart.html" class="btn btn-neutral float-left" title="Quickstart" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Hydrosphere.io
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
