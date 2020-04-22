@@ -59,7 +59,11 @@ class Cluster:
         :param http_address:
         :param grpc_address:
         """
+        # TODO: add better validation (but not python validators lib!)ß
         parse.urlsplit(http_address)  # check if address is ok
+        if grpc_address:
+            parse.urlsplit(grpc_address)
+
         self.http_address = http_address
         self.grpc_address = grpc_address
 
