@@ -2,7 +2,7 @@ from collections import namedtuple
 from enum import Enum
 from typing import List
 
-from hydrosdk.predictor import PredictableApplication
+from hydrosdk.predictor import Predictable
 
 ApplicationDef = namedtuple('ApplicationDef', ('name', 'executionGraph', 'kafkaStreaming'))
 
@@ -27,7 +27,7 @@ class ApplicationStatus(Enum):
     READY = 2
 
 
-class Application(PredictableApplication):
+class Application(Predictable):
     """
     An application is a publicly available endpoint to reach your models (https://hydrosphere.io/serving-docs/latest/overview/concepts.html#applications)
     """

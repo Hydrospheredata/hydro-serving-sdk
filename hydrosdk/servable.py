@@ -5,7 +5,7 @@ import sseclient
 
 from .exceptions import ServableException
 from .model import Model
-from .predictor import PredictableServable
+from .predictor import Predictable
 
 
 class ServableStatus(Enum):
@@ -19,7 +19,7 @@ class ServableStatus(Enum):
     NOT_AVAILABLE = 1
 
 
-class Servable(PredictableServable):
+class Servable(Predictable):
     """
     Servable is an instance of a model version which could be used in application or by itself as it exposes various endpoints to your model version: HTTP, gRPC, and Kafka.
     (https://hydrosphere.io/serving-docs/latest/overview/concepts.html#servable)
