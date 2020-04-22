@@ -305,12 +305,12 @@ def test_model_json_parser(cluster, input):
 
 
 def test_list_models_by_model_name():
-    cluster = get_cluster()
+    cluster = create_test_cluster()
 
     # make sure you don't have existing models named same
-    loc_model = get_local_model(name="model-one")
-    loc_model2 = get_local_model(name="model-two")
-    loc_model3 = get_local_model(name="model-one")
+    loc_model = create_test_local_model(name="model-one")
+    loc_model2 = create_test_local_model(name="model-two")
+    loc_model3 = create_test_local_model(name="model-one")
 
     upload_response1 = loc_model._LocalModel__upload(cluster)
     upload_response2 = loc_model2._LocalModel__upload(cluster)
