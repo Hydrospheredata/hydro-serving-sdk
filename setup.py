@@ -7,15 +7,15 @@ pkgs = find_packages(exclude=['tests', 'tests.*'])
 print("FOUND PKGS", pkgs)
 
 reqs = [
-    'hydro-serving-grpc==2.1.0',
+    'hydro-serving-grpc~=2.2.1',
     'sseclient-py~=1.7',
-    'numpy',
-    'pyyaml~=5.1.2',
-    'requests~=2.22.0',
+    'numpy~=1.18.3',
+    'pyyaml~=5.3.1',
+    'requests~=2.23.0',
     'requests_toolbelt~=0.9.1'
 ]
 
-test_reqs = ['pytest>=3.8.0', 'requests_mock>=1.7.0']
+test_reqs = ['pytest~=5.4.1', 'requests_mock>=1.7.0']
 
 setup(
     name='hydrosdk',
