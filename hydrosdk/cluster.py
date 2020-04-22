@@ -1,33 +1,57 @@
+import json
 import logging
 from urllib import parse
-import requests
-import json
+
 import grpc
-import functools
+import requests
 
 
 class Cluster:
     """
     Cluster responsible for server interactions
     """
+
     @staticmethod
-    def connect(http_address, grpc_address=None):
+    def connect(http_address: str, grpc_address: str = None) -> 'Cluster':
         """
         The preferable factory method for Cluster creation. Use it.
 
-        :param http_address: connection address
-        :raises ConnectionError: if no connection with cluster
+        :param http_address: http connection address
+        :param grpc_address: optional grpc connection address
         :return: cluster object
 
         Checks the address, the connectivity, and creates an instance of Cluster.
         """
         cl = Cluster(http_address=http_address, grpc_address=grpc_address)
-        logging.info("Connecting to {} cluster".format(cl.http_address))
-        info = cl.build_info()
-        if info['manager']['status'] != 'Ok':
-            raise ConnectionError("Couldn't establish connection with cluster {}. {}".format(http_address, info['manager'].get('reason')))
-        logging.info("Connected to the {} cluster".format(info))
+
+        Cluster.check_connection(cluster=cl, address=http_address, address_type="http")
+        if grpc_address:
+            Cluster.check_connection(cluster=cl, address=grpc_address, address_type="grpc")
+
         return cl
+
+    @staticmethod
+    def check_connection(cluster: 'Cluster', address: str, address_type: str) -> None:
+        """
+        Checks cluster connection
+        :param cluster: active cluster
+        :param address: address to check
+        :param address_type: grpc or http
+        :raises ConnectionError: if no connection with cluster
+        :return: None
+        """
+        logging.info("Connecting to {} cluster".format(address))
+
+        if address_type == "http":
+            info = cluster.build_info(manager=True, sonar=True, gateway=True)
+        elif address_type == "grpc":
+            info = cluster.build_info(manager=True, gateway=True)
+
+        if info['manager']['status'] != 'Ok':
+            raise ConnectionError(
+                "Couldn't establish connection with cluster {}. {}".format(address,
+                                                                           info['manager'].get('reason')))
+        logging.info("Connected to the {} cluster".format(info))
 
     def __init__(self, http_address, grpc_address=None):
         """
@@ -76,7 +100,7 @@ class Cluster:
         """
         if not self.grpc_address:
             raise ValueError("Grpc address is not set")
-        
+
         return grpc.insecure_channel(self.grpc_address, options=options, compression=compression)
 
     def host_selectors(self):
@@ -91,20 +115,26 @@ class Cluster:
     def applications(self):
         return []
 
-    def build_info(self):
+    def build_info(self, manager=True, gateway=True, sonar=True) -> dict:
         """
         Returns manager, gateway, sonar builds info
-
-        :return: manager, gateway, sonar build infos
+        :param manager: return manager status or not
+        :param sonar: return sonar status or not
+        :param gateway: return gateway status or not
+        :return: select build infos
         """
-        manager_bl = self.safe_buildinfo("/api/buildinfo")
-        gateway_bl = self.safe_buildinfo("/gateway/buildinfo")
-        sonar_bl = self.safe_buildinfo("/monitoring/buildinfo")
-        return {
-            "manager": manager_bl,
-            "gateway": gateway_bl,
-            "sonar": sonar_bl
-        }
+        build_info = {}
+        if manager:
+            manager_bl = self.safe_buildinfo("/api/buildinfo")
+            build_info["manager"] = manager_bl
+        if gateway:
+            gateway_bl = self.safe_buildinfo("/gateway/buildinfo")
+            build_info["gateway"] = gateway_bl
+        if sonar:
+            sonar_bl = self.safe_buildinfo("/monitoring/buildinfo")
+            build_info["sonar"] = sonar_bl
+
+        return build_info
 
     def safe_buildinfo(self, url):
         """
