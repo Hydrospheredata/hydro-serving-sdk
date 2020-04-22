@@ -99,7 +99,7 @@ def test_local_model_file_deserialization():
     assert model is not None
 
 
-def test_model_find_in_cluster():
+def test_model_find_by_id():
     # mock answer from server
     # check model objects
     cluster = create_test_cluster()
@@ -112,7 +112,7 @@ def test_model_find_in_cluster():
     assert model_by_id.id == upload_response.model.id
 
 
-def test_model_find():
+def test_model_find_by_name_modelversion():
     cluster = create_test_cluster()
     signature = create_test_signature()
 
@@ -192,6 +192,7 @@ def test_model_list():
 
     assert res_list
 
+
 def test_ModelField_dt_invalid_input():
     signature = ModelSignature(signature_name="test", inputs=[ModelField(name="test", shape=TensorShapeProto())],
                                outputs=[ModelField(name="test", dtype=DataType.Name(2), shape=TensorShapeProto())])
@@ -211,10 +212,12 @@ def test_ModelField_dt_invalid_output():
     with pytest.raises(ValueError, match=r"Creating model with invalid dtype in contract-output.*"):
         create_test_local_model(contract=contract)
 
+
 def test_ModelField_contract_predict_None():
     contract = ModelContract(predict=None)
     with pytest.raises(ValueError, match=r"Creating model without contract.predict is not allowed.*"):
         create_test_local_model(contract=contract)
+
 
 def test_ModelField_contact_signatue_name_none():
     signature = ModelSignature(inputs=[ModelField(name="test", dtype=DataType.Name(2), shape=TensorShapeProto())],
@@ -299,3 +302,24 @@ MODEL_JSONS = [
 def test_model_json_parser(cluster, input):
     result = parse_model_from_json_dict(cluster, input)
     assert result
+
+
+def test_list_models_by_model_name():
+    cluster = get_cluster()
+
+    # make sure you don't have existing models named same
+    loc_model = get_local_model(name="model-one")
+    loc_model2 = get_local_model(name="model-two")
+    loc_model3 = get_local_model(name="model-one")
+
+    upload_response1 = loc_model._LocalModel__upload(cluster)
+    upload_response2 = loc_model2._LocalModel__upload(cluster)
+    upload_response3 = loc_model3._LocalModel__upload(cluster)
+
+    found_models = Model.list_models_by_model_name(cluster, upload_response1.model.name)
+
+    assert found_models
+    assert len(found_models) == 2
+    # test sorting
+    assert found_models[0].id == upload_response1.model.id
+    assert found_models[1].id == upload_response3.model.id

@@ -1,0 +1,1 @@
+To update documentation go to `docs-src` and run `make github`

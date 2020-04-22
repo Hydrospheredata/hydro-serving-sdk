@@ -456,6 +456,23 @@ class Model(Metricable):
         raise Exception(
             f"Failed to list model versions. {resp.status_code} {resp.text}")
 
+    @staticmethod
+    def list_models_by_model_name(cluster, model_name: str) -> list:
+        """
+        List all models on server filtered by model_name, sorted in ascending order by version
+
+        :param cluster: active cluster
+        :param model_name: model name
+        :return: list of Models for provided model name
+        """
+        all_models = Model.list_models(cluster=cluster)
+
+        models_by_name = [model for model in all_models if model.name == model_name]
+
+        sorted_by_version = sorted(models_by_name, key=lambda model: model.version)
+
+        return sorted_by_version
+
     def to_proto(self):
         """
         Turns Model to Model version
