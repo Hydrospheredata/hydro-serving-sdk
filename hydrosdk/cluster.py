@@ -53,13 +53,20 @@ class Cluster:
                                                                            info['manager'].get('reason')))
         logging.info("Connected to the {} cluster".format(info))
 
-    def __init__(self, http_address, grpc_address=None):
+    def __init__(self, http_address, grpc_address=None, ssl=True,
+                 grpc_credentials=None, grpc_options=None, grpc_compression=None):
         """
         Cluster ctor. Don't use it unless you understand what you are doing.
         :param http_address:
         :param grpc_address:
         """
-        # TODO: add better validation (but not python validators lib!)ß
+        if ssl:
+            self.channel = self.cluster.grpc_secure(credentials=grpc_credentials, options=grpc_options,
+                                                    compression=grpc_compression)
+        else:
+            self.channel = self.cluster.grpc_insecure(options=grpc_options, compression=grpc_compression)
+
+        # TODO: add better validation (but not python validators lib!)
         parse.urlsplit(http_address)  # check if address is ok
         if grpc_address:
             parse.urlsplit(grpc_address)

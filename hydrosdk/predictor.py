@@ -114,7 +114,7 @@ class PredictServiceClient:
 
 class Predictable:
     """Adds Predictor functionality"""
-    def predictor(self, monitorable=False, ssl=False, return_type=PredictorDT.DICT_NP_ARRAY) -> PredictServiceClient:
+    def predictor(self, monitorable=False, return_type=PredictorDT.DICT_NP_ARRAY) -> PredictServiceClient:
         """
 
         :param monitorable:
@@ -122,15 +122,10 @@ class Predictable:
         :param return_type:
         :return:
         """
-        if ssl:
-            self.channel = self.cluster.grpc_secure()
-        else:
-            self.channel = self.cluster.grpc_insecure()
-
         if monitorable:
-            self.impl = UnmonitorableImplementation(self.channel)
+            self.impl = UnmonitorableImplementation(self.cluster.channel)
         else:
-            self.impl = MonitorableImplementation(self.channel)
+            self.impl = MonitorableImplementation(self.cluster.channel)
 
         self.predictor_return_type = return_type
 
