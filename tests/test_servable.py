@@ -43,7 +43,7 @@ def test_servable_delete():
     time.sleep(3)
 
     with pytest.raises(ServableException):
-        found_servable = Servable.get(cluster, created_servable.name)
+        found_servable = Servable.find(cluster, created_servable.name)
 
 
 def test_servable_create():
@@ -54,7 +54,7 @@ def test_servable_create():
     time.sleep(3)
     created_servable = Servable.create(model_name=upload_resp[model].model.name,
                                        model_version=upload_resp[model].model.version, cluster=cluster)
-    found_servable = Servable.get(cluster, created_servable.name)
+    found_servable = Servable.find(cluster, created_servable.name)
 
     assert found_servable
 
@@ -71,6 +71,6 @@ def test_servable_status():
     assert created_servable.status == ServableStatus.STARTING
 
     time.sleep(10)
-    found_servable = Servable.get(cluster, created_servable.name)
+    found_servable = Servable.find(cluster, created_servable.name)
 
     assert found_servable.status == ServableStatus.SERVING
