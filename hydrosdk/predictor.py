@@ -20,7 +20,7 @@ class PredictImplementation(ABC):
         return predict_pb2.PredictRequest(model_spec=model_spec, inputs=inputs)
 
 
-class MetricableImplementation(PredictImplementation):
+class MonitorableImplementation(PredictImplementation):
     def __init__(self, channel):
         self.stub = PredictionServiceStub(channel)
 
@@ -29,7 +29,7 @@ class MetricableImplementation(PredictImplementation):
         return self.stub.Predict(request)
 
 
-class UnmetricableImplementation(PredictImplementation):
+class UnmonitorableImplementation(PredictImplementation):
     def __init__(self, channel):
         self.stub = GatewayServiceStub(channel)
 
@@ -128,9 +128,9 @@ class Predictable:
             self.channel = self.cluster.grpc_insecure()
 
         if monitorable:
-            self.impl = UnmetricableImplementation(self.channel)
+            self.impl = UnmonitorableImplementation(self.channel)
         else:
-            self.impl = MetricableImplementation(self.channel)
+            self.impl = MonitorableImplementation(self.channel)
 
         self.predictor_return_type = return_type
 
