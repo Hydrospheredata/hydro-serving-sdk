@@ -60,19 +60,19 @@ class Cluster:
         :param http_address:
         :param grpc_address:
         """
-        if ssl:
-            self.channel = self.cluster.grpc_secure(credentials=grpc_credentials, options=grpc_options,
-                                                    compression=grpc_compression)
-        else:
-            self.channel = self.cluster.grpc_insecure(options=grpc_options, compression=grpc_compression)
-
         # TODO: add better validation (but not python validators lib!)
         parse.urlsplit(http_address)  # check if address is ok
+        self.http_address = http_address
+
         if grpc_address:
             parse.urlsplit(grpc_address)
+            self.grpc_address = grpc_address
 
-        self.http_address = http_address
-        self.grpc_address = grpc_address
+            if ssl:
+                self.channel = self.grpc_secure(credentials=grpc_credentials, options=grpc_options,
+                                                compression=grpc_compression)
+            else:
+                self.channel = self.grpc_insecure(options=grpc_options, compression=grpc_compression)
 
     def request(self, method, url, **kwargs):
         """
