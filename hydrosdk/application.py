@@ -2,7 +2,8 @@ from collections import namedtuple
 from enum import Enum
 from typing import List
 
-from hydrosdk.predictor import Predictable
+from hydrosdk.data.types import PredictorDT
+from hydrosdk.predictor import Predictable, PredictServiceClient, UnmonitorableImplementation
 
 ApplicationDef = namedtuple('ApplicationDef', ('name', 'executionGraph', 'kafkaStreaming'))
 
@@ -31,12 +32,20 @@ class Application(Predictable):
     """
     An application is a publicly available endpoint to reach your models (https://hydrosphere.io/serving-docs/latest/overview/concepts.html#applications)
     """
+
     def __init__(self, name, execution_graph, kafka_streaming, metadata, status):
         self.name = name
         self.execution_graph = execution_graph
         self.kafka_streaming = kafka_streaming
         self.metadata = metadata
         self.status = status
+
+    def predictor(self, return_type=PredictorDT.DICT_NP_ARRAY) -> PredictServiceClient:
+        self.impl = UnmonitorableImplementation(self.cluster.channel)
+        self.predictor_return_type = return_type
+
+        return PredictServiceClient(self.impl, self.name, self.model.contract.predict,
+                                    return_type=self.predictor_return_type)
 
     @staticmethod
     def app_json_to_app_obj(application_json):

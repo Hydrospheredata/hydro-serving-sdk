@@ -112,22 +112,15 @@ class PredictServiceClient:
         return pd.DataFrame(response_dict)
 
 
-class Predictable:
+class Predictable(ABC):
     """Adds Predictor functionality"""
-    def predictor(self, monitorable=False, return_type=PredictorDT.DICT_NP_ARRAY) -> PredictServiceClient:
+
+    @abstractmethod
+    def predictor(self, return_type=PredictorDT.DICT_NP_ARRAY) -> PredictServiceClient:
         """
 
-        :param monitorable:
-        :param ssl:
         :param return_type:
         :return:
         """
-        if monitorable:
-            self.impl = UnmonitorableImplementation(self.cluster.channel)
-        else:
-            self.impl = MonitorableImplementation(self.cluster.channel)
+        pass
 
-        self.predictor_return_type = return_type
-
-        return PredictServiceClient(self.impl, self.name, self.model.contract.predict,
-                                    return_type=self.predictor_return_type)

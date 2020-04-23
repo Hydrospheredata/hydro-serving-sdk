@@ -3,9 +3,10 @@ from urllib.parse import urljoin
 
 import sseclient
 
+from .data.types import PredictorDT
 from .exceptions import ServableException
 from .model import Model
-from .predictor import Predictable
+from .predictor import Predictable, PredictServiceClient, MonitorableImplementation
 
 
 class ServableStatus(Enum):
@@ -137,3 +138,10 @@ class Servable(Predictable):
             return sseclient.SSEClient(res).events()
         else:
             raise ServableException(f"{res.status_code} : {res.text}")
+
+    def predictor(self, return_type=PredictorDT.DICT_NP_ARRAY) -> PredictServiceClient:
+        self.impl = MonitorableImplementation(self.cluster.channel)
+        self.predictor_return_type = return_type
+
+        return PredictServiceClient(self.impl, self.name, self.model.contract.predict,
+                                    return_type=self.predictor_return_type)

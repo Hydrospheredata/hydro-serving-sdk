@@ -53,7 +53,7 @@ class Cluster:
                                                                            info['manager'].get('reason')))
         logging.info("Connected to the {} cluster".format(info))
 
-    def __init__(self, http_address, grpc_address=None, ssl=True,
+    def __init__(self, http_address, grpc_address=None, ssl=False,
                  grpc_credentials=None, grpc_options=None, grpc_compression=None):
         """
         Cluster ctor. Don't use it unless you understand what you are doing.
