@@ -6,7 +6,7 @@ import sseclient
 from .data.types import PredictorDT
 from .exceptions import ServableException
 from .model import Model
-from .predictor import Predictable, PredictServiceClient, MonitorableImplementation
+from .predictor import Predictable, PredictServiceClient, MonitorableImplementation, UnmonitorableImplementation
 
 
 class ServableStatus(Enum):
@@ -139,8 +139,12 @@ class Servable(Predictable):
         else:
             raise ServableException(f"{res.status_code} : {res.text}")
 
-    def predictor(self, return_type=PredictorDT.DICT_NP_ARRAY) -> PredictServiceClient:
-        self.impl = MonitorableImplementation(self.cluster.channel)
+    def predictor(self, monitorable=False, return_type=PredictorDT.DICT_NP_ARRAY) -> PredictServiceClient:
+        if monitorable:
+            self.impl = MonitorableImplementation(self.cluster.channel)
+        else:
+            self.impl = UnmonitorableImplementation(self.cluster.channel)
+
         self.predictor_return_type = return_type
 
         return PredictServiceClient(self.impl, self.name, self.model.contract.predict,
