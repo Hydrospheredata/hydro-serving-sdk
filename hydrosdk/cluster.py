@@ -69,10 +69,10 @@ class Cluster:
             self.grpc_address = grpc_address
 
             if ssl:
-                self.channel = grpc.secure_channel(credentials=grpc_credentials, options=grpc_options,
+                self.channel = grpc.secure_channel(target=self.grpc_address, credentials=grpc_credentials, options=grpc_options,
                                                 compression=grpc_compression)
             else:
-                self.channel = grpc.insecure_channel(options=grpc_options, compression=grpc_compression)
+                self.channel = grpc.insecure_channel(target=self.grpc_address, options=grpc_options, compression=grpc_compression)
 
     def request(self, method, url, **kwargs):
         """
