@@ -1,7 +1,7 @@
 """This module contains all the code associated with Servables and their management at Hydrosphere platform.
 You can learn more about Servables here https://hydrosphere.io/serving-docs/latest/overview/concepts.html#servable.
 """
-
+import re
 from enum import Enum
 from typing import Dict, List
 from urllib.parse import urljoin
@@ -19,8 +19,22 @@ class ServableStatus(Enum):
     """
     STARTING = 2
     SERVING = 3
-    NOTSERVING = 0
-    NOTAVAILABLE = 1
+    NOT_SERVING = 0
+    NOT_AVAILABLE = 1
+
+    @staticmethod
+    def from_camel_case(camel_case_servable_status: str) -> 'ServableStatus':
+        """
+        Get value of ServableStatus enum from CamelCase style string returned from the manager.
+        :param camel_case_servable_status:
+        :return: ServableStatus
+
+        :Example:
+
+        ServableStatus.from_camel_case("NotServing")
+        >> ServableStatus.NOT_SERVING
+        """
+        return ServableStatus[re.sub(r'(?<!^)(?=[A-Z])', '_', camel_case_servable_status).upper()]
 
 
 class Servable:
@@ -46,7 +60,7 @@ class Servable:
         return Servable(cluster=cluster,
                         model=model,
                         servable_name=model_version_json['fullName'],
-                        status=ServableStatus[model_version_json['status']['status'].upper()],
+                        status=ServableStatus.from_camel_case(model_version_json['status']['status']),
                         status_message=model_version_json['status']['msg'],
                         metadata=model_data['metadata'])
 
