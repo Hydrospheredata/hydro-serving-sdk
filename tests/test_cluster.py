@@ -44,12 +44,10 @@ def test_cluster_requests(req_mock):
 def test_cluster_insecure_grpc(req_mock):
     with req_mock():
         cluster = Cluster.connect(http_address=HTTP_CLUSTER_ENDPOINT, grpc_address=GRPC_CLUSTER_ENDPOINT)
-        channel = cluster.grpc_insecure()
-        assert channel is not None
+        assert cluster.channel is not None
 
 
 def test_cluster_secure_grpc(req_mock):
     with req_mock():
         cluster = Cluster.connect(http_address=HTTP_CLUSTER_ENDPOINT, grpc_address=GRPC_CLUSTER_ENDPOINT)
-        channel = cluster.grpc_secure()
-        assert channel is not None
+        assert cluster.channel is not None

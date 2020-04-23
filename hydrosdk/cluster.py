@@ -83,6 +83,7 @@ class Cluster:
         :param kwargs: additional args
         :return: request res
         """
+        url = parse.urljoin(self.http_address, url)
         return requests.request(method, url, **kwargs)
 
     def host_selectors(self):
