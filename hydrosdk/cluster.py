@@ -69,10 +69,10 @@ class Cluster:
             self.grpc_address = grpc_address
 
             if ssl:
-                self.channel = self.grpc_secure(credentials=grpc_credentials, options=grpc_options,
+                self.channel = grpc.secure_channel(credentials=grpc_credentials, options=grpc_options,
                                                 compression=grpc_compression)
             else:
-                self.channel = self.grpc_insecure(options=grpc_options, compression=grpc_compression)
+                self.channel = grpc.insecure_channel(options=grpc_options, compression=grpc_compression)
 
     def request(self, method, url, **kwargs):
         """
@@ -83,36 +83,7 @@ class Cluster:
         :param kwargs: additional args
         :return: request res
         """
-        url = parse.urljoin(self.http_address, url)
         return requests.request(method, url, **kwargs)
-
-    def grpc_secure(self, credentials=None, options=None, compression=None):
-        """
-        Validates credentials and returns grpc secure channel
-
-        :param credentials:
-        :param options:
-        :param compression:
-        :return: grpc secure channel
-        """
-        if credentials is None:
-            credentials = grpc.ssl_channel_credentials()
-        if not self.grpc_address:
-            raise ValueError("Grpc address is not set")
-        return grpc.secure_channel(self.grpc_address, credentials, options=options, compression=compression)
-
-    def grpc_insecure(self, options=None, compression=None):
-        """
-        Returns grpc insecure channel
-
-        :param options:
-        :param compression:
-        :return: grpc insecure channel
-        """
-        if not self.grpc_address:
-            raise ValueError("Grpc address is not set")
-
-        return grpc.insecure_channel(self.grpc_address, options=options, compression=compression)
 
     def host_selectors(self):
         return []

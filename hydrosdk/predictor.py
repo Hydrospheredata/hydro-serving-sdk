@@ -56,7 +56,6 @@ class PredictServiceClient:
         :param model_spec: model specification created for associated servable
         :return: PredictResponse with outputs in protobuf format
         """
-        # TODO: add проверка inputs на соответсиве сигнатуре
         inputs_as_proto = convert_inputs_to_tensor_proto(inputs, self.signature)
 
         try:
