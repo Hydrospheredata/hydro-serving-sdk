@@ -89,26 +89,19 @@ class Cluster:
     def applications(self):
         return []
 
-    def build_info(self, manager=True, gateway=True, sonar=True) -> dict:
+    def build_info(self):
         """
         Returns manager, gateway, sonar builds info
-        :param manager: return manager status or not
-        :param sonar: return sonar status or not
-        :param gateway: return gateway status or not
-        :return: select build infos
+        :return: manager, gateway, sonar build infos
         """
-        build_info = {}
-        if manager:
-            manager_bl = self.safe_buildinfo("/api/buildinfo")
-            build_info["manager"] = manager_bl
-        if gateway:
-            gateway_bl = self.safe_buildinfo("/gateway/buildinfo")
-            build_info["gateway"] = gateway_bl
-        if sonar:
-            sonar_bl = self.safe_buildinfo("/monitoring/buildinfo")
-            build_info["sonar"] = sonar_bl
-
-        return build_info
+        manager_bl = self.safe_buildinfo("/api/buildinfo")
+        gateway_bl = self.safe_buildinfo("/gateway/buildinfo")
+        sonar_bl = self.safe_buildinfo("/monitoring/buildinfo")
+        return {
+            "manager": manager_bl,
+            "gateway": gateway_bl,
+            "sonar": sonar_bl
+        }
 
     def safe_buildinfo(self, url):
         """
