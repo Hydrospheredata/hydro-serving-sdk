@@ -29,7 +29,8 @@ class Cluster:
         logging.info("Connecting to {} cluster".format(cl.http_address))
         info = cl.build_info()
         if info['manager']['status'] != 'Ok':
-            raise ConnectionError("Couldn't establish connection with cluster {}. {}".format(http_address, info['manager'].get('reason')))
+            raise ConnectionError(
+                "Couldn't establish connection with cluster {}. {}".format(http_address, info['manager'].get('reason')))
         logging.info("Connected to the {} cluster".format(info))
         return cl
 

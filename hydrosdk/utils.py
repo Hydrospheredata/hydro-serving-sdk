@@ -9,7 +9,7 @@ def grpc_server_on(channel: grpc.Channel) -> bool:
     :return: status bool
     """
     try:
-        grpc.channel_ready_future(channel).result()
+        grpc.channel_ready_future(channel).result(timeout=15)
         return True
     except grpc.FutureTimeoutError:
         return False
