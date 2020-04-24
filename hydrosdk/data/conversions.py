@@ -57,6 +57,8 @@ def convert_inputs_to_tensor_proto(inputs, signature) -> dict:
     elif isinstance(inputs, pd.DataFrame):
         for key, value in dict(inputs).items():
             tensors[key] = numpy_data_to_tensor_proto(value.ravel(), value.dtype, value.shape)
+    elif callable(getattr(inputs, "_asdict", None)):
+        return convert_inputs_to_tensor_proto(inputs._asdict(), signature=signature)
     else:
         raise ValueError(
             "Conversion failed. Expected [pandas.DataFrame, dict[str, numpy.ndarray], dict[str, list], dict[str, python_primitive]], got {}".format(
