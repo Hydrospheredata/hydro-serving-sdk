@@ -184,6 +184,8 @@ def convert_inputs_to_tensor_proto(inputs: Dict, signature: ModelSignature) -> D
     elif isinstance(inputs, pd.DataFrame):
         for key, value in dict(inputs).items():
             tensors[key] = nparray_to_tensor_proto(value.ravel())
+    elif callable(getattr(inputs, "_asdict", None)):
+        return convert_inputs_to_tensor_proto(inputs._asdict(), signature=signature)
     else:
         raise ValueError(f"Conversion failed. Expected [pandas.DataFrame, dict[str, numpy.ndarray],\
                            dict[str, list], dict[str, np.ScalarType]], got {type(inputs)}")
