@@ -16,6 +16,7 @@ from hydrosdk.servable import Servable
 from tests.test_application import create_test_application
 from tests.test_model import create_test_cluster, create_test_local_model, create_test_signature
 
+# TODO: add servable Unmonitored tests
 
 @pytest.fixture
 def tensor_servable():
@@ -88,15 +89,13 @@ def test_predict_application():
     while tensor_application.status != ApplicationStatus.READY:
         tensor_application.update_status()
 
-    servable_name = None
     for servable in Servable.list(cluster=cluster):
         if upload_response[model].model.version == servable.model.version:
-            servable_name = servable.name
             # TODO: Add to servables status and then del sleep
             time.sleep(20)
             break
 
-    predictor_client = tensor_application.predictor(return_type=PredictorDT.DICT_PYTHON, servable_name=servable_name)
+    predictor_client = tensor_application.predictor(return_type=PredictorDT.DICT_PYTHON)
 
     inputs = {'input': [value]}
 

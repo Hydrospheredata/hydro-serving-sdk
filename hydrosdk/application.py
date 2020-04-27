@@ -6,7 +6,7 @@ from hydro_serving_grpc.contract import ModelSignature, ModelContract, ModelFiel
 
 from hydrosdk.cluster import Cluster
 from hydrosdk.data.types import PredictorDT, name2dtype, shape_to_proto
-from hydrosdk.predictor import PredictServiceClient, UnmonitorableImplementation
+from hydrosdk.predictor import PredictServiceClient, MonitorableImplementation
 
 ApplicationDef = namedtuple('ApplicationDef', ('name', 'executionGraph', 'kafkaStreaming'))
 
@@ -45,11 +45,11 @@ class Application:
         self.contract = self.dict_to_contract(signature)
         self.cluster = cluster
 
-    def predictor(self, servable_name: str, return_type=PredictorDT.DICT_NP_ARRAY) -> PredictServiceClient:
-        self.impl = UnmonitorableImplementation(channel=self.cluster.channel, servable_name=servable_name)
+    def predictor(self, return_type=PredictorDT.DICT_NP_ARRAY) -> PredictServiceClient:
+        self.impl = MonitorableImplementation(channel=self.cluster.channel)
         self.predictor_return_type = return_type
 
-        return PredictServiceClient(impl=self.impl, target=servable_name, signature=self.contract.predict,
+        return PredictServiceClient(impl=self.impl, target=self.name, signature=self.contract.predict,
                                     return_type=self.predictor_return_type)
 
     def update_status(self) -> None:

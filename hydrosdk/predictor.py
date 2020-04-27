@@ -103,7 +103,6 @@ class PredictServiceClient:
 
         try:
             response = self.impl.send_data(send_params=self.send_params, inputs=inputs_as_proto)
-
             if self.return_type == PredictorDT.DF:
                 return self.predict_resp_to_df(response=response)
 
