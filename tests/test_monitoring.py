@@ -29,7 +29,6 @@ def test_create(cluster):
 
 def test_list_all(cluster):
     result = MetricSpec.list_all(cluster)
-    print(result)
     assert result
     assert isinstance(result[0], MetricSpec)
 
@@ -37,7 +36,6 @@ def test_list_all(cluster):
 # FIXME: assert []
 def test_list_for_model_verison(cluster):
     result = MetricSpec.list_for_model(cluster, 3)
-    print(result)
     assert result
     assert isinstance(result[0], MetricSpec)
 

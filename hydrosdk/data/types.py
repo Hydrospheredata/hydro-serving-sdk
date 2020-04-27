@@ -211,7 +211,7 @@ def signature_get_item(signature: ModelSignature, item: str):
     for inp in signature.inputs:
         if inp.name == item:
             return inp
-    raise Exception(f"Signature doesnt have this item{signature.signature_name}{item}")
+    raise Exception(f"Signature: {signature.signature_name} doesn't have this item: {item}")
 
 
 class PredictorDT(Enum):

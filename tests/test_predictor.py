@@ -7,11 +7,13 @@ import pytest
 from hydro_serving_grpc.contract import ModelContract
 from pandas import DataFrame
 
+from hydrosdk.application import ApplicationStatus
 from hydrosdk.contract import SignatureBuilder
 from hydrosdk.data.types import PredictorDT
 from hydrosdk.image import DockerImage
 from hydrosdk.model import LocalModel
 from hydrosdk.servable import Servable
+from tests.test_application import create_test_application
 from tests.test_model import create_test_cluster, create_test_local_model, create_test_signature
 
 
@@ -71,6 +73,38 @@ def scalar_servable():
     time.sleep(20)
 
     return servable
+
+
+def test_predict_application():
+    cluster = create_test_cluster()
+    model = create_test_local_model()
+
+    upload_response = model.upload(cluster=cluster)
+
+    tensor_application = create_test_application(cluster=cluster, upload_response=upload_response, local_model=model)
+
+    value = int(random() * 1e5)
+
+    while tensor_application.status != ApplicationStatus.READY:
+        tensor_application.update_status()
+
+    servable_name = None
+    for servable in Servable.list(cluster=cluster):
+        if upload_response[model].model.version == servable.model.version:
+            servable_name = servable.name
+            # TODO: Add to servables status and then del sleep
+            time.sleep(20)
+            break
+
+    predictor_client = tensor_application.predictor(return_type=PredictorDT.DICT_PYTHON, servable_name=servable_name)
+
+    inputs = {'input': [value]}
+
+    predictions = predictor_client.predict(inputs)
+
+    assert isinstance(predictions, dict)
+    assert isinstance(predictions['output'], list)
+    assert predictions['output'] == [value]
 
 
 def test_predict_list(tensor_servable):

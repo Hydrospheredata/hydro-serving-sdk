@@ -2,8 +2,11 @@ from collections import namedtuple
 from enum import Enum
 from typing import List
 
-from hydrosdk.data.types import PredictorDT
-from hydrosdk.predictor import Predictable, PredictServiceClient, UnmonitorableImplementation
+from hydro_serving_grpc.contract import ModelSignature, ModelContract, ModelField, DataProfileType
+
+from hydrosdk.cluster import Cluster
+from hydrosdk.data.types import PredictorDT, name2dtype, shape_to_proto
+from hydrosdk.predictor import PredictServiceClient, UnmonitorableImplementation
 
 ApplicationDef = namedtuple('ApplicationDef', ('name', 'executionGraph', 'kafkaStreaming'))
 
@@ -28,30 +31,112 @@ class ApplicationStatus(Enum):
     READY = 2
 
 
-class Application(Predictable):
+class Application:
     """
     An application is a publicly available endpoint to reach your models (https://hydrosphere.io/serving-docs/latest/overview/concepts.html#applications)
     """
 
-    def __init__(self, name, execution_graph, kafka_streaming, metadata, status):
+    def __init__(self, name, execution_graph, kafka_streaming, metadata, status, signature, cluster: Cluster):
         self.name = name
         self.execution_graph = execution_graph
         self.kafka_streaming = kafka_streaming
         self.metadata = metadata
         self.status = status
+        self.contract = self.dict_to_contract(signature)
+        self.cluster = cluster
 
-    def predictor(self, return_type=PredictorDT.DICT_NP_ARRAY) -> PredictServiceClient:
-        self.impl = UnmonitorableImplementation(self.cluster.channel)
+    def predictor(self, servable_name: str, return_type=PredictorDT.DICT_NP_ARRAY) -> PredictServiceClient:
+        self.impl = UnmonitorableImplementation(channel=self.cluster.channel, servable_name=servable_name)
         self.predictor_return_type = return_type
 
-        return PredictServiceClient(self.impl, self.name, self.model.contract.predict,
+        return PredictServiceClient(impl=self.impl, target=servable_name, signature=self.contract.predict,
                                     return_type=self.predictor_return_type)
 
+    def update_status(self) -> None:
+        """
+        Setter method that updates application status
+        :return: None
+        """
+        application = Application.find_by_name(cluster=self.cluster, app_name=self.name)
+        self.status = application.status
+
+    # TODO: make some common solution with other similar methods
+    def dict_to_contract(self, signature_dict: dict) -> ModelContract:
+        """
+
+        :param signature_dict: signature dict received from post request after app is created
+        :return: ModelContract
+        """
+        signature_name = signature_dict.get("signatureName")
+        inputs = signature_dict.get("inputs")
+        outputs = signature_dict.get("outputs")
+
+        frmt_inputs = [self.field_from_dict(name=input_.get("name"), data_dict=input_) for input_ in inputs]
+        frmt_outputs = [self.field_from_dict(name=output.get("name"), data_dict=output) for output in outputs]
+
+        signature = ModelSignature(
+            signature_name=signature_name,
+            inputs=frmt_inputs,
+            outputs=frmt_outputs
+        )
+        return ModelContract(model_name=self.name, predict=signature)
+
+    # TODO do something with other similar methods (the only difference is incoming data fields naming) field_from_dict (too much of code duplication now in different classes)
+    def field_from_dict(self, name: str, data_dict: dict) -> ModelField:
+        """
+        Deserialization of inputs/outputs from POST request sent to create APP into ModelField.
+
+        :param name:
+        :param data_dict: data
+        :raises ValueError: If data_dict is invalid
+        :return: ModelField
+        """
+        shape = data_dict.get("shape")
+        dtype = data_dict.get("dtype")
+        subfields = data_dict.get("subfields")
+        raw_profile = data_dict.get("profile", "NONE")
+        profile = raw_profile.upper()
+
+        if profile not in DataProfileType.keys():
+            profile = "NONE"
+
+        result_dtype = None
+        result_subfields = None
+        if dtype is None:
+            if subfields is None:
+                raise ValueError("Invalid field. Neither dtype nor subfields are present in dict", name, data_dict)
+            else:
+                subfields_buffer = []
+                for k, v in subfields.items():
+                    subfield = self.field_from_dict(k, v)
+                    subfields_buffer.append(subfield)
+                result_subfields = subfields_buffer
+        else:
+            result_dtype = name2dtype(dtype)
+
+        if result_dtype is not None:
+            result_field = ModelField(
+                name=name,
+                shape=shape_to_proto(shape),
+                dtype=result_dtype,
+                profile=profile
+            )
+        elif result_subfields is not None:
+            result_field = ModelField(
+                name=name,
+                shape=shape_to_proto(shape),
+                subfields=ModelField.Subfield(data=result_subfields),
+                profile=profile
+            )
+        else:
+            raise ValueError("Invalid field. Neither dtype nor subfields are present in dict", name, data_dict)
+        return result_field
+
     @staticmethod
-    def app_json_to_app_obj(application_json):
+    def app_json_to_app_obj(cluster: Cluster, application_json: dict) -> 'Application':
         """
         Deserializes json into Application
-
+        :param cluster: active cluster
         :param application_json: input json with application object fields
         :return Application : application object
         """
@@ -59,9 +144,11 @@ class Application(Predictable):
         app_execution_graph = application_json.get("executionGraph")
         app_kafka_streaming = application_json.get("kafkaStreaming")
         app_metadata = application_json.get("metadata")
+        app_signature = application_json.get("signature")
         app_status = ApplicationStatus[application_json.get("status").upper()]
-        app = Application(name=app_name, execution_graph=app_execution_graph,
-                          kafka_streaming=app_kafka_streaming, metadata=app_metadata, status=app_status)
+
+        app = Application(name=app_name, execution_graph=app_execution_graph, kafka_streaming=app_kafka_streaming,
+                          metadata=app_metadata, status=app_status, cluster=cluster, signature=app_signature)
         return app
 
     @staticmethod
@@ -76,7 +163,8 @@ class Application(Predictable):
         resp = cluster.request("GET", "/api/v2/application")
         if resp.ok:
             resp_json = resp.json()
-            applications = [Application.app_json_to_app_obj(app_json) for app_json in resp_json]
+            applications = [Application.app_json_to_app_obj(cluster=cluster, application_json=app_json) for app_json in
+                            resp_json]
             return applications
 
         raise Exception(
@@ -94,7 +182,7 @@ class Application(Predictable):
         resp = cluster.request("GET", "/api/v2/application/{}".format(app_name))
         if resp.ok:
             resp_json = resp.json()
-            app = Application.app_json_to_app_obj(resp_json)
+            app = Application.app_json_to_app_obj(cluster=cluster, application_json=resp_json)
             return app
 
         raise Exception(
@@ -129,7 +217,7 @@ class Application(Predictable):
         resp = cluster.request(method="POST", url="/api/v2/application", json=application)
         if resp.ok:
             resp_json = resp.json()
-            app = Application.app_json_to_app_obj(resp_json)
+            app = Application.app_json_to_app_obj(cluster=cluster, application_json=resp_json)
             return app
 
         raise Exception(

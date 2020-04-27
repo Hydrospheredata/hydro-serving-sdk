@@ -6,7 +6,7 @@ import sseclient
 from .data.types import PredictorDT
 from .exceptions import ServableException
 from .model import Model
-from .predictor import Predictable, PredictServiceClient, MonitorableImplementation, UnmonitorableImplementation
+from .predictor import PredictServiceClient, MonitorableImplementation, UnmonitorableImplementation
 
 
 class ServableStatus(Enum):
@@ -20,7 +20,7 @@ class ServableStatus(Enum):
     NOT_AVAILABLE = 1
 
 
-class Servable(Predictable):
+class Servable:
     """
     Servable is an instance of a model version which could be used in application or by itself as it exposes various endpoints to your model version: HTTP, gRPC, and Kafka.
     (https://hydrosphere.io/serving-docs/latest/overview/concepts.html#servable)
@@ -97,7 +97,14 @@ class Servable(Predictable):
         :param cluster: active cluster
         :return: json with request result
         """
-        return cluster.request("GET", "/api/v2/servable").json()
+        res = cluster.request("GET", "/api/v2/servable")
+
+        if res.ok:
+            json_res = res.json()
+            servables = [Servable.model_version_json_to_servable(mv_json=servable_json, cluster=cluster) for servable_json in json_res]
+            return servables
+        else:
+            raise ServableException(f"{res.status_code} : {res.text}")
 
     @staticmethod
     def delete(cluster, servable_name):
@@ -141,9 +148,9 @@ class Servable(Predictable):
 
     def predictor(self, monitorable=False, return_type=PredictorDT.DICT_NP_ARRAY) -> PredictServiceClient:
         if monitorable:
-            self.impl = MonitorableImplementation(self.cluster.channel)
+            self.impl = MonitorableImplementation(channel=self.cluster.channel)
         else:
-            self.impl = UnmonitorableImplementation(self.cluster.channel)
+            self.impl = UnmonitorableImplementation(channel=self.cluster.channel, servable_name=self.name)
 
         self.predictor_return_type = return_type
 

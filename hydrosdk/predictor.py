@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 from hydro_serving_grpc import PredictionServiceStub, ModelSpec, predict_pb2, PredictResponse
 from hydro_serving_grpc.contract import ModelSignature
-from hydro_serving_grpc.gateway import GatewayServiceStub
+from hydro_serving_grpc.gateway import GatewayServiceStub, api_pb2
 
 from hydrosdk.data.conversions import convert_inputs_to_tensor_proto
 from hydrosdk.data.types import PredictorDT, proto2np_dtype, DTYPE_TO_FIELDNAME
@@ -13,28 +13,67 @@ from hydrosdk.data.types import PredictorDT, proto2np_dtype, DTYPE_TO_FIELDNAME
 
 class PredictImplementation(ABC):
     @abstractmethod
-    def send_data(self, model_spec, inputs):
+    def send_data(self, *args, **kwargs):
         pass
 
-    def data_to_predictRequest(self, model_spec, inputs) -> predict_pb2.PredictRequest:
+    def data_to_predictRequest(self, model_spec: ModelSpec, inputs: list) -> predict_pb2.PredictRequest:
+        """
+
+        :param model_spec:
+        :param inputs:
+        :return:
+        """
         return predict_pb2.PredictRequest(model_spec=model_spec, inputs=inputs)
+
+    def data_to_ServablePredictRequest(self, servable_name: str, data: list) -> api_pb2.ServablePredictRequest:
+        """
+
+        :param servable_name: name of servable associated with this application
+        :param data: inputs data
+        :return:
+        """
+        return api_pb2.ServablePredictRequest(servable_name=servable_name, data=data)
 
 
 class MonitorableImplementation(PredictImplementation):
     def __init__(self, channel):
         self.stub = PredictionServiceStub(channel)
 
-    def send_data(self, model_spec, inputs):
+    def send_data(self, *args, **kwargs):
+        """
+
+        :param args:
+        :param kwargs: expects ModelSpec and list of inputs
+        :return:
+        """
+        model_spec = kwargs["send_params"]["model_spec"]
+        inputs = kwargs["inputs"]
+
         request = self.data_to_predictRequest(model_spec=model_spec, inputs=inputs)
         return self.stub.Predict(request)
 
 
 class UnmonitorableImplementation(PredictImplementation):
-    def __init__(self, channel):
-        self.stub = GatewayServiceStub(channel)
+    def __init__(self, channel, servable_name: str):
+        """
 
-    def send_data(self, model_spec, inputs):
-        request = self.data_to_predictRequest(model_spec=model_spec, inputs=inputs)
+        :param channel:
+        :param servable_name:
+        """
+        self.stub = GatewayServiceStub(channel)
+        self.servable_name = servable_name
+
+    def send_data(self, *args, **kwargs):
+        """
+
+        :param args:
+        :param kwargs: expects servable_name and list of inputs
+        :return:
+        """
+        servable_name = kwargs["send_params"]["servable_name"]
+        inputs = kwargs["inputs"]
+
+        request = self.data_to_ServablePredictRequest(servable_name=servable_name, data=inputs)
         return self.stub.ShadowlessPredictServable(request)
 
 
@@ -43,7 +82,11 @@ class PredictServiceClient:
 
     def __init__(self, impl: PredictImplementation, target: str, signature: ModelSignature, return_type: PredictorDT):
         self.impl = impl
-        self.model_spec = ModelSpec(name=target)
+
+        if isinstance(impl, MonitorableImplementation):
+            self.send_params = {"model_spec": ModelSpec(name=target)}
+        elif isinstance(impl, UnmonitorableImplementation):
+            self.send_params = {"servable_name": target}
         self.signature = signature
         self.return_type = return_type
 
@@ -59,7 +102,7 @@ class PredictServiceClient:
         inputs_as_proto = convert_inputs_to_tensor_proto(inputs, self.signature)
 
         try:
-            response = self.impl.send_data(model_spec=self.model_spec, inputs=inputs_as_proto)
+            response = self.impl.send_data(send_params=self.send_params, inputs=inputs_as_proto)
 
             if self.return_type == PredictorDT.DF:
                 return self.predict_resp_to_df(response=response)
@@ -109,17 +152,3 @@ class PredictServiceClient:
     def predict_resp_to_df(response: PredictResponse) -> pd.DataFrame:
         response_dict: Dict[str, np.array] = PredictServiceClient.predict_resp_to_dict_nparray(response)
         return pd.DataFrame(response_dict)
-
-
-class Predictable(ABC):
-    """Adds Predictor functionality"""
-
-    @abstractmethod
-    def predictor(self, return_type=PredictorDT.DICT_NP_ARRAY) -> PredictServiceClient:
-        """
-
-        :param return_type:
-        :return:
-        """
-        pass
-

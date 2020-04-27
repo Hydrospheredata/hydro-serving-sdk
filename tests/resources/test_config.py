@@ -61,7 +61,7 @@ config = {
                 }
 
         },
-    "default_application_name": "test-app"
+    "default_application_name": "infer"
 }
 
 HTTP_CLUSTER_ENDPOINT = config["http_cluster"]["ip"] + ":" + config["http_cluster"]["port"]

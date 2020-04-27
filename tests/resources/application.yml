@@ -1,6 +1,7 @@
 version: 2
 kind: Application
-name: test-app
+name: infer
 
 singular:
-  model: upload-model-test
+  model: infer
+
