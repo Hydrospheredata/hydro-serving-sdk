@@ -3,7 +3,7 @@ import pandas as pd
 from hydro_serving_grpc import TensorProto, DataType, TensorShapeProto
 
 from hydrosdk.data.types import NP_TO_HS_DTYPE, DTYPE_TO_FIELDNAME, np2proto_shape, PY_TO_DTYPE, PredictorDT, \
-    signature_get_item
+    find_in_list_by_name
 
 
 def numpy_data_to_tensor_proto(data, dtype, shape):
@@ -46,7 +46,7 @@ def convert_inputs_to_tensor_proto(inputs, signature) -> dict:
 
             if isinstance(value, list):  # x: [1,2,3,4]
                 for list_el in value:
-                    current_signature = signature_get_item(signature=signature, item=key)
+                    current_signature = find_in_list_by_name(some_list=signature.inputs, name=key)
                     tensors[key] = dtype_to_tensor_proto(list_el, current_signature.dtype,
                                                          current_signature.shape)
             elif isinstance(value, np.ndarray) or isinstance(value, np.ScalarType):

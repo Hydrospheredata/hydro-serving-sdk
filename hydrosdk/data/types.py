@@ -207,11 +207,20 @@ def np2proto_shape(np_shape):
     return shape
 
 
-def signature_get_item(signature: ModelSignature, item: str):
-    for inp in signature.inputs:
-        if inp.name == item:
-            return inp
-    raise Exception(f"Signature: {signature.signature_name} doesn't have this item: {item}")
+def find_in_list_by_name(some_list: list, name: str):
+    """
+    Helper created to find ModelField by required name
+
+    :param some_list: list of objects with name field
+    :param name: name of object to be found
+    :raises ValueError: not found
+    :return: object with required name
+    """
+    for item in some_list:
+        if item.name == name:
+            return item
+
+    raise ValueError(f"List: {some_list} doesn't have this name: {name}")
 
 
 class PredictorDT(Enum):
