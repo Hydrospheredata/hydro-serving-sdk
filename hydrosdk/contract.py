@@ -197,8 +197,9 @@ def shape_to_dict(shape) -> dict:
     return result_dict
 
 
-def contract_yaml_to_contract_dict(model_name: str, yaml_contract: dict) -> dict:
+def _contract_yaml_to_contract_dict(model_name: str, yaml_contract: dict) -> dict:
     """
+    Internal method.
     Yaml parsing methods create dict contracts with structure different to contracts we receive from servers, this method restructs yaml contract to the standart contract structure
     Yaml-dict:
     {'name': 'infer', 'inputs': {'input': {'shape': 'scalar', 'type': 'int64', 'profile': 'numerical'}}, 'outputs': {'output': {'shape': 'scalar', 'type': 'int64', 'profile': 'numerical'}}}
@@ -241,8 +242,9 @@ def contract_yaml_to_contract_dict(model_name: str, yaml_contract: dict) -> dict
     return contract_dict
 
 
-def contract_dict_to_signature_dict(contract: dict) -> tuple:
+def _contract_dict_to_signature_dict(contract: dict) -> tuple:
     """
+    Internal method.
     Makes a signature dict out of contract dict
 
     :param contract:
@@ -257,8 +259,9 @@ def contract_dict_to_signature_dict(contract: dict) -> tuple:
     return name, dict_signature
 
 
-def signature_dict_to_ModelSignature(data: dict) -> ModelSignature:
+def _signature_dict_to_ModelSignature(data: dict) -> ModelSignature:
     """
+    Internal method.
     A method that makes ModelSignature out of signature dict
     :param data:
     :return:
@@ -310,7 +313,7 @@ def contract_yaml_to_ModelContract(model_name: str, yaml_contract: dict) -> Mode
     :param yaml_contract:
     :return:
     """
-    contract_dict = contract_yaml_to_contract_dict(model_name=model_name, yaml_contract=yaml_contract)
+    contract_dict = _contract_yaml_to_contract_dict(model_name=model_name, yaml_contract=yaml_contract)
     modelContract = contract_dict_to_ModelContract(contract=contract_dict)
     return modelContract
 
@@ -322,8 +325,8 @@ def contract_dict_to_ModelContract(contract: dict) -> ModelContract:
     :param contract:
     :return:
     """
-    model_name, signature_dict = contract_dict_to_signature_dict(contract=contract)
-    modelSignature = signature_dict_to_ModelSignature(data=signature_dict)
+    model_name, signature_dict = _contract_dict_to_signature_dict(contract=contract)
+    modelSignature = _signature_dict_to_ModelSignature(data=signature_dict)
     modelContract = ModelContract(model_name=model_name, predict=modelSignature)
     return modelContract
 
@@ -336,7 +339,7 @@ def signature_dict_to_ModelContract(model_name: str, signature: dict) -> ModelCo
     :param signature:
     :return:
     """
-    modelSignature = signature_dict_to_ModelSignature(data=signature)
+    modelSignature = _signature_dict_to_ModelSignature(data=signature)
     modelContract = ModelContract(model_name=model_name, predict=modelSignature)
     return modelContract
 
