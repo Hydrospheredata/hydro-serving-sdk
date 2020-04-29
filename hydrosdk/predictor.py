@@ -16,24 +16,6 @@ class PredictImplementation(ABC):
     def send_data(self, *args, **kwargs):
         pass
 
-    def data_to_predictRequest(self, model_spec: ModelSpec, inputs: list) -> predict_pb2.PredictRequest:
-        """
-
-        :param model_spec:
-        :param inputs:
-        :return:
-        """
-        return predict_pb2.PredictRequest(model_spec=model_spec, inputs=inputs)
-
-    def data_to_ServablePredictRequest(self, servable_name: str, data: list) -> api_pb2.ServablePredictRequest:
-        """
-
-        :param servable_name: name of servable associated with this application
-        :param data: inputs data
-        :return:
-        """
-        return api_pb2.ServablePredictRequest(servable_name=servable_name, data=data)
-
 
 class MonitorableImplementation(PredictImplementation):
     def __init__(self, channel):
@@ -49,7 +31,7 @@ class MonitorableImplementation(PredictImplementation):
         model_spec = kwargs["send_params"]["model_spec"]
         inputs = kwargs["inputs"]
 
-        request = self.data_to_predictRequest(model_spec=model_spec, inputs=inputs)
+        request = predict_pb2.PredictRequest(model_spec=model_spec, inputs=inputs)
         return self.stub.Predict(request)
 
 
@@ -73,7 +55,7 @@ class UnmonitorableImplementation(PredictImplementation):
         servable_name = kwargs["send_params"]["servable_name"]
         inputs = kwargs["inputs"]
 
-        request = self.data_to_ServablePredictRequest(servable_name=servable_name, data=inputs)
+        request = api_pb2.ServablePredictRequest(servable_name=servable_name, data=data)
         return self.stub.ShadowlessPredictServable(request)
 
 
