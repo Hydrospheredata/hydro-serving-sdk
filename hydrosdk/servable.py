@@ -176,11 +176,11 @@ class Servable:
 
     def predictor(self, monitorable=False, return_type=PredictorDT.DICT_NP_ARRAY) -> PredictServiceClient:
         if monitorable:
-            self.impl = MonitorableImplementation(channel=self.cluster.channel)
+            self.impl = MonitorableImplementation(channel=self.cluster.channel, target=self.name)
         else:
-            self.impl = UnmonitorableImplementation(channel=self.cluster.channel, servable_name=self.name)
+            self.impl = UnmonitorableImplementation(channel=self.cluster.channel, target=self.name)
 
         self.predictor_return_type = return_type
 
-        return PredictServiceClient(self.impl, self.name, self.model.contract.predict,
+        return PredictServiceClient(impl=self.impl, signature=self.model.contract.predict,
                                     return_type=self.predictor_return_type)

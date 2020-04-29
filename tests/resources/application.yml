@@ -3,5 +3,5 @@ kind: Application
 name: infer
 
 singular:
-  model: infer
+  model: infer:56
 

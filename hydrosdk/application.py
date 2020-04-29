@@ -5,7 +5,7 @@ from typing import List
 from hydro_serving_grpc.contract import ModelSignature
 
 from hydrosdk.cluster import Cluster
-from hydrosdk.contract import signature_dict_to_ModelSignature
+from hydrosdk.contract import _signature_dict_to_ModelSignature
 from hydrosdk.data.types import PredictorDT
 from hydrosdk.predictor import PredictServiceClient, MonitorableImplementation
 
@@ -48,10 +48,10 @@ class Application:
         self.cluster = cluster
 
     def predictor(self, return_type=PredictorDT.DICT_NP_ARRAY) -> PredictServiceClient:
-        self.impl = MonitorableImplementation(channel=self.cluster.channel)
+        self.impl = MonitorableImplementation(channel=self.cluster.channel, target=self.name)
         self.predictor_return_type = return_type
 
-        return PredictServiceClient(impl=self.impl, target=self.name, signature=self.signature,
+        return PredictServiceClient(impl=self.impl, signature=self.signature,
                                     return_type=self.predictor_return_type)
 
     def update_status(self) -> None:
@@ -74,7 +74,7 @@ class Application:
         app_execution_graph = application_json.get("executionGraph")
         app_kafka_streaming = application_json.get("kafkaStreaming")
         app_metadata = application_json.get("metadata")
-        app_signature = signature_dict_to_ModelSignature(data=application_json.get("signature"))
+        app_signature = _signature_dict_to_ModelSignature(data=application_json.get("signature"))
         app_status = ApplicationStatus[application_json.get("status").upper()]
 
         app = Application(name=app_name, execution_graph=app_execution_graph, kafka_streaming=app_kafka_streaming,

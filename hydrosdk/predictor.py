@@ -13,62 +13,70 @@ from hydrosdk.data.types import PredictorDT, proto2np_dtype, DTYPE_TO_FIELDNAME
 
 class PredictImplementation(ABC):
     @abstractmethod
-    def send_data(self, *args, **kwargs):
+    def send_data(self, inputs: dict):
+        pass
+
+    @abstractmethod
+    def get_monitoring_spec_params(self, target: str):
         pass
 
 
 class MonitorableImplementation(PredictImplementation):
-    def __init__(self, channel):
-        self.stub = PredictionServiceStub(channel)
-
-    def send_data(self, *args, **kwargs):
+    def __init__(self, channel, target: str):
         """
 
-        :param args:
-        :param kwargs: expects ModelSpec and list of inputs
+        :param channel:
+        :param target: name of application/servable it's been created to
+        """
+        self.stub = PredictionServiceStub(channel)
+        self.send_params = self.get_monitoring_spec_params(target=target)
+
+    def send_data(self, inputs: dict):
+        """
+
+        :param inputs:
         :return:
         """
-        model_spec = kwargs["send_params"]["model_spec"]
-        inputs = kwargs["inputs"]
+        model_spec = self.send_params
 
         request = predict_pb2.PredictRequest(model_spec=model_spec, inputs=inputs)
         return self.stub.Predict(request)
 
+    def get_monitoring_spec_params(self, target: str) -> ModelSpec:
+        return ModelSpec(name=target)
+
 
 class UnmonitorableImplementation(PredictImplementation):
-    def __init__(self, channel, servable_name: str):
+    def __init__(self, channel, target: str):
         """
 
         :param channel:
-        :param servable_name:
+        :param target: servable name
         """
         self.stub = GatewayServiceStub(channel)
-        self.servable_name = servable_name
+        self.send_params = self.get_monitoring_spec_params(target=target)
 
-    def send_data(self, *args, **kwargs):
+    def send_data(self, inputs: dict):
         """
 
-        :param args:
-        :param kwargs: expects servable_name and list of inputs
+        :param inputs:
         :return:
         """
-        servable_name = kwargs["send_params"]["servable_name"]
-        inputs = kwargs["inputs"]
+        servable_name = self.send_params
 
-        request = api_pb2.ServablePredictRequest(servable_name=servable_name, data=data)
+        request = api_pb2.ServablePredictRequest(servable_name=servable_name, data=inputs)
         return self.stub.ShadowlessPredictServable(request)
+
+    def get_monitoring_spec_params(self, target: str) -> str:
+        return target
 
 
 class PredictServiceClient:
     """Client to use with Predict. Have to be created in order to do predict"""
 
-    def __init__(self, impl: PredictImplementation, target: str, signature: ModelSignature, return_type: PredictorDT):
+    def __init__(self, impl: PredictImplementation, signature: ModelSignature, return_type: PredictorDT):
         self.impl = impl
 
-        if isinstance(impl, MonitorableImplementation):
-            self.send_params = {"model_spec": ModelSpec(name=target)}
-        elif isinstance(impl, UnmonitorableImplementation):
-            self.send_params = {"servable_name": target}
         self.signature = signature
         self.return_type = return_type
 
@@ -84,7 +92,7 @@ class PredictServiceClient:
         inputs_as_proto = convert_inputs_to_tensor_proto(inputs, self.signature)
 
         try:
-            response = self.impl.send_data(send_params=self.send_params, inputs=inputs_as_proto)
+            response = self.impl.send_data(inputs=inputs_as_proto)
             if self.return_type == PredictorDT.DF:
                 return self.predict_resp_to_df(response=response)
 
