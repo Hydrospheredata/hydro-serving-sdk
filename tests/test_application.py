@@ -1,11 +1,12 @@
 import os
 import time
+
 import pytest
 import yaml
 
+from hydrosdk.application import Application, ApplicationStatus
 from tests.resources.test_config import DEFAULT_APP_NAME
 from tests.test_model import create_test_cluster, create_test_local_model
-from hydrosdk.application import Application, ApplicationStatus
 
 
 def create_test_application(cluster, upload_response=None, local_model=None):
@@ -13,20 +14,22 @@ def create_test_application(cluster, upload_response=None, local_model=None):
         local_model = create_test_local_model()
         upload_response = local_model.upload(cluster=cluster)
 
-
     time.sleep(10)
     with open(os.path.dirname(os.path.abspath(__file__)) + '/resources/application.yml') as f:
         d = yaml.safe_load(f)
         app = Application.parse_application(d)
         app_as_dict = app._asdict()
-        app_as_dict["executionGraph"]["stages"][0]["modelVariants"][0]["modelVersionId"] = upload_response[local_model].model.version
+        app_as_dict["executionGraph"]["stages"][0]["modelVariants"][0]["modelVersionId"] = upload_response[
+            local_model].model.version
 
         while upload_response[local_model].building():
             print("building")
 
         try:
             application = Application.create(cluster, app_as_dict)
-        except Exception:
+        except Exception as e:
+            print("While creating App, there was an exception: " + str(e))
+
             # if app already existed, delete first
             Application.delete(cluster=cluster, app_name=DEFAULT_APP_NAME)
             time.sleep(3)

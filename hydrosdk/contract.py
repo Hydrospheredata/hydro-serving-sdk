@@ -1,12 +1,12 @@
+import numbers
 import operator
 from enum import Enum
 from functools import reduce
-import numbers
+from typing import Optional
 
 import numpy as np
-from hydro_serving_grpc.tf.types_pb2 import *
 from hydro_serving_grpc.contract import ModelContract, ModelSignature, ModelField, DataProfileType
-from hydro_serving_grpc import DataType
+from hydro_serving_grpc.tf.types_pb2 import *
 
 from hydrosdk.data.types import name2dtype, shape_to_proto, PY_TO_DTYPE, np2proto_dtype, proto2np_dtype
 
@@ -36,67 +36,27 @@ class ProfilingType(Enum):
     TEXT = 6
 
 
-def field_from_dict(name, data_dict):
+def field_from_dict(field_name: str, field_dict: dict) -> ModelField:
     """
-    Old version of deserialization *data_dict* into ModelField. Should not be used or tested first
-    """
-    shape = data_dict.get("shape")
-    dtype = data_dict.get("type")
-    subfields = data_dict.get("fields")
-    raw_profile = data_dict.get("profile", "NONE")
-    profile = raw_profile.upper()
+    Deserialization into ModelField.
 
-    if profile not in DataProfileType.keys():
-        profile = "NONE"
-
-    result_dtype = None
-    result_subfields = None
-    if dtype is None:
-        if subfields is None:
-            raise ValueError("Invalid field. Neither dtype nor subfields are present in dict", name, data_dict)
-        else:
-            subfields_buffer = []
-            for k, v in subfields.items():
-                subfield = field_from_dict(k, v)
-                subfields_buffer.append(subfield)
-            result_subfields = subfields_buffer
-    else:
-        result_dtype = name2dtype(dtype)
-        if result_dtype == DT_INVALID:
-            raise ValueError("Invalid contract: {} field has invalid datatype {}".format(name, dtype))
-
-    if result_dtype is not None:
-        result_field = ModelField(
-            name=name,
-            shape=shape_to_proto(shape),
-            dtype=result_dtype,
-            profile=profile
-        )
-    elif result_subfields is not None:
-        result_field = ModelField(
-            name=name,
-            shape=shape_to_proto(shape),
-            subfields=ModelField.Subfield(data=result_subfields),
-            profile=profile
-        )
-    else:
-        raise ValueError("Invalid field. Neither dtype nor subfields are present in dict", name, data_dict)
-    return result_field
-
-
-def field_from_dict_new(name, data_dict):
-    """
-    Deserialization of *data_dict* into ModelField.
-
-    :param name: name of passed data
-    :param data_dict: data
+    :param field_name:
+    :param field_dict: data
     :raises ValueError: If data_dict is invalid
     :return: ModelField
     """
-    shape = data_dict.get("shape")
-    dtype = data_dict.get("dtype")
-    subfields = data_dict.get("fields")
-    raw_profile = data_dict.get("profile", "NONE")
+
+    shape = field_dict.get("shape")
+
+    dtype = field_dict.get("dtype")
+    if not dtype:
+        dtype = field_dict.get("type")
+
+    subfields = field_dict.get("subfields")
+    if not subfields:
+        subfields = field_dict.get("fields")
+
+    raw_profile = field_dict.get("profile", "NONE")
     profile = raw_profile.upper()
 
     if profile not in DataProfileType.keys():
@@ -106,11 +66,10 @@ def field_from_dict_new(name, data_dict):
     result_subfields = None
     if dtype is None:
         if subfields is None:
-            raise ValueError("Invalid field. Neither dtype nor subfields are present in dict", name, data_dict)
+            raise ValueError("Invalid field. Neither dtype nor subfields are present in dict", field_name, field_dict)
         else:
             subfields_buffer = []
             for k, v in subfields.items():
-                # TODO: why is here field_from_dict old?
                 subfield = field_from_dict(k, v)
                 subfields_buffer.append(subfield)
             result_subfields = subfields_buffer
@@ -119,26 +78,26 @@ def field_from_dict_new(name, data_dict):
 
     if result_dtype is not None:
         result_field = ModelField(
-            name=name,
+            name=field_name,
             shape=shape_to_proto(shape),
             dtype=result_dtype,
             profile=profile
         )
     elif result_subfields is not None:
         result_field = ModelField(
-            name=name,
+            name=field_name,
             shape=shape_to_proto(shape),
             subfields=ModelField.Subfield(data=result_subfields),
             profile=profile
         )
     else:
-        raise ValueError("Invalid field. Neither dtype nor subfields are present in dict", name, data_dict)
+        raise ValueError("Invalid field. Neither dtype nor subfields are present in dict", field_name, field_dict)
     return result_field
 
 
-def signature_to_dict(signature: ModelSignature):
+def ModelSignature_to_signature_dict(signature: ModelSignature) -> dict:
     """
-    Serializes signature into signature_name, inputs, outputs
+    Serializes ModelSignature into signature dict
 
     :param signature: model signature obj
     :raises TypeError: If signature invalid
@@ -160,9 +119,9 @@ def signature_to_dict(signature: ModelSignature):
     return result_dict
 
 
-def contract_to_dict(contract: ModelContract):
+def ModelContract_to_contract_dict(contract: ModelContract) -> Optional[dict]:
     """
-    Serializes model contract into model_name, predict
+    Serializes ModelContract into contract dict
 
     :param contract: model contract
     :return: dict with model_name, predict
@@ -171,7 +130,7 @@ def contract_to_dict(contract: ModelContract):
         return None
     if not isinstance(contract, ModelContract):
         raise TypeError("contract is not ModelContract")
-    signature = signature_to_dict(contract.predict)
+    signature = ModelSignature_to_signature_dict(contract.predict)
     result_dict = {
         "modelName": contract.model_name,
         "predict": signature
@@ -179,7 +138,7 @@ def contract_to_dict(contract: ModelContract):
     return result_dict
 
 
-def field_to_dict(field: ModelField):
+def field_to_dict(field: ModelField) -> dict:
     """
     Serializes model field into name, profile and optional shape
 
@@ -200,7 +159,7 @@ def field_to_dict(field: ModelField):
     return result_dict
 
 
-def attach_ds(result_dict, field):
+def attach_ds(result_dict: dict, field) -> dict:
     """
     Adds dtype or subfields
 
@@ -221,7 +180,7 @@ def attach_ds(result_dict, field):
     return result_dict
 
 
-def shape_to_dict(shape):
+def shape_to_dict(shape) -> dict:
     """
     Serializes model field's shape to dict
 
@@ -238,59 +197,148 @@ def shape_to_dict(shape):
     return result_dict
 
 
-def contract_from_dict_yaml(data_dict):
+def contract_yaml_to_contract_dict(model_name: str, yaml_contract: dict) -> dict:
     """
-    Old version of deserialization of yaml dict into model contract. Should not be used or tested first
+    Yaml parsing methods create dict contracts with structure different to contracts we receive from servers, this method restructs yaml contract to the standart contract structure
+    Yaml-dict:
+    {'name': 'infer', 'inputs': {'input': {'shape': 'scalar', 'type': 'int64', 'profile': 'numerical'}}, 'outputs': {'output': {'shape': 'scalar', 'type': 'int64', 'profile': 'numerical'}}}
+    Contract-dict:
+    {'modelName': 'infer', 'predict': {'signatureName': 'infer', 'inputs': [{'input': {'shape': 'scalar', 'type': 'int64', 'profile': 'numerical'}}], 'outputs': [{'output': {'shape': 'scalar', 'type': 'int64', 'profile': 'numerical'}}]}}
 
-    :param data_dict: contract from yaml
-    :return: model contract
+    :param model_name:
+    :param yaml_contract:
+    :return:
     """
-    if data_dict is None:
-        return None
-    name = data_dict.get("name", "Predict")
-    inputs = []
-    outputs = []
-    for in_key, in_value in data_dict["inputs"].items():
-        input = field_from_dict(in_key, in_value)
-        inputs.append(input)
-    for out_key, out_value in data_dict["outputs"].items():
-        output = field_from_dict(out_key, out_value)
-        outputs.append(output)
+
+    # make list of dicts from dict of dicts
+    inputs = [{field_key: field_def} for field_key, field_def in yaml_contract.get("inputs").items()]
+
+    frmt_inputs = []
+    for input_ in inputs:
+        for field_name, field_dict in input_.items():
+            frmt_inputs.append(field_from_dict(field_name=field_name, field_dict=field_dict))
+
+    # make list of dicts from dict of dicts
+    outputs = [{field_key: field_def} for field_key, field_def in yaml_contract.get("outputs").items()]
+
+    frmt_outputs = []
+    # TODO: make one general method for inputs/outputs -> frmt_inputs/frmt_outputs
+    for output in outputs:
+        for field_name, field_dict in output.items():
+            frmt_outputs.append(field_from_dict(field_name=field_name, field_dict=field_dict))
+
+    signature_name = yaml_contract.get("name")
+
+    contract_dict = {
+        "modelName": model_name,
+        "predict": {
+            "signatureName": signature_name,
+            "inputs": inputs,
+            "outputs": outputs
+        }
+    }
+
+    return contract_dict
+
+
+def contract_dict_to_signature_dict(contract: dict) -> tuple:
+    """
+    Makes a signature dict out of contract dict
+
+    :param contract:
+    :return:
+    """
+
+    name = contract.get("modelName")
+    if not name:
+        name = contract.get("name", "Predict")
+    dict_signature = contract.get("predict")
+
+    return name, dict_signature
+
+
+def signature_dict_to_ModelSignature(data: dict) -> ModelSignature:
+    """
+    A method that makes ModelSignature out of signature dict
+    :param data:
+    :return:
+    """
+    """
+    dict to ModelSignature
+    :param data:
+    :return:
+    """
+    signature_name = data.get("signatureName")
+    inputs = data.get("inputs")  # list of dicts
+    outputs = data.get("outputs")  # list of dicts
+
+    frmt_inputs = []
+    for input_ in inputs:
+
+        field_name = input_.pop("name", None)
+        if not field_name:
+            [(field_name, field_dict)] = input_.items()
+        else:
+            field_dict = input_
+
+        frmt_inputs.append(field_from_dict(field_name=field_name, field_dict=field_dict))
+
+    frmt_outputs = []
+    for output in outputs:
+        field_name = output.pop("name", None)
+        if not field_name:
+            [(field_name, field_dict)] = output.items()
+        else:
+            field_dict = output
+
+        frmt_outputs.append(field_from_dict(field_name=field_name, field_dict=field_dict))
+
     signature = ModelSignature(
-        signature_name=name,
-        inputs=inputs,
-        outputs=outputs
+        signature_name=signature_name,
+        inputs=frmt_inputs,
+        outputs=frmt_outputs
     )
-    return ModelContract(model_name="model", predict=signature)
+
+    return signature
 
 
-def contract_from_dict(data_dict):
+def contract_yaml_to_ModelContract(model_name: str, yaml_contract: dict) -> ModelContract:
     """
-    Deserialization of yaml dict into model contract
+    Helper method that makes a ModelContract out of contract yaml
 
-    :param data_dict: contract from yaml
-    :return: model contract
+    :param model_name:
+    :param yaml_contract:
+    :return:
     """
+    contract_dict = contract_yaml_to_contract_dict(model_name=model_name, yaml_contract=yaml_contract)
+    modelContract = contract_dict_to_ModelContract(contract=contract_dict)
+    return modelContract
 
-    if data_dict is None:
-        return None
-    name = data_dict.get("modelName", "Predict")
-    inputs = []
-    outputs = []
-    for item in data_dict["predict"]["inputs"]:
-        input_item = field_from_dict_new(item.get("name"), item)
-        inputs.append(input_item)
 
-    for item in data_dict["predict"]["outputs"]:
-        output_item = field_from_dict_new(item.get("name"), item)
-        outputs.append(output_item)
+def contract_dict_to_ModelContract(contract: dict) -> ModelContract:
+    """
+    Helper method that makes a ModelContract out of contract dict
 
-    signature = ModelSignature(
-        signature_name=name,
-        inputs=inputs,
-        outputs=outputs
-    )
-    return ModelContract(model_name="model", predict=signature)
+    :param contract:
+    :return:
+    """
+    model_name, signature_dict = contract_dict_to_signature_dict(contract=contract)
+    modelSignature = signature_dict_to_ModelSignature(data=signature_dict)
+    modelContract = ModelContract(model_name=model_name, predict=modelSignature)
+    return modelContract
+
+
+def signature_dict_to_ModelContract(model_name: str, signature: dict) -> ModelContract:
+    """
+    Helper method that makes a ModelContract out of signature dict
+
+    :param model_name:
+    :param signature:
+    :return:
+    """
+    modelSignature = signature_dict_to_ModelSignature(data=signature)
+    modelContract = ModelContract(model_name=model_name, predict=modelSignature)
+    return modelContract
 
 
 def parse_field(name, dtype, shape, profile=ProfilingType.NONE):
@@ -348,6 +396,7 @@ class SignatureBuilder:
     """
     Build Model Signature
     """
+
     def __init__(self, name):
         self.name = name
         self.inputs = []
@@ -409,6 +458,7 @@ class AnyDimSize(object):
     """
     Validation class for dimensions
     """
+
     def __eq__(self, other):
         """
         If dimension is of Number type than equal
@@ -421,6 +471,7 @@ class AnyDimSize(object):
             return True
         else:
             raise TypeError("Unexpected other argument {}".format(other))
+
 
 # TODO: method not used
 def are_shapes_compatible(a, b):
@@ -448,6 +499,7 @@ def are_shapes_compatible(a, b):
         is_valid = False
     return is_valid
 
+
 # TODO: method not used
 def are_dtypes_compatible(a, b, strict=False):
     """
@@ -472,6 +524,7 @@ def are_dtypes_compatible(a, b, strict=False):
         else:
             return False
 
+
 # TODO: what is it doing here? should contract validation be moved out of LocalModel create?
 def validate(self, t, strict=False):
     """
@@ -487,7 +540,8 @@ def validate(self, t, strict=False):
     error_message = ', '.join(filter(None, (shape_error_message, dtype_error_message)))
     return is_dtype_valid & is_dtype_valid, error_message if error_message else None
 
-#TODO: method not used
+
+# TODO: method not used
 def check_tensor_fields(tensors, fields):
     is_valid = True
     error_messages = []
@@ -527,7 +581,8 @@ def mock_input_data(signature: ModelSignature):
     for field in signature.inputs:
         simple_shape = []
         if field.shape:
-            simple_shape = [x.size if x.size > 0 else 1 for x in field.shape.dim] # TODO change -1 to random N, where N <=5
+            simple_shape = [x.size if x.size > 0 else 1 for x in
+                            field.shape.dim]  # TODO change -1 to random N, where N <=5
         if len(simple_shape) == 0:
             simple_shape = [1]
         field_shape = tuple(np.abs(simple_shape))
@@ -537,7 +592,7 @@ def mock_input_data(signature: ModelSignature):
             x = (np.random.randn(*field_shape) >= 0).astype(np.bool)
         elif field.dtype in [DT_FLOAT, DT_HALF, DT_DOUBLE, DT_COMPLEX128, DT_COMPLEX64]:
             x = np.random.randn(*field_shape).astype(npdtype)
-        elif field.dtype in [DT_INT8,DT_INT16,DT_INT32,DT_INT64,DT_UINT8,DT_UINT16,DT_UINT32,DT_UINT64]:
+        elif field.dtype in [DT_INT8, DT_INT16, DT_INT32, DT_INT64, DT_UINT8, DT_UINT16, DT_UINT32, DT_UINT64]:
             _min, _max = np.iinfo(npdtype).min, np.iinfo(npdtype).max
             x = np.random.randint(_min, _max, size, dtype=npdtype).reshape(field_shape)
         elif field.dtype == DT_STRING:
@@ -547,7 +602,7 @@ def mock_input_data(signature: ModelSignature):
         input_tensors.append(x)
     return input_tensors
 
-
+# TODO: if commented, should be deleted?
 # def contract_from_df(example_df):
 #     """
 #     Suggest contract definition for model contract from dataframe
