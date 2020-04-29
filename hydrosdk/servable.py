@@ -174,7 +174,7 @@ class Servable:
     def __str__(self) -> str:
         return f"Servable '{self.name}' for model '{self.model.name}'v{self.model.version}"
 
-    def predictor(self, monitorable=False, return_type=PredictorDT.DICT_NP_ARRAY) -> PredictServiceClient:
+    def predictor(self, monitorable=True, return_type=PredictorDT.DICT_NP_ARRAY) -> PredictServiceClient:
         if monitorable:
             self.impl = MonitorableImplementation(channel=self.cluster.channel, target=self.name)
         else:
