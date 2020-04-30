@@ -1,12 +1,17 @@
 config = {
-    "cluster":
+    "http_cluster":
         {
             "ip": "http://localhost",
             "port": "80"
         },
+    "grpc_cluster":
+        {
+            "ip": "localhost",
+            "port": "9090"
+        },
     "test_model":
         {
-            "path": "tests/resources/model_1",
+            "path": "tests/resources/scalar_identity_model",
             "serving": "serving.yaml"
         },
     "api_endpoint": "api/v2",
@@ -55,8 +60,11 @@ config = {
                     "get_logs": "/servable/{name}/logs"
                 }
 
-        }
+        },
+    "default_application_name": "infer"
 }
 
-CLUSTER_ENDPOINT = config["cluster"]["ip"] + ":" + config["cluster"]["port"]
+HTTP_CLUSTER_ENDPOINT = config["http_cluster"]["ip"] + ":" + config["http_cluster"]["port"]
+GRPC_CLUSTER_ENDPOINT = config["grpc_cluster"]["ip"] + ":" + config["grpc_cluster"]["port"]
 PATH_TO_SERVING = config["test_model"]["path"] + "/" + config["test_model"]["serving"]
+DEFAULT_APP_NAME = config["default_application_name"]

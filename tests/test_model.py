@@ -9,29 +9,29 @@ from hydrosdk.contract import SignatureBuilder
 from hydrosdk.image import DockerImage
 from hydrosdk.model import Model, LocalModel, resolve_paths, ExternalModel, parse_model_from_json_dict
 from hydrosdk.monitoring import TresholdCmpOp
-from tests.resources.test_config import CLUSTER_ENDPOINT, PATH_TO_SERVING
+from tests.resources.test_config import HTTP_CLUSTER_ENDPOINT, GRPC_CLUSTER_ENDPOINT, PATH_TO_SERVING
 
 
-def get_payload():
+def create_test_payload():
     return {os.path.dirname(os.path.abspath(__file__)) + '/resources/model_1/src/func_main.py': './src/func_main.py'}
 
 
-def get_cluster():
-    return Cluster(CLUSTER_ENDPOINT)
+def create_test_cluster(http_address=HTTP_CLUSTER_ENDPOINT, grpc_address=GRPC_CLUSTER_ENDPOINT):
+    return Cluster(http_address=http_address, grpc_address=grpc_address)
 
 
-def get_contract(signature=None):
+def create_test_contract(signature=None):
     if not signature:
-        signature = get_signature()
+        signature = create_test_signature()
     return ModelContract(predict=signature)
 
 
-def get_local_model(name="upload-model-test", contract=None, payload=None, path=None):
+def create_test_local_model(name="upload-model-test", contract=None, payload=None, path=None):
     if payload is None:
-        payload = get_payload()
+        payload = create_test_payload()
 
     if not contract:
-        contract = get_contract()
+        contract = create_test_contract()
 
     local_model = LocalModel(
         name=name,
@@ -46,21 +46,21 @@ def get_local_model(name="upload-model-test", contract=None, payload=None, path=
 
 def get_ext_model_fields() -> tuple:
     name = "ext-model-test"
-    contract = get_contract()
+    contract = create_test_contract()
     metadata = {"additionalProp1": "prop"}
 
     return name, contract, metadata
 
 
-def get_signature():
+def create_test_signature():
     signature = SignatureBuilder('infer') \
-        .with_input('in1', 'double', [-1, 2], 'numerical') \
-        .with_output('out1', 'double', [-1], 'numerical').build()
+        .with_input('input', 'int64', [1], 'numerical') \
+        .with_output('output', 'int64', [1], 'numerical').build()
     return signature
 
 
 def test_external_model_create():
-    cluster = get_cluster()
+    cluster = create_test_cluster()
 
     name, contract, metadata = get_ext_model_fields()
 
@@ -71,7 +71,7 @@ def test_external_model_create():
 
 
 def test_external_model_find_by_name():
-    cluster = get_cluster()
+    cluster = create_test_cluster()
 
     name, contract, metadata = get_ext_model_fields()
 
@@ -82,7 +82,7 @@ def test_external_model_find_by_name():
 
 
 def test_external_model_delete():
-    cluster = get_cluster()
+    cluster = create_test_cluster()
 
     name, contract, metadata = get_ext_model_fields()
 
@@ -102,8 +102,8 @@ def test_local_model_file_deserialization():
 def test_model_find_by_id():
     # mock answer from server
     # check model objects
-    cluster = Cluster(CLUSTER_ENDPOINT)
-    loc_model = get_local_model()
+    cluster = create_test_cluster()
+    loc_model = create_test_local_model()
 
     upload_response = loc_model._LocalModel__upload(cluster)
 
@@ -113,12 +113,12 @@ def test_model_find_by_id():
 
 
 def test_model_find_by_name_modelversion():
-    cluster = Cluster(CLUSTER_ENDPOINT)
-    signature = get_signature()
+    cluster = create_test_cluster()
+    signature = create_test_signature()
 
     contract = ModelContract(predict=signature)
 
-    loc_model = get_local_model(contract=contract)
+    loc_model = create_test_local_model(contract=contract)
     upload_response = loc_model._LocalModel__upload(cluster)
 
     model = Model.find(cluster, upload_response.model.name, upload_response.model.version)
@@ -126,8 +126,8 @@ def test_model_find_by_name_modelversion():
 
 
 def test_model_create_payload_dict():
-    test_model = get_local_model()
-    assert test_model.payload == get_payload()
+    test_model = create_test_local_model()
+    assert test_model.payload == create_test_payload()
 
 
 def test_model_create_payload_list():
@@ -139,7 +139,7 @@ def test_model_create_payload_list():
 
     path = "/home/user/folder/model/cool/"
 
-    test_model = get_local_model(payload=payload, path=path)
+    test_model = create_test_local_model(payload=payload, path=path)
 
     assert test_model.payload == {'/home/user/folder/model/cool/src/func_main.py': './src/func_main.py',
                                   '/home/user/folder/model/cool/data/*': './data/*',
@@ -152,19 +152,19 @@ def test_model_create_programmatically():
         .with_output('out1', 'double', [-1], 'numerical').build()
 
     contract = ModelContract(predict=signature)
-    test_model = get_local_model()
+    test_model = create_test_local_model()
 
 
 def test_local_model_upload():
     # mock answer from server
     # check that correct JSON is sent to cluster
 
-    m1 = get_local_model("linear_regression_1").as_metric(threshold=100, comparator=TresholdCmpOp.GREATER_EQ)
-    m2 = get_local_model("linear_regression_2").as_metric(threshold=100, comparator=TresholdCmpOp.LESS_EQ)
+    m1 = create_test_local_model("linear_regression_1").as_metric(threshold=100, comparator=TresholdCmpOp.GREATER_EQ)
+    m2 = create_test_local_model("linear_regression_2").as_metric(threshold=100, comparator=TresholdCmpOp.LESS_EQ)
 
-    production_model = get_local_model("linear_regression_prod").with_metrics([m1, m2])
+    production_model = create_test_local_model("linear_regression_prod").with_metrics([m1, m2])
 
-    progress = production_model.upload(get_cluster())
+    progress = production_model.upload(create_test_cluster())
 
     while progress[m1].building():
         pass
@@ -183,7 +183,7 @@ def test_upload_logs_fail():
 
 # TODO: add asserts, add model
 def test_model_list():
-    cluster = Cluster(CLUSTER_ENDPOINT)
+    cluster = create_test_cluster()
 
     name, contract, metadata = get_ext_model_fields()
     created_model = ExternalModel.create(cluster=cluster, name=name, contract=contract, metadata=metadata)
@@ -197,40 +197,40 @@ def test_ModelField_dt_invalid_input():
     signature = ModelSignature(signature_name="test", inputs=[ModelField(name="test", shape=TensorShapeProto())],
                                outputs=[ModelField(name="test", dtype=DataType.Name(2), shape=TensorShapeProto())])
 
-    contract = get_contract(signature=signature)
+    contract = create_test_contract(signature=signature)
 
     with pytest.raises(ValueError, match=r"Creating model with invalid dtype in contract-input.*"):
-        get_local_model(contract=contract)
+        create_test_local_model(contract=contract)
 
 
 def test_ModelField_dt_invalid_output():
     signature = ModelSignature(signature_name="test", inputs=[ModelField(name="test", dtype=DataType.Name(2), shape=TensorShapeProto())],
                                outputs=[ModelField(name="test", shape=TensorShapeProto())])
 
-    contract = get_contract(signature=signature)
+    contract = create_test_contract(signature=signature)
 
     with pytest.raises(ValueError, match=r"Creating model with invalid dtype in contract-output.*"):
-        get_local_model(contract=contract)
+        create_test_local_model(contract=contract)
 
 
 def test_ModelField_contract_predict_None():
     contract = ModelContract(predict=None)
     with pytest.raises(ValueError, match=r"Creating model without contract.predict is not allowed.*"):
-        get_local_model(contract=contract)
+        create_test_local_model(contract=contract)
 
 
 def test_ModelField_contact_signatue_name_none():
     signature = ModelSignature(inputs=[ModelField(name="test", dtype=DataType.Name(2), shape=TensorShapeProto())],
                                outputs=[ModelField(name="test", dtype=DataType.Name(2), shape=TensorShapeProto())])
 
-    contract = get_contract(signature=signature)
+    contract = create_test_contract(signature=signature)
 
     with pytest.raises(ValueError, match=r"Creating model without contract.predict.signature_name is not allowed.*"):
-        get_local_model(contract=contract)
+        create_test_local_model(contract=contract)
 
 
 def test_model_delete_by_id():
-    cluster = Cluster(CLUSTER_ENDPOINT)
+    cluster = create_test_cluster()
     Model.delete_by_id(cluster, model_id=420)
 
 
@@ -298,19 +298,19 @@ MODEL_JSONS = [
 
 
 @pytest.mark.parametrize('input', MODEL_JSONS)
-@pytest.mark.parametrize('cluster', [Cluster(CLUSTER_ENDPOINT)])
+@pytest.mark.parametrize('cluster', [Cluster(HTTP_CLUSTER_ENDPOINT)])
 def test_model_json_parser(cluster, input):
     result = parse_model_from_json_dict(cluster, input)
     assert result
 
 
 def test_list_models_by_model_name():
-    cluster = get_cluster()
+    cluster = create_test_cluster()
 
     # make sure you don't have existing models named same
-    loc_model = get_local_model(name="model-one")
-    loc_model2 = get_local_model(name="model-two")
-    loc_model3 = get_local_model(name="model-one")
+    loc_model = create_test_local_model(name="model-one")
+    loc_model2 = create_test_local_model(name="model-two")
+    loc_model3 = create_test_local_model(name="model-one")
 
     upload_response1 = loc_model._LocalModel__upload(cluster)
     upload_response2 = loc_model2._LocalModel__upload(cluster)

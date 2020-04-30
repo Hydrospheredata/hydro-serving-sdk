@@ -1,40 +1,70 @@
+import json
 import logging
 from urllib import parse
-import requests
-import json
+
 import grpc
-import functools
+import requests
+
+from hydrosdk.utils import grpc_server_on
 
 
 class Cluster:
     """
     Cluster responsible for server interactions
     """
+
     @staticmethod
-    def connect(address):
+    def connect(http_address: str, grpc_address: str = None) -> 'Cluster':
         """
         The preferable factory method for Cluster creation. Use it.
 
-        :param address: connection address
-        :raises ConnectionError: if no connection with cluster
+        :param http_address: http connection address
+        :param grpc_address: optional grpc connection address
         :return: cluster object
 
         Checks the address, the connectivity, and creates an instance of Cluster.
         """
-        cl = Cluster(address)
-        logging.info("Connecting to {} cluster".format(cl.address))
+        cl = Cluster(http_address=http_address, grpc_address=grpc_address)
+
+        logging.info("Connecting to {} cluster".format(cl.http_address))
         info = cl.build_info()
         if info['manager']['status'] != 'Ok':
-            raise ConnectionError("Couldn't establish connection with cluster {}. {}".format(address, info['manager'].get('reason')))
+            raise ConnectionError(
+                "Couldn't establish connection with cluster {}. {}".format(http_address, info['manager'].get('reason')))
         logging.info("Connected to the {} cluster".format(info))
         return cl
 
-    def __init__(self, address):
+    def __init__(self, http_address, grpc_address=None, ssl=False,
+                 grpc_credentials=None, grpc_options=None, grpc_compression=None):
         """
         Cluster ctor. Don't use it unless you understand what you are doing.
+        :param http_address:
+        :param grpc_address:
         """
-        parse.urlsplit(address)  # check if address is ok
-        self.address = address
+        # TODO: add better url validation (but not python validators lib!)
+        parse.urlsplit(http_address)  # check if address is ok
+        self.http_address = http_address
+
+        if grpc_address:
+            parse.urlsplit(grpc_address)
+            self.grpc_address = grpc_address
+
+            if ssl:
+                if not grpc_credentials:
+                    raise ValueError("Missing grpc credentials")
+
+                self.channel = grpc.secure_channel(target=self.grpc_address, credentials=grpc_credentials,
+                                                   options=grpc_options,
+                                                   compression=grpc_compression)
+            else:
+                self.channel = grpc.insecure_channel(target=self.grpc_address, options=grpc_options,
+                                                     compression=grpc_compression)
+
+            if not grpc_server_on(self.channel):
+                raise ConnectionError(
+                    "Couldn't establish connection with grpc {}. No connection".format(self.grpc_address))
+
+            logging.info("Connected to the grpc".format(self.grpc_address))
 
     def request(self, method, url, **kwargs):
         """
@@ -45,31 +75,8 @@ class Cluster:
         :param kwargs: additional args
         :return: request res
         """
-        url = parse.urljoin(self.address, url)
+        url = parse.urljoin(self.http_address, url)
         return requests.request(method, url, **kwargs)
-
-    def grpc_secure(self, credentials=None, options=None, compression=None):
-        """
-        Validates credentials and returns grpc secure channel
-
-        :param credentials:
-        :param options:
-        :param compression:
-        :return: grpc secure channel
-        """
-        if credentials is None:
-            credentials = grpc.ChannelCredentials(None)
-        return grpc.secure_channel(self.address, credentials, options=options, compression=compression)
-
-    def grpc_insecure(self, options=None, compression=None):
-        """
-        Returns grpc insecure channel
-
-        :param options:
-        :param compression:
-        :return: grpc insecure channel
-        """
-        return grpc.insecure_channel(self.address, options=options, compression=compression)
 
     def host_selectors(self):
         return []
@@ -86,7 +93,6 @@ class Cluster:
     def build_info(self):
         """
         Returns manager, gateway, sonar builds info
-
         :return: manager, gateway, sonar build infos
         """
         manager_bl = self.safe_buildinfo("/api/buildinfo")

@@ -1,10 +1,12 @@
 import numbers
+from enum import Enum
 
 from hydro_serving_grpc import DT_STRING, DT_BOOL, \
     DT_HALF, DT_FLOAT, DT_DOUBLE, DT_INT8, DT_INT16, \
     DT_INT32, DT_INT64, DT_UINT8, DT_UINT16, DT_UINT32, \
     DT_UINT64, DT_QINT8, DT_QINT16, DT_QINT32, DT_QUINT8, \
-    DT_QUINT16, DT_VARIANT, DT_COMPLEX64, DT_COMPLEX128, DT_INVALID, TensorShapeProto, DataType
+    DT_QUINT16, DT_VARIANT, DT_COMPLEX64, DT_COMPLEX128, DataType
+from hydro_serving_grpc.contract import ModelSignature
 
 DTYPE_TO_FIELDNAME = {
     DT_HALF: "half_val",
@@ -189,6 +191,7 @@ def np2proto_dtype(dt):
     else:
         raise KeyError("Datatype {} is not supported in HydroSDK".format(dt))
 
+
 # TODO: method not used
 def proto2np_shape(tsp):
     if tsp is None or len(tsp.dim) == 0:
@@ -197,7 +200,30 @@ def proto2np_shape(tsp):
         shape = tuple([int(s.size) for s in tsp.dim])
     return shape
 
+
 # TODO: method not used
 def np2proto_shape(np_shape):
     shape = TensorShapeProto(dim=[TensorShapeProto.Dim(size=x) for x in np_shape])
     return shape
+
+
+def find_in_list_by_name(some_list: list, name: str):
+    """
+    Helper created to find ModelField by required name
+
+    :param some_list: list of objects with name field
+    :param name: name of object to be found
+    :raises ValueError: not found
+    :return: object with required name
+    """
+    for item in some_list:
+        if item.name == name:
+            return item
+
+    raise ValueError(f"List: {some_list} doesn't have this name: {name}")
+
+
+class PredictorDT(Enum):
+    DICT_PYTHON = "dict"
+    DICT_NP_ARRAY = "nparray"
+    DF = "dataframe"

@@ -13,7 +13,7 @@ from hydro_serving_grpc.contract import ModelContract
 from hydro_serving_grpc.manager import ModelVersion, DockerImage as DockerImageProto
 from requests_toolbelt.multipart.encoder import MultipartEncoder
 
-from hydrosdk.contract import contract_from_dict_yaml, contract_to_dict, contract_from_dict
+from hydrosdk.contract import ModelContract_to_contract_dict, contract_dict_to_ModelContract, contract_yaml_to_ModelContract
 from hydrosdk.errors import InvalidYAMLFile
 from hydrosdk.exceptions import MetricSpecException
 from hydrosdk.image import DockerImage
@@ -66,8 +66,9 @@ def read_yaml(path):
         sha256=None
     )
     contract = model_doc.get('contract')
+
     if contract:
-        protocontract = contract_from_dict_yaml(contract)
+        protocontract = contract_yaml_to_ModelContract(model_name=name, yaml_contract=contract)
     else:
         protocontract = None
 
@@ -188,7 +189,8 @@ class LocalModel(Metricable):
         else:
             raise ValueError("Unsupported file extension: {}".format(ext))
 
-    def __init__(self, name, runtime, payload, contract=None, path=None, metadata=None, install_command=None, training_data=None):
+    def __init__(self, name, runtime, payload, contract=None, path=None, metadata=None, install_command=None,
+                 training_data=None):
         super().__init__()
 
         if not isinstance(name, str):
@@ -271,7 +273,7 @@ class LocalModel(Metricable):
             "runtime": {"name": self.runtime.name,
                         "tag": self.runtime.tag,
                         "sha256": self.runtime.sha256},
-            "contract": contract_to_dict(self.contract),
+            "contract": ModelContract_to_contract_dict(self.contract),
             "installCommand": self.install_command,
             "metadata": self.metadata
         }
@@ -371,7 +373,6 @@ class Model(Metricable):
         :raises Exception: if server returned not 200
         :return: Model obj
         """
-
         resp = cluster.request("GET", Model.BASE_URL + "/version")
 
         if resp.ok:
@@ -394,7 +395,7 @@ class Model(Metricable):
         model_id = model_json["id"]
         model_name = model_json["model"]["name"]
         model_version = model_json["modelVersion"]
-        model_contract = contract_from_dict(model_json["modelContract"])
+        model_contract = contract_dict_to_ModelContract(model_json["modelContract"])
 
         # external model deserialization handling
         # TODO: get its own endpoint for external model
@@ -529,7 +530,7 @@ class ExternalModel:
         """
         return ExternalModel(name=ext_model_json["model"]["name"],
                              id_=ext_model_json["model"]["id"],
-                             contract=contract_from_dict(ext_model_json["modelContract"]),
+                             contract=contract_dict_to_ModelContract(ext_model_json["modelContract"]),
                              metadata=ext_model_json.get("metadata"), version=ext_model_json["modelVersion"])
 
     @staticmethod
@@ -546,7 +547,7 @@ class ExternalModel:
         """
         ext_model = {
             "name": name,
-            "contract": contract_to_dict(contract),
+            "contract": ModelContract_to_contract_dict(contract),
             "metadata": metadata
         }
 

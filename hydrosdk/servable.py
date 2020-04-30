@@ -9,7 +9,9 @@ from urllib.parse import urljoin
 import sseclient
 
 from hydrosdk.cluster import Cluster
+from hydrosdk.predictor import PredictServiceClient, MonitorableImplementation, UnmonitorableImplementation
 from hydrosdk.exceptions import ServableException
+from hydrosdk.data.types import PredictorDT
 from hydrosdk.model import Model
 
 
@@ -118,8 +120,14 @@ class Servable:
         :param cluster: Cluster connected to Hydrosphere
         :return: List of all Servables available at your cluster
         """
-        return [Servable.model_version_json_to_servable(servable_json, cluster) for servable_json in
-                cluster.request("GET", "/api/v2/servable").json()]
+        res = cluster.request("GET", "/api/v2/servable")
+
+        if res.ok:
+            json_res = res.json()
+            servables = [Servable.model_version_json_to_servable(model_version_json=servable_json, cluster=cluster) for servable_json in json_res]
+            return servables
+        else:
+            raise ServableException(f"{res.status_code} : {res.text}")
 
     @staticmethod
     def delete(cluster: Cluster, servable_name: str) -> Dict:
@@ -165,3 +173,14 @@ class Servable:
 
     def __str__(self) -> str:
         return f"Servable '{self.name}' for model '{self.model.name}'v{self.model.version}"
+
+    def predictor(self, monitorable=True, return_type=PredictorDT.DICT_NP_ARRAY) -> PredictServiceClient:
+        if monitorable:
+            self.impl = MonitorableImplementation(channel=self.cluster.channel, target=self.name)
+        else:
+            self.impl = UnmonitorableImplementation(channel=self.cluster.channel, target=self.name)
+
+        self.predictor_return_type = return_type
+
+        return PredictServiceClient(impl=self.impl, signature=self.model.contract.predict,
+                                    return_type=self.predictor_return_type)

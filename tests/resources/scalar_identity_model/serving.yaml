@@ -1,5 +1,5 @@
 kind: Model
-name: upload-model-test
+name: infer
 runtime: test:latest
 payload:
   - 'file1.txt'
@@ -7,14 +7,14 @@ payload:
   - "src/"
   - "requirements.txt"
 contract:
-  name: test_contract
+  name: infer
   inputs:
     input:
-      shape: [1]
+      shape: scalar
       type: int64
       profile: numerical
   outputs:
     output:
-      shape: [1]
+      shape: scalar
       type: int64
       profile: numerical

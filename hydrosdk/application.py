@@ -2,6 +2,13 @@ from collections import namedtuple
 from enum import Enum
 from typing import List
 
+from hydro_serving_grpc.contract import ModelSignature
+
+from hydrosdk.cluster import Cluster
+from hydrosdk.contract import _signature_dict_to_ModelSignature
+from hydrosdk.data.types import PredictorDT
+from hydrosdk.predictor import PredictServiceClient, MonitorableImplementation
+
 ApplicationDef = namedtuple('ApplicationDef', ('name', 'executionGraph', 'kafkaStreaming'))
 
 
@@ -29,18 +36,37 @@ class Application:
     """
     An application is a publicly available endpoint to reach your models (https://hydrosphere.io/serving-docs/latest/overview/concepts.html#applications)
     """
-    def __init__(self, name, execution_graph, kafka_streaming, metadata, status):
+
+    def __init__(self, name, execution_graph, kafka_streaming, metadata, status, signature: ModelSignature,
+                 cluster: Cluster):
         self.name = name
         self.execution_graph = execution_graph
         self.kafka_streaming = kafka_streaming
         self.metadata = metadata
         self.status = status
+        self.signature = signature
+        self.cluster = cluster
+
+    def predictor(self, return_type=PredictorDT.DICT_NP_ARRAY) -> PredictServiceClient:
+        self.impl = MonitorableImplementation(channel=self.cluster.channel, target=self.name)
+        self.predictor_return_type = return_type
+
+        return PredictServiceClient(impl=self.impl, signature=self.signature,
+                                    return_type=self.predictor_return_type)
+
+    def update_status(self) -> None:
+        """
+        Setter method that updates application status
+        :return: None
+        """
+        application = Application.find_by_name(cluster=self.cluster, app_name=self.name)
+        self.status = application.status
 
     @staticmethod
-    def app_json_to_app_obj(application_json):
+    def app_json_to_app_obj(cluster: Cluster, application_json: dict) -> 'Application':
         """
         Deserializes json into Application
-
+        :param cluster: active cluster
         :param application_json: input json with application object fields
         :return Application : application object
         """
@@ -48,9 +74,11 @@ class Application:
         app_execution_graph = application_json.get("executionGraph")
         app_kafka_streaming = application_json.get("kafkaStreaming")
         app_metadata = application_json.get("metadata")
+        app_signature = _signature_dict_to_ModelSignature(data=application_json.get("signature"))
         app_status = ApplicationStatus[application_json.get("status").upper()]
-        app = Application(name=app_name, execution_graph=app_execution_graph,
-                          kafka_streaming=app_kafka_streaming, metadata=app_metadata, status=app_status)
+
+        app = Application(name=app_name, execution_graph=app_execution_graph, kafka_streaming=app_kafka_streaming,
+                          metadata=app_metadata, status=app_status, cluster=cluster, signature=app_signature)
         return app
 
     @staticmethod
@@ -65,7 +93,8 @@ class Application:
         resp = cluster.request("GET", "/api/v2/application")
         if resp.ok:
             resp_json = resp.json()
-            applications = [Application.app_json_to_app_obj(app_json) for app_json in resp_json]
+            applications = [Application.app_json_to_app_obj(cluster=cluster, application_json=app_json) for app_json in
+                            resp_json]
             return applications
 
         raise Exception(
@@ -83,7 +112,7 @@ class Application:
         resp = cluster.request("GET", "/api/v2/application/{}".format(app_name))
         if resp.ok:
             resp_json = resp.json()
-            app = Application.app_json_to_app_obj(resp_json)
+            app = Application.app_json_to_app_obj(cluster=cluster, application_json=resp_json)
             return app
 
         raise Exception(
@@ -118,7 +147,7 @@ class Application:
         resp = cluster.request(method="POST", url="/api/v2/application", json=application)
         if resp.ok:
             resp_json = resp.json()
-            app = Application.app_json_to_app_obj(resp_json)
+            app = Application.app_json_to_app_obj(cluster=cluster, application_json=resp_json)
             return app
 
         raise Exception(
