@@ -60,6 +60,7 @@ class Cluster:
                 self.channel = grpc.insecure_channel(target=self.grpc_address, options=grpc_options,
                                                      compression=grpc_compression)
 
+            # with grpc.secure_channel it takes a lot of time to check the grpc-connection
             if not grpc_server_on(self.channel):
                 raise ConnectionError(
                     "Couldn't establish connection with grpc {}. No connection".format(self.grpc_address))
