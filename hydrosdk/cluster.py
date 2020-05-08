@@ -65,7 +65,7 @@ class Cluster:
                 raise ConnectionError(
                     "Couldn't establish connection with grpc {}. No connection".format(self.grpc_address))
 
-            logging.info("Connected to the grpc".format(self.grpc_address))
+            logging.info("Connected to the grpc - {}".format(self.grpc_address))
 
     def request(self, method, url, **kwargs):
         """
