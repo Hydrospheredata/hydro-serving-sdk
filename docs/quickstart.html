@@ -8,7 +8,8 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Quickstart &mdash; hydrosdk 2.3.0 documentation</title>
+  <title>Quickstart &mdash; hydrosdk 2.3.0
+ documentation</title>
   
 
   
@@ -64,6 +65,11 @@
           
             
             
+              <div class="version">
+                2.3.0
+
+              </div>
+            
           
 
           
@@ -87,7 +93,8 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="whats_new.html">What’s new in 2.3.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="whats_new.html">What’s new in 2.3.0
+</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Quickstart</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#using-hydrosdk">Using hydrosdk</a></li>
@@ -209,7 +216,7 @@ which is designed to make inference for your data.</p>
 
 <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;path/to/data.csv&quot;</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">itertuples</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
-    <span class="n">predictor</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+    <span class="n">predictor</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">_as_dict</span><span class="p">())</span>
 </pre></div>
 </div>
 <p>Other topics such as LocalModels, Metrics and … will be covered in more detail in the following sections,
