@@ -25,7 +25,9 @@ copyright = '2020, Hydrosphere.io'
 author = 'Hydrosphere.io'
 
 # The full version, including alpha/beta/rc tags
-release = '2.3.0'
+with open("../../../version", 'r') as f:
+    version = f.read()
+release = version
 
 # -- General configuration ---------------------------------------------------
 

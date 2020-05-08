@@ -51,7 +51,7 @@ predictor = app.predictor()
 
 df = pd.read_csv("path/to/data.csv")
 for row in df.itertuples(index=False):
-    predictor.predict(row)
+    predictor.predict(row._as_dict())
 ```
 
 Other topics such as LocalModels, Metrics and ... will be covered in more detail in the following sections,

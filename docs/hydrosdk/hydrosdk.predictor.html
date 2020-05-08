@@ -8,7 +8,8 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>hydrosdk.predictor module &mdash; hydrosdk 2.3.0 documentation</title>
+  <title>hydrosdk.predictor module &mdash; hydrosdk 2.3.0
+ documentation</title>
   
 
   
@@ -64,6 +65,11 @@
           
             
             
+              <div class="version">
+                2.3.0
+
+              </div>
+            
           
 
           
@@ -87,7 +93,8 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../whats_new.html">What’s new in 2.3.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whats_new.html">What’s new in 2.3.0
+</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Sample tutorial</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="hydrosdk.html">hydrosdk package</a><ul class="current">
@@ -180,24 +187,61 @@
 <dd class="field-odd"><p></p></dd>
 </dl>
 <dl class="py class">
-<dt id="hydrosdk.predictor.AbstractPredictor">
-<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.predictor.</code><code class="sig-name descname">AbstractPredictor</code><a class="headerlink" href="#hydrosdk.predictor.AbstractPredictor" title="Permalink to this definition">¶</a></dt>
+<dt id="hydrosdk.predictor.MonitorableImplementation">
+<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.predictor.</code><code class="sig-name descname">MonitorableImplementation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">channel</span></em>, <em class="sig-param"><span class="n">target</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.predictor.MonitorableImplementation" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="hydrosdk.predictor.MonitorableImplementation.send_data">
+<code class="sig-name descname">send_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.predictor.MonitorableImplementation.send_data" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>inputs</strong> – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="hydrosdk.predictor.PredictImplementation">
+<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.predictor.</code><code class="sig-name descname">PredictImplementation</code><a class="headerlink" href="#hydrosdk.predictor.PredictImplementation" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py class">
-<dt id="hydrosdk.predictor.GRPCPredictor">
-<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.predictor.</code><code class="sig-name descname">GRPCPredictor</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">channel</span></em>, <em class="sig-param"><span class="n">target_name</span></em>, <em class="sig-param"><span class="n">signature</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.predictor.GRPCPredictor" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt id="hydrosdk.predictor.PredictServiceClient">
+<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.predictor.</code><code class="sig-name descname">PredictServiceClient</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">impl</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#hydrosdk.predictor.PredictImplementation" title="hydrosdk.predictor.PredictImplementation">hydrosdk.predictor.PredictImplementation</a></span></em>, <em class="sig-param"><span class="n">signature</span><span class="p">:</span> <span class="n">hydro_serving_grpc.contract.model_signature_pb2.ModelSignature</span></em>, <em class="sig-param"><span class="n">return_type</span><span class="p">:</span> <span class="n"><a class="reference internal" href="hydrosdk.data.types.html#hydrosdk.data.types.PredictorDT" title="hydrosdk.data.types.PredictorDT">hydrosdk.data.types.PredictorDT</a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.predictor.PredictServiceClient" title="Permalink to this definition">¶</a></dt>
+<dd><p>Client to use with Predict. Have to be created in order to do predict</p>
+<dl class="py method">
+<dt id="hydrosdk.predictor.PredictServiceClient.predict">
+<code class="sig-name descname">predict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>pandas.core.frame.DataFrame<span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a><span class="p">, </span>pandas.core.series.Series<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span>pandas.core.frame.DataFrame<span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a><span class="p">, </span>pandas.core.series.Series<span class="p">]</span><a class="headerlink" href="#hydrosdk.predictor.PredictServiceClient.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>It forms a PredictRequest. PredictRequest specifies which TensorFlow model to run, as well as
+how inputs are mapped to tensors and how outputs are filtered before returning to user.
+:param inputs: dict in the format of {string: Union[python_primitive_types, numpy_primitive_type]} with contract info
+:param model_spec: model specification created for associated servable
+:return: PredictResponse with outputs in protobuf format</p>
+</dd></dl>
+
+</dd></dl>
 
 <dl class="py class">
-<dt id="hydrosdk.predictor.JSONPredictor">
-<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.predictor.</code><code class="sig-name descname">JSONPredictor</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">url</span></em>, <em class="sig-param"><span class="n">target_name</span></em>, <em class="sig-param"><span class="n">signature</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.predictor.JSONPredictor" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt id="hydrosdk.predictor.UnmonitorableImplementation">
+<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.predictor.</code><code class="sig-name descname">UnmonitorableImplementation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">channel</span></em>, <em class="sig-param"><span class="n">target</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.predictor.UnmonitorableImplementation" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="hydrosdk.predictor.UnmonitorableImplementation.send_data">
+<code class="sig-name descname">send_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.predictor.UnmonitorableImplementation.send_data" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>inputs</strong> – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
 
-<dl class="py class">
-<dt id="hydrosdk.predictor.ShadowlessGRPCPredictor">
-<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.predictor.</code><code class="sig-name descname">ShadowlessGRPCPredictor</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">channel</span></em>, <em class="sig-param"><span class="n">target_name</span></em>, <em class="sig-param"><span class="n">signature</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.predictor.ShadowlessGRPCPredictor" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+</dd></dl>
 
 </div>
 

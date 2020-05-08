@@ -8,7 +8,8 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>hydrosdk.cluster module &mdash; hydrosdk 2.3.0 documentation</title>
+  <title>hydrosdk.cluster module &mdash; hydrosdk 2.3.0
+ documentation</title>
   
 
   
@@ -64,6 +65,11 @@
           
             
             
+              <div class="version">
+                2.3.0
+
+              </div>
+            
           
 
           
@@ -87,7 +93,8 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../whats_new.html">What’s new in 2.3.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whats_new.html">What’s new in 2.3.0
+</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Sample tutorial</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="hydrosdk.html">hydrosdk package</a><ul class="current">
@@ -177,71 +184,32 @@
 <span id="hydrosdk-cluster-module"></span><h1>hydrosdk.cluster module<a class="headerlink" href="#module-hydrosdk.cluster" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt id="hydrosdk.cluster.Cluster">
-<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.cluster.</code><code class="sig-name descname">Cluster</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">address</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.cluster.Cluster" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.cluster.</code><code class="sig-name descname">Cluster</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">http_address</span></em>, <em class="sig-param"><span class="n">grpc_address</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ssl</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">grpc_credentials</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">grpc_options</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">grpc_compression</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.cluster.Cluster" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Cluster responsible for server interactions</p>
 <dl class="py method">
 <dt id="hydrosdk.cluster.Cluster.build_info">
 <code class="sig-name descname">build_info</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.cluster.Cluster.build_info" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns manager, gateway, sonar builds info</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>manager, gateway, sonar build infos</p>
-</dd>
-</dl>
+<dd><p>Returns manager, gateway, sonar builds info
+:return: manager, gateway, sonar build infos</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="hydrosdk.cluster.Cluster.connect">
-<em class="property">static </em><code class="sig-name descname">connect</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">address</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.cluster.Cluster.connect" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">connect</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">http_address</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">grpc_address</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster">hydrosdk.cluster.Cluster</a><a class="headerlink" href="#hydrosdk.cluster.Cluster.connect" title="Permalink to this definition">¶</a></dt>
 <dd><p>The preferable factory method for Cluster creation. Use it.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>address</strong> – connection address</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>http_address</strong> – http connection address</p></li>
+<li><p><strong>grpc_address</strong> – optional grpc connection address</p></li>
+</ul>
 </dd>
-<dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ConnectionError" title="(in Python v3.8)"><strong>ConnectionError</strong></a> – if no connection with cluster</p>
-</dd>
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>cluster object</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>cluster object</p>
 </dd>
 </dl>
 <p>Checks the address, the connectivity, and creates an instance of Cluster.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="hydrosdk.cluster.Cluster.grpc_insecure">
-<code class="sig-name descname">grpc_insecure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">options</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">compression</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.cluster.Cluster.grpc_insecure" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns grpc insecure channel</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>options</strong> – </p></li>
-<li><p><strong>compression</strong> – </p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>grpc insecure channel</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="hydrosdk.cluster.Cluster.grpc_secure">
-<code class="sig-name descname">grpc_secure</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">credentials</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">options</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">compression</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.cluster.Cluster.grpc_secure" title="Permalink to this definition">¶</a></dt>
-<dd><p>Validates credentials and returns grpc secure channel</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>credentials</strong> – </p></li>
-<li><p><strong>options</strong> – </p></li>
-<li><p><strong>compression</strong> – </p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>grpc secure channel</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py method">

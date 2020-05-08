@@ -8,7 +8,8 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>hydrosdk.application module &mdash; hydrosdk 2.3.0 documentation</title>
+  <title>hydrosdk.application module &mdash; hydrosdk 2.3.0
+ documentation</title>
   
 
   
@@ -64,6 +65,11 @@
           
             
             
+              <div class="version">
+                2.3.0
+
+              </div>
+            
           
 
           
@@ -87,7 +93,8 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../whats_new.html">What’s new in 2.3.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whats_new.html">What’s new in 2.3.0
+</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Sample tutorial</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="hydrosdk.html">hydrosdk package</a><ul class="current">
@@ -177,19 +184,16 @@
 <span id="hydrosdk-application-module"></span><h1>hydrosdk.application module<a class="headerlink" href="#module-hydrosdk.application" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt id="hydrosdk.application.Application">
-<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.application.</code><code class="sig-name descname">Application</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">execution_graph</span></em>, <em class="sig-param"><span class="n">kafka_streaming</span></em>, <em class="sig-param"><span class="n">metadata</span></em>, <em class="sig-param"><span class="n">status</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.application.Application" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.application.</code><code class="sig-name descname">Application</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">execution_graph</span></em>, <em class="sig-param"><span class="n">kafka_streaming</span></em>, <em class="sig-param"><span class="n">metadata</span></em>, <em class="sig-param"><span class="n">status</span></em>, <em class="sig-param"><span class="n">signature</span><span class="p">:</span> <span class="n">hydro_serving_grpc.contract.model_signature_pb2.ModelSignature</span></em>, <em class="sig-param"><span class="n">cluster</span><span class="p">:</span> <span class="n"><a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster">hydrosdk.cluster.Cluster</a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.application.Application" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>An application is a publicly available endpoint to reach your models (<a class="reference external" href="https://hydrosphere.io/serving-docs/latest/overview/concepts.html#applications">https://hydrosphere.io/serving-docs/latest/overview/concepts.html#applications</a>)</p>
 <dl class="py method">
 <dt id="hydrosdk.application.Application.app_json_to_app_obj">
-<em class="property">static </em><code class="sig-name descname">app_json_to_app_obj</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">application_json</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.application.Application.app_json_to_app_obj" title="Permalink to this definition">¶</a></dt>
-<dd><p>Deserializes json into Application</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>application_json</strong> – input json with application object fields</p>
-</dd>
-</dl>
-<p>:return Application : application object</p>
+<em class="property">static </em><code class="sig-name descname">app_json_to_app_obj</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cluster</span><span class="p">:</span> <span class="n"><a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster">hydrosdk.cluster.Cluster</a></span></em>, <em class="sig-param"><span class="n">application_json</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#hydrosdk.application.Application" title="hydrosdk.application.Application">hydrosdk.application.Application</a><a class="headerlink" href="#hydrosdk.application.Application.app_json_to_app_obj" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deserializes json into Application
+:param cluster: active cluster
+:param application_json: input json with application object fields
+:return Application : application object</p>
 </dd></dl>
 
 <dl class="py method">
@@ -376,6 +380,13 @@
 <dd class="field-even"><p>list ofr StreamingParams</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hydrosdk.application.Application.update_status">
+<code class="sig-name descname">update_status</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#hydrosdk.application.Application.update_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Setter method that updates application status
+:return: None</p>
 </dd></dl>
 
 </dd></dl>
