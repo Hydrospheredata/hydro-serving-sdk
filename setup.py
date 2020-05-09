@@ -1,4 +1,10 @@
+from os import path
+
 from setuptools import setup, find_packages
+
+this_directory = path.abspath(path.dirname(__file__))
+with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
+    long_description = f.read()
 
 with open("version", 'r') as f:
     version = f.read()
@@ -21,6 +27,8 @@ setup(
     name='hydrosdk',
     version=version,
     description="Hydro-serving SDK",
+    long_description=long_description,
+    long_description_content_type='text/markdown',
     url="https://hydrosphere.io/",
     license="Apache 2.0",
     packages=pkgs,
