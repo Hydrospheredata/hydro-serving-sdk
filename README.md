@@ -1,5 +1,7 @@
 # Hydrosphere Serving SDK
 
+[![PyPI version](https://badge.fury.io/py/hydrosdk.svg)](https://badge.fury.io/py/hydrosdk)
+
 The package contains an implementation of Hydroserving API.
 Tested on python 3.6, 3.7, 3.8.
 
