@@ -18,6 +18,7 @@ from hydrosdk.errors import InvalidYAMLFile
 from hydrosdk.exceptions import MetricSpecException
 from hydrosdk.image import DockerImage
 from hydrosdk.monitoring import MetricSpec, MetricSpecConfig, MetricModel
+from hydrosdk.cluster import Cluster
 
 
 def resolve_paths(path, payload):
@@ -99,7 +100,7 @@ def parse_model_from_json_dict(cluster, json_dict):
     # internal otherwise
     is_external = json_dict.get("isExternal", "status" not in json_dict)
     if is_external:
-        return ExternalModel.ext_model_json_to_ext_model(json_dict)
+        return ExternalModel.from_json(cluster=cluster, ext_model_json=json_dict)
     else:
         return Model.from_json(cluster, json_dict)
 
@@ -521,17 +522,19 @@ class ExternalModel:
     BASE_URL = "/api/v2/externalmodel"
 
     @staticmethod
-    def ext_model_json_to_ext_model(ext_model_json: dict):
+    def from_json(cluster: Cluster, ext_model_json: dict) -> 'ExternalModel':
         """
         Deserializes external model json to external model
 
+        :param cluster: active cluster
         :param ext_model_json: external model json
         :return: external model obj
         """
         return ExternalModel(name=ext_model_json["model"]["name"],
                              id_=ext_model_json["model"]["id"],
                              contract=contract_dict_to_ModelContract(ext_model_json["modelContract"]),
-                             metadata=ext_model_json.get("metadata"), version=ext_model_json["modelVersion"])
+                             metadata=ext_model_json.get("metadata"), version=ext_model_json["modelVersion"],
+                             cluster=cluster)
 
     @staticmethod
     def create(cluster, name: str, contract: ModelContract, metadata: Optional[dict] = None):
@@ -554,7 +557,8 @@ class ExternalModel:
         resp = cluster.request(method="POST", url=ExternalModel.BASE_URL, json=ext_model)
         if resp.ok:
             resp_json = resp.json()
-            return ExternalModel.ext_model_json_to_ext_model(resp_json)
+            ext_model_obj = ExternalModel.from_json(cluster=cluster, ext_model_json=resp_json)
+            return ext_model_obj
         raise Exception(
             f"Failed to create external model. External model = {ext_model}. {resp.status_code} {resp.text}")
 
@@ -583,12 +587,13 @@ class ExternalModel:
         """
         Model.delete_by_id(cluster=cluster, model_id=model_id)
 
-    def __init__(self, name, id_, contract, version, metadata):
+    def __init__(self, name, id_, contract, version, metadata, cluster: Cluster):
         self.name = name
         self.contract = contract
         self.version = version
         self.metadata = metadata
         self.id_ = id_
+        self.cluster = cluster
 
 
 class UploadResponse:
