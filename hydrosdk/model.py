@@ -531,7 +531,7 @@ class ExternalModel:
         :return: external model obj
         """
         return ExternalModel(name=ext_model_json["model"]["name"],
-                             id_=ext_model_json["model"]["id"],
+                             id=ext_model_json["model"]["id"],
                              contract=contract_dict_to_ModelContract(ext_model_json["modelContract"]),
                              metadata=ext_model_json.get("metadata"), version=ext_model_json["modelVersion"],
                              cluster=cluster)
@@ -587,12 +587,12 @@ class ExternalModel:
         """
         Model.delete_by_id(cluster=cluster, model_id=model_id)
 
-    def __init__(self, name, id_, contract, version, metadata, cluster: Cluster):
+    def __init__(self, name, id, contract, version, metadata, cluster: Cluster):
         self.name = name
         self.contract = contract
         self.version = version
         self.metadata = metadata
-        self.id_ = id_
+        self.id = id
         self.cluster = cluster
 
 

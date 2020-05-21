@@ -87,7 +87,7 @@ def test_external_model_delete():
     name, contract, metadata = get_ext_model_fields()
 
     created_model = ExternalModel.create(cluster=cluster, name=name, contract=contract, metadata=metadata)
-    ExternalModel.delete_by_id(cluster=cluster, model_id=created_model.id_)
+    ExternalModel.delete_by_id(cluster=cluster, model_id=created_model.id)
 
     with pytest.raises(Exception, match=r"Failed to find Model for name.*"):
         found_model = ExternalModel.find_by_name(cluster=cluster, name=created_model.name,
