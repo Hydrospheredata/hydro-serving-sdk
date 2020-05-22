@@ -121,11 +121,10 @@ def test_local_model_upload():
 
     production_model = create_test_local_model("linear_regression_prod").with_metrics([m1, m2])
 
-    progress = production_model.upload(create_test_cluster())
+    upload_responses_dict = production_model.upload(create_test_cluster())
+    upload_response_obj = upload_responses_dict[production_model]
 
-    while progress[m1].building():
-        pass
-    assert progress[m1].ok()
+    assert upload_response_obj
 
 
 @pytest.mark.skip("IMPLEMENT LATER")
@@ -144,10 +143,8 @@ def test_model_list():
 
     local_model = create_test_local_model("linear_regression_prod")
 
-    progress = local_model.upload(create_test_cluster())
-
-    while progress[local_model].building():
-        pass
+    upload_responses_dict = local_model.upload(create_test_cluster())
+    upload_response_obj = upload_responses_dict[local_model]
 
     res_list = ModelVersion.list_models(cluster)
 
@@ -196,15 +193,13 @@ def test_modelversion_delete_by_id():
 
     local_model = create_test_local_model("linear_regression_prod")
 
-    progress = local_model.upload(create_test_cluster())
+    upload_responses_dict = local_model.upload(create_test_cluster())
+    upload_response_obj = upload_responses_dict[local_model]
 
-    while progress[local_model].building():
-        pass
-
-    ModelVersion.delete_by_model_id(cluster=cluster, model_id=progress[local_model].modelversion.model_id)
+    ModelVersion.delete_by_model_id(cluster=cluster, model_id=upload_response_obj.modelversion.model_id)
 
     with pytest.raises(ModelVersion.NotFound):
-        ModelVersion.find(cluster=cluster, name=progress[local_model].modelversion.name, version=progress[local_model].modelversion.version)
+        ModelVersion.find(cluster=cluster, name=upload_response_obj.modelversion.name, version=upload_response_obj.modelversion.version)
 
 
 def test_resolve_paths():

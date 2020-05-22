@@ -7,7 +7,6 @@ from enum import Enum
 from typing import Optional
 
 import sseclient
-import time
 import yaml
 from hydro_serving_grpc.contract import ModelContract
 from hydro_serving_grpc.manager import ModelVersion as grpc_ModelVersion, DockerImage as DockerImageProto
@@ -17,7 +16,6 @@ from hydrosdk.cluster import Cluster
 from hydrosdk.contract import ModelContract_to_contract_dict, contract_dict_to_ModelContract, \
     contract_yaml_to_ModelContract
 from hydrosdk.errors import InvalidYAMLFile
-from hydrosdk.exceptions import MetricSpecException
 from hydrosdk.image import DockerImage
 from hydrosdk.monitoring import MetricSpec, MetricSpecConfig, MetricModel
 
@@ -280,29 +278,26 @@ class LocalModel(Metricable):
         """
         Uploads Local Model
         :param cluster: active cluster
-        :raises MetricSpecException: If model not uploaded yet
         :return: {model_obj: upload_resp}
         """
         root_model_upload_response = self.__upload(cluster)
+        root_model_upload_response.lock_till_released()
+
         models_dict = {self: root_model_upload_response}
         if self.metrics:
             for metric in self.metrics:
                 upload_response = metric.model.__upload(cluster)
+                upload_response.lock_till_released()
 
                 msc = MetricSpecConfig(model_version_id=upload_response.modelversion.id,
                                        threshold=metric.threshold,
                                        threshold_op=metric.comparator)
-                ms_created = False
 
-                while not ms_created:
-                    try:
-                        ms = MetricSpec.create(cluster=upload_response.modelversion.cluster,
-                                               name=upload_response.modelversion.name,
-                                               model_version_id=root_model_upload_response.modelversion.id,
-                                               config=msc)
-                        ms_created = True
-                    except MetricSpecException:
-                        time.sleep(1)
+                ms = MetricSpec.create(cluster=upload_response.modelversion.cluster,
+                                       name=upload_response.modelversion.name,
+                                       model_version_id=root_model_upload_response.modelversion.id,
+                                       config=msc)
+
                 models_dict[metric] = upload_response
 
         return models_dict
@@ -594,3 +589,19 @@ class UploadResponse:
         :return: if building
         """
         return self.get_status() == ModelStatus.Assembling
+
+    # TODO: Add logging
+    def lock_till_released(self) -> None:
+        """
+        Waits till the model is released
+
+        :return:
+        """
+        response = self.cluster.request("GET", "/api/v2/events", stream=True)
+        client = sseclient.SSEClient(response)
+
+        for event in client.events():
+            if event.event == "ModelUpdate":
+                data = json.loads(event.data)
+                if data.get("id") == self.modelversion.id and data.get("status") == ModelStatus.Released.value:
+                    break
