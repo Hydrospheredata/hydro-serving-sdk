@@ -31,9 +31,6 @@ def tensor_servable():
 
     upload_resp = model.upload(cluster=cluster)
 
-    # wait for model to upload
-    time.sleep(10)
-
     servable = Servable.create(model_name=upload_resp[model].modelversion.name,
                                version=upload_resp[model].modelversion.version, cluster=cluster)
 
@@ -63,9 +60,6 @@ def scalar_servable():
     )
 
     upload_resp = local_model.upload(cluster)
-
-    # wait for model to upload
-    time.sleep(10)
 
     servable = Servable.create(model_name=upload_resp[local_model].modelversion.name,
                                version=upload_resp[local_model].modelversion.version,

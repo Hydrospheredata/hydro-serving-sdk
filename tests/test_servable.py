@@ -18,9 +18,6 @@ def create_test_servable():
 
     upload_resp = model.upload(http_cluster)
 
-    # wait for model to upload
-    time.sleep(10)
-
     created_servable = Servable.create(model_name=upload_resp[model].modelversion.name,
                                        version=upload_resp[model].modelversion.version, cluster=http_cluster)
 
@@ -32,7 +29,6 @@ def test_servable_list_all():
     model = create_test_local_model()
     upload_resp = model.upload(cluster)
 
-    time.sleep(3)
     Servable.create(model_name=upload_resp[model].modelversion.name,
                     version=upload_resp[model].modelversion.version, cluster=cluster)
 
@@ -52,7 +48,6 @@ def test_servable_delete():
     model = create_test_local_model()
     ur = model.upload(cluster)
 
-    time.sleep(3)
     created_servable = Servable.create(model_name=ur[model].modelversion.name,
                                        version=ur[model].modelversion.version, cluster=cluster,
                                        metadata={"additionalProp1": "prop"})
@@ -71,7 +66,6 @@ def test_servable_create():
     model = create_test_local_model()
     upload_resp = model.upload(cluster)
 
-    time.sleep(3)
     created_servable = Servable.create(model_name=upload_resp[model].modelversion.name,
                                        version=upload_resp[model].modelversion.version, cluster=cluster)
     found_servable = Servable.find(cluster, created_servable.name)
@@ -84,7 +78,6 @@ def test_servable_status():
     model = create_test_local_model()
     upload_resp = model.upload(cluster)
 
-    time.sleep(3)
     created_servable = Servable.create(model_name=upload_resp[model].modelversion.name,
                                        version=upload_resp[model].modelversion.version, cluster=cluster)
 
