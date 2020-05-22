@@ -35,7 +35,7 @@ def tensor_servable():
     time.sleep(10)
 
     servable = Servable.create(model_name=upload_resp[model].modelversion.name,
-                               model_version=upload_resp[model].modelversion.version, cluster=cluster)
+                               version=upload_resp[model].modelversion.version, cluster=cluster)
 
     # wait for servable to assemble
     time.sleep(20)
@@ -68,7 +68,7 @@ def scalar_servable():
     time.sleep(10)
 
     servable = Servable.create(model_name=upload_resp[local_model].modelversion.name,
-                               model_version=upload_resp[local_model].modelversion.version,
+                               version=upload_resp[local_model].modelversion.version,
                                cluster=cluster)
 
     # wait for servable to assemble
@@ -91,7 +91,7 @@ def test_predict_application():
         tensor_application.update_status()
 
     for servable in Servable.list(cluster=cluster):
-        if upload_response[model].modelversion.version == servable.model.version:
+        if upload_response[model].modelversion.version == servable.modelversion.version:
             # TODO: Add to servables status and then del sleep
             time.sleep(20)
             break

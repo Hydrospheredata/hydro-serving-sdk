@@ -286,7 +286,7 @@ class LocalModel(Metricable):
         models_dict = {self: root_model_upload_response}
         if self.metrics:
             for metric in self.metrics:
-                upload_response = metric.model.__upload(cluster)
+                upload_response = metric.modelversion.__upload(cluster)
                 upload_response.lock_till_released()
 
                 msc = MetricSpecConfig(model_version_id=upload_response.modelversion.id,
@@ -538,7 +538,7 @@ class UploadResponse:
     Check the build logs using `logs()`
     """
 
-    def __init__(self, modelversion):
+    def __init__(self, modelversion: ModelVersion):
         self.cluster = modelversion.cluster
         self.modelversion = modelversion
 

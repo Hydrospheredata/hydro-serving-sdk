@@ -9,10 +9,10 @@ from urllib.parse import urljoin
 import sseclient
 
 from hydrosdk.cluster import Cluster
-from hydrosdk.predictor import PredictServiceClient, MonitorableImplementation, UnmonitorableImplementation
-from hydrosdk.exceptions import ServableException
 from hydrosdk.data.types import PredictorDT
+from hydrosdk.exceptions import ServableException
 from hydrosdk.modelversion import ModelVersion
+from hydrosdk.predictor import PredictServiceClient, MonitorableImplementation, UnmonitorableImplementation
 
 
 class ServableStatus(Enum):
@@ -56,27 +56,27 @@ class Servable:
         :param cluster: Cluster connected to Hydrosphere
         :return: Servable object
         """
-        model_data = model_version_json['modelVersion']
+        modelversion_data = model_version_json['modelVersion']
 
-        model = ModelVersion.from_json(cluster, model_data)
+        modelversion = ModelVersion.from_json(cluster, modelversion_data)
         return Servable(cluster=cluster,
-                        model=model,
+                        modelversion=modelversion,
                         servable_name=model_version_json['fullName'],
                         status=ServableStatus.from_camel_case(model_version_json['status']['status']),
                         status_message=model_version_json['status']['msg'],
-                        metadata=model_data['metadata'])
+                        metadata=modelversion_data['metadata'])
 
     @staticmethod
     def create(cluster: Cluster,
                model_name: str,
-               model_version: str,
+               version: str,
                metadata: Dict[str, str] = None) -> 'Servable':
         """
         Deploy an instance of uploaded model version at your cluster.
 
         :param cluster: Cluster connected to Hydrosphere
         :param model_name: Name of uploaded model
-        :param model_version: Version of uploaded model
+        :param version: Version of uploaded model
         :param metadata: Information which you can attach to your servable in form of Dict[str, str]
         :raises ServableException:
 
@@ -84,7 +84,7 @@ class Servable:
         """
         msg = {
             "modelName": model_name,
-            "version": model_version,
+            "version": version,
             "metadata": metadata
         }
 
@@ -124,7 +124,8 @@ class Servable:
 
         if res.ok:
             json_res = res.json()
-            servables = [Servable.model_version_json_to_servable(model_version_json=servable_json, cluster=cluster) for servable_json in json_res]
+            servables = [Servable.model_version_json_to_servable(model_version_json=servable_json, cluster=cluster) for
+                         servable_json in json_res]
             return servables
         else:
             raise ServableException(f"{res.status_code} : {res.text}")
@@ -147,10 +148,10 @@ class Servable:
         else:
             raise ServableException(f"{res.status_code} : {res.text}")
 
-    def __init__(self, cluster, model, servable_name, status, status_message, metadata=None):
+    def __init__(self, cluster, modelversion, servable_name, status, status_message, metadata=None):
         if metadata is None:
             metadata = {}
-        self.model = model
+        self.modelversion = modelversion
         self.name = servable_name
         self.meta = metadata
         self.cluster = cluster
@@ -172,7 +173,7 @@ class Servable:
             raise ServableException(f"{res.status_code} : {res.text}")
 
     def __str__(self) -> str:
-        return f"Servable '{self.name}' for model '{self.model.name}'v{self.model.version}"
+        return f"Servable '{self.name}' for modelversion '{self.modelversion.name}'v{self.modelversion.version}"
 
     def predictor(self, monitorable=True, return_type=PredictorDT.DICT_NP_ARRAY) -> PredictServiceClient:
         if monitorable:
@@ -182,5 +183,5 @@ class Servable:
 
         self.predictor_return_type = return_type
 
-        return PredictServiceClient(impl=self.impl, signature=self.model.contract.predict,
+        return PredictServiceClient(impl=self.impl, signature=self.modelversion.contract.predict,
                                     return_type=self.predictor_return_type)

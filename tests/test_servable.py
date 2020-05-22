@@ -1,6 +1,5 @@
-import time
-
 import pytest
+import time
 from hydro_serving_grpc.contract import ModelContract
 
 from hydrosdk.exceptions import ServableException
@@ -23,7 +22,7 @@ def create_test_servable():
     time.sleep(10)
 
     created_servable = Servable.create(model_name=upload_resp[model].modelversion.name,
-                                       model_version=upload_resp[model].modelversion.version, cluster=http_cluster)
+                                       version=upload_resp[model].modelversion.version, cluster=http_cluster)
 
     return created_servable
 
@@ -35,7 +34,7 @@ def test_servable_list_all():
 
     time.sleep(3)
     Servable.create(model_name=upload_resp[model].modelversion.name,
-                    model_version=upload_resp[model].modelversion.version, cluster=cluster)
+                    version=upload_resp[model].modelversion.version, cluster=cluster)
 
     assert Servable.list(cluster=cluster)
 
@@ -55,7 +54,7 @@ def test_servable_delete():
 
     time.sleep(3)
     created_servable = Servable.create(model_name=ur[model].modelversion.name,
-                                       model_version=ur[model].modelversion.version, cluster=cluster,
+                                       version=ur[model].modelversion.version, cluster=cluster,
                                        metadata={"additionalProp1": "prop"})
     time.sleep(1)
 
@@ -74,7 +73,7 @@ def test_servable_create():
 
     time.sleep(3)
     created_servable = Servable.create(model_name=upload_resp[model].modelversion.name,
-                                       model_version=upload_resp[model].modelversion.version, cluster=cluster)
+                                       version=upload_resp[model].modelversion.version, cluster=cluster)
     found_servable = Servable.find(cluster, created_servable.name)
 
     assert found_servable
@@ -87,7 +86,7 @@ def test_servable_status():
 
     time.sleep(3)
     created_servable = Servable.create(model_name=upload_resp[model].modelversion.name,
-                                       model_version=upload_resp[model].modelversion.version, cluster=cluster)
+                                       version=upload_resp[model].modelversion.version, cluster=cluster)
 
     assert created_servable.status == ServableStatus.STARTING
 

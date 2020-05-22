@@ -158,7 +158,7 @@ To send data through our model we need create an instance of our model version. 
 
 ```python
 from hydrosdk.servable import Servable
-sqrt_servable = Servable.create(cluster, model_name=sqrt_model.name, model_version=sqrt_model.version)
+sqrt_servable = Servable.create(cluster, model_name=sqrt_model.name, version=sqrt_model.version)
 ```
 
 Servables provide [Predictor](hydrosdk/hydrosdk.predictor) objects, which should be used for data inference.

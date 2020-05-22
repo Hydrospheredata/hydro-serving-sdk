@@ -76,8 +76,8 @@ upload_response = sqrt_local_model._LocalModel__upload(cluster)
 
 Let's check whether our model was successfuly uploaded to the platform by looking for it by id returned in `upload_response`.
 ```python
-from hydrosdk.model import Model
-sqrt_model = Model.find_by_id(cluster, upload_response.model.id)
+from hydrosdk.model import ModelVersion
+sqrt_model = ModelVersion.find_by_id(cluster, upload_response.modelversion.id)
 ```
 
 We are finished with uploading our model. In the next section we will attach monitoring model to this model to monitor
@@ -134,7 +134,7 @@ monitoring_upload_response = monitoring_model._LocalModel__upload(cluster)
 
 Check that model is uploaded successfully:
 ```python
-monitoring_model = Model.find_by_id(cluster, monitoring_upload_response.model.id)
+monitoring_model = ModelVersion.find_by_id(cluster, monitoring_upload_response.modelversion.id)
 ``` 
 
 Finally we attach this freshly uploaded model to our first one. To attach model as a metric to another model we need to
@@ -158,7 +158,7 @@ To send data through our model we need create an instance of our model version. 
 
 ```python
 from hydrosdk.servable import Servable
-sqrt_servable = Servable.create(cluster, model_name=sqrt_model.name, model_version=sqrt_model.version)
+sqrt_servable = Servable.create(cluster, model_name=sqrt_model.name, version=sqrt_model.version)
 ```
 
 Servables provide [Predictor](hydrosdk/hydrosdk.predictor) objects, which should be used for data inference.
