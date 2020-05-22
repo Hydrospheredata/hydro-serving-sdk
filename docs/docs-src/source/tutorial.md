@@ -60,7 +60,7 @@ specify environment in which our model will run. Such environments are called Ru
 In this tutorial we will use default Python 3.6 runtime. This runtime uses `src/func_main.py` script as an entry point, that's why
 we organised our files as we did.
 ```python
-from hydrosdk.model import LocalModel
+from hydrosdk.modelversion import LocalModel
 from hydrosdk.image import DockerImage
 
 sqrt_local_model = LocalModel(name="sqrt_model",
@@ -76,8 +76,8 @@ upload_response = sqrt_local_model._LocalModel__upload(cluster)
 
 Let's check whether our model was successfuly uploaded to the platform by looking for it by id returned in `upload_response`.
 ```python
-from hydrosdk.model import Model
-sqrt_model = Model.find_by_id(cluster, upload_response.model.id)
+from hydrosdk.modelversion import ModelVersion
+sqrt_model = ModelVersion.find_by_id(cluster, upload_response.modelversion.id)
 ```
 
 We are finished with uploading our model. In the next section we will attach monitoring model to this model to monitor
@@ -134,7 +134,7 @@ monitoring_upload_response = monitoring_model._LocalModel__upload(cluster)
 
 Check that model is uploaded successfully:
 ```python
-monitoring_model = Model.find_by_id(cluster, monitoring_upload_response.model.id)
+monitoring_model = Model.find_by_id(cluster, monitoring_upload_response.modelversion.id)
 ``` 
 
 Finally we attach this freshly uploaded model to our first one. To attach model as a metric to another model we need to

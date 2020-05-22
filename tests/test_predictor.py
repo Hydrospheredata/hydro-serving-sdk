@@ -11,10 +11,10 @@ from hydrosdk.application import ApplicationStatus
 from hydrosdk.contract import SignatureBuilder
 from hydrosdk.data.types import PredictorDT
 from hydrosdk.image import DockerImage
-from hydrosdk.model import LocalModel
+from hydrosdk.modelversion import LocalModel
 from hydrosdk.servable import Servable
 from tests.test_application import create_test_application
-from tests.test_model import create_test_cluster, create_test_local_model, create_test_signature
+from tests.test_modelversion import create_test_cluster, create_test_local_model, create_test_signature
 
 
 # TODO: add servable Unmonitored tests
@@ -34,8 +34,8 @@ def tensor_servable():
     # wait for model to upload
     time.sleep(10)
 
-    servable = Servable.create(model_name=upload_resp[model].model.name,
-                               model_version=upload_resp[model].model.version, cluster=cluster)
+    servable = Servable.create(model_name=upload_resp[model].modelversion.name,
+                               model_version=upload_resp[model].modelversion.version, cluster=cluster)
 
     # wait for servable to assemble
     time.sleep(20)
@@ -67,8 +67,8 @@ def scalar_servable():
     # wait for model to upload
     time.sleep(10)
 
-    servable = Servable.create(model_name=upload_resp[local_model].model.name,
-                               model_version=upload_resp[local_model].model.version,
+    servable = Servable.create(model_name=upload_resp[local_model].modelversion.name,
+                               model_version=upload_resp[local_model].modelversion.version,
                                cluster=cluster)
 
     # wait for servable to assemble
@@ -91,7 +91,7 @@ def test_predict_application():
         tensor_application.update_status()
 
     for servable in Servable.list(cluster=cluster):
-        if upload_response[model].model.version == servable.model.version:
+        if upload_response[model].modelversion.version == servable.model.version:
             # TODO: Add to servables status and then del sleep
             time.sleep(20)
             break

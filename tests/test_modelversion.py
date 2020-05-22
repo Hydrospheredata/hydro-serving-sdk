@@ -7,7 +7,7 @@ from hydro_serving_grpc.contract import ModelContract, ModelField, ModelSignatur
 from hydrosdk.cluster import Cluster
 from hydrosdk.contract import SignatureBuilder
 from hydrosdk.image import DockerImage
-from hydrosdk.model import Model, LocalModel, resolve_paths, ExternalModel, parse_model_from_json_dict
+from hydrosdk.modelversion import ModelVersion, LocalModel, resolve_paths
 from hydrosdk.monitoring import TresholdCmpOp
 from tests.resources.test_config import HTTP_CLUSTER_ENDPOINT, GRPC_CLUSTER_ENDPOINT, PATH_TO_SERVING
 
@@ -44,14 +44,6 @@ def create_test_local_model(name="upload-model-test", contract=None, payload=Non
     return local_model
 
 
-def get_ext_model_fields() -> tuple:
-    name = "ext-model-test"
-    contract = create_test_contract()
-    metadata = {"additionalProp1": "prop"}
-
-    return name, contract, metadata
-
-
 def create_test_signature():
     signature = SignatureBuilder('infer') \
         .with_input('input', 'int64', [1], 'numerical') \
@@ -59,47 +51,12 @@ def create_test_signature():
     return signature
 
 
-def test_external_model_create():
-    cluster = create_test_cluster()
-
-    name, contract, metadata = get_ext_model_fields()
-
-    created_model = ExternalModel.create(cluster=cluster, name=name, contract=contract, metadata=metadata)
-    found_model = ExternalModel.find_by_name(cluster=cluster, name=created_model.name,
-                                             version=created_model.version)
-    assert found_model
-
-
-def test_external_model_find_by_name():
-    cluster = create_test_cluster()
-
-    name, contract, metadata = get_ext_model_fields()
-
-    created_model = ExternalModel.create(cluster=cluster, name=name, contract=contract, metadata=metadata)
-    found_model = ExternalModel.find_by_name(cluster=cluster, name=created_model.name,
-                                             version=created_model.version)
-    assert found_model
-
-
-def test_external_model_delete():
-    cluster = create_test_cluster()
-
-    name, contract, metadata = get_ext_model_fields()
-
-    created_model = ExternalModel.create(cluster=cluster, name=name, contract=contract, metadata=metadata)
-    ExternalModel.delete_by_id(cluster=cluster, model_id=created_model.id)
-
-    with pytest.raises(Exception, match=r"Failed to find Model for name.*"):
-        found_model = ExternalModel.find_by_name(cluster=cluster, name=created_model.name,
-                                                 version=created_model.version)
-
-
 def test_local_model_file_deserialization():
     model = LocalModel.from_file(PATH_TO_SERVING)
     assert model is not None
 
 
-def test_model_find_by_id():
+def test_modelversion_find_by_id():
     # mock answer from server
     # check model objects
     cluster = create_test_cluster()
@@ -107,9 +64,9 @@ def test_model_find_by_id():
 
     upload_response = loc_model._LocalModel__upload(cluster)
 
-    model_by_id = Model.find_by_id(cluster, upload_response.model.id)
+    modelversion_by_id = ModelVersion.find_by_id(cluster, upload_response.modelversion.id)
 
-    assert model_by_id.id == upload_response.model.id
+    assert modelversion_by_id.id == upload_response.modelversion.id
 
 
 def test_model_find_by_name_modelversion():
@@ -121,8 +78,8 @@ def test_model_find_by_name_modelversion():
     loc_model = create_test_local_model(contract=contract)
     upload_response = loc_model._LocalModel__upload(cluster)
 
-    model = Model.find(cluster, upload_response.model.name, upload_response.model.version)
-    assert model.id == upload_response.model.id
+    modelversion = ModelVersion.find_by_name_id(cluster, upload_response.modelversion.name, upload_response.modelversion.version)
+    assert modelversion.id == upload_response.modelversion.id
 
 
 def test_model_create_payload_dict():
@@ -185,10 +142,14 @@ def test_upload_logs_fail():
 def test_model_list():
     cluster = create_test_cluster()
 
-    name, contract, metadata = get_ext_model_fields()
-    created_model = ExternalModel.create(cluster=cluster, name=name, contract=contract, metadata=metadata)
+    local_model = create_test_local_model("linear_regression_prod")
 
-    res_list = Model.list_models(cluster)
+    progress = local_model.upload(create_test_cluster())
+
+    while progress[local_model].building():
+        pass
+
+    res_list = ModelVersion.list_models(cluster)
 
     assert res_list
 
@@ -204,7 +165,8 @@ def test_ModelField_dt_invalid_input():
 
 
 def test_ModelField_dt_invalid_output():
-    signature = ModelSignature(signature_name="test", inputs=[ModelField(name="test", dtype=DataType.Name(2), shape=TensorShapeProto())],
+    signature = ModelSignature(signature_name="test",
+                               inputs=[ModelField(name="test", dtype=DataType.Name(2), shape=TensorShapeProto())],
                                outputs=[ModelField(name="test", shape=TensorShapeProto())])
 
     contract = create_test_contract(signature=signature)
@@ -231,7 +193,7 @@ def test_ModelField_contact_signatue_name_none():
 
 def test_model_delete_by_id():
     cluster = create_test_cluster()
-    Model.delete_by_id(cluster, model_id=420)
+    ModelVersion.delete_by_id(cluster, id_=420)
 
 
 def test_resolve_paths():
@@ -300,7 +262,7 @@ MODEL_JSONS = [
 @pytest.mark.parametrize('input', MODEL_JSONS)
 @pytest.mark.parametrize('cluster', [Cluster(HTTP_CLUSTER_ENDPOINT)])
 def test_model_json_parser(cluster, input):
-    result = parse_model_from_json_dict(cluster, input)
+    result = ModelVersion.from_json(cluster=cluster, model_version=input)
     assert result
 
 
@@ -316,10 +278,10 @@ def test_list_models_by_model_name():
     upload_response2 = loc_model2._LocalModel__upload(cluster)
     upload_response3 = loc_model3._LocalModel__upload(cluster)
 
-    found_models = Model.list_models_by_model_name(cluster, upload_response1.model.name)
+    found_modelversions = ModelVersion.list_models_by_model_name(cluster, upload_response1.modelversion.name)
 
-    assert found_models
-    assert len(found_models) == 2
+    assert found_modelversions
+    assert len(found_modelversions) == 2
     # test sorting
-    assert found_models[0].id == upload_response1.model.id
-    assert found_models[1].id == upload_response3.model.id
+    assert found_modelversions[0].id == upload_response1.modelversion.id
+    assert found_modelversions[1].id == upload_response3.modelversion.id

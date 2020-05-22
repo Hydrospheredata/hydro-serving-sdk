@@ -3,22 +3,23 @@ import json
 import logging
 import os
 import tarfile
-import time
 from enum import Enum
 from typing import Optional
 
 import sseclient
+import time
 import yaml
 from hydro_serving_grpc.contract import ModelContract
-from hydro_serving_grpc.manager import ModelVersion, DockerImage as DockerImageProto
+from hydro_serving_grpc.manager import ModelVersion as grpc_ModelVersion, DockerImage as DockerImageProto
 from requests_toolbelt.multipart.encoder import MultipartEncoder
 
-from hydrosdk.contract import ModelContract_to_contract_dict, contract_dict_to_ModelContract, contract_yaml_to_ModelContract
+from hydrosdk.cluster import Cluster
+from hydrosdk.contract import ModelContract_to_contract_dict, contract_dict_to_ModelContract, \
+    contract_yaml_to_ModelContract
 from hydrosdk.errors import InvalidYAMLFile
 from hydrosdk.exceptions import MetricSpecException
 from hydrosdk.image import DockerImage
 from hydrosdk.monitoring import MetricSpec, MetricSpecConfig, MetricModel
-from hydrosdk.cluster import Cluster
 
 
 def resolve_paths(path, payload):
@@ -84,25 +85,6 @@ def read_yaml(path):
         metadata=model_doc.get('metadata')
     )
     return model
-
-
-def parse_model_from_json_dict(cluster, json_dict):
-    """
-    Parses json dict which could contain ExternalModel or Model
-    :param cluster:
-    :param json_dict:
-    :return:
-    """
-
-    # assumption that a model is internal by default.
-    # Externals are obligated to have "isExternal": true
-    # if status is not in dict, then it's external
-    # internal otherwise
-    is_external = json_dict.get("isExternal", "status" not in json_dict)
-    if is_external:
-        return ExternalModel.from_json(cluster=cluster, ext_model_json=json_dict)
-    else:
-        return Model.from_json(cluster, json_dict)
 
 
 class Metricable:
@@ -171,8 +153,8 @@ class LocalModel(Metricable):
         :param model_json:
         :return: UploadResponse obj
         """
-        model = Model.from_json(cluster, model_json)
-        return UploadResponse(model=model)
+        modelversion = ModelVersion.from_json(cluster, model_json)
+        return UploadResponse(modelversion=modelversion)
 
     @staticmethod
     def from_file(path):
@@ -307,16 +289,16 @@ class LocalModel(Metricable):
             for metric in self.metrics:
                 upload_response = metric.model.__upload(cluster)
 
-                msc = MetricSpecConfig(model_version_id=upload_response.model.id,
+                msc = MetricSpecConfig(model_version_id=upload_response.modelversion.id,
                                        threshold=metric.threshold,
                                        threshold_op=metric.comparator)
                 ms_created = False
 
                 while not ms_created:
                     try:
-                        ms = MetricSpec.create(cluster=upload_response.model.cluster,
-                                               name=upload_response.model.name,
-                                               model_version_id=root_model_upload_response.model.id,
+                        ms = MetricSpec.create(cluster=upload_response.modelversion.cluster,
+                                               name=upload_response.modelversion.name,
+                                               model_version_id=root_model_upload_response.modelversion.id,
                                                config=msc)
                         ms_created = True
                     except MetricSpecException:
@@ -335,86 +317,87 @@ class ModelStatus(Enum):
     Failed = "Failed"
 
 
-class Model(Metricable):
+class ModelVersion(Metricable):
     """
     Model (A model is a machine learning model or a processing function that consumes provided inputs
     and produces predictions or transformations
     https://hydrosphere.io/serving-docs/latest/overview/concepts.html#models)
+    ModelVersion represents one of the Model's versions.
     """
     BASE_URL = "/api/v2/model"
 
     @staticmethod
-    def find(cluster, name, version):
+    def find_by_name_id(cluster: Cluster, name: str, id_) -> 'ModelVersion':
         """
         Finds a model on server by name and model version
 
         :param cluster: active cluster
         :param name: model name
-        :param version: model version
+        :param id_: model version
         :raises Exception: if server returned not 200
-        :return: Model obj
+        :return: ModelVersion obj
         """
-        resp = cluster.request("GET", Model.BASE_URL + "/version/{}/{}".format(name, version))
+        resp = cluster.request("GET", ModelVersion.BASE_URL + "/version/{}/{}".format(name, id_))
 
         if resp.ok:
             model_json = resp.json()
-            return parse_model_from_json_dict(cluster, model_json)
+            return ModelVersion.from_json(cluster=cluster, model_version=model_json)
 
         else:
             raise Exception(
-                f"Failed to find Model for name={name}, version={version} . {resp.status_code} {resp.text}")
+                f"Failed to find Model for name={name}, version={id_} . {resp.status_code} {resp.text}")
 
     @staticmethod
-    def find_by_id(cluster, model_id):
+    def find_by_id(cluster: Cluster, id_) -> 'ModelVersion':
         """
-        Finds a model on server by id
+        Finds a modelversion on server by id
 
         :param cluster: active cluster
-        :param model_id: model id
+        :param id_: model version id
         :raises Exception: if server returned not 200
-        :return: Model obj
+        :return: ModelVersion obj
         """
-        resp = cluster.request("GET", Model.BASE_URL + "/version")
+        resp = cluster.request("GET", ModelVersion.BASE_URL + "/version")
 
         if resp.ok:
             for model_json in resp.json():
-                if model_json['id'] == model_id:
-                    return parse_model_from_json_dict(cluster, model_json)
+                if model_json['id'] == id_:
+                    return ModelVersion.from_json(cluster=cluster, model_version=model_json)
 
         raise Exception(
-            f"Failed to find_by_id Model for model_id={model_id}. {resp.status_code} {resp.text}")
+            f"Failed to find_by_id ModelVersion for model_version_id={id_}. {resp.status_code} {resp.text}")
 
     @staticmethod
-    def from_json(cluster, model_json):
+    def from_json(cluster: Cluster, model_version: dict) -> 'ModelVersion':
         """
         Internal method used for deserealization of a Model from json object
         :param cluster:
-        :param model_json: a dictionary
+        :param model_version: a dictionary
         :return: A Model instance
         """
-
-        model_id = model_json["id"]
-        model_name = model_json["model"]["name"]
-        model_version = model_json["modelVersion"]
-        model_contract = contract_dict_to_ModelContract(model_json["modelContract"])
+        id_ = model_version["id"]
+        name = model_version["model"]["name"]
+        version = model_version["modelVersion"]
+        model_contract = contract_dict_to_ModelContract(model_version["modelContract"])
 
         # external model deserialization handling
-        # TODO: get its own endpoint for external model
-        if not model_json.get("runtime"):
-            model_json["runtime"] = {}
+        if not model_version.get("runtime"):
+            model_version["runtime"] = {}
 
-        model_runtime = DockerImage(model_json["runtime"].get("name"), model_json["runtime"].get("tag"),
-                                    model_json["runtime"].get("sha256"))
-        model_image = model_json.get("image")
+        model_runtime = DockerImage(model_version["runtime"].get("name"), model_version["runtime"].get("tag"),
+                                    model_version["runtime"].get("sha256"))
+        model_image = model_version.get("image")
         model_cluster = cluster
 
-        status = ModelStatus[model_json['status']]
-        metadata = model_json['metadata']
+        status = model_version.get('status')
+        if status:
+            status = ModelStatus[status]
+        metadata = model_version['metadata']
 
-        return Model(
-            id=model_id,
-            name=model_name,
-            version=model_version,
+        return ModelVersion(
+            id=id_,
+            name=name,
+            version=version,
             contract=model_contract,
             runtime=model_runtime,
             image=model_image,
@@ -424,14 +407,39 @@ class Model(Metricable):
         )
 
     @staticmethod
-    def delete_by_id(cluster, model_id):
+    def create(cluster, name: str, contract: ModelContract, metadata: Optional[dict] = None) -> 'ModelVersion':
+        """
+        Creates modelversion on the server
+        :param cluster: active cluster
+        :param name: name of model
+        :param contract:
+        :param metadata:
+        :raises Exception: If server returned not 200
+        :return: modelversion
+        """
+        model = {
+            "name": name,
+            "contract": ModelContract_to_contract_dict(contract),
+            "metadata": metadata
+        }
+
+        resp = cluster.request(method="POST", url="/api/v2/externalmodel", json=model)
+        if resp.ok:
+            resp_json = resp.json()
+            mv_obj = ModelVersion.from_json(cluster=cluster, model_version=resp_json)
+            return mv_obj
+        raise Exception(
+            f"Failed to create external model. External model = {model}. {resp.status_code} {resp.text}")
+
+    @staticmethod
+    def delete_by_id(cluster: Cluster, id_):
         """
         Deletes model by id
         :param cluster: active cluster
-        :param model_id: model id
+        :param id_: model version id
         :return: if 200, json. Otherwise None
         """
-        res = cluster.request("DELETE", Model.BASE_URL + "/{}".format(model_id))
+        res = cluster.request("DELETE", ModelVersion.BASE_URL + "/{}".format(id_))
         if res.ok:
             return res.json()
         return None
@@ -444,7 +452,7 @@ class Model(Metricable):
         :param cluster: active cluster
         :return: list of extModel and Model
         """
-        resp = cluster.request("GET", Model.BASE_URL + "/version")
+        resp = cluster.request("GET", ModelVersion.BASE_URL + "/version")
 
         if resp.ok:
             model_versions_json = resp.json()
@@ -452,7 +460,7 @@ class Model(Metricable):
             models = []
 
             for model_version_json in model_versions_json:
-                model = parse_model_from_json_dict(cluster, model_version_json)
+                model = ModelVersion.from_json(cluster=cluster, model_version=model_version_json)
                 models.append(model)
             return models
 
@@ -468,7 +476,7 @@ class Model(Metricable):
         :param model_name: model name
         :return: list of Models for provided model name
         """
-        all_models = Model.list_models(cluster=cluster)
+        all_models = ModelVersion.list_models(cluster=cluster)
 
         models_by_name = [model for model in all_models if model.name == model_name]
 
@@ -482,7 +490,7 @@ class Model(Metricable):
 
         :return: model version obj
         """
-        return ModelVersion(
+        return grpc_ModelVersion(
             _id=self.id,
             name=self.name,
             version=self.version,
@@ -492,15 +500,15 @@ class Model(Metricable):
             image_sha=self.image.sha256
         )
 
-    def __init__(self, id, name, version, contract, runtime, image, cluster, status, metadata=None,
-                 install_command=None):
+    def __init__(self, id, name, version, contract, cluster: Cluster, runtime=None, image=None,
+                 status=None, metadata=None, install_command=None):
         super().__init__()
 
+        self.id = id
         self.name = name
         self.runtime = runtime
         self.contract = contract
         self.cluster = cluster
-        self.id = id
         self.version = version
         self.image = image
 
@@ -513,89 +521,6 @@ class Model(Metricable):
         return "Model {}:{}".format(self.name, self.version)
 
 
-class ExternalModel:
-    """
-    External models running outside of the Hydrosphere platform
-
-    https://hydrosphere.io/serving-docs/latest/how-to/monitoring-external-models.html
-    """
-    BASE_URL = "/api/v2/externalmodel"
-
-    @staticmethod
-    def from_json(cluster: Cluster, ext_model_json: dict) -> 'ExternalModel':
-        """
-        Deserializes external model json to external model
-
-        :param cluster: active cluster
-        :param ext_model_json: external model json
-        :return: external model obj
-        """
-        return ExternalModel(name=ext_model_json["model"]["name"],
-                             id=ext_model_json["model"]["id"],
-                             contract=contract_dict_to_ModelContract(ext_model_json["modelContract"]),
-                             metadata=ext_model_json.get("metadata"), version=ext_model_json["modelVersion"],
-                             cluster=cluster)
-
-    @staticmethod
-    def create(cluster, name: str, contract: ModelContract, metadata: Optional[dict] = None):
-        """
-        Creates external model on the server
-
-        :param cluster: active cluster
-        :param name: name of ext model
-        :param contract:
-        :param metadata:
-        :raises Exception: If server returned not 200
-        :return: external model
-        """
-        ext_model = {
-            "name": name,
-            "contract": ModelContract_to_contract_dict(contract),
-            "metadata": metadata
-        }
-
-        resp = cluster.request(method="POST", url=ExternalModel.BASE_URL, json=ext_model)
-        if resp.ok:
-            resp_json = resp.json()
-            ext_model_obj = ExternalModel.from_json(cluster=cluster, ext_model_json=resp_json)
-            return ext_model_obj
-        raise Exception(
-            f"Failed to create external model. External model = {ext_model}. {resp.status_code} {resp.text}")
-
-    # TODO: return ExternalModel rather than Model
-    @staticmethod
-    def find_by_name(cluster, name, version):
-        """
-        Finds ext model on server by name and version
-
-        :param cluster: active cluster
-        :param name:
-        :param version:
-        :return: Model
-        """
-        found_model = Model.find(cluster=cluster, name=name, version=version)
-        return found_model
-
-    @staticmethod
-    def delete_by_id(cluster, model_id):
-        """
-        Deletes external model by model id
-
-        :param cluster: active cluster
-        :param model_id:
-        :return: None
-        """
-        Model.delete_by_id(cluster=cluster, model_id=model_id)
-
-    def __init__(self, name, id, contract, version, metadata, cluster: Cluster):
-        self.name = name
-        self.contract = contract
-        self.version = version
-        self.metadata = metadata
-        self.id = id
-        self.cluster = cluster
-
-
 class UploadResponse:
     """
     Class that wraps assembly status and logs logic.
@@ -604,26 +529,27 @@ class UploadResponse:
     Check the build logs using `logs()`
     """
 
-    def __init__(self, model):
-        self.cluster = model.cluster
-        self.model = model
+    def __init__(self, modelversion):
+        self.cluster = modelversion.cluster
+        self.modelversion = modelversion
 
     def logs(self):
         """
         Sends request, saves and returns logs iterator
         :return: log iterator
         """
-        url = "/api/v2/model/version/{}/logs".format(self.model.id)
-        logs_response = self.model.cluster.request("GET", url, stream=True)
+        url = "/api/v2/model/version/{}/logs".format(self.modelversion.id)
+        logs_response = self.modelversion.cluster.request("GET", url, stream=True)
         return sseclient.SSEClient(logs_response).events()
 
-    def poll_model(self) -> None:
+    def poll_modelversion(self) -> None:
         """
         Checks last log record and sets upload status
         :raises StopIteration: If something went wrong with iteration over logs
         :return: None
         """
-        self.model = Model.find(self.cluster, self.model.name, self.model.version)
+        self.modelversion = ModelVersion.find_by_name_id(self.cluster, self.modelversion.name,
+                                                         self.modelversion.version)
 
     def get_status(self):
         """
@@ -631,8 +557,8 @@ class UploadResponse:
 
         :return: status
         """
-        self.poll_model()
-        return self.model.status
+        self.poll_modelversion()
+        return self.modelversion.status
 
     def not_ok(self) -> bool:
         """

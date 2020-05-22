@@ -6,7 +6,7 @@ import yaml
 
 from hydrosdk.application import Application, ApplicationStatus
 from tests.resources.test_config import DEFAULT_APP_NAME
-from tests.test_model import create_test_cluster, create_test_local_model
+from tests.test_modelversion import create_test_cluster, create_test_local_model
 
 
 def create_test_application(cluster, upload_response=None, local_model=None):
@@ -20,7 +20,7 @@ def create_test_application(cluster, upload_response=None, local_model=None):
         app = Application.parse_application(d)
         app_as_dict = app._asdict()
         app_as_dict["executionGraph"]["stages"][0]["modelVariants"][0]["modelVersionId"] = upload_response[
-            local_model].model.version
+            local_model].modelversion.version
 
         while upload_response[local_model].building():
             print("building")

@@ -12,7 +12,7 @@ from hydrosdk.cluster import Cluster
 from hydrosdk.predictor import PredictServiceClient, MonitorableImplementation, UnmonitorableImplementation
 from hydrosdk.exceptions import ServableException
 from hydrosdk.data.types import PredictorDT
-from hydrosdk.model import Model
+from hydrosdk.modelversion import ModelVersion
 
 
 class ServableStatus(Enum):
@@ -58,7 +58,7 @@ class Servable:
         """
         model_data = model_version_json['modelVersion']
 
-        model = Model.from_json(cluster, model_data)
+        model = ModelVersion.from_json(cluster, model_data)
         return Servable(cluster=cluster,
                         model=model,
                         servable_name=model_version_json['fullName'],

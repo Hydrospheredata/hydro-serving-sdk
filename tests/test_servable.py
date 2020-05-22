@@ -5,8 +5,8 @@ from hydro_serving_grpc.contract import ModelContract
 
 from hydrosdk.exceptions import ServableException
 from hydrosdk.servable import Servable, ServableStatus
-from tests.test_model import create_test_cluster, create_test_local_model
-from tests.test_model import create_test_signature
+from tests.test_modelversion import create_test_cluster, create_test_local_model
+from tests.test_modelversion import create_test_signature
 
 
 def create_test_servable():
@@ -22,8 +22,8 @@ def create_test_servable():
     # wait for model to upload
     time.sleep(10)
 
-    created_servable = Servable.create(model_name=upload_resp[model].model.name,
-                                       model_version=upload_resp[model].model.version, cluster=http_cluster)
+    created_servable = Servable.create(model_name=upload_resp[model].modelversion.name,
+                                       model_version=upload_resp[model].modelversion.version, cluster=http_cluster)
 
     return created_servable
 
@@ -34,8 +34,8 @@ def test_servable_list_all():
     upload_resp = model.upload(cluster)
 
     time.sleep(3)
-    Servable.create(model_name=upload_resp[model].model.name,
-                    model_version=upload_resp[model].model.version, cluster=cluster)
+    Servable.create(model_name=upload_resp[model].modelversion.name,
+                    model_version=upload_resp[model].modelversion.version, cluster=cluster)
 
     assert Servable.list(cluster=cluster)
 
@@ -54,8 +54,8 @@ def test_servable_delete():
     ur = model.upload(cluster)
 
     time.sleep(3)
-    created_servable = Servable.create(model_name=ur[model].model.name,
-                                       model_version=ur[model].model.version, cluster=cluster,
+    created_servable = Servable.create(model_name=ur[model].modelversion.name,
+                                       model_version=ur[model].modelversion.version, cluster=cluster,
                                        metadata={"additionalProp1": "prop"})
     time.sleep(1)
 
@@ -73,8 +73,8 @@ def test_servable_create():
     upload_resp = model.upload(cluster)
 
     time.sleep(3)
-    created_servable = Servable.create(model_name=upload_resp[model].model.name,
-                                       model_version=upload_resp[model].model.version, cluster=cluster)
+    created_servable = Servable.create(model_name=upload_resp[model].modelversion.name,
+                                       model_version=upload_resp[model].modelversion.version, cluster=cluster)
     found_servable = Servable.find(cluster, created_servable.name)
 
     assert found_servable
@@ -86,8 +86,8 @@ def test_servable_status():
     upload_resp = model.upload(cluster)
 
     time.sleep(3)
-    created_servable = Servable.create(model_name=upload_resp[model].model.name,
-                                       model_version=upload_resp[model].model.version, cluster=cluster)
+    created_servable = Servable.create(model_name=upload_resp[model].modelversion.name,
+                                       model_version=upload_resp[model].modelversion.version, cluster=cluster)
 
     assert created_servable.status == ServableStatus.STARTING
 
