@@ -134,7 +134,7 @@ monitoring_upload_response = monitoring_model._LocalModel__upload(cluster)
 
 Check that model is uploaded successfully:
 ```python
-monitoring_model = Model.find_by_id(cluster, monitoring_upload_response.modelversion.id)
+monitoring_model = ModelVersion.find_by_id(cluster, monitoring_upload_response.modelversion.id)
 ``` 
 
 Finally we attach this freshly uploaded model to our first one. To attach model as a metric to another model we need to

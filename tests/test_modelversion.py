@@ -78,7 +78,7 @@ def test_model_find_by_name_modelversion():
     loc_model = create_test_local_model(contract=contract)
     upload_response = loc_model._LocalModel__upload(cluster)
 
-    modelversion = ModelVersion.find_by_name_id(cluster, upload_response.modelversion.name, upload_response.modelversion.version)
+    modelversion = ModelVersion.find(cluster, upload_response.modelversion.name, upload_response.modelversion.version)
     assert modelversion.id == upload_response.modelversion.id
 
 
@@ -191,9 +191,20 @@ def test_ModelField_contact_signatue_name_none():
         create_test_local_model(contract=contract)
 
 
-def test_model_delete_by_id():
+def test_modelversion_delete_by_id():
     cluster = create_test_cluster()
-    ModelVersion.delete_by_id(cluster, id_=420)
+
+    local_model = create_test_local_model("linear_regression_prod")
+
+    progress = local_model.upload(create_test_cluster())
+
+    while progress[local_model].building():
+        pass
+
+    ModelVersion.delete_by_model_id(cluster=cluster, model_id=progress[local_model].modelversion.model_id)
+
+    with pytest.raises(ModelVersion.NotFound):
+        ModelVersion.find(cluster=cluster, name=progress[local_model].modelversion.name, version=progress[local_model].modelversion.version)
 
 
 def test_resolve_paths():

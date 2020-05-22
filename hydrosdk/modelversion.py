@@ -327,25 +327,25 @@ class ModelVersion(Metricable):
     BASE_URL = "/api/v2/model"
 
     @staticmethod
-    def find_by_name_id(cluster: Cluster, name: str, id_) -> 'ModelVersion':
+    def find(cluster: Cluster, name: str, version: int) -> 'ModelVersion':
         """
-        Finds a model on server by name and model version
+        Finds a model on server by name and version (not ModelVersion!)
 
         :param cluster: active cluster
         :param name: model name
-        :param id_: model version
+        :param version: version
         :raises Exception: if server returned not 200
         :return: ModelVersion obj
         """
-        resp = cluster.request("GET", ModelVersion.BASE_URL + "/version/{}/{}".format(name, id_))
+        resp = cluster.request("GET", ModelVersion.BASE_URL + "/version/{}/{}".format(name, version))
 
         if resp.ok:
             model_json = resp.json()
             return ModelVersion.from_json(cluster=cluster, model_version=model_json)
 
         else:
-            raise Exception(
-                f"Failed to find Model for name={name}, version={id_} . {resp.status_code} {resp.text}")
+            raise ModelVersion.NotFound(
+                f"Failed to find ModelVersion for name={name}, version={version} . {resp.status_code} {resp.text}")
 
     @staticmethod
     def find_by_id(cluster: Cluster, id_) -> 'ModelVersion':
@@ -364,7 +364,7 @@ class ModelVersion(Metricable):
                 if model_json['id'] == id_:
                     return ModelVersion.from_json(cluster=cluster, model_version=model_json)
 
-        raise Exception(
+        raise ModelVersion.NotFound(
             f"Failed to find_by_id ModelVersion for model_version_id={id_}. {resp.status_code} {resp.text}")
 
     @staticmethod
@@ -377,6 +377,7 @@ class ModelVersion(Metricable):
         """
         id_ = model_version["id"]
         name = model_version["model"]["name"]
+        model_id = model_version["model"]["id"]
         version = model_version["modelVersion"]
         model_contract = contract_dict_to_ModelContract(model_version["modelContract"])
 
@@ -396,6 +397,7 @@ class ModelVersion(Metricable):
 
         return ModelVersion(
             id=id_,
+            model_id=model_id,
             name=name,
             version=version,
             contract=model_contract,
@@ -428,21 +430,22 @@ class ModelVersion(Metricable):
             resp_json = resp.json()
             mv_obj = ModelVersion.from_json(cluster=cluster, model_version=resp_json)
             return mv_obj
-        raise Exception(
+        raise ModelVersion.BadRequest(
             f"Failed to create external model. External model = {model}. {resp.status_code} {resp.text}")
 
     @staticmethod
-    def delete_by_id(cluster: Cluster, id_):
+    def delete_by_model_id(cluster: Cluster, model_id: int) -> dict:
         """
-        Deletes model by id
+        Deletes modelversion by model id
         :param cluster: active cluster
-        :param id_: model version id
+        :param model_id: model version id
         :return: if 200, json. Otherwise None
         """
-        res = cluster.request("DELETE", ModelVersion.BASE_URL + "/{}".format(id_))
+        res = cluster.request("DELETE", ModelVersion.BASE_URL + "/{}".format(model_id))
         if res.ok:
             return res.json()
-        return None
+
+        raise ModelVersion.BadRequest(f"Failed to list delete by id modelversions. {res.status_code} {res.text}")
 
     @staticmethod
     def list_models(cluster) -> list:
@@ -464,7 +467,7 @@ class ModelVersion(Metricable):
                 models.append(model)
             return models
 
-        raise Exception(
+        raise ModelVersion.BadResponse(
             f"Failed to list model versions. {resp.status_code} {resp.text}")
 
     @staticmethod
@@ -500,11 +503,13 @@ class ModelVersion(Metricable):
             image_sha=self.image.sha256
         )
 
-    def __init__(self, id, name, version, contract, cluster: Cluster, runtime=None, image=None,
-                 status=None, metadata=None, install_command=None):
+    def __init__(self, id: int, model_id: int, name: str, version: int, contract: ModelContract, cluster: Cluster,
+                 status: Optional[ModelStatus], image: Optional[dict],
+                 runtime: DockerImage, metadata: dict = None, install_command: str = None):
         super().__init__()
 
         self.id = id
+        self.model_id = model_id
         self.name = name
         self.runtime = runtime
         self.contract = contract
@@ -518,7 +523,16 @@ class ModelVersion(Metricable):
         self.install_command = install_command
 
     def __repr__(self):
-        return "Model {}:{}".format(self.name, self.version)
+        return "ModelVersion {}:{}".format(self.name, self.version)
+
+    class NotFound(Exception):
+        pass
+
+    class BadRequest(Exception):
+        pass
+
+    class BadResponse(Exception):
+        pass
 
 
 class UploadResponse:
@@ -548,8 +562,8 @@ class UploadResponse:
         :raises StopIteration: If something went wrong with iteration over logs
         :return: None
         """
-        self.modelversion = ModelVersion.find_by_name_id(self.cluster, self.modelversion.name,
-                                                         self.modelversion.version)
+        self.modelversion = ModelVersion.find(self.cluster, self.modelversion.name,
+                                              self.modelversion.version)
 
     def get_status(self):
         """
