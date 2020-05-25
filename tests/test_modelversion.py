@@ -26,7 +26,8 @@ def create_test_contract(signature=None):
     return ModelContract(predict=signature)
 
 
-def create_test_local_model(name="upload-model-test", contract=None, payload=None, path=None):
+def create_test_local_model(name="upload-model-test", contract=None, payload=None,
+                            path=None, install_command=None):
     if payload is None:
         payload = create_test_payload()
 
@@ -38,7 +39,8 @@ def create_test_local_model(name="upload-model-test", contract=None, payload=Non
         contract=contract,
         runtime=DockerImage("hydrosphere/serving-runtime-python-3.6", "2.1.0", None),
         payload=payload,
-        path=path  # build programmatically
+        path=path,  # build programmatically
+        install_command=install_command
     )
 
     return local_model
@@ -127,6 +129,32 @@ def test_local_model_upload():
     assert upload_response_obj
 
 
+def test_local_model_upload_one_failed_wait_true():
+    # mock answer from server
+    # check that correct JSON is sent to cluster
+
+    m1 = create_test_local_model("linear_regression_1").as_metric(threshold=100, comparator=TresholdCmpOp.GREATER_EQ)
+    m2 = create_test_local_model("linear_regression_2").as_metric(threshold=100, comparator=TresholdCmpOp.LESS_EQ)
+
+    failed_model = create_test_local_model(name="linear_regression_prod",
+                                           install_command="exit 1").with_metrics([m1, m2])
+
+    with pytest.raises(ModelVersion.BadRequest):
+        failed_model.upload(cluster=create_test_cluster(), wait=True)
+
+def test_local_model_upload_one_failed_wait_false():
+    # mock answer from server
+    # check that correct JSON is sent to cluster
+
+    m1 = create_test_local_model("linear_regression_1").as_metric(threshold=100, comparator=TresholdCmpOp.GREATER_EQ)
+    m2 = create_test_local_model("linear_regression_2").as_metric(threshold=100, comparator=TresholdCmpOp.LESS_EQ)
+
+    failed_model = create_test_local_model(name="linear_regression_prod",
+                                           install_command="exit 1").with_metrics([m1, m2])
+
+    assert failed_model.upload(cluster=create_test_cluster(), wait=False)
+
+
 @pytest.mark.skip("IMPLEMENT LATER")
 def test_upload_fail():
     pass
@@ -199,7 +227,8 @@ def test_modelversion_delete_by_id():
     ModelVersion.delete_by_model_id(cluster=cluster, model_id=upload_response_obj.modelversion.model_id)
 
     with pytest.raises(ModelVersion.NotFound):
-        ModelVersion.find(cluster=cluster, name=upload_response_obj.modelversion.name, version=upload_response_obj.modelversion.version)
+        ModelVersion.find(cluster=cluster, name=upload_response_obj.modelversion.name,
+                          version=upload_response_obj.modelversion.version)
 
 
 def test_resolve_paths():

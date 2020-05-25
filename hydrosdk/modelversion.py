@@ -275,16 +275,26 @@ class LocalModel(Metricable):
         :param wait: wait till model version is released
         :return: {model_obj: upload_resp}
         """
+
+        # TODO divide into two different methods, more details @kmakarychev
         root_model_upload_response = self.__upload(cluster)
-        if wait:
-            root_model_upload_response.lock_till_released()
+
+        # if wait flag == True and uploading failed we raise an error, otherwise continue execution
+        if not root_model_upload_response.lock_till_released() and wait:
+            raise ModelVersion.BadRequest(
+                (f"Model version {root_model_upload_response.modelversion.id} has upload status: "
+                 f"{ModelVersionStatus.Failed.value}"))
 
         models_dict = {self: root_model_upload_response}
         if self.metrics:
             for metric in self.metrics:
                 upload_response = metric.model.__upload(cluster)
-                if wait:
-                    upload_response.lock_till_released()
+
+                # if wait flag == True and uploading failed we raise an error, otherwise continue execution
+                if not upload_response.lock_till_released() and wait:
+                    raise ModelVersion.BadRequest(
+                        (f"Model version {upload_response.modelversion.id} has upload status: "
+                         f"{ModelVersionStatus.Failed.value}"))
 
                 msc = MetricSpecConfig(model_version_id=upload_response.modelversion.id,
                                        threshold=metric.threshold,
@@ -587,15 +597,19 @@ class UploadResponse:
         return self.get_status() == ModelVersionStatus.Assembling
 
     # TODO: Add logging
-    def lock_till_released(self) -> None:
+    def lock_till_released(self) -> bool:
         """
         Waits till the model is released
-
+        :raises ModelVersion.BadRequest: if model upload fails
         :return:
         """
         for event in self.sse_client.events():
             if event.event == "ModelUpdate":
                 data = json.loads(event.data)
 
-                if data.get("id") == self.modelversion.id and data.get("status") != ModelVersionStatus.Assembling.value:
-                    break
+                if data.get("id") == self.modelversion.id:
+                    status = data.get("status")
+                    if status == ModelVersionStatus.Failed.value:
+                        return False
+                    elif status == ModelVersionStatus.Released.value:
+                        return True
