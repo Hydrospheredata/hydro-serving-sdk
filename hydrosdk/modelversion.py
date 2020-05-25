@@ -461,19 +461,19 @@ class ModelVersion(Metricable):
             f"Failed to list model versions. {resp.status_code} {resp.text}")
 
     @staticmethod
-    def list_models_by_model_name(cluster, model_name: str) -> list:
+    def list_modelversions_by_model_name(cluster: Cluster, model_name: str) -> list:
         """
-        List all models on server filtered by model_name, sorted in ascending order by version
+        List all model versions on server filtered by model_name, sorted in ascending order by version
 
         :param cluster: active cluster
         :param model_name: model name
-        :return: list of Models for provided model name
+        :return: list of Models versions for provided model name
         """
         all_models = ModelVersion.list_model_versions(cluster=cluster)
 
-        models_by_name = [model for model in all_models if model.name == model_name]
+        modelversions_by_name = [model for model in all_models if model.name == model_name]
 
-        sorted_by_version = sorted(models_by_name, key=lambda model: model.version)
+        sorted_by_version = sorted(modelversions_by_name, key=lambda model: model.version)
 
         return sorted_by_version
 

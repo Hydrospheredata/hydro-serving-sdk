@@ -284,7 +284,7 @@ def test_list_models_by_model_name():
     upload_response2 = loc_model2._LocalModel__upload(cluster)
     upload_response3 = loc_model3._LocalModel__upload(cluster)
 
-    found_modelversions = ModelVersion.list_models_by_model_name(cluster, upload_response1.modelversion.name)
+    found_modelversions = ModelVersion.list_modelversions_by_model_name(cluster, upload_response1.modelversion.name)
 
     assert found_modelversions
     assert len(found_modelversions) == 2
