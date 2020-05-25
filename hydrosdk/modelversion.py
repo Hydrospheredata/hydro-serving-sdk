@@ -143,18 +143,6 @@ class LocalModel(Metricable):
         pass
 
     @staticmethod
-    def model_json_to_upload_response(cluster, model_json):
-        """
-        Deserialize model json into UploadResponse object
-
-        :param cluster:
-        :param model_json:
-        :return: UploadResponse obj
-        """
-        modelversion = ModelVersion.from_json(cluster, model_json)
-        return UploadResponse(modelversion=modelversion)
-
-    @staticmethod
     def from_file(path):
         """
         Reads model definition from .yaml file or serving.py
@@ -228,7 +216,7 @@ class LocalModel(Metricable):
     def __repr__(self):
         return "LocalModel {}".format(self.name)
 
-    def __upload(self, cluster):
+    def __upload(self, cluster: Cluster) -> 'UploadResponse':
         """
         Direct implementation of uploading one model to the server. For internal usage
 
@@ -237,6 +225,10 @@ class LocalModel(Metricable):
         :return: UploadResponse obj
         """
         logger = logging.getLogger("ModelDeploy")
+
+        events_response = cluster.request("GET", "/api/v2/events", stream=True)
+        sse_client = sseclient.SSEClient(events_response)
+
         now_time = datetime.datetime.now()
         hs_folder = ".hs"
         os.makedirs(hs_folder, exist_ok=True)
@@ -269,25 +261,30 @@ class LocalModel(Metricable):
                                  data=encoder,
                                  headers={'Content-Type': encoder.content_type})
         if result.ok:
-            json_res = result.json()
-            return LocalModel.model_json_to_upload_response(cluster=cluster, model_json=json_res)
+            model_version_json = result.json()
+
+            modelversion = ModelVersion.from_json(cluster=cluster, model_version=model_version_json)
+            return UploadResponse(modelversion=modelversion, sse_client=sse_client)
         else:
             raise ValueError("Error during model upload. {}".format(result.text))
 
-    def upload(self, cluster) -> dict:
+    def upload(self, cluster: Cluster, wait: bool = True) -> dict:
         """
         Uploads Local Model
         :param cluster: active cluster
+        :param wait: wait till model version is released
         :return: {model_obj: upload_resp}
         """
         root_model_upload_response = self.__upload(cluster)
-        root_model_upload_response.lock_till_released()
+        if wait:
+            root_model_upload_response.lock_till_released()
 
         models_dict = {self: root_model_upload_response}
         if self.metrics:
             for metric in self.metrics:
                 upload_response = metric.model.__upload(cluster)
-                upload_response.lock_till_released()
+                if wait:
+                    upload_response.lock_till_released()
 
                 msc = MetricSpecConfig(model_version_id=upload_response.modelversion.id,
                                        threshold=metric.threshold,
@@ -303,7 +300,7 @@ class LocalModel(Metricable):
         return models_dict
 
 
-class ModelStatus(Enum):
+class ModelVersionStatus(Enum):
     """
     Model building statuses
     """
@@ -387,7 +384,7 @@ class ModelVersion(Metricable):
 
         status = model_version.get('status')
         if status:
-            status = ModelStatus[status]
+            status = ModelVersionStatus[status]
         metadata = model_version['metadata']
 
         return ModelVersion(
@@ -497,7 +494,7 @@ class ModelVersion(Metricable):
         )
 
     def __init__(self, id: int, model_id: int, name: str, version: int, contract: ModelContract, cluster: Cluster,
-                 status: Optional[ModelStatus], image: Optional[dict],
+                 status: Optional[ModelVersionStatus], image: Optional[dict],
                  runtime: DockerImage, metadata: dict = None, install_command: str = None):
         super().__init__()
 
@@ -536,9 +533,10 @@ class UploadResponse:
     Check the build logs using `logs()`
     """
 
-    def __init__(self, modelversion: ModelVersion):
+    def __init__(self, modelversion: ModelVersion, sse_client: sseclient.SSEClient):
         self.cluster = modelversion.cluster
         self.modelversion = modelversion
+        self.sse_client = sse_client
 
     def logs(self):
         """
@@ -572,21 +570,21 @@ class UploadResponse:
         Checks current status and returns if it is not ok
         :return: if not uploaded
         """
-        return self.get_status() == ModelStatus.Failed
+        return self.get_status() == ModelVersionStatus.Failed
 
     def ok(self) -> bool:
         """
         Checks current status and returns if it is ok
         :return: if uploaded
         """
-        return self.get_status() == ModelStatus.Released
+        return self.get_status() == ModelVersionStatus.Released
 
     def building(self) -> bool:
         """
         Checks current status and returns if it is building
         :return: if building
         """
-        return self.get_status() == ModelStatus.Assembling
+        return self.get_status() == ModelVersionStatus.Assembling
 
     # TODO: Add logging
     def lock_till_released(self) -> None:
@@ -595,11 +593,9 @@ class UploadResponse:
 
         :return:
         """
-        response = self.cluster.request("GET", "/api/v2/events", stream=True)
-        client = sseclient.SSEClient(response)
-
-        for event in client.events():
+        for event in self.sse_client.events():
             if event.event == "ModelUpdate":
                 data = json.loads(event.data)
-                if data.get("id") == self.modelversion.id and data.get("status") == ModelStatus.Released.value:
+
+                if data.get("id") == self.modelversion.id and data.get("status") == ModelVersionStatus.Released.value:
                     break
