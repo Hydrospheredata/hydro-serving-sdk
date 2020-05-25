@@ -597,5 +597,5 @@ class UploadResponse:
             if event.event == "ModelUpdate":
                 data = json.loads(event.data)
 
-                if data.get("id") == self.modelversion.id and data.get("status") == ModelVersionStatus.Released.value:
+                if data.get("id") == self.modelversion.id and data.get("status") != ModelVersionStatus.Assembling.value:
                     break
