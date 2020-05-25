@@ -4,7 +4,7 @@ import logging
 import os
 import tarfile
 from enum import Enum
-from typing import Optional
+from typing import Optional, List
 
 import sseclient
 import yaml
@@ -286,7 +286,7 @@ class LocalModel(Metricable):
         models_dict = {self: root_model_upload_response}
         if self.metrics:
             for metric in self.metrics:
-                upload_response = metric.modelversion.__upload(cluster)
+                upload_response = metric.model.__upload(cluster)
                 upload_response.lock_till_released()
 
                 msc = MetricSpecConfig(model_version_id=upload_response.modelversion.id,
@@ -443,24 +443,22 @@ class ModelVersion(Metricable):
         raise ModelVersion.BadRequest(f"Failed to list delete by id modelversions. {res.status_code} {res.text}")
 
     @staticmethod
-    def list_models(cluster) -> list:
+    def list_model_versions(cluster) -> List['ModelVersion']:
         """
-        List all models on server
+        List all model versions on server
 
         :param cluster: active cluster
-        :return: list of extModel and Model
+        :return: list of modelversions
         """
         resp = cluster.request("GET", ModelVersion.BASE_URL + "/version")
 
         if resp.ok:
             model_versions_json = resp.json()
 
-            models = []
+            model_versions = [ModelVersion.from_json(cluster=cluster, model_version=model_version_json)
+                              for model_version_json in model_versions_json]
 
-            for model_version_json in model_versions_json:
-                model = ModelVersion.from_json(cluster=cluster, model_version=model_version_json)
-                models.append(model)
-            return models
+            return model_versions
 
         raise ModelVersion.BadResponse(
             f"Failed to list model versions. {resp.status_code} {resp.text}")
@@ -474,7 +472,7 @@ class ModelVersion(Metricable):
         :param model_name: model name
         :return: list of Models for provided model name
         """
-        all_models = ModelVersion.list_models(cluster=cluster)
+        all_models = ModelVersion.list_model_versions(cluster=cluster)
 
         models_by_name = [model for model in all_models if model.name == model_name]
 

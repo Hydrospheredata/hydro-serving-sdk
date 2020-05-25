@@ -146,7 +146,7 @@ def test_model_list():
     upload_responses_dict = local_model.upload(create_test_cluster())
     upload_response_obj = upload_responses_dict[local_model]
 
-    res_list = ModelVersion.list_models(cluster)
+    res_list = ModelVersion.list_model_versions(cluster)
 
     assert res_list
 

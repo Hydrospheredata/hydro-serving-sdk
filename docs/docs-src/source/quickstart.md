@@ -34,7 +34,7 @@ Now that you have established a connection to Hydrosphere platform via Cluster o
 from hydrosdk.modelversion import ModelVersion
 
 # Print out model names and versions
-for modelversion in ModelVersion.list_models(cluster=cluster):
+for modelversion in ModelVersion.list_model_versions(cluster=cluster):
     print(modelversion)
 ```
 
