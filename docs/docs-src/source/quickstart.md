@@ -31,11 +31,11 @@ Now that you have established a connection to Hydrosphere platform via Cluster o
  The following lists all model versions deployed to your platform and prints their information:
  
  ```python
-from hydrosdk.model import Model
+from hydrosdk.modelversion import ModelVersion
 
 # Print out model names and versions
-for model in Model.list_models(cluster=cluster):
-    print(model)
+for modelversion in ModelVersion.list_model_versions(cluster=cluster):
+    print(modelversion)
 ```
 
 It's also easy to send data to your deployed models.

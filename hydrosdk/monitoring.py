@@ -45,8 +45,9 @@ class MetricSpec:
     BASE_URL = "/api/v2/monitoring/metricspec"
     GET_SPEC_URL = BASE_URL + "/"
 
+# FIXME: if modelversion upload failed it would not have a servable and will fail here (try runnning fail_upload tests before monitoring tests in tests_modelversions)
     @staticmethod
-    def __parse_json(cluster, json_dict):
+    def __parse_json(cluster: Cluster, json_dict: dict) -> 'MetricSpec':
         """
         Deserialize metric spec from json
 

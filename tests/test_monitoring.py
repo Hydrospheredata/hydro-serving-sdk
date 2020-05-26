@@ -5,7 +5,7 @@ import pytest
 from hydrosdk.cluster import Cluster
 from hydrosdk.monitoring import MetricSpec, MetricSpecConfig, TresholdCmpOp
 from tests.resources.test_config import HTTP_CLUSTER_ENDPOINT
-from tests.test_model import create_test_local_model
+from tests.test_modelversion import create_test_local_model
 
 
 @pytest.fixture
@@ -16,15 +16,15 @@ def cluster():
 def test_create(cluster):
     model1 = create_test_local_model()
     model2 = create_test_local_model()
-    upload_resp1 = model1._LocalModel__upload(cluster)
-    upload_resp2 = model2._LocalModel__upload(cluster)
-    time.sleep(10)
-    ms_config = MetricSpecConfig(upload_resp2.model.id, 10, TresholdCmpOp.NOT_EQ)
-    result = MetricSpec.create(cluster, "test", upload_resp1.model.id, ms_config)
+    upload_resp1 = model1.upload(cluster)
+    upload_resp2 = model2.upload(cluster)
+
+    ms_config = MetricSpecConfig(upload_resp2[model2].modelversion.id, 10, TresholdCmpOp.NOT_EQ)
+    result = MetricSpec.create(cluster, "test", upload_resp1[model1].modelversion.id, ms_config)
     assert isinstance(result, MetricSpec)
     assert result.name == "test"
     assert result.cluster == cluster
-    assert result.model_version_id == upload_resp1.model.id
+    assert result.model_version_id == upload_resp1[model1].modelversion.id
 
 
 def test_list_all(cluster):
