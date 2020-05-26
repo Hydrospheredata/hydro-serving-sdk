@@ -384,11 +384,13 @@ class ModelVersion(Metricable):
         model_contract = contract_dict_to_ModelContract(model_version["modelContract"])
 
         # external model deserialization handling
-        if not model_version.get("runtime"):
-            model_version["runtime"] = {}
+        is_external = model_version.get('isExternal', False)
+        if is_external:
+            model_runtime = None
+        else:
+            model_runtime = DockerImage(model_version["runtime"]["name"], model_version["runtime"]["tag"],
+                                        model_version["runtime"].get("sha256"))
 
-        model_runtime = DockerImage(model_version["runtime"].get("name"), model_version["runtime"].get("tag"),
-                                    model_version["runtime"].get("sha256"))
         model_image = model_version.get("image")
         model_cluster = cluster
 
@@ -400,6 +402,7 @@ class ModelVersion(Metricable):
         return ModelVersion(
             id=id_,
             model_id=model_id,
+            is_external=is_external,
             name=name,
             version=version,
             contract=model_contract,
@@ -505,13 +508,14 @@ class ModelVersion(Metricable):
 
     def __init__(self, id: int, model_id: int, name: str, version: int, contract: ModelContract, cluster: Cluster,
                  status: Optional[ModelVersionStatus], image: Optional[dict],
-                 runtime: DockerImage, metadata: dict = None, install_command: str = None):
+                 runtime: Optional[DockerImage], is_external: bool, metadata: dict = None, install_command: str = None):
         super().__init__()
 
         self.id = id
         self.model_id = model_id
         self.name = name
         self.runtime = runtime
+        self.is_external = is_external
         self.contract = contract
         self.cluster = cluster
         self.version = version

@@ -241,7 +241,7 @@ def test_resolve_paths():
     result = resolve_paths(folder, payload)
     assert result['/home/user/dev/model/cool/src/func_main.py'] == './src/func_main.py'
 
-
+# FIXME: second model_json is of Model Modelversion but does not have runtime, so the test_model_json_parser fails
 MODEL_JSONS = [
     {'applications': [],
      'model': {'id': 1, 'name': 'ext-model-test'},
@@ -293,7 +293,7 @@ MODEL_JSONS = [
      }
 ]
 
-
+# FIXME: second model_json is of Model Modelversion but does not have runtime, so the test_model_json_parser fails
 @pytest.mark.parametrize('input', MODEL_JSONS)
 @pytest.mark.parametrize('cluster', [Cluster(HTTP_CLUSTER_ENDPOINT)])
 def test_model_json_parser(cluster, input):
