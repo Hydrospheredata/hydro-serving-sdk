@@ -133,8 +133,8 @@ def test_local_model_upload_one_failed_wait_true():
     # mock answer from server
     # check that correct JSON is sent to cluster
 
-    m1 = create_test_local_model("linear_regression_1").as_metric(threshold=100, comparator=TresholdCmpOp.GREATER_EQ)
-    m2 = create_test_local_model("linear_regression_2").as_metric(threshold=100, comparator=TresholdCmpOp.LESS_EQ)
+    m1 = create_test_local_model("linear_regression_3").as_metric(threshold=100, comparator=TresholdCmpOp.GREATER_EQ)
+    m2 = create_test_local_model("linear_regression_4").as_metric(threshold=100, comparator=TresholdCmpOp.LESS_EQ)
 
     failed_model = create_test_local_model(name="linear_regression_prod",
                                            install_command="exit 1").with_metrics([m1, m2])
@@ -146,8 +146,8 @@ def test_local_model_upload_one_failed_wait_false():
     # mock answer from server
     # check that correct JSON is sent to cluster
 
-    m1 = create_test_local_model("linear_regression_1").as_metric(threshold=100, comparator=TresholdCmpOp.GREATER_EQ)
-    m2 = create_test_local_model("linear_regression_2").as_metric(threshold=100, comparator=TresholdCmpOp.LESS_EQ)
+    m1 = create_test_local_model("linear_regression_5").as_metric(threshold=100, comparator=TresholdCmpOp.GREATER_EQ)
+    m2 = create_test_local_model("linear_regression_6").as_metric(threshold=100, comparator=TresholdCmpOp.LESS_EQ)
 
     failed_model = create_test_local_model(name="linear_regression_prod",
                                            install_command="exit 1").with_metrics([m1, m2])
@@ -241,7 +241,7 @@ def test_resolve_paths():
     result = resolve_paths(folder, payload)
     assert result['/home/user/dev/model/cool/src/func_main.py'] == './src/func_main.py'
 
-
+# FIXME: second model_json is of Model Modelversion but does not have runtime, so the test_model_json_parser fails
 MODEL_JSONS = [
     {'applications': [],
      'model': {'id': 1, 'name': 'ext-model-test'},
@@ -293,7 +293,7 @@ MODEL_JSONS = [
      }
 ]
 
-
+# FIXME: second model_json is of Model Modelversion but does not have runtime, so the test_model_json_parser fails
 @pytest.mark.parametrize('input', MODEL_JSONS)
 @pytest.mark.parametrize('cluster', [Cluster(HTTP_CLUSTER_ENDPOINT)])
 def test_model_json_parser(cluster, input):

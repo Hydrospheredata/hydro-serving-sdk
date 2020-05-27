@@ -10,14 +10,16 @@ from tests.test_modelversion import create_test_cluster, create_test_local_model
 
 
 def create_test_application(cluster, upload_response: dict = None, local_model=None):
-    if not local_model and not upload_response:
-        local_model = create_test_local_model()
-        upload_response = local_model.upload(cluster=cluster)
-
     with open(os.path.dirname(os.path.abspath(__file__)) + '/resources/application.yml') as f:
         d = yaml.safe_load(f)
         app = Application.parse_application(d)
         app_as_dict = app._asdict()
+
+        if not local_model and not upload_response:
+            # name of model in applcation.yml should match model name in app_as_dict
+            local_model = create_test_local_model(name=app_as_dict['name'])
+            upload_response = local_model.upload(cluster=cluster)
+
         app_as_dict["executionGraph"]["stages"][0]["modelVariants"][0]["modelVersionId"] = upload_response[
             local_model].modelversion.version
 
