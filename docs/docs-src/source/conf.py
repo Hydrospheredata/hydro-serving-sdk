@@ -74,13 +74,13 @@ html_theme = "sphinx_rtd_theme"
 html_logo = '_static/logo_white.svg'
 html_favicon = '_static/favicon.svg'
 
-html_theme_options = {
-    "github_url": "https://github.com/Hydrospheredata",
-    "twitter_url": "https://twitter.com/Hydrospheredata",
-    "external_links": [
-        {"name": "gitter", "url": "https://gitter.im/Hydrospheredata/hydro-serving"},
-    ]
-}
+# html_theme_options = {
+#     "github_url": "https://github.com/Hydrospheredata",
+#     "twitter_url": "https://twitter.com/Hydrospheredata",
+#     "external_links": [
+#         {"name": "gitter", "url": "https://gitter.im/Hydrospheredata/hydro-serving"},
+#     ]
+# }
 
 github_url = "https://github.com/Hydrospheredata/hydro-serving-sdk"
 

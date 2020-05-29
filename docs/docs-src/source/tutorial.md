@@ -71,7 +71,7 @@ sqrt_local_model = LocalModel(name="sqrt_model",
 
 After packing all necessary information into LocalModel, we finally can upload it.
 ```python
-upload_response = sqrt_local_model._LocalModel__upload(cluster)
+upload_response = sqrt_local_model.upload(cluster, wait=True)
 ```
 
 Let's check whether our model was successfuly uploaded to the platform by looking for it by id returned in `upload_response`.
@@ -129,7 +129,7 @@ monitoring_model = LocalModel(name="multiplication_model",
                          runtime=DockerImage("hydrosphere/serving-runtime-python-3.6", "2.1.0", None),
                          payload=payload)
 
-monitoring_upload_response = monitoring_model._LocalModel__upload(cluster)
+monitoring_upload_response = monitoring_model.upload(cluster, wait=True)
 ```
 
 Check that model is uploaded successfully:

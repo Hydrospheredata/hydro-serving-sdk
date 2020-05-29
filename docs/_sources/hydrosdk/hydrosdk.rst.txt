@@ -11,7 +11,7 @@ hydrosdk package
    hydrosdk.exceptions
    hydrosdk.host_selector
    hydrosdk.image
-   hydrosdk.model
+   hydrosdk.modelversion
    hydrosdk.monitoring
    hydrosdk.predictor
    hydrosdk.servable

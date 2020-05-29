@@ -8,8 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>hydrosdk.servable module &mdash; hydrosdk 2.3.0
- documentation</title>
+  <title>hydrosdk.servable module &mdash; hydrosdk 2.3.0 documentation</title>
   
 
   
@@ -67,7 +66,6 @@
             
               <div class="version">
                 2.3.0
-
               </div>
             
           
@@ -93,8 +91,7 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../whats_new.html">What’s new in 2.3.0
-</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whats_new.html">What’s new in 2.3.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Sample tutorial</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="hydrosdk.html">hydrosdk package</a><ul class="current">
@@ -105,7 +102,7 @@
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.exceptions.html">hydrosdk.exceptions module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.host_selector.html">hydrosdk.host_selector module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.image.html">hydrosdk.image module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="hydrosdk.model.html">hydrosdk.model module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hydrosdk.modelversion.html">hydrosdk.modelversion module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.monitoring.html">hydrosdk.monitoring module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.predictor.html">hydrosdk.predictor module</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">hydrosdk.servable module</a></li>
@@ -190,7 +187,7 @@ You can learn more about Servables here <a class="reference external" href="http
 </dl>
 <dl class="py class">
 <dt id="hydrosdk.servable.Servable">
-<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.servable.</code><code class="sig-name descname">Servable</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cluster</span></em>, <em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">servable_name</span></em>, <em class="sig-param"><span class="n">status</span></em>, <em class="sig-param"><span class="n">status_message</span></em>, <em class="sig-param"><span class="n">metadata</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.servable.Servable" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.servable.</code><code class="sig-name descname">Servable</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cluster</span></em>, <em class="sig-param"><span class="n">modelversion</span></em>, <em class="sig-param"><span class="n">servable_name</span></em>, <em class="sig-param"><span class="n">status</span></em>, <em class="sig-param"><span class="n">status_message</span></em>, <em class="sig-param"><span class="n">metadata</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.servable.Servable" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>Servable is an instance of a model version which could be used in application or by itself as it exposes various endpoints to your model</dt><dd><p>version: HTTP, gRPC, and Kafka.</p>
 </dd>
@@ -198,14 +195,14 @@ You can learn more about Servables here <a class="reference external" href="http
 <p>You can find more about Servables in the documentation <a class="reference external" href="https://hydrosphere.io/serving-docs/latest/overview/concepts.html#servable">https://hydrosphere.io/serving-docs/latest/overview/concepts.html#servable</a></p>
 <dl class="py method">
 <dt id="hydrosdk.servable.Servable.create">
-<em class="property">static </em><code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cluster</span><span class="p">:</span> <span class="n"><a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster">hydrosdk.cluster.Cluster</a></span></em>, <em class="sig-param"><span class="n">model_name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">model_version</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">metadata</span><span class="p">:</span> <span class="n">Dict<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#hydrosdk.servable.Servable" title="hydrosdk.servable.Servable">hydrosdk.servable.Servable</a><a class="headerlink" href="#hydrosdk.servable.Servable.create" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cluster</span><span class="p">:</span> <span class="n"><a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster">hydrosdk.cluster.Cluster</a></span></em>, <em class="sig-param"><span class="n">model_name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">version</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">metadata</span><span class="p">:</span> <span class="n">Dict<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#hydrosdk.servable.Servable" title="hydrosdk.servable.Servable">hydrosdk.servable.Servable</a><a class="headerlink" href="#hydrosdk.servable.Servable.create" title="Permalink to this definition">¶</a></dt>
 <dd><p>Deploy an instance of uploaded model version at your cluster.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>cluster</strong> – Cluster connected to Hydrosphere</p></li>
 <li><p><strong>model_name</strong> – Name of uploaded model</p></li>
-<li><p><strong>model_version</strong> – Version of uploaded model</p></li>
+<li><p><strong>version</strong> – Version of uploaded model</p></li>
 <li><p><strong>metadata</strong> – Information which you can attach to your servable in form of Dict[str, str]</p></li>
 </ul>
 </dd>

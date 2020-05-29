@@ -60,7 +60,7 @@ specify environment in which our model will run. Such environments are called Ru
 In this tutorial we will use default Python 3.6 runtime. This runtime uses `src/func_main.py` script as an entry point, that's why
 we organised our files as we did.
 ```python
-from hydrosdk.model import LocalModel
+from hydrosdk.modelversion import LocalModel
 from hydrosdk.image import DockerImage
 
 sqrt_local_model = LocalModel(name="sqrt_model",
@@ -71,12 +71,12 @@ sqrt_local_model = LocalModel(name="sqrt_model",
 
 After packing all necessary information into LocalModel, we finally can upload it.
 ```python
-upload_response = sqrt_local_model._LocalModel__upload(cluster)
+upload_response = sqrt_local_model.upload(cluster, wait=True)
 ```
 
 Let's check whether our model was successfuly uploaded to the platform by looking for it by id returned in `upload_response`.
 ```python
-from hydrosdk.model import ModelVersion
+from hydrosdk.modelversion import ModelVersion
 sqrt_model = ModelVersion.find_by_id(cluster, upload_response.modelversion.id)
 ```
 
@@ -129,7 +129,7 @@ monitoring_model = LocalModel(name="multiplication_model",
                          runtime=DockerImage("hydrosphere/serving-runtime-python-3.6", "2.1.0", None),
                          payload=payload)
 
-monitoring_upload_response = monitoring_model._LocalModel__upload(cluster)
+monitoring_upload_response = monitoring_model.upload(cluster, wait=True)
 ```
 
 Check that model is uploaded successfully:

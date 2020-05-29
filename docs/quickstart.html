@@ -8,8 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Quickstart &mdash; hydrosdk 2.3.0
- documentation</title>
+  <title>Quickstart &mdash; hydrosdk 2.3.0 documentation</title>
   
 
   
@@ -67,7 +66,6 @@
             
               <div class="version">
                 2.3.0
-
               </div>
             
           
@@ -93,8 +91,7 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="whats_new.html">What’s new in 2.3.0
-</a></li>
+<li class="toctree-l1"><a class="reference internal" href="whats_new.html">What’s new in 2.3.0</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Quickstart</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#using-hydrosdk">Using hydrosdk</a></li>
@@ -198,11 +195,11 @@ creating a Cluster object.</p>
 </div>
 <p>Now that you have established a connection to Hydrosphere platform via Cluster object, you can make manage your cluster.
 The following lists all model versions deployed to your platform and prints their information:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">hydrosdk.model</span> <span class="kn">import</span> <span class="n">Model</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">hydrosdk.modelversion</span> <span class="kn">import</span> <span class="n">ModelVersion</span>
 
 <span class="c1"># Print out model names and versions</span>
-<span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">Model</span><span class="o">.</span><span class="n">list_models</span><span class="p">(</span><span class="n">cluster</span><span class="o">=</span><span class="n">cluster</span><span class="p">):</span>
-   <span class="k">print</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">modelversion</span> <span class="ow">in</span> <span class="n">ModelVersion</span><span class="o">.</span><span class="n">list_model_versions</span><span class="p">(</span><span class="n">cluster</span><span class="o">=</span><span class="n">cluster</span><span class="p">):</span>
+   <span class="k">print</span><span class="p">(</span><span class="n">modelversion</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>It’s also easy to send data to your deployed models.
