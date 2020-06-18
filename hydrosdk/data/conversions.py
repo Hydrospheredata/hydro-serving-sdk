@@ -50,7 +50,10 @@ def nparray_to_tensor_proto(x: np.array):
     :param x:
     :return:
     """
-    proto_dtype = NP_TO_HS_DTYPE[x.dtype.type]
+    proto_dtype = NP_TO_HS_DTYPE.get(x.dtype.type)
+    if proto_dtype is None:
+        raise ValueError(f"Couldn't convert numpy dtype {x.dtype.type} to one of available TensorProto dtypes")
+
     kwargs = {
         DTYPE_TO_FIELDNAME[proto_dtype]: x.flatten(),
         "dtype": proto_dtype,
