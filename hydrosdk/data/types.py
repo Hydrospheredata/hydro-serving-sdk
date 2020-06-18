@@ -129,7 +129,7 @@ def shape_to_proto(user_shape):
         shape = TensorShapeProto()
     elif user_shape is None:
         shape = None
-    elif isinstance(user_shape, list):
+    elif isinstance(user_shape, list) or isinstance(user_shape, tuple):
         dims = []
         for dim in user_shape:
             if not isinstance(dim, numbers.Number):
