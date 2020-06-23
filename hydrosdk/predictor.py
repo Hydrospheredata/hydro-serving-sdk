@@ -7,8 +7,8 @@ from hydro_serving_grpc import PredictionServiceStub, ModelSpec, predict_pb2, Pr
 from hydro_serving_grpc.contract import ModelSignature
 from hydro_serving_grpc.gateway import GatewayServiceStub, api_pb2
 
-from hydrosdk.data.conversions import convert_inputs_to_tensor_proto
-from hydrosdk.data.types import PredictorDT, proto2np_dtype, DTYPE_TO_FIELDNAME
+from hydrosdk.data.conversions import convert_inputs_to_tensor_proto, tensor_proto_to_nparray, tensor_proto_to_py
+from hydrosdk.data.types import PredictorDT
 
 
 class PredictImplementation(ABC):
@@ -105,39 +105,30 @@ class PredictServiceClient:
             raise Exception(f"Failed to predict.{str(err)} ")
 
     @staticmethod
-    def predict_resp_to_dict_pydtype(response: PredictResponse) -> dict:
+    def predict_resp_to_dict_pydtype(response: PredictResponse) -> Dict:
         output_tensors_dict = {}
         for tensor_name, tensor_proto in response.outputs.items():
-            dims = [dim.size for dim in tensor_proto.tensor_shape.dim]
-            value = getattr(tensor_proto, DTYPE_TO_FIELDNAME[tensor_proto.dtype])
-
-            # If no dims specified in TensorShapeProto, then it is scalar
-            if dims:
-                value = np.reshape(value, dims).tolist()
-                output_tensors_dict[tensor_name] = value
-            else:
-                output_tensors_dict[tensor_name] = value[0]
-
+            output_tensors_dict[tensor_name] = tensor_proto_to_py(tensor_proto)
         return output_tensors_dict
 
     @staticmethod
-    def predict_resp_to_dict_nparray(response: PredictResponse) -> dict:
-        output_tensors_dict = {}
+    def predict_resp_to_dict_nparray(response: PredictResponse) -> Dict[str, np.array]:
+        """
+        Transform tensors insider PredictResponse into np.arrays to create Dict[str, np.array]
+        :param response:
+        :return:
+        """
+        output_tensors_dict = dict()
         for tensor_name, tensor_proto in response.outputs.items():
-            array_shape = [dim.size for dim in tensor_proto.tensor_shape.dim]
-            np_dtype = proto2np_dtype(tensor_proto.dtype)
-            value = getattr(tensor_proto, DTYPE_TO_FIELDNAME[tensor_proto.dtype])
-            np_array_value = np.array(value, dtype=np_dtype)
-
-            # If no dims specified in TensorShapeProto, then it is scalar
-            if array_shape:
-                output_tensors_dict[tensor_name] = np_array_value.reshape(*array_shape)
-            else:
-                output_tensors_dict[tensor_name] = np.asscalar(np_array_value)
-
+            output_tensors_dict[tensor_name] = tensor_proto_to_nparray(tensor_proto)
         return output_tensors_dict
 
     @staticmethod
     def predict_resp_to_df(response: PredictResponse) -> pd.DataFrame:
+        """
+        Transform PredictResponse into pandas.DataFrame by using intermediate representation of Ditt[str, np.array]
+        :param response:
+        :return:
+        """
         response_dict: Dict[str, np.array] = PredictServiceClient.predict_resp_to_dict_nparray(response)
         return pd.DataFrame(response_dict)
