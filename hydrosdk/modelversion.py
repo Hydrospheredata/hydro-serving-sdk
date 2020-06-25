@@ -3,8 +3,9 @@ import json
 import logging
 import os
 import tarfile
+import time
 from enum import Enum
-from typing import Optional, List
+from typing import Optional, List, Tuple
 
 import sseclient
 import yaml
@@ -19,6 +20,51 @@ from hydrosdk.errors import InvalidYAMLFile
 from hydrosdk.image import DockerImage
 from hydrosdk.monitoring import MetricSpec, MetricSpecConfig, MetricModel
 
+
+def upload_training_data(cluster: Cluster, model_version_id: int, path: str):
+    if path.startswith('s3://'):
+        response = _upload_s3_file(cluster, model_version_id, path)
+    else:
+        response = _upload_local_file(cluster, model_version_id, path)
+    if response.ok:
+        return DataUploadResponse(cluster, model_version_id)
+    raise Cluster.BadResponse('Failed to upload training data')
+
+
+def _upload_local_file(cluster: Cluster, model_version_id: int, path: str, chunk_size=1024):
+    """
+    Internal method for uploading local training data to Hydrosphere.
+
+    :param cluster: Cluster instance
+    :param url: url to which upload the file
+    :param path: path to a local file
+    :param chunk_size: chunk size to use for streaming
+    """
+    def read_in_chunks(filename, chunk_size):
+        """ Generator to read a file peace by peace. """
+        with open(filename, "rb") as file:
+            while True:
+                data = file.read(chunk_size)
+                if not data:
+                    break
+                yield data
+    
+    gen = read_in_chunks(path, chunk_size)
+    url = '/monitoring/profiles/batch/{}'.format(model_version_id)
+    return cluster.request("POST", url, data=gen, stream=True)
+
+
+def _upload_s3_file(cluster: Cluster, model_version_id: int, path: str):
+    """
+    Internal method for submitting training data from S3 to Hydrosphere.
+
+    :param cluster: Cluster instance
+    :param url: url to which submit S3 path
+    :param path: S3 path to training data
+    """
+    url = '/monitoring/profiles/batch/{}/s3'.format(model_version_id)
+    return cluster.request("POST", url, json={"path": path})
+    
 
 def resolve_paths(path, payload):
     """
@@ -72,14 +118,18 @@ def read_yaml(path):
     else:
         protocontract = None
 
+    training_data = model_doc.get('training-data')
+    if training_data is not None and not os.path.isabs(training_data):
+        training_data = os.path.join(os.path.dirname(path), training_data)
+
     model = LocalModel(
         name=name,
         contract=protocontract,
         runtime=runtime,
         payload=payload,
         path=path,
+        training_data=training_data,
         install_command=model_doc.get('install-command'),
-        training_data=model_doc.get('training-data'),
         metadata=model_doc.get('metadata')
     )
     return model
@@ -126,10 +176,10 @@ class LocalModel(Metricable):
     """
 
     @staticmethod
-    def create(path, name, runtime, contract=None, install_command=None):
+    def create(name, runtime, payload, contract=None, install_command=None):
         """
-        Validates contract
-        :param path:
+        Create an instance of local model without inferring serving.yaml.
+
         :param name:
         :param runtime:
         :param contract:
@@ -216,13 +266,13 @@ class LocalModel(Metricable):
     def __repr__(self):
         return "LocalModel {}".format(self.name)
 
-    def __upload(self, cluster: Cluster) -> 'UploadResponse':
+    def __upload(self, cluster: Cluster) -> 'ModelUploadResponse':
         """
         Direct implementation of uploading one model to the server. For internal usage
 
         :param cluster: active cluster
         :raises ValueError: If server returned not 200
-        :return: UploadResponse obj
+        :return: ModelUploadResponse obj
         """
         logger = logging.getLogger("ModelDeploy")
 
@@ -262,9 +312,9 @@ class LocalModel(Metricable):
                                  headers={'Content-Type': encoder.content_type})
         if result.ok:
             model_version_json = result.json()
-
             modelversion = ModelVersion.from_json(cluster=cluster, model_version=model_version_json)
-            return UploadResponse(modelversion=modelversion, sse_client=sse_client)
+            modelversion.training_data = self.training_data
+            return ModelUploadResponse(modelversion=modelversion, sse_client=sse_client)
         else:
             raise ValueError("Error during model upload. {}".format(result.text))
 
@@ -308,7 +358,7 @@ class LocalModel(Metricable):
                 models_dict[metric] = upload_response
 
         return models_dict
-
+    
 
 class ModelVersionStatus(Enum):
     """
@@ -414,7 +464,7 @@ class ModelVersion(Metricable):
         )
 
     @staticmethod
-    def create(cluster, name: str, contract: ModelContract, metadata: Optional[dict] = None) -> 'ModelVersion':
+    def create(cluster, name: str, contract: ModelContract, metadata: Optional[dict] = None, training_data: str = None) -> 'ModelVersion':
         """
         Creates modelversion on the server
         :param cluster: active cluster
@@ -433,8 +483,9 @@ class ModelVersion(Metricable):
         resp = cluster.request(method="POST", url="/api/v2/externalmodel", json=model)
         if resp.ok:
             resp_json = resp.json()
-            mv_obj = ModelVersion.from_json(cluster=cluster, model_version=resp_json)
-            return mv_obj
+            modelversion = ModelVersion.from_json(cluster=cluster, model_version=resp_json)
+            modelversion.training_data = training_data
+            return modelversion
         raise ModelVersion.BadRequest(
             f"Failed to create external model. External model = {model}. {resp.status_code} {resp.text}")
 
@@ -470,7 +521,7 @@ class ModelVersion(Metricable):
 
             return model_versions
 
-        raise ModelVersion.BadResponse(
+        raise Cluster.BadResponse(
             f"Failed to list model versions. {resp.status_code} {resp.text}")
 
     @staticmethod
@@ -489,6 +540,11 @@ class ModelVersion(Metricable):
         sorted_by_version = sorted(modelversions_by_name, key=lambda model: model.version)
 
         return sorted_by_version
+    
+    def upload_training_data(self) -> 'DataUploadResponse':
+        if self.training_data is not None:
+            return upload_training_data(self.cluster, self.id, self.training_data)
+        raise ValueError('Training data is not specified')
 
     def to_proto(self):
         """
@@ -508,7 +564,8 @@ class ModelVersion(Metricable):
 
     def __init__(self, id: int, model_id: int, name: str, version: int, contract: ModelContract, cluster: Cluster,
                  status: Optional[ModelVersionStatus], image: Optional[dict],
-                 runtime: Optional[DockerImage], is_external: bool, metadata: dict = None, install_command: str = None):
+                 runtime: Optional[DockerImage], is_external: bool, metadata: dict = None, install_command: str = None,
+                 training_data: str = None):
         super().__init__()
 
         self.id = id
@@ -525,6 +582,7 @@ class ModelVersion(Metricable):
 
         self.metadata = metadata
         self.install_command = install_command
+        self.training_data = training_data
 
     def __repr__(self):
         return "ModelVersion {}:{}".format(self.name, self.version)
@@ -535,11 +593,80 @@ class ModelVersion(Metricable):
     class BadRequest(Exception):
         pass
 
-    class BadResponse(Exception):
+
+class DataProfileStatus(Enum):
+    Success = "Success"
+    Failure = "Failure"
+    Processing = "Processing"
+    NotRegistered = "NotRegistered"
+
+
+class DataUploadResponse:
+    """
+    Class that wraps processing status of the training data upload.
+
+    Check the status of the processing using `get_status()`
+    Wait for the processing using `wait()`
+    """
+
+    def __init__(self, cluster: Cluster, model_version_id: int) -> 'DataUploadResponse':
+        self.cluster = cluster
+        self.model_version_id = model_version_id
+
+    @property
+    def url(self) -> str:
+        if not hasattr(self, '__url'):
+            self.__url = '/monitoring/profiles/batch/{}/status'.format(self.model_version_id)
+        return self.__url
+    
+    @staticmethod
+    def __tick(retry: int, sleep: int) -> Tuple[bool, int]:
+        if retry == 0:
+            return False, retry
+        retry -= 1
+        time.sleep(sleep)
+        return True, retry
+
+    def get_status(self) -> DataProfileStatus:
+        response = self.cluster.request('GET', self.url)
+        if response.status_code != 200:
+            raise Cluster.BadResponse('Could not fetch the status of the data processing task')
+        return DataProfileStatus[response.json()['kind']]
+
+    def wait(self, retry=12, sleep=30):
+        """
+        Wait till data processing gets finished. 
+        
+        :param retry: Number of retries before giving up waiting.
+        :param sleep: Sleep interval between retries.
+        """
+        while True:
+            status = self.get_status()
+            if status == DataProfileStatus.Success:
+                break
+            elif status == DataProfileStatus.Processing:
+                can_be_polled, retry = self.__tick(retry, sleep)
+                if can_be_polled:
+                    continue
+                raise DataUploadResponse.DataProcessingNotFinished
+            elif status == DataProfileStatus.NotRegistered:
+                can_be_polled, retry = self.__tick(retry, sleep)
+                if can_be_polled:
+                    continue
+                raise DataUploadResponse.DataProcessingNotRegistered
+            raise DataUploadResponse.DataProcessingFailed
+
+    class DataProcessingNotRegistered(Exception):
+        pass
+
+    class DataProcessingNotFinished(Exception):
+        pass
+
+    class DataProcessingFailed(Exception):
         pass
 
 
-class UploadResponse:
+class ModelUploadResponse:
     """
     Class that wraps assembly status and logs logic.
 
@@ -567,8 +694,10 @@ class UploadResponse:
         :raises StopIteration: If something went wrong with iteration over logs
         :return: None
         """
+        training_data = self.modelversion.training_data # retain origin
         self.modelversion = ModelVersion.find(self.cluster, self.modelversion.name,
                                               self.modelversion.version)
+        self.modelversion.training_data = training_data
 
     def get_status(self):
         """

@@ -122,3 +122,6 @@ class Cluster:
             return {"status": "Unavailable", "reason": "Can't establish connection"}
         except json.decoder.JSONDecodeError as ex:
             return {"status": "Unknown", "reason": "Can't parse JSON response. {}".format(ex)}
+
+    class BadResponse(Exception):
+        pass
