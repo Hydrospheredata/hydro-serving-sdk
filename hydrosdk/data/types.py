@@ -1,12 +1,9 @@
 import numbers
 from enum import Enum
+from typing import Type, Iterable
+import numpy as np
 
-from hydro_serving_grpc import DT_STRING, DT_BOOL, \
-    DT_HALF, DT_FLOAT, DT_DOUBLE, DT_INT8, DT_INT16, \
-    DT_INT32, DT_INT64, DT_UINT8, DT_UINT16, DT_UINT32, \
-    DT_UINT64, DT_QINT8, DT_QINT16, DT_QINT32, DT_QUINT8, \
-    DT_QUINT16, DT_VARIANT, DT_COMPLEX64, DT_COMPLEX128, DataType
-from hydro_serving_grpc.contract import ModelSignature
+from hydro_serving_grpc.tf import *
 
 DTYPE_TO_FIELDNAME = {
     DT_HALF: "half_val",
@@ -67,37 +64,7 @@ DTYPE_ALIASES = {
     DT_COMPLEX128: "complex128"
 }
 
-DTYPE_ALIASES_REVERSE = {
-    "string": DT_STRING,
-    "bool": DT_BOOL,
-    "variant": DT_VARIANT,
-
-    "float16": DT_HALF,
-    "half": DT_HALF,
-    "float32": DT_FLOAT,
-    "float64": DT_DOUBLE,
-    "double": DT_DOUBLE,
-
-    "int8": DT_INT8,
-    "int16": DT_INT16,
-    "int32": DT_INT32,
-    "int64": DT_INT64,
-
-    "uint8": DT_UINT8,
-    "uint16": DT_UINT16,
-    "uint32": DT_UINT32,
-    "uint64": DT_UINT64,
-
-    "qint8": DT_QINT8,
-    "qint16": DT_QINT16,
-    "qint32": DT_QINT32,
-
-    "quint8": DT_QUINT8,
-    "quint16": DT_QUINT16,
-
-    "complex64": DT_COMPLEX64,
-    "complex128": DT_COMPLEX128,
-}
+DTYPE_ALIASES_REVERSE = dict([(v, k) for k, v in DTYPE_ALIASES.items()])
 
 scalar = "scalar"
 
@@ -111,14 +78,6 @@ def name2dtype(name):
             type_ = DT_INVALID
 
     return type_
-
-
-def dtype2name(dtype):
-    return DTYPE_ALIASES.get(dtype)
-
-
-def dtype_field(dtype):
-    return DTYPE_TO_FIELDNAME.get(dtype)
 
 
 def shape_to_proto(user_shape):
@@ -145,12 +104,7 @@ def shape_to_proto(user_shape):
     return shape
 
 
-import numpy as np
-from hydro_serving_grpc import DT_STRING, DT_BOOL, \
-    DT_HALF, DT_FLOAT, DT_DOUBLE, DT_INT8, DT_INT16, \
-    DT_INT32, DT_INT64, DT_UINT8, DT_UINT16, DT_UINT32, \
-    DT_UINT64, DT_COMPLEX64, DT_COMPLEX128, TensorShapeProto, DT_INVALID
-
+# This dict also allows getting proper proto Dtypes for int, str and other builtin python types
 NP_TO_HS_DTYPE = {
     np.int8: DT_INT8,
     np.int16: DT_INT16,
@@ -165,20 +119,26 @@ NP_TO_HS_DTYPE = {
     np.float32: DT_FLOAT,
     np.float64: DT_DOUBLE,
     np.float: DT_DOUBLE,
-    # np.float128: None,
+    np.float128: None,
     np.complex64: DT_COMPLEX64,
     np.complex128: DT_COMPLEX128,
-    # np.complex256: None,
+    np.complex256: None,
     np.bool: DT_BOOL,
-    # np.object: None,
     np.str: DT_STRING,
-    # np.void: None
 }
 
 HS_TO_NP_DTYPE = dict([(v, k) for k, v in NP_TO_HS_DTYPE.items()])
+HS_TO_NP_DTYPE[DT_BFLOAT16] = None
 
 
-def proto2np_dtype(dt):
+def to_proto_dtype(dt: Type) -> int:
+    proto_dtype = NP_TO_HS_DTYPE.get(dt)
+    if proto_dtype is None:
+        raise ValueError(f"Could not cast {dt} to supported dtypes.")
+    return proto_dtype
+
+
+def from_proto_dtype(dt):
     if dt in HS_TO_NP_DTYPE:
         return HS_TO_NP_DTYPE[dt]
     else:
@@ -192,19 +152,8 @@ def np2proto_dtype(dt):
         raise KeyError("Datatype {} is not supported in HydroSDK".format(dt))
 
 
-# TODO: method not used
-def proto2np_shape(tsp):
-    if tsp is None or len(tsp.dim) == 0:
-        return tuple()
-    else:
-        shape = tuple([int(s.size) for s in tsp.dim])
-    return shape
-
-
-# TODO: method not used
-def np2proto_shape(np_shape):
-    shape = TensorShapeProto(dim=[TensorShapeProto.Dim(size=x) for x in np_shape])
-    return shape
+def tensor_shape_proto_from_tuple(shape: Iterable[int]):
+    return TensorShapeProto(dim=[TensorShapeProto.Dim(size=s) for s in shape])
 
 
 def find_in_list_by_name(some_list: list, name: str):

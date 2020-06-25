@@ -7,7 +7,7 @@ from hydro_serving_grpc import PredictionServiceStub, ModelSpec, predict_pb2, Pr
 from hydro_serving_grpc.contract import ModelSignature
 from hydro_serving_grpc.gateway import GatewayServiceStub, api_pb2
 
-from hydrosdk.data.conversions import convert_inputs_to_tensor_proto, tensor_proto_to_nparray, tensor_proto_to_py
+from hydrosdk.data.conversions import convert_inputs_to_tensor_proto, tensor_proto_to_np, tensor_proto_to_py
 from hydrosdk.data.types import PredictorDT
 
 
@@ -97,7 +97,7 @@ class PredictServiceClient:
                 return self.predict_resp_to_df(response=response)
 
             elif self.return_type == PredictorDT.DICT_NP_ARRAY:
-                return self.predict_resp_to_dict_nparray(response=response)
+                return self.predict_resp_to_dict_np(response=response)
 
             elif self.return_type == PredictorDT.DICT_PYTHON:
                 return self.predict_resp_to_dict_pydtype(response=response)
@@ -112,7 +112,7 @@ class PredictServiceClient:
         return output_tensors_dict
 
     @staticmethod
-    def predict_resp_to_dict_nparray(response: PredictResponse) -> Dict[str, np.array]:
+    def predict_resp_to_dict_np(response: PredictResponse) -> Dict[str, np.array]:
         """
         Transform tensors insider PredictResponse into np.arrays to create Dict[str, np.array]
         :param response:
@@ -120,7 +120,7 @@ class PredictServiceClient:
         """
         output_tensors_dict = dict()
         for tensor_name, tensor_proto in response.outputs.items():
-            output_tensors_dict[tensor_name] = tensor_proto_to_nparray(tensor_proto)
+            output_tensors_dict[tensor_name] = tensor_proto_to_np(tensor_proto)
         return output_tensors_dict
 
     @staticmethod
@@ -130,5 +130,5 @@ class PredictServiceClient:
         :param response:
         :return:
         """
-        response_dict: Dict[str, np.array] = PredictServiceClient.predict_resp_to_dict_nparray(response)
+        response_dict: Dict[str, np.array] = PredictServiceClient.predict_resp_to_dict_np(response)
         return pd.DataFrame(response_dict)

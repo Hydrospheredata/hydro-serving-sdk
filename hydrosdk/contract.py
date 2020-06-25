@@ -8,7 +8,7 @@ import numpy as np
 from hydro_serving_grpc.contract import ModelContract, ModelSignature, ModelField, DataProfileType
 from hydro_serving_grpc.tf.types_pb2 import *
 
-from hydrosdk.data.types import name2dtype, shape_to_proto, PY_TO_DTYPE, np2proto_dtype, proto2np_dtype
+from hydrosdk.data.types import name2dtype, shape_to_proto, PY_TO_DTYPE, np2proto_dtype, from_proto_dtype
 
 
 class ContractViolationException(Exception):
@@ -590,7 +590,7 @@ def mock_input_data(signature: ModelSignature):
             simple_shape = [1]
         field_shape = tuple(np.abs(simple_shape))
         size = reduce(operator.mul, field_shape)
-        npdtype = proto2np_dtype(field.dtype)
+        npdtype = from_proto_dtype(field.dtype)
         if field.dtype == DT_BOOL:
             x = (np.random.randn(*field_shape) >= 0).astype(np.bool)
         elif field.dtype in [DT_FLOAT, DT_HALF, DT_DOUBLE, DT_COMPLEX128, DT_COMPLEX64]:
