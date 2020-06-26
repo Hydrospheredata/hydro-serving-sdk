@@ -4,6 +4,7 @@ import logging
 import os
 import tarfile
 import time
+import urllib.parse
 from enum import Enum
 from typing import Optional, List, Tuple
 
@@ -119,8 +120,10 @@ def read_yaml(path):
         protocontract = None
 
     training_data = model_doc.get('training-data')
-    if training_data is not None and not os.path.isabs(training_data):
-        training_data = os.path.join(os.path.dirname(path), training_data)
+    if training_data is not None:
+        parse = urllib.parse(training_data)
+        if parse.schema != 's3' and not os.path.isabs(training_data): 
+            training_data = os.path.join(os.path.dirname(path), training_data)
 
     model = LocalModel(
         name=name,
