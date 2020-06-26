@@ -8,7 +8,7 @@ import numpy as np
 from hydro_serving_grpc.contract import ModelContract, ModelSignature, ModelField, DataProfileType
 from hydro_serving_grpc.tf.types_pb2 import *
 
-from hydrosdk.data.types import name2dtype, shape_to_proto, PY_TO_DTYPE, np2proto_dtype, from_proto_dtype
+from hydrosdk.data.types import name2dtype, shape_to_proto, PY_TO_DTYPE, np_to_proto_dtype, proto_to_np_dtype
 
 
 class ContractViolationException(Exception):
@@ -381,7 +381,7 @@ def parse_field(name, dtype, shape, profile=ProfilingType.NONE):
         elif isinstance(dtype, type):  # type. could be python or numpy type
             result_dtype = PY_TO_DTYPE.get(dtype)
             if not result_dtype:
-                result_dtype = np2proto_dtype(dtype)
+                result_dtype = np_to_proto_dtype(dtype)
         else:
             result_dtype = DT_INVALID
 
@@ -590,7 +590,7 @@ def mock_input_data(signature: ModelSignature):
             simple_shape = [1]
         field_shape = tuple(np.abs(simple_shape))
         size = reduce(operator.mul, field_shape)
-        npdtype = from_proto_dtype(field.dtype)
+        npdtype = proto_to_np_dtype(field.dtype)
         if field.dtype == DT_BOOL:
             x = (np.random.randn(*field_shape) >= 0).astype(np.bool)
         elif field.dtype in [DT_FLOAT, DT_HALF, DT_DOUBLE, DT_COMPLEX128, DT_COMPLEX64]:

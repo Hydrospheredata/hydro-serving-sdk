@@ -1,8 +1,7 @@
 import numbers
 from enum import Enum
-from typing import Type, Iterable
-import numpy as np
 
+import numpy as np
 from hydro_serving_grpc.tf import *
 
 DTYPE_TO_FIELDNAME = {
@@ -123,37 +122,29 @@ NP_TO_HS_DTYPE = {
     np.complex64: DT_COMPLEX64,
     np.complex128: DT_COMPLEX128,
     np.complex256: None,
+    np.bool_: DT_BOOL,
     np.bool: DT_BOOL,
-    np.str: DT_STRING,
+    np.str_: DT_STRING,
+    np.unicode_: DT_STRING,
+    str: DT_STRING,
 }
 
 HS_TO_NP_DTYPE = dict([(v, k) for k, v in NP_TO_HS_DTYPE.items()])
 HS_TO_NP_DTYPE[DT_BFLOAT16] = None
 
 
-def to_proto_dtype(dt: Type) -> int:
-    proto_dtype = NP_TO_HS_DTYPE.get(dt)
-    if proto_dtype is None:
-        raise ValueError(f"Could not cast {dt} to supported dtypes.")
-    return proto_dtype
-
-
-def from_proto_dtype(dt):
-    if dt in HS_TO_NP_DTYPE:
+def proto_to_np_dtype(dt):
+    if HS_TO_NP_DTYPE.get(dt) is not None:
         return HS_TO_NP_DTYPE[dt]
     else:
-        raise KeyError("Datatype {}({}) is not supported in HydroSDK".format(DataType.Name(dt), dt))
+        raise TypeError("Datatype {}({}) is not supported in HydroSDK".format(DataType.Name(dt), dt))
 
 
-def np2proto_dtype(dt):
-    if dt in NP_TO_HS_DTYPE:
+def np_to_proto_dtype(dt):
+    if NP_TO_HS_DTYPE.get(dt) is not None:
         return NP_TO_HS_DTYPE[dt]
     else:
-        raise KeyError("Datatype {} is not supported in HydroSDK".format(dt))
-
-
-def tensor_shape_proto_from_tuple(shape: Iterable[int]):
-    return TensorShapeProto(dim=[TensorShapeProto.Dim(size=s) for s in shape])
+        raise TypeError("Datatype {} is not supported in HydroSDK".format(dt))
 
 
 def find_in_list_by_name(some_list: list, name: str):
