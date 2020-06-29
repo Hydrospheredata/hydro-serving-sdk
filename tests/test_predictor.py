@@ -145,7 +145,7 @@ def test_predict_python_scalar_type(scalar_servable):
     predictions = predictor_client.predict(inputs=inputs)
 
     assert isinstance(predictions, dict)
-    assert isinstance(predictions['output'], int)
+    assert isinstance(predictions['output'], np.int64)
     assert predictions['output'] == value
 
 
