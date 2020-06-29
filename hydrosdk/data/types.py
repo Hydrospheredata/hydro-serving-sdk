@@ -33,43 +33,52 @@ PY_TO_DTYPE = {
 
 DTYPE_TO_PY = {v: k for k, v in PY_TO_DTYPE.items()}
 
-DTYPE_ALIASES = {
-    DT_STRING: "string",
-    DT_BOOL: "bool",
-    DT_VARIANT: "variant",
+ALIAS_TO_DTYPE = {
+    "string": DT_STRING,
+    "str": DT_STRING,
+    "bool": DT_BOOL,
+    "variant": DT_VARIANT,
 
-    DT_HALF: "float16",
-    DT_FLOAT: "float32",
-    DT_DOUBLE: "float64",
+    "float16": DT_HALF,
+    "half": DT_HALF,
+    "float32": DT_FLOAT,
+    "single": DT_FLOAT,
+    "float": DT_DOUBLE,  # We treat float the same way Numpy does, look at np.float_
+    "float64": DT_DOUBLE,
+    "double": DT_DOUBLE,
 
-    DT_INT8: "int8",
-    DT_INT16: "int16",
-    DT_INT32: "int32",
-    DT_INT64: "int64",
+    "int8": DT_INT8,
+    "byte": DT_INT8,
+    "int16": DT_INT16,
+    "short": DT_INT16,
+    "int32": DT_INT32,
+    "int64": DT_INT64,
+    "int": DT_INT64,
 
-    DT_UINT8: "uint8",
-    DT_UINT16: "uint16",
-    DT_UINT32: "uint32",
-    DT_UINT64: "uint64",
+    "uint8": DT_UINT8,
+    "ubyte": DT_UINT8,
+    "uint16": DT_UINT16,
+    "ushort": DT_UINT16,
+    "uint32": DT_UINT32,
+    "uint64": DT_UINT64,
 
-    DT_QINT8: "qint8",
-    DT_QINT16: "qint16",
-    DT_QINT32: "qint32",
+    "qint8": DT_QINT8,
+    "qint16": DT_QINT16,
+    "qint32": DT_QINT32,
 
-    DT_QUINT8: "quint8",
-    DT_QUINT16: "quint16",
+    "quint8": DT_QUINT8,
+    "quint16": DT_QUINT16,
 
-    DT_COMPLEX64: "complex64",
-    DT_COMPLEX128: "complex128"
+    "complex64": DT_COMPLEX64,
+    "complex128": DT_COMPLEX128,
+    "complex": DT_COMPLEX128
 }
-
-DTYPE_ALIASES_REVERSE = dict([(v, k) for k, v in DTYPE_ALIASES.items()])
 
 scalar = "scalar"
 
 
-def name2dtype(name):
-    type_ = DTYPE_ALIASES_REVERSE.get(name, DT_INVALID)
+def alias_to_proto_dtype(name):
+    type_ = ALIAS_TO_DTYPE.get(name, DT_INVALID)
     if not type_:
         try:
             type_ = DataType.Value(name)

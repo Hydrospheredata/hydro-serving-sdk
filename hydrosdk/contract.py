@@ -8,7 +8,7 @@ import numpy as np
 from hydro_serving_grpc.contract import ModelContract, ModelSignature, ModelField, DataProfileType
 from hydro_serving_grpc.tf.types_pb2 import *
 
-from hydrosdk.data.types import name2dtype, shape_to_proto, PY_TO_DTYPE, np_to_proto_dtype, proto_to_np_dtype
+from hydrosdk.data.types import alias_to_proto_dtype, shape_to_proto, PY_TO_DTYPE, np_to_proto_dtype, proto_to_np_dtype
 
 
 class ContractViolationException(Exception):
@@ -74,7 +74,7 @@ def field_from_dict(field_name: str, field_dict: dict) -> ModelField:
                 subfields_buffer.append(subfield)
             result_subfields = subfields_buffer
     else:
-        result_dtype = name2dtype(dtype)
+        result_dtype = alias_to_proto_dtype(dtype)
 
     if result_dtype is not None:
         result_field = ModelField(
@@ -374,10 +374,10 @@ def parse_field(name, dtype, shape, profile=ProfilingType.NONE):
     else:
         if dtype in DataType.keys():  # exact name e.g. DT_STRING
             result_dtype = dtype
-        elif dtype in DataType.values():
+        elif dtype in DataType.values():  # int value of DataType
             result_dtype = dtype
-        elif isinstance(dtype, str):  # string alias
-            result_dtype = name2dtype(dtype)
+        elif isinstance(dtype, str):  # string alias e.g. 'double'
+            result_dtype = alias_to_proto_dtype(dtype)
         elif isinstance(dtype, type):  # type. could be python or numpy type
             result_dtype = PY_TO_DTYPE.get(dtype)
             if not result_dtype:
