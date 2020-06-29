@@ -1,16 +1,17 @@
-from typing import Union, Dict, List, Iterable
+from typing import Dict, List, Iterable
 
 import numpy as np
 import pandas as pd
 from hydro_serving_grpc import TensorProto, DataType, TensorShapeProto, DT_STRING, DT_HALF, DT_COMPLEX64, DT_COMPLEX128
 from hydro_serving_grpc.contract import ModelSignature
+from pandas.core.common import flatten
 
 from hydrosdk.data.types import np_to_proto_dtype, DTYPE_TO_FIELDNAME, find_in_list_by_name, proto_to_np_dtype
 
 
 def tensor_proto_to_py(t: TensorProto):
     """
-    Converts tensor proto into corresponding python object
+    Converts tensor proto into a corresponding python object - list or scalar
     :param t:
     :return:
     """
@@ -25,12 +26,20 @@ def tensor_proto_to_py(t: TensorProto):
         return value[0]
 
 
-def list_to_tensor_proto(data: List, dtype: str, shape: TensorShapeProto):
-    proto_dtype = DataType.Value(DataType.Name(dtype))
+def list_to_tensor_proto(data: List, proto_dtype: DataType, proto_shape: TensorShapeProto) -> TensorProto:
+    """
+    Converts data in a form of a Python List into a TensorProto object
+    :param data: List with data
+    :param proto_dtype: DataType of a future TensorProto
+    :param proto_shape: TensorShapeProto of a future TensorProto
+    :return: Same data but in a TensorProto object
+    """
+    # We can pack only flattened lists into TensorProto, so we need to flatten the list
+    flattened_list = flatten(data)
     tensor_proto_parameters = {
-        DTYPE_TO_FIELDNAME[proto_dtype]: data,
+        DTYPE_TO_FIELDNAME[proto_dtype]: flattened_list,
         "dtype": proto_dtype,
-        "tensor_shape": shape
+        "tensor_shape": proto_shape
     }
     return TensorProto(**tensor_proto_parameters)
 
@@ -63,8 +72,12 @@ def tensor_proto_to_np(t: TensorProto):
         return x.flatten()[0]
 
 
-# : Union[np.array, np.ScalarType]
 def np_to_tensor_proto(x) -> TensorProto:
+    """
+    Creates TensorProto object from Numpy ndarray or scalar with inferred TensorProtoShape and DataType
+    :param x: Union[np.array, np.ScalarType]
+    :return:
+    """
     if isinstance(x, np.ScalarType):
         return scalar_to_tensor_proto(x)
     elif isinstance(x, np.ndarray):
@@ -75,9 +88,10 @@ def np_to_tensor_proto(x) -> TensorProto:
 
 def nparray_to_tensor_proto(x: np.array) -> TensorProto:
     """
-    Creates TensorProto object with specified dtype, shape and values under respective fieldname from np.array
-    :param x:
-    :return:
+    Creates TensorProto object from Numpy ndarray
+    with TensorProtoShape and DataType inferred from the latter
+    :param x: Data in form ofa numpy ndarray
+    :return: Same data packed into a TensorProto object
     """
 
     if x.dtype.isbuiltin != 1 and x.dtype.type != np.str_:
@@ -106,6 +120,12 @@ def nparray_to_tensor_proto(x: np.array) -> TensorProto:
 
 
 def scalar_to_tensor_proto(x: np.ScalarType) -> TensorProto:
+    """
+    Creates TensorProto object from a scalar with a Numpy dtype
+      with TensorProtoShape and DataType inferred from the latter
+    :param x: Scalar value with a Numpy dtype
+    :return: Same value but packed into a TensorProto object
+    """
     proto_dtype = np_to_proto_dtype(type(x))
 
     if proto_dtype == DT_HALF:
@@ -125,16 +145,27 @@ def scalar_to_tensor_proto(x: np.ScalarType) -> TensorProto:
     return TensorProto(**kwargs)
 
 
-def tensor_shape_proto_from_tuple(shape: Iterable[int]):
+def tensor_shape_proto_from_tuple(shape: Iterable[int]) -> TensorShapeProto:
+    """
+    Helper function to transform shape in the form of a tuple (Numpy shape representation) into a TensorProtoShape
+    :param shape: Shape in a tuple form
+    :return: same shape but in a TensorShapeProto object
+    """
     return TensorShapeProto(dim=[TensorShapeProto.Dim(size=s) for s in shape])
 
 
-def convert_inputs_to_tensor_proto(inputs: Union[Dict, pd.DataFrame], signature: ModelSignature) -> dict:
+def convert_inputs_to_tensor_proto(inputs: Dict, signature: ModelSignature) -> Dict[str, TensorProto]:
     """
+    Generate Dict[str, TensorProto] from pd.DataFrame or Dict[str, Union[np.array, np.ScalarType]]
 
-    :param inputs:
-    :param signature:
-    :return:
+    Converts inputs into a representation of data where each field
+     of a signature is represented by a valid TensorProto object.
+    :param inputs: Dict, where keys are names of signature fields and
+     values are data in either Numpy or Python form, or alternatively,
+     pd.DataFrame, where columns are names of fields and column values are data.
+    :param signature: ModelVersion signature with names, shapes and dtypes
+     of fields into which `inputs` are converted into
+    :return: Dictionary with TensorProtos to be used in forming a PredictRequest
     """
     tensors = {}
     if isinstance(inputs, dict):
