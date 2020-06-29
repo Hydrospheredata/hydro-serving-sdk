@@ -1,12 +1,13 @@
 from collections import namedtuple
 from enum import Enum
-from typing import List
+from typing import List, Dict
 
 from hydro_serving_grpc.contract import ModelSignature
 
 from hydrosdk.cluster import Cluster
-from hydrosdk.contract import _signature_dict_to_ModelSignature
+from hydrosdk.contract import _signature_dict_to_ModelSignature, ModelSignature_to_signature_dict
 from hydrosdk.data.types import PredictorDT
+from hydrosdk.modelversion import ModelVersion
 from hydrosdk.predictor import PredictServiceClient, MonitorableImplementation
 
 ApplicationDef = namedtuple('ApplicationDef', ('name', 'executionGraph', 'kafkaStreaming'))
@@ -280,3 +281,106 @@ class Application:
             executionGraph=executionGraph,
             kafkaStreaming=streaming_def
         )
+
+
+class Application_:
+
+    def __init__(self, id, name, signature, execution_graph, status, kafka_streaming, metadata):
+        self.id: int = id
+        self.name: str = name
+        self.status: ApplicationStatus = status
+        self.execution_graph = execution_graph
+        self.signature: ModelSignature = signature
+        self.kafka_streaming = kafka_streaming
+        self.metadata: Dict[str, str] = metadata
+
+    def create(self, ):
+        # TODO create application with POST request
+        pass
+
+
+class ApplicationBuilder:
+    def __init__(self, name):
+        self.name = name
+        self.stages = []
+        self.metadata = {}
+        self.kafka = []
+
+    def with_stage(self, stage: 'ExecutionStage'):
+        self.stages.append(stage)
+        return self
+
+    def with_metadata(self, key: str, value: str):
+        self.metadata[key] = value
+        return self
+
+    def with_kafka(self, source_topic: str,
+                   dest_topic: str,
+                   consumer_id: str,
+                   error_topic: str):
+        self.kafka.append({"source_topic": source_topic,
+                           "destination_topic": dest_topic,
+                           "consumer_id": consumer_id,
+                           "error_topic": error_topic})
+        return self
+
+    def build(self) -> Application_:
+        # TODO check if signatures merge, and if so, merge them
+        execution_graph = ExecutionGraph(stages=self.stages)
+        return Application_(id=None,
+                            status=None,
+                            name=self.name,
+                            signature=execution_graph.infer_signature(),
+                            execution_graph=execution_graph,
+                            kafka_streaming=self.kafka,
+                            metadata=self.metadata
+                            )
+
+
+class ExecutionGraph:
+    def __init__(self, stages: List['ExecutionStage']):
+        self.stages = stages
+
+    def infer_signature(self, ) -> ModelSignature:
+        # TODO raise ValueError if cannot merge signatures
+        # TODO return merged signature
+        pass
+
+    def __asdict(self):
+        return {"stages": [s._asdict() for s in self.stages]}
+
+    @staticmethod
+    def parse_pipeline():
+        pass
+
+class ExecutionStage:
+    def __init__(self, model_variants: List[ModelVersion], weights: List[int]):
+        if len(set(m.signature for m in model_variants)) > 1:
+            raise ValueError("All model variants inside the same stage must have the same signature")
+        self.signature = model_variants[0].signature
+        self.model_variants: List[ModelVersion] = model_variants
+        self.weights = weights
+
+    @staticmethod
+    def parse_pipeline_stage():
+        pass
+
+    def _asdict(self):
+        # TODO ModelVersion _asdict
+        return {"modelVariants": [{"modelVersion": m._asdict(), "weight": w} for m, w in zip(self.model_variants, self.weights)],
+                "signature": ModelSignature_to_signature_dict(self.signature)}
+
+
+class ExecutionStageBuilder:
+    def __init__(self):
+        self.model_variants = []
+        self.model_weights = []
+
+    def with_model_variant(self, model_version: ModelVersion, weight):
+        self.model_variants.append(model_version)
+        self.model_weights.append(weight)
+        return self
+
+    def build(self):
+        return ExecutionStage(model_variants=self.model_variants,
+                              weights=self.model_weights)
