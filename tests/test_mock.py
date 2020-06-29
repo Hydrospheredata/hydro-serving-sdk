@@ -28,7 +28,7 @@ def test_tensor_data(np_type):
     # self.assertIsNone(error_msg)
 
 
-@pytest.mark.xfail(strict=True, raises=KeyError)
+@pytest.mark.xfail(strict=True, raises=ValueError)
 @pytest.mark.parametrize('np_type', UNSUPPORTED_NP_TYPES)
 def test_unsupported(np_type):
     s = SignatureBuilder("change_state") \

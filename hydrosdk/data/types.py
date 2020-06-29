@@ -146,14 +146,14 @@ def proto_to_np_dtype(dt):
     if HS_TO_NP_DTYPE.get(dt) is not None:
         return HS_TO_NP_DTYPE[dt]
     else:
-        raise TypeError("Datatype {}({}) is not supported in HydroSDK".format(DataType.Name(dt), dt))
+        raise ValueError("Datatype {}({}) is not supported in HydroSDK".format(DataType.Name(dt), dt))
 
 
 def np_to_proto_dtype(dt):
     if NP_TO_HS_DTYPE.get(dt) is not None:
         return NP_TO_HS_DTYPE[dt]
     else:
-        raise TypeError("Datatype {} is not supported in HydroSDK".format(dt))
+        raise ValueError("Datatype {} is not supported in HydroSDK".format(dt))
 
 
 def find_in_list_by_name(some_list: list, name: str):

@@ -15,7 +15,7 @@ complex_dtypes = [DT_COMPLEX64, DT_COMPLEX128, ]
 supported_float_np_types = [np.single, np.double, np.float, np.float32, np.float64, np.float_]
 supported_int_np_types = [np.int, np.int64, np.int8, np.uint8, np.int16, np.uint16, np.int32, np.uint32, np.uint64]
 supported_complex_np_types = [np.complex, np.complex128, np.complex64, np.csingle, np.cdouble, np.complex_]
-unsupported_np_types = [np.float128, np.complex256, np.object, np.void,
+unsupported_np_types = [np.float128, np.complex256, np.object,
                         np.longlong, np.ulonglong, np.clongdouble]
 
 
@@ -100,10 +100,10 @@ class TestConversion:
         x_restored = tensor_proto_to_np(tensor_proto)
         assert np.all(x == x_restored)
 
-    @pytest.mark.xfail(strict=True, raises=TypeError)
+    @pytest.mark.xfail(strict=True, raises=ValueError)
     @pytest.mark.parametrize("np_dtype", unsupported_np_types)
     def test_unsupported_np_to_tensor_to_np(self, np_dtype):
-        x = np.array([1.0, 2.0, 3.0], dtype=np_dtype)
+        x = np.array([1, 2, 3], dtype=np_dtype)
         tensor_proto = np_to_tensor_proto(x)
         x_restored = tensor_proto_to_np(tensor_proto)
         assert np.all(x == x_restored)
