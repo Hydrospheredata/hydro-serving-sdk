@@ -210,8 +210,8 @@ which is designed to make inference for your data via GRPC API.</p>
 <span class="kn">from</span> <span class="nn">grpc</span> <span class="kn">import</span> <span class="n">ssl_channel_credentials</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
 
-<span class="n">cluster</span> <span class="o">=</span> <span class="n">Cluster</span><span class="p">(</span><span class="s2">&quot;https://hydro-serving.dev.hydrosphere.io&quot;</span><span class="p">,</span>
-                  <span class="n">grpc_address</span><span class="o">=</span><span class="s2">&quot;hydro-serving.dev.hydrosphere.io&quot;</span><span class="p">,</span> <span class="n">ssl</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+<span class="n">cluster</span> <span class="o">=</span> <span class="n">Cluster</span><span class="p">(</span><span class="s2">&quot;http-cluster-address&quot;</span><span class="p">,</span>
+                  <span class="n">grpc_address</span><span class="o">=</span><span class="s2">&quot;grpc-cluster-address&quot;</span><span class="p">,</span> <span class="n">ssl</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
                   <span class="n">grpc_credentials</span><span class="o">=</span><span class="n">ssl_channel_credentials</span><span class="p">())</span>
 
 <span class="n">app</span> <span class="o">=</span> <span class="n">Application</span><span class="o">.</span><span class="n">find_by_name</span><span class="p">(</span><span class="n">cluster</span><span class="p">,</span> <span class="s2">&quot;my-model&quot;</span><span class="p">)</span>

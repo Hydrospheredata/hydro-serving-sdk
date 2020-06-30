@@ -48,8 +48,8 @@ from hydrosdk.application import Application
 from grpc import ssl_channel_credentials
 import pandas as pd
 
-cluster = Cluster("https://hydro-serving.dev.hydrosphere.io",
-                  grpc_address="hydro-serving.dev.hydrosphere.io", ssl=True,
+cluster = Cluster("http-cluster-address",
+                  grpc_address="grpc-cluster-address", ssl=True,
                   grpc_credentials=ssl_channel_credentials())
 
 app = Application.find_by_name(cluster, "my-model")
