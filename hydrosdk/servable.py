@@ -1,6 +1,6 @@
-"""This module contains all the code associated with Servables and their management at Hydrosphere platform.
-You can learn more about Servables here https://hydrosphere.io/serving-docs/latest/overview/concepts.html#servable.
-"""
+r"""This module contains all the code associated with Servables and their management at Hydrosphere platform.
+You can learn more about Servables here https://hydrosphere.io/serving-docs/latest/overview/concepts.html#servable."""
+
 import re
 from enum import Enum
 from typing import Dict, List
@@ -41,8 +41,11 @@ class ServableStatus(Enum):
 
 class Servable:
     """
-    Servable is an instance of a model version which could be used in application or by itself as it exposes various endpoints to your model
-     version: HTTP, gRPC, and Kafka.
+    Servable is a deployed instance of a ModelVersion which is used inside an Application or by itself.
+    It exposes gRPC and HTTP endpoints. Servables are not meant to be used in production setup
+    since they have no scaling and monitoring. If you want to deploy your ModelVersion to production
+    please use Applications.
+
     You can find more about Servables in the documentation https://hydrosphere.io/serving-docs/latest/overview/concepts.html#servable
     """
     BASE_URL = "/api/v2/servable"
@@ -50,11 +53,11 @@ class Servable:
     @staticmethod
     def model_version_json_to_servable(model_version_json: dict, cluster: Cluster) -> 'Servable':
         """
-        Deserializes servable json description into servable object
+        Deserializes Servable from JSON into a Servable object
 
-        :param model_version_json: Servable description in json format
-        :param cluster: Cluster connected to Hydrosphere
-        :return: Servable object
+        :param model_version_json: Servable description in a JSON format
+        :param cluster: Hydrosphere
+        :return: Servable
         """
         modelversion_data = model_version_json['modelVersion']
 
@@ -79,7 +82,6 @@ class Servable:
         :param version: Version of uploaded model
         :param metadata: Information which you can attach to your servable in form of Dict[str, str]
         :raises ServableException:
-
         :return: servable
         """
         msg = {
@@ -98,10 +100,10 @@ class Servable:
     @staticmethod
     def find(cluster: Cluster, servable_name: str) -> 'Servable':
         """
-        Connects to servable at your cluster.
+        Finds a serving servable in a cluster
 
-        :param cluster: Cluster connected to Hydrosphere
-        :param servable_name:
+        :param cluster: Hydrosphere cluster
+        :param servable_name: The Servable name
         :raises ServableException:
         :return: Servable
         """
@@ -116,8 +118,9 @@ class Servable:
     @staticmethod
     def list(cluster: Cluster) -> List['Servable']:
         """
-        Retrieve list of all servables available at your cluster
-        :param cluster: Cluster connected to Hydrosphere
+        Retrieve a list of all servables available at your cluster
+
+        :param cluster: Hydrosphere cluster
         :return: List of all Servables available at your cluster
         """
         res = cluster.request("GET", "/api/v2/servable")
@@ -176,12 +179,17 @@ class Servable:
         return f"Servable '{self.name}' for modelversion '{self.modelversion.name}'v{self.modelversion.version}"
 
     def predictor(self, monitorable=True, return_type=PredictorDT.DICT_NP_ARRAY) -> PredictServiceClient:
+        """
+        Returns a predictor object which is used to pass data into the deployed Servable
+
+        :param monitorable: If True, the data will be shadowed to the monitoring service
+        :param return_type: Specifies into which data format should predictor return Servable outputs
+        :return:
+        """
         if monitorable:
-            self.impl = MonitorableImplementation(channel=self.cluster.channel, target=self.name)
+            impl = MonitorableImplementation(channel=self.cluster.channel, target=self.name)
         else:
-            self.impl = UnmonitorableImplementation(channel=self.cluster.channel, target=self.name)
+            impl = UnmonitorableImplementation(channel=self.cluster.channel, target=self.name)
 
-        self.predictor_return_type = return_type
-
-        return PredictServiceClient(impl=self.impl, signature=self.modelversion.contract.predict,
-                                    return_type=self.predictor_return_type)
+        return PredictServiceClient(impl=impl, signature=self.modelversion.contract.predict,
+                                    return_type=return_type)

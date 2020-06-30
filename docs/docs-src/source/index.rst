@@ -11,7 +11,7 @@ hydrosdk provides an easy to use, object-oriented API.
 
    whats_new
    quickstart
-   tutorial
+   getting_started_tutorial
    hydrosdk/hydrosdk
    getting_help
    Github Repository <https://github.com/Hydrospheredata/hydro-serving-sdk>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>hydrosdk.contract module &mdash; hydrosdk 2.3.0 documentation</title>
+  <title>hydrosdk.contract module &mdash; hydrosdk 2.3.2 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.3.0
+                2.3.2
               </div>
             
           
@@ -91,16 +91,15 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../whats_new.html">What’s new in 2.3.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whats_new.html">What’s new in 2.3.2</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Sample tutorial</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="hydrosdk.html">hydrosdk package</a><ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../getting_started_tutorial.html">Getting Started Tutorial</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="hydrosdk.html">hydrosdk API</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.application.html">hydrosdk.application module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.cluster.html">hydrosdk.cluster module</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">hydrosdk.contract module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.errors.html">hydrosdk.errors module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.exceptions.html">hydrosdk.exceptions module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="hydrosdk.host_selector.html">hydrosdk.host_selector module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.image.html">hydrosdk.image module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.modelversion.html">hydrosdk.modelversion module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.monitoring.html">hydrosdk.monitoring module</a></li>
@@ -156,7 +155,7 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-          <li><a href="hydrosdk.html">hydrosdk package</a> &raquo;</li>
+          <li><a href="hydrosdk.html">hydrosdk API</a> &raquo;</li>
         
       <li>hydrosdk.contract module</li>
     
@@ -179,13 +178,6 @@
             
   <div class="section" id="module-hydrosdk.contract">
 <span id="hydrosdk-contract-module"></span><h1>hydrosdk.contract module<a class="headerlink" href="#module-hydrosdk.contract" title="Permalink to this headline">¶</a></h1>
-<dl class="py class">
-<dt id="hydrosdk.contract.AnyDimSize">
-<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.contract.</code><code class="sig-name descname">AnyDimSize</code><a class="headerlink" href="#hydrosdk.contract.AnyDimSize" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>Validation class for dimensions</p>
-</dd></dl>
-
 <dl class="py exception">
 <dt id="hydrosdk.contract.ContractViolationException">
 <em class="property">exception </em><code class="sig-prename descclassname">hydrosdk.contract.</code><code class="sig-name descname">ContractViolationException</code><a class="headerlink" href="#hydrosdk.contract.ContractViolationException" title="Permalink to this definition">¶</a></dt>
@@ -193,27 +185,44 @@
 <p>Exception raised when contract is violated</p>
 </dd></dl>
 
+<dl class="py class">
+<dt id="hydrosdk.contract.AnyDimSize">
+<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.contract.</code><code class="sig-name descname">AnyDimSize</code><a class="headerlink" href="#hydrosdk.contract.AnyDimSize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Validation class for dimensions, used for -1 dims</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="hydrosdk.contract.ProfilingType">
+<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.contract.</code><code class="sig-name descname">ProfilingType</code><a class="headerlink" href="#hydrosdk.contract.ProfilingType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></a></p>
+<p>Profiling Types are used to tell monitoring services how to analyse signature fields.</p>
+</dd></dl>
+
 <dl class="py function">
 <dt id="hydrosdk.contract.ModelContract_to_contract_dict">
-<code class="sig-prename descclassname">hydrosdk.contract.</code><code class="sig-name descname">ModelContract_to_contract_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">contract</span><span class="p">:</span> <span class="n">hydro_serving_grpc.contract.model_contract_pb2.ModelContract</span></em><span class="sig-paren">)</span> &#x2192; Optional<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a><span class="p">]</span><a class="headerlink" href="#hydrosdk.contract.ModelContract_to_contract_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">hydrosdk.contract.</code><code class="sig-name descname">ModelContract_to_contract_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">contract</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.contract.ModelContract_to_contract_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Serializes ModelContract into contract dict</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>contract</strong> – model contract</p>
+<dd class="field-odd"><p><strong>contract</strong> (<em>hydro_serving_grpc.contract.model_contract_pb2.ModelContract</em>) – model contract</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>dict with model_name, predict</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Optional[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a>]</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt id="hydrosdk.contract.ModelSignature_to_signature_dict">
-<code class="sig-prename descclassname">hydrosdk.contract.</code><code class="sig-name descname">ModelSignature_to_signature_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">signature</span><span class="p">:</span> <span class="n">hydro_serving_grpc.contract.model_signature_pb2.ModelSignature</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a><a class="headerlink" href="#hydrosdk.contract.ModelSignature_to_signature_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Serializes ModelSignature into signature dict</p>
+<code class="sig-prename descclassname">hydrosdk.contract.</code><code class="sig-name descname">ModelSignature_to_signature_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">signature</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.contract.ModelSignature_to_signature_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serializes ModelSignature into a signature dict</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>signature</strong> – model signature obj</p>
+<dd class="field-odd"><p><strong>signature</strong> (<em>hydro_serving_grpc.contract.model_signature_pb2.ModelSignature</em>) – model signature obj</p>
 </dd>
 <dt class="field-even">Raises</dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.8)"><strong>TypeError</strong></a> – If signature invalid</p>
@@ -221,69 +230,10 @@
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>dict with signature_name, inputs, outputs</p>
 </dd>
-</dl>
-</dd></dl>
-
-<dl class="py class">
-<dt id="hydrosdk.contract.ProfilingType">
-<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.contract.</code><code class="sig-name descname">ProfilingType</code><a class="headerlink" href="#hydrosdk.contract.ProfilingType" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></a></p>
-</dd></dl>
-
-<dl class="py class">
-<dt id="hydrosdk.contract.SignatureBuilder">
-<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.contract.</code><code class="sig-name descname">SignatureBuilder</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.contract.SignatureBuilder" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>Build Model Signature</p>
-<dl class="py method">
-<dt id="hydrosdk.contract.SignatureBuilder.build">
-<code class="sig-name descname">build</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.contract.SignatureBuilder.build" title="Permalink to this definition">¶</a></dt>
-<dd><p>Creates Model Signature</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>ModelSignature obj</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></p>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="hydrosdk.contract.SignatureBuilder.with_input">
-<code class="sig-name descname">with_input</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">dtype</em>, <em class="sig-param">shape</em>, <em class="sig-param">profile=&lt;ProfilingType.NONE: 0&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.contract.SignatureBuilder.with_input" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds input to the SignatureBuilder</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> – </p></li>
-<li><p><strong>dtype</strong> – </p></li>
-<li><p><strong>shape</strong> – </p></li>
-<li><p><strong>profile</strong> – </p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>self SignatureBuilder</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="hydrosdk.contract.SignatureBuilder.with_output">
-<code class="sig-name descname">with_output</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">dtype</em>, <em class="sig-param">shape</em>, <em class="sig-param">profile=&lt;ProfilingType.NONE: 0&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.contract.SignatureBuilder.with_output" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds output to the SignatureBuilder</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> – </p></li>
-<li><p><strong>dtype</strong> – </p></li>
-<li><p><strong>shape</strong> – </p></li>
-<li><p><strong>profile</strong> – </p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>self SignatureBuilder</p>
-</dd>
-</dl>
-</dd></dl>
-
 </dd></dl>
 
 <dl class="py function">
@@ -323,12 +273,12 @@
 
 <dl class="py function">
 <dt id="hydrosdk.contract.attach_ds">
-<code class="sig-prename descclassname">hydrosdk.contract.</code><code class="sig-name descname">attach_ds</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">result_dict</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></span></em>, <em class="sig-param"><span class="n">field</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a><a class="headerlink" href="#hydrosdk.contract.attach_ds" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">hydrosdk.contract.</code><code class="sig-name descname">attach_ds</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">result_dict</span></em>, <em class="sig-param"><span class="n">field</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.contract.attach_ds" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds dtype or subfields</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>result_dict</strong> – </p></li>
+<li><p><strong>result_dict</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – </p></li>
 <li><p><strong>field</strong> – </p></li>
 </ul>
 </dd>
@@ -338,49 +288,58 @@
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>result_dict with dtype or subfields</p>
 </dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></p>
+</dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt id="hydrosdk.contract.contract_dict_to_ModelContract">
-<code class="sig-prename descclassname">hydrosdk.contract.</code><code class="sig-name descname">contract_dict_to_ModelContract</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">contract</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></span></em><span class="sig-paren">)</span> &#x2192; hydro_serving_grpc.contract.model_contract_pb2.ModelContract<a class="headerlink" href="#hydrosdk.contract.contract_dict_to_ModelContract" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">hydrosdk.contract.</code><code class="sig-name descname">contract_dict_to_ModelContract</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">contract</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.contract.contract_dict_to_ModelContract" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper method that makes a ModelContract out of contract dict</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>contract</strong> – </p>
+<dd class="field-odd"><p><strong>contract</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>hydro_serving_grpc.contract.model_contract_pb2.ModelContract</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt id="hydrosdk.contract.contract_yaml_to_ModelContract">
-<code class="sig-prename descclassname">hydrosdk.contract.</code><code class="sig-name descname">contract_yaml_to_ModelContract</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model_name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">yaml_contract</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></span></em><span class="sig-paren">)</span> &#x2192; hydro_serving_grpc.contract.model_contract_pb2.ModelContract<a class="headerlink" href="#hydrosdk.contract.contract_yaml_to_ModelContract" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">hydrosdk.contract.</code><code class="sig-name descname">contract_yaml_to_ModelContract</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model_name</span></em>, <em class="sig-param"><span class="n">yaml_contract</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.contract.contract_yaml_to_ModelContract" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper method that makes a ModelContract out of contract yaml</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model_name</strong> – </p></li>
-<li><p><strong>yaml_contract</strong> – </p></li>
+<li><p><strong>model_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
+<li><p><strong>yaml_contract</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>hydro_serving_grpc.contract.model_contract_pb2.ModelContract</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt id="hydrosdk.contract.field_from_dict">
-<code class="sig-prename descclassname">hydrosdk.contract.</code><code class="sig-name descname">field_from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">field_name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">field_dict</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></span></em><span class="sig-paren">)</span> &#x2192; hydro_serving_grpc.contract.model_field_pb2.ModelField<a class="headerlink" href="#hydrosdk.contract.field_from_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">hydrosdk.contract.</code><code class="sig-name descname">field_from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">field_name</span></em>, <em class="sig-param"><span class="n">field_dict</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.contract.field_from_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Deserialization into ModelField.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>field_name</strong> – </p></li>
-<li><p><strong>field_dict</strong> – data</p></li>
+<li><p><strong>field_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
+<li><p><strong>field_dict</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – data</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises</dt>
@@ -389,16 +348,19 @@
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>ModelField</p>
 </dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>hydro_serving_grpc.contract.model_field_pb2.ModelField</p>
+</dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt id="hydrosdk.contract.field_to_dict">
-<code class="sig-prename descclassname">hydrosdk.contract.</code><code class="sig-name descname">field_to_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">field</span><span class="p">:</span> <span class="n">hydro_serving_grpc.contract.model_field_pb2.ModelField</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a><a class="headerlink" href="#hydrosdk.contract.field_to_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">hydrosdk.contract.</code><code class="sig-name descname">field_to_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">field</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.contract.field_to_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Serializes model field into name, profile and optional shape</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>field</strong> – model field</p>
+<dd class="field-odd"><p><strong>field</strong> (<em>hydro_serving_grpc.contract.model_field_pb2.ModelField</em>) – model field</p>
 </dd>
 <dt class="field-even">Raises</dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.8)"><strong>TypeError</strong></a> – If field is invalid</p>
@@ -406,16 +368,19 @@
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>dict with name and profile</p>
 </dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></p>
+</dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt id="hydrosdk.contract.mock_input_data">
-<code class="sig-prename descclassname">hydrosdk.contract.</code><code class="sig-name descname">mock_input_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">signature</span><span class="p">:</span> <span class="n">hydro_serving_grpc.contract.model_signature_pb2.ModelSignature</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.contract.mock_input_data" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">hydrosdk.contract.</code><code class="sig-name descname">mock_input_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">signature</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.contract.mock_input_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates dummy input data</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>signature</strong> – </p>
+<dd class="field-odd"><p><strong>signature</strong> (<em>hydro_serving_grpc.contract.model_signature_pb2.ModelSignature</em>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>list of input tensors</p>
@@ -426,28 +391,32 @@
 <dl class="py function">
 <dt id="hydrosdk.contract.parse_field">
 <code class="sig-prename descclassname">hydrosdk.contract.</code><code class="sig-name descname">parse_field</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">dtype</em>, <em class="sig-param">shape</em>, <em class="sig-param">profile=&lt;ProfilingType.NONE: 0&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.contract.parse_field" title="Permalink to this definition">¶</a></dt>
-<dd><p>Deserializes into model field</p>
+<dd><p>Creates a proto ModelField object</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> – name of model field</p></li>
-<li><p><strong>dtype</strong> – data type of model field</p></li>
-<li><p><strong>shape</strong> – shape of model field</p></li>
-<li><p><strong>profile</strong> – profile of model field</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – name of a model field</p></li>
+<li><p><strong>dtype</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em>, </em><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.dtype.html#numpy.dtype" title="(in NumPy v1.19)"><em>numpy.dtype</em></a><em>]</em>) – data type of model field, either string dtype alias (“double”, “int” .. ),
+proto DataType value or name, or a Numpy data type</p></li>
+<li><p><strong>shape</strong> (<em>Iterable</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em>]</em>) – shape of a model field</p></li>
+<li><p><strong>profile</strong> – profile of a model field</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises</dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.8)"><strong>ValueError</strong></a> – If dtype is invalid</p>
 </dd>
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>model field obj</p>
+<dd class="field-odd"><p>ModelField proto object</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>hydro_serving_grpc.contract.model_field_pb2.ModelField</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt id="hydrosdk.contract.shape_to_dict">
-<code class="sig-prename descclassname">hydrosdk.contract.</code><code class="sig-name descname">shape_to_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">shape</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a><a class="headerlink" href="#hydrosdk.contract.shape_to_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">hydrosdk.contract.</code><code class="sig-name descname">shape_to_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">shape</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.contract.shape_to_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Serializes model field’s shape to dict</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -456,22 +425,28 @@
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>dict with dim and unknown rank</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></p>
+</dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt id="hydrosdk.contract.signature_dict_to_ModelContract">
-<code class="sig-prename descclassname">hydrosdk.contract.</code><code class="sig-name descname">signature_dict_to_ModelContract</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model_name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">signature</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></span></em><span class="sig-paren">)</span> &#x2192; hydro_serving_grpc.contract.model_contract_pb2.ModelContract<a class="headerlink" href="#hydrosdk.contract.signature_dict_to_ModelContract" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">hydrosdk.contract.</code><code class="sig-name descname">signature_dict_to_ModelContract</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model_name</span></em>, <em class="sig-param"><span class="n">signature</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.contract.signature_dict_to_ModelContract" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper method that makes a ModelContract out of signature dict</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model_name</strong> – </p></li>
-<li><p><strong>signature</strong> – </p></li>
+<li><p><strong>model_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
+<li><p><strong>signature</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>hydro_serving_grpc.contract.model_contract_pb2.ModelContract</p>
 </dd>
 </dl>
 </dd></dl>

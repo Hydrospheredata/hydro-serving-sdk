@@ -1,4 +1,4 @@
-# Sample tutorial
+# Getting Started Tutorial
 This tutorial will show you how to use hydrosdk. You will learn how to upload your code as a model to Hydrosphere.io,
  setup your client code to make inference, and attach a monitoring metric to your model.
  

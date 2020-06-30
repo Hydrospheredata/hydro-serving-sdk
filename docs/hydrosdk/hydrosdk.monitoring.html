@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>hydrosdk.monitoring module &mdash; hydrosdk 2.3.0 documentation</title>
+  <title>hydrosdk.monitoring module &mdash; hydrosdk 2.3.2 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.3.0
+                2.3.2
               </div>
             
           
@@ -91,16 +91,15 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../whats_new.html">What’s new in 2.3.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whats_new.html">What’s new in 2.3.2</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Sample tutorial</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="hydrosdk.html">hydrosdk package</a><ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../getting_started_tutorial.html">Getting Started Tutorial</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="hydrosdk.html">hydrosdk API</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.application.html">hydrosdk.application module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.cluster.html">hydrosdk.cluster module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.contract.html">hydrosdk.contract module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.errors.html">hydrosdk.errors module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.exceptions.html">hydrosdk.exceptions module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="hydrosdk.host_selector.html">hydrosdk.host_selector module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.image.html">hydrosdk.image module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.modelversion.html">hydrosdk.modelversion module</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">hydrosdk.monitoring module</a></li>
@@ -156,7 +155,7 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-          <li><a href="hydrosdk.html">hydrosdk package</a> &raquo;</li>
+          <li><a href="hydrosdk.html">hydrosdk API</a> &raquo;</li>
         
       <li>hydrosdk.monitoring module</li>
     
@@ -193,6 +192,17 @@
 <dt id="hydrosdk.monitoring.MetricSpec">
 <em class="property">class </em><code class="sig-prename descclassname">hydrosdk.monitoring.</code><code class="sig-name descname">MetricSpec</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cluster</span><span class="p">:</span> <span class="n"><a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster">hydrosdk.cluster.Cluster</a></span></em>, <em class="sig-param"><span class="n">metric_spec_id</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></span></em>, <em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">model_version_id</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></span></em>, <em class="sig-param"><span class="n">config</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#hydrosdk.monitoring.MetricSpecConfig" title="hydrosdk.monitoring.MetricSpecConfig">hydrosdk.monitoring.MetricSpecConfig</a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.monitoring.MetricSpec" title="Permalink to this definition">¶</a></dt>
 <dd><p>Metric specification</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cluster</strong> (<a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster"><em>hydrosdk.cluster.Cluster</em></a>) – </p></li>
+<li><p><strong>metric_spec_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
+<li><p><strong>model_version_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>config</strong> (<a class="reference internal" href="#hydrosdk.monitoring.MetricSpecConfig" title="hydrosdk.monitoring.MetricSpecConfig"><em>hydrosdk.monitoring.MetricSpecConfig</em></a>) – </p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt id="hydrosdk.monitoring.MetricSpec.create">
 <em class="property">static </em><code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cluster</span><span class="p">:</span> <span class="n"><a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster">hydrosdk.cluster.Cluster</a></span></em>, <em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">model_version_id</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></span></em>, <em class="sig-param"><span class="n">config</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#hydrosdk.monitoring.MetricSpecConfig" title="hydrosdk.monitoring.MetricSpecConfig">hydrosdk.monitoring.MetricSpecConfig</a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.monitoring.MetricSpec.create" title="Permalink to this definition">¶</a></dt>
@@ -200,10 +210,10 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>cluster</strong> – active cluster</p></li>
-<li><p><strong>name</strong> – </p></li>
-<li><p><strong>model_version_id</strong> – </p></li>
-<li><p><strong>config</strong> – </p></li>
+<li><p><strong>cluster</strong> (<a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster"><em>hydrosdk.cluster.Cluster</em></a>) – active cluster</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
+<li><p><strong>model_version_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>config</strong> (<a class="reference internal" href="#hydrosdk.monitoring.MetricSpecConfig" title="hydrosdk.monitoring.MetricSpecConfig"><em>hydrosdk.monitoring.MetricSpecConfig</em></a>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises</dt>
@@ -226,6 +236,9 @@
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>result of deletion</p>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></p>
+</dd>
 </dl>
 </dd></dl>
 
@@ -236,8 +249,8 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>cluster</strong> – active cluster</p></li>
-<li><p><strong>metric_spec_id</strong> – </p></li>
+<li><p><strong>cluster</strong> (<a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster"><em>hydrosdk.cluster.Cluster</em></a>) – active cluster</p></li>
+<li><p><strong>metric_spec_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises</dt>
@@ -255,7 +268,7 @@
 <dd><p>Sends request and returns list with all available metric specs</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>cluster</strong> – active cluster</p>
+<dd class="field-odd"><p><strong>cluster</strong> (<a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster"><em>hydrosdk.cluster.Cluster</em></a>) – active cluster</p>
 </dd>
 <dt class="field-even">Raises</dt>
 <dd class="field-even"><p><a class="reference internal" href="hydrosdk.exceptions.html#hydrosdk.exceptions.MetricSpecException" title="hydrosdk.exceptions.MetricSpecException"><strong>MetricSpecException</strong></a> – If server returned not 200</p>
@@ -273,8 +286,8 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>cluster</strong> – active cluster</p></li>
-<li><p><strong>model_version_id</strong> – </p></li>
+<li><p><strong>cluster</strong> (<a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster"><em>hydrosdk.cluster.Cluster</em></a>) – active cluster</p></li>
+<li><p><strong>model_version_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises</dt>
@@ -292,12 +305,22 @@
 <dt id="hydrosdk.monitoring.MetricSpecConfig">
 <em class="property">class </em><code class="sig-prename descclassname">hydrosdk.monitoring.</code><code class="sig-name descname">MetricSpecConfig</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model_version_id</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></span></em>, <em class="sig-param"><span class="n">threshold</span><span class="p">:</span> <span class="n">Union<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)">float</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">threshold_op</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#hydrosdk.monitoring.TresholdCmpOp" title="hydrosdk.monitoring.TresholdCmpOp">hydrosdk.monitoring.TresholdCmpOp</a></span></em>, <em class="sig-param"><span class="n">servable</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.monitoring.MetricSpecConfig" title="Permalink to this definition">¶</a></dt>
 <dd><p>Metric specification config</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_version_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>float</strong><strong>] </strong><strong>threshold</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em>,</em>) – </p></li>
+<li><p><strong>threshold_op</strong> (<a class="reference internal" href="#hydrosdk.monitoring.TresholdCmpOp" title="hydrosdk.monitoring.TresholdCmpOp"><em>hydrosdk.monitoring.TresholdCmpOp</em></a>) – </p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py class">
 <dt id="hydrosdk.monitoring.TresholdCmpOp">
 <em class="property">class </em><code class="sig-prename descclassname">hydrosdk.monitoring.</code><code class="sig-name descname">TresholdCmpOp</code><a class="headerlink" href="#hydrosdk.monitoring.TresholdCmpOp" title="Permalink to this definition">¶</a></dt>
-<dd><p>Threshold comparison operator</p>
+<dd><p>Threshold comparison operator is used to check if ModelVersion is healthy
+Model is healthy if {metric_value}{TresholdCmpOp}{threshold}</p>
 </dd></dl>
 
 </div>

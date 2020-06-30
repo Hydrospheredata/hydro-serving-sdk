@@ -7,7 +7,8 @@ from hydrosdk.exceptions import MetricSpecException
 
 class TresholdCmpOp:
     """
-    Threshold comparison operator
+    Threshold comparison operator is used to check if ModelVersion is healthy
+    Model is healthy if {metric_value}{TresholdCmpOp}{threshold}
     """
     EQ = "Eq"
     NOT_EQ = "NotEq"
@@ -21,6 +22,7 @@ class MetricModel:
     """
     Model having extra metric fields
     """
+
     def __init__(self, model, threshold, comparator):
         self.model = model
         self.threshold = threshold
@@ -31,6 +33,7 @@ class MetricSpecConfig:
     """
     Metric specification config
     """
+
     def __init__(self, model_version_id: int, threshold: Union[int, float], threshold_op: TresholdCmpOp, servable=None):
         self.servable = servable
         self.threshold_op = threshold_op
@@ -45,7 +48,7 @@ class MetricSpec:
     BASE_URL = "/api/v2/monitoring/metricspec"
     GET_SPEC_URL = BASE_URL + "/"
 
-# FIXME: if modelversion upload failed it would not have a servable and will fail here (try runnning fail_upload tests before monitoring tests in tests_modelversions)
+    # FIXME: if modelversion upload failed it would not have a servable and will fail here (try runnning fail_upload tests before monitoring tests in tests_modelversions)
     @staticmethod
     def __parse_json(cluster: Cluster, json_dict: dict) -> 'MetricSpec':
         """

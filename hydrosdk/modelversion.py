@@ -4,12 +4,12 @@ import logging
 import os
 import tarfile
 from enum import Enum
-from typing import Optional, List
+from typing import Optional, List, Dict
 
 import sseclient
 import yaml
 from hydro_serving_grpc.contract import ModelContract
-from hydro_serving_grpc.manager import ModelVersion as grpc_ModelVersion, DockerImage as DockerImageProto
+from hydro_serving_grpc.manager import ModelVersion as ModelVersionProto, DockerImage as DockerImageProto
 from requests_toolbelt.multipart.encoder import MultipartEncoder
 
 from hydrosdk.cluster import Cluster
@@ -117,49 +117,29 @@ class Metricable:
 
 
 class LocalModel(Metricable):
-    """
-    Local Model
-    A model is a machine learning model or a processing function that consumes provided inputs
-    and produces predictions or transformations
 
-    https://hydrosphere.io/serving-docs/latest/overview/concepts.html#models
-    """
+    def __init__(self,
+                 name: str,
+                 runtime: DockerImage,
+                 payload: List[str],
+                 contract: Optional[ModelContract] = None,
+                 path: Optional[str] = None,
+                 metadata: Optional[Dict[str, str]] = None,
+                 install_command: Optional[str] = None,
+                 training_data: Optional[str] = None):
+        """
+        Creates a LocalModel with all the information needed to upload it to a cluster.
 
-    @staticmethod
-    def create(path, name, runtime, contract=None, install_command=None):
+        :param name: The model name
+        :param runtime: A Docker image used to run your code.
+        :param payload: A list of paths to files (absolute or relative) with any additional resources that
+         will be exported to the container. If the `path` is provided, it'll be appended as a prefix to all paths inside the payload.
+        :param contract: ModelContract which specifies name of function called, as well as its types and shapes of both inputs and outputs
+        :param path: Common path (absolute or relative) to a directory, which is used as a prefix path for all paths in a payload.
+        :param metadata: Dictionary with string keys and values used for describing uploaded ModelVersions
+        :param install_command: Command to run with `runtime` when uploaded
+        :param training_data: Path (absolute, relative or an S3 URI) to a csv file with training data
         """
-        Validates contract
-        :param path:
-        :param name:
-        :param runtime:
-        :param contract:
-        :param install_command:
-        :return: None
-        """
-        if contract:
-            contract.validate()
-        else:
-            pass  # infer the contract
-        pass
-
-    @staticmethod
-    def from_file(path):
-        """
-        Reads model definition from .yaml file or serving.py
-        :param path:
-        :raises ValueError: If not yaml or py
-        :return: LocalModel obj
-        """
-        ext = os.path.splitext(path)[1]
-        if ext in ['.yml', '.yaml']:
-            return read_yaml(path)
-        elif ext == '.py':
-            raise NotImplementedError(".py file parsing is not supported yet")
-        else:
-            raise ValueError("Unsupported file extension: {}".format(ext))
-
-    def __init__(self, name, runtime, payload, contract=None, path=None, metadata=None, install_command=None,
-                 training_data=None):
         super().__init__()
 
         if not isinstance(name, str):
@@ -216,6 +196,22 @@ class LocalModel(Metricable):
     def __repr__(self):
         return "LocalModel {}".format(self.name)
 
+    @staticmethod
+    def from_file(path):
+        """
+        Reads model definition from .yaml file or serving.py
+        :param path:
+        :raises ValueError: If not yaml or py
+        :return: LocalModel obj
+        """
+        ext = os.path.splitext(path)[1]
+        if ext in ['.yml', '.yaml']:
+            return read_yaml(path)
+        elif ext == '.py':
+            raise NotImplementedError(".py file parsing is not supported yet")
+        else:
+            raise ValueError("Unsupported file extension: {}".format(ext))
+
     def __upload(self, cluster: Cluster) -> 'UploadResponse':
         """
         Direct implementation of uploading one model to the server. For internal usage
@@ -268,11 +264,12 @@ class LocalModel(Metricable):
         else:
             raise ValueError("Error during model upload. {}".format(result.text))
 
-    def upload(self, cluster: Cluster, wait: bool = True) -> dict:
+    def upload(self, cluster: Cluster, wait: bool = True) -> Dict['LocalModel', 'UploadResponse']:
         """
-        Uploads Local Model
-        :param cluster: active cluster
-        :param wait: wait till model version is released
+        Uploads LocalModel to a Hydrosphere cluster
+
+        :param cluster: Hydrosphere cluster
+        :param wait: If True, method waits for the model "Released" status
         :return: {model_obj: upload_resp}
         """
 
@@ -312,7 +309,7 @@ class LocalModel(Metricable):
 
 class ModelVersionStatus(Enum):
     """
-    Model building statuses
+    Model building statuses.
     """
     Assembling = "Assembling"
     Released = "Released"
@@ -321,23 +318,69 @@ class ModelVersionStatus(Enum):
 
 class ModelVersion(Metricable):
     """
-    Model (A model is a machine learning model or a processing function that consumes provided inputs
+    ModelVersion is a machine learning model or a processing function that consumes provided inputs
     and produces predictions or transformations
-    https://hydrosphere.io/serving-docs/latest/overview/concepts.html#models)
+
     ModelVersion represents one of the Model's versions.
     """
+
     BASE_URL = "/api/v2/model"
+
+    def __init__(self,
+                 id: int,
+                 model_id: int,
+                 name: str,
+                 version: int,
+                 contract: ModelContract,
+                 cluster: Cluster,
+                 status: Optional[ModelVersionStatus],
+                 image: Optional[Dict],
+                 runtime: Optional[DockerImage],
+                 is_external: bool,
+                 metadata: dict = None,
+                 install_command: str = None):
+        """
+
+        :param id: ModelVersion id assigned by the cluster
+        :param model_id: Model id assigned by the cluster
+        :param name: The name of the Model this ModelVersion belongs to.
+        :param version: The version of the Model this ModelVersion belongs to.
+        :param contract: ModelContract which specifies name of function called, as well as its types and shapes of both inputs and outputs
+        :param cluster: Hydrosphere cluster
+        :param status: Status of this ModelVersion, one of {Assembling, Released, Failed}
+        :param image: Dict[uri, tag, sha] which represents the ModelVersion image inside cluster DockerRegistry
+        :param runtime: DockerImage of a runtime which was used to build an 'image'
+        :param is_external: Indicates whether model is running outside the Cluster
+        :param metadata: Dictionary with string keys and values used for describing ModelVersion
+        :param install_command: Command which was run in the `runtime` when this ModelVersion was uploaded
+        """
+        super().__init__()
+
+        self.id = id
+        self.model_id = model_id
+        self.name = name
+        self.runtime = runtime
+        self.is_external = is_external
+        self.contract = contract
+        self.cluster = cluster
+        self.version = version
+        self.image = image
+
+        self.status = status
+
+        self.metadata = metadata
+        self.install_command = install_command
 
     @staticmethod
     def find(cluster: Cluster, name: str, version: int) -> 'ModelVersion':
         """
-        Finds a model on server by name and version (not ModelVersion!)
+        Finds an uploaded ModelVersion in a cluster by its name and version
 
-        :param cluster: active cluster
-        :param name: model name
-        :param version: version
+        :param cluster: Hydrosphere cluster
+        :param name: The model name
+        :param version: The model version
         :raises Exception: if server returned not 200
-        :return: ModelVersion obj
+        :return: ModelVersion
         """
         resp = cluster.request("GET", ModelVersion.BASE_URL + "/version/{}/{}".format(name, version))
 
@@ -352,12 +395,12 @@ class ModelVersion(Metricable):
     @staticmethod
     def find_by_id(cluster: Cluster, id_) -> 'ModelVersion':
         """
-        Finds a modelversion on server by id
+        Finds an uploaded ModelVersion in a cluster by its id
 
-        :param cluster: active cluster
-        :param id_: model version id
+        :param cluster: Hydrosphere cluster
+        :param id_: The ModelVersion id
         :raises Exception: if server returned not 200
-        :return: ModelVersion obj
+        :return: ModelVersion
         """
         resp = cluster.request("GET", ModelVersion.BASE_URL + "/version")
 
@@ -370,12 +413,13 @@ class ModelVersion(Metricable):
             f"Failed to find_by_id ModelVersion for model_version_id={id_}. {resp.status_code} {resp.text}")
 
     @staticmethod
-    def from_json(cluster: Cluster, model_version: dict) -> 'ModelVersion':
+    def from_json(cluster: Cluster, model_version: Dict) -> 'ModelVersion':
         """
-        Internal method used for deserealization of a Model from json object
-        :param cluster:
-        :param model_version: a dictionary
-        :return: A Model instance
+        Deserialize ModelVersion from a JSON object
+
+        :param cluster: Hydrosphere Cluster
+        :param model_version: JSON representation of a ModelVersion
+        :return: ModelVersion
         """
         id_ = model_version["id"]
         name = model_version["model"]["name"]
@@ -416,13 +460,15 @@ class ModelVersion(Metricable):
     @staticmethod
     def create(cluster, name: str, contract: ModelContract, metadata: Optional[dict] = None) -> 'ModelVersion':
         """
-        Creates modelversion on the server
-        :param cluster: active cluster
-        :param name: name of model
-        :param contract:
-        :param metadata:
-        :raises Exception: If server returned not 200
-        :return: modelversion
+        Register an external ModelVersion. Learn more about external models here -
+         https://hydrosphere.io/serving-docs/latest/how-to/monitoring-external-models.html
+
+        :param cluster: Hydrosphere cluster
+        :param name: The model name
+        :param contract: ModelContract which specifies name of function called, as well as its types and shapes of both inputs and outputs
+        :param metadata: Dictionary with string keys and values used for describing uploaded ModelVersions
+        :raises BadRequest: If server returned not 200
+        :return: ModelVersion
         """
         model = {
             "name": name,
@@ -439,12 +485,14 @@ class ModelVersion(Metricable):
             f"Failed to create external model. External model = {model}. {resp.status_code} {resp.text}")
 
     @staticmethod
-    def delete_by_model_id(cluster: Cluster, model_id: int) -> dict:
+    def delete_by_model_id(cluster: Cluster, model_id: int) -> Dict:
         """
-        Deletes modelversion by model id
-        :param cluster: active cluster
-        :param model_id: model version id
-        :return: if 200, json. Otherwise None
+        Permanently deletes ModelVersion from the cluster
+
+        :param cluster: Hydrosphere cluster
+        :param model_id: The ModelVersion id
+        :raises BadRequest: In case of non-ok responses
+        :return:
         """
         res = cluster.request("DELETE", ModelVersion.BASE_URL + "/{}".format(model_id))
         if res.ok:
@@ -455,10 +503,10 @@ class ModelVersion(Metricable):
     @staticmethod
     def list_model_versions(cluster) -> List['ModelVersion']:
         """
-        List all model versions on server
+        List all Model Versions uploaded to the cluster
 
-        :param cluster: active cluster
-        :return: list of modelversions
+        :param cluster: Hydrosphere cluster
+        :return: List of uploaded Model Versions
         """
         resp = cluster.request("GET", ModelVersion.BASE_URL + "/version")
 
@@ -476,11 +524,11 @@ class ModelVersion(Metricable):
     @staticmethod
     def list_modelversions_by_model_name(cluster: Cluster, model_name: str) -> list:
         """
-        List all model versions on server filtered by model_name, sorted in ascending order by version
+        List all Model Versions uploaded to the cluster filtered by model_name, sorted in ascending order by version
 
-        :param cluster: active cluster
-        :param model_name: model name
-        :return: list of Models versions for provided model name
+        :param cluster: Hydrosphere cluster
+        :param model_name: The Model name
+        :return: List of ModelVersions with `model_name`
         """
         all_models = ModelVersion.list_model_versions(cluster=cluster)
 
@@ -490,13 +538,12 @@ class ModelVersion(Metricable):
 
         return sorted_by_version
 
-    def to_proto(self):
+    def to_proto(self) -> ModelVersionProto:
         """
-        Turns Model to Model version
-
-        :return: model version obj
+        Converts ModelVersion object into a ModelVersion proto message
+        :return: ModelVersion proto message
         """
-        return grpc_ModelVersion(
+        return ModelVersionProto(
             _id=self.id,
             name=self.name,
             version=self.version,
@@ -505,26 +552,6 @@ class ModelVersion(Metricable):
             image=DockerImageProto(name=self.image.name, tag=self.image.tag),
             image_sha=self.image.sha256
         )
-
-    def __init__(self, id: int, model_id: int, name: str, version: int, contract: ModelContract, cluster: Cluster,
-                 status: Optional[ModelVersionStatus], image: Optional[dict],
-                 runtime: Optional[DockerImage], is_external: bool, metadata: dict = None, install_command: str = None):
-        super().__init__()
-
-        self.id = id
-        self.model_id = model_id
-        self.name = name
-        self.runtime = runtime
-        self.is_external = is_external
-        self.contract = contract
-        self.cluster = cluster
-        self.version = version
-        self.image = image
-
-        self.status = status
-
-        self.metadata = metadata
-        self.install_command = install_command
 
     def __repr__(self):
         return "ModelVersion {}:{}".format(self.name, self.version)
