@@ -125,3 +125,6 @@ class Cluster:
 
     class BadResponse(Exception):
         pass
+
+    class UnknownException(Exception):
+        pass

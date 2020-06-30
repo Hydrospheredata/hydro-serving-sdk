@@ -91,7 +91,7 @@ class MetricSpec:
                 }
             }
         }
-        resp = cluster.request("post", MetricSpec.BASE_URL, json=d)
+        resp = cluster.request("POST", MetricSpec.BASE_URL, json=d)
         if resp.ok:
             return MetricSpec.__parse_json(cluster, resp.json())
         else:

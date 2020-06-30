@@ -6,10 +6,12 @@ import tarfile
 import time
 import urllib.parse
 from enum import Enum
-from typing import Optional, List, Tuple
+from typing import Optional, Dict, List, Tuple, Iterator, Generator
 
 import sseclient
+import requests
 import yaml
+from sseclient import Event
 from hydro_serving_grpc.contract import ModelContract
 from hydro_serving_grpc.manager import ModelVersion as grpc_ModelVersion, DockerImage as DockerImageProto
 from requests_toolbelt.multipart.encoder import MultipartEncoder
@@ -22,7 +24,16 @@ from hydrosdk.image import DockerImage
 from hydrosdk.monitoring import MetricSpec, MetricSpecConfig, MetricModel
 
 
-def upload_training_data(cluster: Cluster, model_version_id: int, path: str):
+def _upload_training_data(cluster: Cluster, model_version_id: int, path: str) -> 'DataUploadResponse':
+    """
+    Upload training data to Hydrosphere
+
+    :param cluster: Cluster instance
+    :param model_version_id: Id of the model version, for which to upload training data
+    :param path: Path to the training data
+    :raises Cluster.BadResponse: if request failed to process by Hydrosphere
+    :return: DataUploadResponse obj
+    """
     if path.startswith('s3://'):
         response = _upload_s3_file(cluster, model_version_id, path)
     else:
@@ -32,7 +43,8 @@ def upload_training_data(cluster: Cluster, model_version_id: int, path: str):
     raise Cluster.BadResponse('Failed to upload training data')
 
 
-def _upload_local_file(cluster: Cluster, model_version_id: int, path: str, chunk_size=1024):
+def _upload_local_file(cluster: Cluster, model_version_id: int, path: str, 
+                       chunk_size=1024) -> requests.Response:
     """
     Internal method for uploading local training data to Hydrosphere.
 
@@ -41,7 +53,7 @@ def _upload_local_file(cluster: Cluster, model_version_id: int, path: str, chunk
     :param path: path to a local file
     :param chunk_size: chunk size to use for streaming
     """
-    def read_in_chunks(filename, chunk_size):
+    def read_in_chunks(filename: str, chunk_size: int) -> Generator[bytes, None, None]:
         """ Generator to read a file peace by peace. """
         with open(filename, "rb") as file:
             while True:
@@ -55,7 +67,7 @@ def _upload_local_file(cluster: Cluster, model_version_id: int, path: str, chunk
     return cluster.request("POST", url, data=gen, stream=True)
 
 
-def _upload_s3_file(cluster: Cluster, model_version_id: int, path: str):
+def _upload_s3_file(cluster: Cluster, model_version_id: int, path: str) -> requests.Response:
     """
     Internal method for submitting training data from S3 to Hydrosphere.
 
@@ -67,7 +79,7 @@ def _upload_s3_file(cluster: Cluster, model_version_id: int, path: str):
     return cluster.request("POST", url, json={"path": path})
     
 
-def resolve_paths(path, payload):
+def resolve_paths(path: str, payload: List[str]) -> Dict[str, str]:
     """
     Appends each element of payload to the path and makes {resolved_path: payload_element} dict
 
@@ -78,98 +90,7 @@ def resolve_paths(path, payload):
     return {os.path.normpath(os.path.join(path, v)): v for v in payload}
 
 
-def read_yaml(path):
-    """
-    Deserializes LocalModel from yaml definition
-
-    :param path:
-    :raises InvalidYAMLFile: if passed yamls are invalid
-    :return: LocalModel obj
-    """
-    logger = logging.getLogger('read_yaml')
-    with open(path, 'r') as f:
-        model_docs = [x for x in yaml.safe_load_all(f) if x.get("kind").lower() == "model"]
-    if not model_docs:
-        raise InvalidYAMLFile(path, "Couldn't find proper documents (kind: model)")
-    if len(model_docs) > 1:
-        logger.warning("Multiple YAML documents detected. Using the first one.")
-        logger.debug(model_docs[0])
-    model_doc = model_docs[0]
-    name = model_doc.get('name')
-    if not name:
-        raise InvalidYAMLFile(path, "name is not defined")
-    folder = os.path.dirname(path)
-    original_payload = model_doc.get('payload')
-    if not original_payload:
-        raise InvalidYAMLFile(path, "payload is not defined")
-    payload = resolve_paths(folder, original_payload)
-    full_runtime = model_doc.get('runtime')
-    if not full_runtime:
-        raise InvalidYAMLFile(path, "runtime is not defined")
-    split = full_runtime.split(":")
-    runtime = DockerImage(
-        name=split[0],
-        tag=split[1],
-        sha256=None
-    )
-    contract = model_doc.get('contract')
-
-    if contract:
-        protocontract = contract_yaml_to_ModelContract(model_name=name, yaml_contract=contract)
-    else:
-        protocontract = None
-
-    training_data = model_doc.get('training-data')
-    if training_data is not None:
-        parse = urllib.parse(training_data)
-        if parse.schema != 's3' and not os.path.isabs(training_data): 
-            training_data = os.path.join(os.path.dirname(path), training_data)
-
-    model = LocalModel(
-        name=name,
-        contract=protocontract,
-        runtime=runtime,
-        payload=payload,
-        path=path,
-        training_data=training_data,
-        install_command=model_doc.get('install-command'),
-        metadata=model_doc.get('metadata')
-    )
-    return model
-
-
-class Metricable:
-    """
-    Every model can be monitored with a set of metrics (https://hydrosphere.io/serving-docs/latest/overview/concepts.html#metrics)
-    """
-
-    def __init__(self):
-        self.metrics: [Metricable] = []
-
-    def as_metric(self, threshold: int, comparator: MetricSpec) -> MetricModel:
-        """
-        Turns model into Metric Model
-
-        :param threshold:
-        :param comparator:
-        :return: MetricModel
-        """
-
-        return MetricModel(model=self, threshold=threshold, comparator=comparator)
-
-    def with_metrics(self, metrics: list):
-        """
-        Adds metrics to the model
-
-        :param metrics: list of metrics
-        :return: self Metricable
-        """
-
-        self.metrics = metrics
-        return self
-
-
-class LocalModel(Metricable):
+class LocalModel:
     """
     Local Model
     A model is a machine learning model or a processing function that consumes provided inputs
@@ -178,40 +99,7 @@ class LocalModel(Metricable):
     https://hydrosphere.io/serving-docs/latest/overview/concepts.html#models
     """
 
-    @staticmethod
-    def create(name, runtime, payload, contract=None, install_command=None):
-        """
-        Create an instance of local model without inferring serving.yaml.
-
-        :param name:
-        :param runtime:
-        :param contract:
-        :param install_command:
-        :return: None
-        """
-        if contract:
-            contract.validate()
-        else:
-            pass  # infer the contract
-        pass
-
-    @staticmethod
-    def from_file(path):
-        """
-        Reads model definition from .yaml file or serving.py
-        :param path:
-        :raises ValueError: If not yaml or py
-        :return: LocalModel obj
-        """
-        ext = os.path.splitext(path)[1]
-        if ext in ['.yml', '.yaml']:
-            return read_yaml(path)
-        elif ext == '.py':
-            raise NotImplementedError(".py file parsing is not supported yet")
-        else:
-            raise ValueError("Unsupported file extension: {}".format(ext))
-
-    def __init__(self, name, runtime, payload, contract=None, path=None, metadata=None, install_command=None,
+    def __init__(self, name, runtime, payload, path, contract=None, metadata=None, install_command=None,
                  training_data=None):
         super().__init__()
 
@@ -267,9 +155,9 @@ class LocalModel(Metricable):
         self.training_data = training_data
 
     def __repr__(self):
-        return "LocalModel {}".format(self.name)
+        return f"LocalModel {self.name}"
 
-    def __upload(self, cluster: Cluster) -> 'ModelUploadResponse':
+    def upload(self, cluster: Cluster) -> 'ModelVersion':
         """
         Direct implementation of uploading one model to the server. For internal usage
 
@@ -278,27 +166,23 @@ class LocalModel(Metricable):
         :return: ModelUploadResponse obj
         """
         logger = logging.getLogger("ModelDeploy")
-
-        events_response = cluster.request("GET", "/api/v2/events", stream=True)
-        sse_client = sseclient.SSEClient(events_response)
-
-        now_time = datetime.datetime.now()
         hs_folder = ".hs"
         os.makedirs(hs_folder, exist_ok=True)
-        tarballname = "{}-{}".format(self.name, now_time)
-        tarpath = os.path.join(hs_folder, tarballname)
-        logger.debug("Creating payload tarball {} for {} model".format(tarpath, self.name))
+        tarpath = os.path.join(hs_folder, f"{self.name}-{datetime.datetime.now()}")
+
+        logger.debug("Creating payload tarball %s for %s model", tarpath, self.name)
         with tarfile.open(tarpath, "w:gz") as tar:
             for source, target in self.payload.items():
                 logger.debug("Archiving %s as %s", source, target)
                 tar.add(source, arcname=target)
-        # TODO upload it to the manager
 
         meta = {
             "name": self.name,
-            "runtime": {"name": self.runtime.name,
-                        "tag": self.runtime.tag,
-                        "sha256": self.runtime.sha256},
+            "runtime": {
+                "name": self.runtime.name,
+                "tag": self.runtime.tag,
+                "sha256": self.runtime.sha256
+            },
             "contract": ModelContract_to_contract_dict(self.contract),
             "installCommand": self.install_command,
             "metadata": self.metadata
@@ -310,58 +194,27 @@ class LocalModel(Metricable):
                 "metadata": json.dumps(meta)
             }
         )
-        result = cluster.request("POST", "/api/v2/model/upload",
-                                 data=encoder,
-                                 headers={'Content-Type': encoder.content_type})
-        if result.ok:
-            model_version_json = result.json()
-            modelversion = ModelVersion.from_json(cluster=cluster, model_version=model_version_json)
+        resp = cluster.request("POST", "/api/v2/model/upload",
+                               data=encoder,
+                               headers={'Content-Type': encoder.content_type})
+        if resp.ok:
+            modelversion = ModelVersion.from_json(
+                cluster=cluster, model_version=resp.json())
             modelversion.training_data = self.training_data
-            return ModelUploadResponse(modelversion=modelversion, sse_client=sse_client)
+            return modelversion
+        elif 400 <= resp.status_code < 500:
+            raise LocalModel.BadRequest(
+                f"Client error during model upload ({resp.status_code}): {resp.text}")
+        elif 500 <= resp.status_code < 600:
+            raise Cluster.BadResponse(
+                f"Server error during model upload ({resp.status_code}): {resp.text}")
         else:
-            raise ValueError("Error during model upload. {}".format(result.text))
+            raise Cluster.UnknownException(
+                f"Unexpected status code during model upload ({resp.status_code}): {resp.text}")
 
-    def upload(self, cluster: Cluster, wait: bool = True) -> dict:
-        """
-        Uploads Local Model
-        :param cluster: active cluster
-        :param wait: wait till model version is released
-        :return: {model_obj: upload_resp}
-        """
+    class BadRequest(Exception): 
+        pass
 
-        # TODO divide into two different methods, more details @kmakarychev
-        root_model_upload_response = self.__upload(cluster)
-
-        # if wait flag == True and uploading failed we raise an error, otherwise continue execution
-        if not root_model_upload_response.lock_till_released() and wait:
-            raise ModelVersion.BadRequest(
-                (f"Model version {root_model_upload_response.modelversion.id} has upload status: "
-                 f"{ModelVersionStatus.Failed.value}"))
-
-        models_dict = {self: root_model_upload_response}
-        if self.metrics:
-            for metric in self.metrics:
-                upload_response = metric.model.__upload(cluster)
-
-                # if wait flag == True and uploading failed we raise an error, otherwise continue execution
-                if not upload_response.lock_till_released() and wait:
-                    raise ModelVersion.BadRequest(
-                        (f"Model version {upload_response.modelversion.id} has upload status: "
-                         f"{ModelVersionStatus.Failed.value}"))
-
-                msc = MetricSpecConfig(model_version_id=upload_response.modelversion.id,
-                                       threshold=metric.threshold,
-                                       threshold_op=metric.comparator)
-
-                ms = MetricSpec.create(cluster=upload_response.modelversion.cluster,
-                                       name=upload_response.modelversion.name,
-                                       model_version_id=root_model_upload_response.modelversion.id,
-                                       config=msc)
-
-                models_dict[metric] = upload_response
-
-        return models_dict
-    
 
 class ModelVersionStatus(Enum):
     """
@@ -371,8 +224,20 @@ class ModelVersionStatus(Enum):
     Released = "Released"
     Failed = "Failed"
 
+    @classmethod
+    def is_assembling(cls, status: str) -> bool:
+        if status == cls.Assembling.value:
+            return True
+        return False
 
-class ModelVersion(Metricable):
+    @classmethod
+    def is_released(cls, status: str) -> bool:
+        if status == cls.Released.value:
+            return True
+        return False
+
+
+class ModelVersion:
     """
     Model (A model is a machine learning model or a processing function that consumes provided inputs
     and produces predictions or transformations
@@ -400,16 +265,16 @@ class ModelVersion(Metricable):
 
         else:
             raise ModelVersion.NotFound(
-                f"Failed to find ModelVersion for name={name}, version={version} . {resp.status_code} {resp.text}")
+                f"Failed to find ModelVersion for name={name}, version={version}. {resp.status_code} {resp.text}")
 
     @staticmethod
     def find_by_id(cluster: Cluster, id_) -> 'ModelVersion':
         """
-        Finds a modelversion on server by id
+        Finds a modelversion on server by id.
 
         :param cluster: active cluster
         :param id_: model version id
-        :raises Exception: if server returned not 200
+        :raises ModelVersion.NotFound: if failed to return modelversion 
         :return: ModelVersion obj
         """
         resp = cluster.request("GET", ModelVersion.BASE_URL + "/version")
@@ -425,10 +290,11 @@ class ModelVersion(Metricable):
     @staticmethod
     def from_json(cluster: Cluster, model_version: dict) -> 'ModelVersion':
         """
-        Internal method used for deserealization of a Model from json object
-        :param cluster:
-        :param model_version: a dictionary
-        :return: A Model instance
+        Internal method used for deserealization of a Model from json object.
+
+        :param cluster: active cluster
+        :param model_version: json response from the server
+        :return: instance of ModelVersion
         """
         id_ = model_version["id"]
         name = model_version["model"]["name"]
@@ -467,15 +333,19 @@ class ModelVersion(Metricable):
         )
 
     @staticmethod
-    def create(cluster, name: str, contract: ModelContract, metadata: Optional[dict] = None, training_data: str = None) -> 'ModelVersion':
+    def create(cluster: Cluster, name: str, contract: ModelContract, 
+               metadata: Optional[dict] = None, training_data: Optional[str] = None) -> 'ModelVersion':
         """
-        Creates modelversion on the server
+        Creates an external model version on the server. 
+
         :param cluster: active cluster
         :param name: name of model
-        :param contract:
-        :param metadata:
-        :raises Exception: If server returned not 200
-        :return: modelversion
+        :param contract: contract of the model
+        :param metadata: metadata for the model
+        :raises ModelVersion.BadRequest: if a model registration request was invalid
+        :raises Cluster.BadResponse: if the server failed to register an external model
+        :raises Cluster.UnknownException: if received unknown exception from the server
+        :return: instance of ModelVersion
         """
         model = {
             "name": name,
@@ -489,13 +359,20 @@ class ModelVersion(Metricable):
             modelversion = ModelVersion.from_json(cluster=cluster, model_version=resp_json)
             modelversion.training_data = training_data
             return modelversion
-        raise ModelVersion.BadRequest(
-            f"Failed to create external model. External model = {model}. {resp.status_code} {resp.text}")
+        elif 400 <= resp.status_code < 500:
+            raise ModelVersion.BadRequest(
+                f"Failed to create_externalmodel. {resp.status_code} {resp.text}")
+        elif 500 <= resp.status_code < 600:
+            raise Cluster.BadResponse(
+                f"Failed to create_externalmodel. {resp.status_code} {resp.text}")
+        else:
+            raise Cluster.UnknownException("Received unknown exception. {}".format(resp.text))
 
     @staticmethod
     def delete_by_model_id(cluster: Cluster, model_id: int) -> dict:
         """
-        Deletes modelversion by model id
+        Deletes modelversion by model id.
+
         :param cluster: active cluster
         :param model_id: model version id
         :return: if 200, json. Otherwise None
@@ -503,8 +380,8 @@ class ModelVersion(Metricable):
         res = cluster.request("DELETE", ModelVersion.BASE_URL + "/{}".format(model_id))
         if res.ok:
             return res.json()
-
-        raise ModelVersion.BadRequest(f"Failed to list delete by id modelversions. {res.status_code} {res.text}")
+        raise ModelVersion.BadRequest(
+            f"Failed to delete_by_model_id for model_id={model_id}. {res.status_code} {res.text}")
 
     @staticmethod
     def list_model_versions(cluster) -> List['ModelVersion']:
@@ -518,14 +395,11 @@ class ModelVersion(Metricable):
 
         if resp.ok:
             model_versions_json = resp.json()
-
             model_versions = [ModelVersion.from_json(cluster=cluster, model_version=model_version_json)
                               for model_version_json in model_versions_json]
-
             return model_versions
-
         raise Cluster.BadResponse(
-            f"Failed to list model versions. {resp.status_code} {resp.text}")
+            f"Failed to list_model_versions. {resp.status_code} {resp.text}")
 
     @staticmethod
     def list_modelversions_by_model_name(cluster: Cluster, model_name: str) -> list:
@@ -537,21 +411,91 @@ class ModelVersion(Metricable):
         :return: list of Models versions for provided model name
         """
         all_models = ModelVersion.list_model_versions(cluster=cluster)
-
         modelversions_by_name = [model for model in all_models if model.name == model_name]
-
         sorted_by_version = sorted(modelversions_by_name, key=lambda model: model.version)
-
         return sorted_by_version
     
+    def _poll_status(self):
+        """Updates status of the current modelversion."""
+        self.status = self.find(self.cluster, self.name, self.version).status
+    
+    def lock_till_released(self) -> bool:
+        """
+        Waits till the model completes assembling.
+
+        :return: True if model has been released successfully, False otherwise
+        """
+        events_steam = cluster.request("GET", "/api/v2/events", stream=True)
+        events_client = sseclient.SSEClient(events_stream)
+
+        self._poll_status()
+        if not ModelVersionStatus.is_assembling(self.status) \
+                and ModelVersionStatus.is_released(self.status): 
+            return True
+        try:
+            for event in events_client.events():
+                if event.event == "ModelUpdate":
+                    data = json.loads(event.data)
+                    if data.get("id") == self.id:
+                        return ModelVersionStatus.is_released(data.get("status"))
+        finally:
+            events_client.close()
+    
+    def logs(self) -> Iterator[Event]:
+        """
+        Sends request, saves and returns a logs iterator.
+
+        :return: Iterator over sseclient.Event
+        """
+        url = "/api/v2/model/version/{}/logs".format(self.modelversion.id)
+        logs_response = self.cluster.request("GET", url, stream=True)
+        return sseclient.SSEClient(logs_response).events()
+
     def upload_training_data(self) -> 'DataUploadResponse':
+        """
+        Uploads training data for a given modelversion.
+
+        :raises: ValueError if training data is not specified
+        """
         if self.training_data is not None:
-            return upload_training_data(self.cluster, self.id, self.training_data)
+            return _upload_training_data(self.cluster, self.id, self.training_data)
         raise ValueError('Training data is not specified')
+
+    def assign_metrics(self, metrics: List[MetricModel], wait: bool = True):
+        """
+        Adds metrics to the model.
+
+        :param metrics: list of metrics
+        :return: self
+        """
+        if wait and not self.lock_till_released():
+            raise ModelVersion.BadRequest(
+                f"Failed to assign_metrics for {self.name}:{self.version}. Monitored model failed to be released."
+            )
+        
+        for metric in metrics:
+            modelversion = metric.model.upload(self.cluster)
+            if wait and not modelversion.lock_till_released():
+                raise ModelVersion.BadRequest(
+                    f"Failed to assign_metrics for {self.name}:{self.version}. "
+                    f"Monitoring model {modelversion.name}:{modelversion.version} failed to be released."
+                )
+
+            msc = MetricSpecConfig(
+                model_version_id=modelversion.id,
+                threshold=metric.threshold,
+                threshold_op=metric.comparator
+            )
+            ms = MetricSpec.create(
+                cluster=self.cluster,
+                name=modelversion.name,
+                model_version_id=self.id,
+                config=msc
+            )
 
     def to_proto(self):
         """
-        Turns Model to Model version
+        Converts to ModelVersion protobuf message.
 
         :return: model version obj
         """
@@ -564,6 +508,16 @@ class ModelVersion(Metricable):
             image=DockerImageProto(name=self.image.name, tag=self.image.tag),
             image_sha=self.image.sha256
         )
+    
+    def as_metric(self, threshold: int, comparator: MetricSpec) -> MetricModel:
+        """
+        Converts model to MetricModel.
+
+        :param threshold:
+        :param comparator:
+        :return: MetricModel
+        """
+        return MetricModel(model=self, threshold=threshold, comparator=comparator)
 
     def __init__(self, id: int, model_id: int, name: str, version: int, contract: ModelContract, cluster: Cluster,
                  status: Optional[ModelVersionStatus], image: Optional[dict],
@@ -580,9 +534,7 @@ class ModelVersion(Metricable):
         self.cluster = cluster
         self.version = version
         self.image = image
-
         self.status = status
-
         self.metadata = metadata
         self.install_command = install_command
         self.training_data = training_data
@@ -667,85 +619,3 @@ class DataUploadResponse:
 
     class DataProcessingFailed(Exception):
         pass
-
-
-class ModelUploadResponse:
-    """
-    Class that wraps assembly status and logs logic.
-
-    Check the status of the assembly using `get_status()`
-    Check the build logs using `logs()`
-    """
-
-    def __init__(self, modelversion: ModelVersion, sse_client: sseclient.SSEClient):
-        self.cluster = modelversion.cluster
-        self.modelversion = modelversion
-        self.sse_client = sse_client
-
-    def logs(self):
-        """
-        Sends request, saves and returns logs iterator
-        :return: log iterator
-        """
-        url = "/api/v2/model/version/{}/logs".format(self.modelversion.id)
-        logs_response = self.modelversion.cluster.request("GET", url, stream=True)
-        return sseclient.SSEClient(logs_response).events()
-
-    def poll_modelversion(self) -> None:
-        """
-        Checks last log record and sets upload status
-        :raises StopIteration: If something went wrong with iteration over logs
-        :return: None
-        """
-        training_data = self.modelversion.training_data # retain origin
-        self.modelversion = ModelVersion.find(self.cluster, self.modelversion.name,
-                                              self.modelversion.version)
-        self.modelversion.training_data = training_data
-
-    def get_status(self):
-        """
-        Gets current status of upload
-
-        :return: status
-        """
-        self.poll_modelversion()
-        return self.modelversion.status
-
-    def not_ok(self) -> bool:
-        """
-        Checks current status and returns if it is not ok
-        :return: if not uploaded
-        """
-        return self.get_status() == ModelVersionStatus.Failed
-
-    def ok(self) -> bool:
-        """
-        Checks current status and returns if it is ok
-        :return: if uploaded
-        """
-        return self.get_status() == ModelVersionStatus.Released
-
-    def building(self) -> bool:
-        """
-        Checks current status and returns if it is building
-        :return: if building
-        """
-        return self.get_status() == ModelVersionStatus.Assembling
-
-    # TODO: Add logging
-    def lock_till_released(self) -> bool:
-        """
-        Waits till the model is released
-        :raises ModelVersion.BadRequest: if model upload fails
-        :return:
-        """
-        for event in self.sse_client.events():
-            if event.event == "ModelUpdate":
-                data = json.loads(event.data)
-
-                if data.get("id") == self.modelversion.id:
-                    status = data.get("status")
-                    if status == ModelVersionStatus.Failed.value:
-                        return False
-                    elif status == ModelVersionStatus.Released.value:
-                        return True
