@@ -318,7 +318,7 @@ class ModelVersion(RequestsErrorHandler):
         )
 
     @classmethod
-    def create(cls, cluster: Cluster, name: str, contract: ModelContract, 
+    def create_externalmodel(cls, cluster: Cluster, name: str, contract: ModelContract, 
                metadata: Optional[dict] = None, training_data: Optional[str] = None) -> 'ModelVersion':
         """
         Creates an external model version on the server. 
@@ -340,6 +340,7 @@ class ModelVersion(RequestsErrorHandler):
         resp = cluster.request(method="POST", url="/api/v2/externalmodel", json=model)
         cls.handle_request_error(
             resp, f"Failed to create an external model. {resp.status_code} {resp.text}")
+        return ModelVersion.from_json(cluster, resp.json())
 
     @classmethod
     def list_model_versions(cls, cluster: Cluster) -> List['ModelVersion']:
