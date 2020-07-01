@@ -137,7 +137,7 @@ Servable.delete(cluster, sqrt_servable.name)
 ```
 
 In the next section we'll attach a monitoring model to this model to monitor
-quality of our incoming data to prevent "thrash-in thrash out" situation.
+quality of our incoming data to prevent "thrash-in thrash-out" situation.
  
  ## Attach monitoring model to your inference model
 
