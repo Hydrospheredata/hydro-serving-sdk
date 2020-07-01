@@ -79,18 +79,6 @@ class Cluster:
         url = parse.urljoin(self.http_address, url)
         return requests.request(method, url, **kwargs)
 
-    def host_selectors(self):
-        return []
-
-    def models(self):
-        return []
-
-    def servables(self):
-        return []
-
-    def applications(self):
-        return []
-
     def build_info(self):
         """
         Returns manager, gateway, sonar builds info
@@ -124,7 +112,13 @@ class Cluster:
             return {"status": "Unknown", "reason": "Can't parse JSON response. {}".format(ex)}
 
     class BadResponse(Exception):
+        """
+        Used for cases, when cluster returns 5xx responses.
+        """
         pass
 
     class UnknownException(Exception):
+        """
+        Used for cases, when cluster returns unknown exceptions.
+        """
         pass

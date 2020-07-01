@@ -10,46 +10,45 @@ from typing import Optional, Dict, List, Tuple, Iterator, Generator
 
 import sseclient
 import requests
-import yaml
 from sseclient import Event
 from hydro_serving_grpc.contract import ModelContract
 from hydro_serving_grpc.manager import ModelVersion as grpc_ModelVersion, DockerImage as DockerImageProto
 from requests_toolbelt.multipart.encoder import MultipartEncoder
 
 from hydrosdk.cluster import Cluster
-from hydrosdk.contract import ModelContract_to_contract_dict, contract_dict_to_ModelContract, \
-    contract_yaml_to_ModelContract
+from hydrosdk.contract import ModelContract_to_contract_dict, contract_dict_to_ModelContract
 from hydrosdk.errors import InvalidYAMLFile
 from hydrosdk.image import DockerImage
 from hydrosdk.monitoring import MetricSpec, MetricSpecConfig, MetricModel
+from hydrosdk.exceptions import RequestsErrorHandler
 
 
-def _upload_training_data(cluster: Cluster, model_version_id: int, path: str) -> 'DataUploadResponse':
+def _upload_training_data(cluster: Cluster, modelversion_id: int, path: str) -> 'DataUploadResponse':
     """
     Upload training data to Hydrosphere
 
     :param cluster: Cluster instance
-    :param model_version_id: Id of the model version, for which to upload training data
+    :param modelversion_id: Id of the model version, for which to upload training data
     :param path: Path to the training data
     :raises Cluster.BadResponse: if request failed to process by Hydrosphere
     :return: DataUploadResponse obj
     """
     if path.startswith('s3://'):
-        response = _upload_s3_file(cluster, model_version_id, path)
+        resp = _upload_s3_file(cluster, modelversion_id, path)
     else:
-        response = _upload_local_file(cluster, model_version_id, path)
-    if response.ok:
-        return DataUploadResponse(cluster, model_version_id)
+        resp = _upload_local_file(cluster, modelversion_id, path)
+    if resp.ok:
+        return DataUploadResponse(cluster, modelversion_id)
     raise Cluster.BadResponse('Failed to upload training data')
 
 
-def _upload_local_file(cluster: Cluster, model_version_id: int, path: str, 
+def _upload_local_file(cluster: Cluster, modelversion_id: int, path: str, 
                        chunk_size=1024) -> requests.Response:
     """
     Internal method for uploading local training data to Hydrosphere.
 
-    :param cluster: Cluster instance
-    :param url: url to which upload the file
+    :param cluster: active cluster
+    :param modelversion_id: modelversion_id for which to upload training data
     :param path: path to a local file
     :param chunk_size: chunk size to use for streaming
     """
@@ -63,11 +62,11 @@ def _upload_local_file(cluster: Cluster, model_version_id: int, path: str,
                 yield data
     
     gen = read_in_chunks(path, chunk_size)
-    url = '/monitoring/profiles/batch/{}'.format(model_version_id)
+    url = '/monitoring/profiles/batch/{}'.format(modelversion_id)
     return cluster.request("POST", url, data=gen, stream=True)
 
 
-def _upload_s3_file(cluster: Cluster, model_version_id: int, path: str) -> requests.Response:
+def _upload_s3_file(cluster: Cluster, modelversion_id: int, path: str) -> requests.Response:
     """
     Internal method for submitting training data from S3 to Hydrosphere.
 
@@ -75,7 +74,7 @@ def _upload_s3_file(cluster: Cluster, model_version_id: int, path: str) -> reque
     :param url: url to which submit S3 path
     :param path: S3 path to training data
     """
-    url = '/monitoring/profiles/batch/{}/s3'.format(model_version_id)
+    url = f'/monitoring/profiles/batch/{modelversion_id}/s3'
     return cluster.request("POST", url, json={"path": path})
     
 
@@ -90,7 +89,7 @@ def resolve_paths(path: str, payload: List[str]) -> Dict[str, str]:
     return {os.path.normpath(os.path.join(path, v)): v for v in payload}
 
 
-class LocalModel:
+class LocalModel(RequestsErrorHandler):
     """
     Local Model
     A model is a machine learning model or a processing function that consumes provided inputs
@@ -99,8 +98,8 @@ class LocalModel:
     https://hydrosphere.io/serving-docs/latest/overview/concepts.html#models
     """
 
-    def __init__(self, name, runtime, payload, path, contract=None, metadata=None, install_command=None,
-                 training_data=None):
+    def __init__(self, name, runtime, payload, contract, metadata=None, install_command=None,
+                 training_data=None) -> 'LocalModel':
         super().__init__()
 
         if not isinstance(name, str):
@@ -109,22 +108,22 @@ class LocalModel:
         if not isinstance(runtime, DockerImage):
             raise TypeError("runtime is not a DockerImage")
         self.runtime = runtime
-        if contract:
-            if not isinstance(contract, ModelContract):
-                raise TypeError("contract is not a ModelContract")
 
-            # TODO: move out contract validation
-            # HYD-171
-            if not contract.HasField("predict"):
-                raise ValueError("Creating model without contract.predict is not allowed")
-            if not contract.predict.signature_name:
-                raise ValueError("Creating model without contract.predict.signature_name is not allowed")
-            for model_field in contract.predict.inputs:
-                if model_field.dtype == 0:
-                    raise ValueError("Creating model with invalid dtype in contract-input is not allowed")
-            for model_field in contract.predict.outputs:
-                if model_field.dtype == 0:
-                    raise ValueError("Creating model with invalid dtype in contract-output is not allowed")
+        if not isinstance(contract, ModelContract):
+            raise TypeError("contract is not a ModelContract")
+
+        # TODO: move out contract validation
+        # HYD-171
+        if not contract.HasField("predict"):
+            raise ValueError("Creating model without contract.predict is not allowed")
+        if not contract.predict.signature_name:
+            raise ValueError("Creating model without contract.predict.signature_name is not allowed")
+        for model_field in contract.predict.inputs:
+            if model_field.dtype == 0:
+                raise ValueError("Creating model with invalid dtype in contract-input is not allowed")
+        for model_field in contract.predict.outputs:
+            if model_field.dtype == 0:
+                raise ValueError("Creating model with invalid dtype in contract-output is not allowed")
 
         self.contract = contract
 
@@ -194,23 +193,17 @@ class LocalModel:
                 "metadata": json.dumps(meta)
             }
         )
+        
         resp = cluster.request("POST", "/api/v2/model/upload",
                                data=encoder,
                                headers={'Content-Type': encoder.content_type})
-        if resp.ok:
-            modelversion = ModelVersion.from_json(
-                cluster=cluster, model_version=resp.json())
-            modelversion.training_data = self.training_data
-            return modelversion
-        elif 400 <= resp.status_code < 500:
-            raise LocalModel.BadRequest(
-                f"Client error during model upload ({resp.status_code}): {resp.text}")
-        elif 500 <= resp.status_code < 600:
-            raise Cluster.BadResponse(
-                f"Server error during model upload ({resp.status_code}): {resp.text}")
-        else:
-            raise Cluster.UnknownException(
-                f"Unexpected status code during model upload ({resp.status_code}): {resp.text}")
+        self.handle_request_error(
+            resp, f"Failed to upload local model. {resp.status_code} {res.text}")
+
+        modelversion = ModelVersion.from_json(
+            cluster=cluster, model_version=resp.json())
+        modelversion.training_data = self.training_data
+        return modelversion
 
     class BadRequest(Exception): 
         pass
@@ -237,7 +230,7 @@ class ModelVersionStatus(Enum):
         return False
 
 
-class ModelVersion:
+class ModelVersion(RequestsErrorHandler):
     """
     Model (A model is a machine learning model or a processing function that consumes provided inputs
     and produces predictions or transformations
@@ -246,8 +239,8 @@ class ModelVersion:
     """
     BASE_URL = "/api/v2/model"
 
-    @staticmethod
-    def find(cluster: Cluster, name: str, version: int) -> 'ModelVersion':
+    @classmethod
+    def find(cls, cluster: Cluster, name: str, version: int) -> 'ModelVersion':
         """
         Finds a model on server by name and version (not ModelVersion!)
 
@@ -258,34 +251,26 @@ class ModelVersion:
         :return: ModelVersion obj
         """
         resp = cluster.request("GET", ModelVersion.BASE_URL + "/version/{}/{}".format(name, version))
+        cls.handle_request_error(
+            resp, f"Failed to find modelversion for name={name}, version={version}. {resp.status_code} {resp.text}")
+        return ModelVersion.from_json(cluster=cluster, model_version=resp.json())
 
-        if resp.ok:
-            model_json = resp.json()
-            return ModelVersion.from_json(cluster=cluster, model_version=model_json)
-
-        else:
-            raise ModelVersion.NotFound(
-                f"Failed to find ModelVersion for name={name}, version={version}. {resp.status_code} {resp.text}")
-
-    @staticmethod
-    def find_by_id(cluster: Cluster, id_) -> 'ModelVersion':
+    @classmethod
+    def find_by_id(cls, cluster: Cluster, id: int) -> 'ModelVersion':
         """
         Finds a modelversion on server by id.
 
         :param cluster: active cluster
-        :param id_: model version id
+        :param id: model version id
         :raises ModelVersion.NotFound: if failed to return modelversion 
         :return: ModelVersion obj
         """
         resp = cluster.request("GET", ModelVersion.BASE_URL + "/version")
-
-        if resp.ok:
-            for model_json in resp.json():
-                if model_json['id'] == id_:
-                    return ModelVersion.from_json(cluster=cluster, model_version=model_json)
-
-        raise ModelVersion.NotFound(
-            f"Failed to find_by_id ModelVersion for model_version_id={id_}. {resp.status_code} {resp.text}")
+        cls.handle_request_error(
+            resp, f"Failed to find modelversion by id={id}. {resp.status_code} {resp.text}")
+        for model_json in resp.json():
+            if model_json['id'] == id:
+                return ModelVersion.from_json(cluster=cluster, model_version=model_json)
 
     @staticmethod
     def from_json(cluster: Cluster, model_version: dict) -> 'ModelVersion':
@@ -296,7 +281,7 @@ class ModelVersion:
         :param model_version: json response from the server
         :return: instance of ModelVersion
         """
-        id_ = model_version["id"]
+        id = model_version["id"]
         name = model_version["model"]["name"]
         model_id = model_version["model"]["id"]
         version = model_version["modelVersion"]
@@ -319,7 +304,7 @@ class ModelVersion:
         metadata = model_version['metadata']
 
         return ModelVersion(
-            id=id_,
+            id=id,
             model_id=model_id,
             is_external=is_external,
             name=name,
@@ -332,8 +317,8 @@ class ModelVersion:
             metadata=metadata,
         )
 
-    @staticmethod
-    def create(cluster: Cluster, name: str, contract: ModelContract, 
+    @classmethod
+    def create(cls, cluster: Cluster, name: str, contract: ModelContract, 
                metadata: Optional[dict] = None, training_data: Optional[str] = None) -> 'ModelVersion':
         """
         Creates an external model version on the server. 
@@ -352,39 +337,12 @@ class ModelVersion:
             "contract": ModelContract_to_contract_dict(contract),
             "metadata": metadata
         }
-
         resp = cluster.request(method="POST", url="/api/v2/externalmodel", json=model)
-        if resp.ok:
-            resp_json = resp.json()
-            modelversion = ModelVersion.from_json(cluster=cluster, model_version=resp_json)
-            modelversion.training_data = training_data
-            return modelversion
-        elif 400 <= resp.status_code < 500:
-            raise ModelVersion.BadRequest(
-                f"Failed to create_externalmodel. {resp.status_code} {resp.text}")
-        elif 500 <= resp.status_code < 600:
-            raise Cluster.BadResponse(
-                f"Failed to create_externalmodel. {resp.status_code} {resp.text}")
-        else:
-            raise Cluster.UnknownException("Received unknown exception. {}".format(resp.text))
+        cls.handle_request_error(
+            resp, f"Failed to create an external model. {resp.status_code} {resp.text}")
 
-    @staticmethod
-    def delete_by_model_id(cluster: Cluster, model_id: int) -> dict:
-        """
-        Deletes modelversion by model id.
-
-        :param cluster: active cluster
-        :param model_id: model version id
-        :return: if 200, json. Otherwise None
-        """
-        res = cluster.request("DELETE", ModelVersion.BASE_URL + "/{}".format(model_id))
-        if res.ok:
-            return res.json()
-        raise ModelVersion.BadRequest(
-            f"Failed to delete_by_model_id for model_id={model_id}. {res.status_code} {res.text}")
-
-    @staticmethod
-    def list_model_versions(cluster) -> List['ModelVersion']:
+    @classmethod
+    def list_model_versions(cls, cluster: Cluster) -> List['ModelVersion']:
         """
         List all model versions on server
 
@@ -392,14 +350,10 @@ class ModelVersion:
         :return: list of modelversions
         """
         resp = cluster.request("GET", ModelVersion.BASE_URL + "/version")
-
-        if resp.ok:
-            model_versions_json = resp.json()
-            model_versions = [ModelVersion.from_json(cluster=cluster, model_version=model_version_json)
-                              for model_version_json in model_versions_json]
-            return model_versions
-        raise Cluster.BadResponse(
-            f"Failed to list_model_versions. {resp.status_code} {resp.text}")
+        cls.handle_request_error(
+            resp, f"Failed to list model versions. {resp.status_code} {resp.text}")
+        return [ModelVersion.from_json(cluster=cluster, model_version=model_version_json)
+                for model_version_json in resp.json()]
 
     @staticmethod
     def list_modelversions_by_model_name(cluster: Cluster, model_name: str) -> list:
@@ -415,8 +369,11 @@ class ModelVersion:
         sorted_by_version = sorted(modelversions_by_name, key=lambda model: model.version)
         return sorted_by_version
     
-    def _poll_status(self):
-        """Updates status of the current modelversion."""
+    def update_status(self):
+        """
+        Setter method that updates modelversion status.
+        :return: None
+        """
         self.status = self.find(self.cluster, self.name, self.version).status
     
     def lock_till_released(self) -> bool:
@@ -428,7 +385,7 @@ class ModelVersion:
         events_steam = cluster.request("GET", "/api/v2/events", stream=True)
         events_client = sseclient.SSEClient(events_stream)
 
-        self._poll_status()
+        self.update_status()
         if not ModelVersionStatus.is_assembling(self.status) \
                 and ModelVersionStatus.is_released(self.status): 
             return True
@@ -482,14 +439,14 @@ class ModelVersion:
                 )
 
             msc = MetricSpecConfig(
-                model_version_id=modelversion.id,
+                modelversion_id=modelversion.id,
                 threshold=metric.threshold,
                 threshold_op=metric.comparator
             )
             ms = MetricSpec.create(
                 cluster=self.cluster,
                 name=modelversion.name,
-                model_version_id=self.id,
+                modelversion_id=self.id,
                 config=msc
             )
 
@@ -519,12 +476,10 @@ class ModelVersion:
         """
         return MetricModel(model=self, threshold=threshold, comparator=comparator)
 
-    def __init__(self, id: int, model_id: int, name: str, version: int, contract: ModelContract, cluster: Cluster,
-                 status: Optional[ModelVersionStatus], image: Optional[dict],
-                 runtime: Optional[DockerImage], is_external: bool, metadata: dict = None, install_command: str = None,
-                 training_data: str = None):
-        super().__init__()
-
+    def __init__(self, cluster: Cluster, id: int, model_id: int, name: str, version: int, 
+                 contract: ModelContract, status: Optional[ModelVersionStatus], image: Optional[dict], 
+                 runtime: Optional[DockerImage], is_external: bool, metadata: Optional[dict] = None, 
+                 install_command: Optional[str] = None, training_data: Optional[str] = None):
         self.id = id
         self.model_id = model_id
         self.name = name
@@ -556,7 +511,7 @@ class DataProfileStatus(Enum):
     NotRegistered = "NotRegistered"
 
 
-class DataUploadResponse:
+class DataUploadResponse(RequestsErrorHandler):
     """
     Class that wraps processing status of the training data upload.
 
@@ -564,14 +519,14 @@ class DataUploadResponse:
     Wait for the processing using `wait()`
     """
 
-    def __init__(self, cluster: Cluster, model_version_id: int) -> 'DataUploadResponse':
+    def __init__(self, cluster: Cluster, modelversion_id: int) -> 'DataUploadResponse':
         self.cluster = cluster
-        self.model_version_id = model_version_id
+        self.modelversion_id = modelversion_id
 
     @property
     def url(self) -> str:
         if not hasattr(self, '__url'):
-            self.__url = '/monitoring/profiles/batch/{}/status'.format(self.model_version_id)
+            self.__url = f'/monitoring/profiles/batch/{self.modelversion_id}/status'
         return self.__url
     
     @staticmethod
@@ -583,10 +538,10 @@ class DataUploadResponse:
         return True, retry
 
     def get_status(self) -> DataProfileStatus:
-        response = self.cluster.request('GET', self.url)
-        if response.status_code != 200:
-            raise Cluster.BadResponse('Could not fetch the status of the data processing task')
-        return DataProfileStatus[response.json()['kind']]
+        resp = self.cluster.request('GET', self.url)
+        self.handle_request_error(
+            resp, f"Failed to get status for modelversion_id={self.modelversion_id}. {resp.status_code} {resp.text}")
+        return response.json()['kind']
 
     def wait(self, retry=12, sleep=30):
         """
@@ -597,19 +552,22 @@ class DataUploadResponse:
         """
         while True:
             status = self.get_status()
-            if status == DataProfileStatus.Success:
+            if status == DataProfileStatus.Success.value:
                 break
-            elif status == DataProfileStatus.Processing:
+            elif status == DataProfileStatus.Processing.value:
                 can_be_polled, retry = self.__tick(retry, sleep)
                 if can_be_polled:
                     continue
                 raise DataUploadResponse.DataProcessingNotFinished
-            elif status == DataProfileStatus.NotRegistered:
+            elif status == DataProfileStatus.NotRegistered.value:
                 can_be_polled, retry = self.__tick(retry, sleep)
                 if can_be_polled:
                     continue
                 raise DataUploadResponse.DataProcessingNotRegistered
             raise DataUploadResponse.DataProcessingFailed
+
+    class BadRequest(Exception):
+        pass
 
     class DataProcessingNotRegistered(Exception):
         pass

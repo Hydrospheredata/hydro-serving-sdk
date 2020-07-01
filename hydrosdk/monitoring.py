@@ -1,8 +1,8 @@
-from typing import Union
+from typing import Union, List
 from urllib.parse import urljoin
 
 from hydrosdk.cluster import Cluster
-from hydrosdk.exceptions import MetricSpecException
+from hydrosdk.exceptions import MetricSpecException, RequestsErrorHandler
 
 
 class TresholdCmpOp:
@@ -31,25 +31,106 @@ class MetricSpecConfig:
     """
     Metric specification config
     """
-    def __init__(self, model_version_id: int, threshold: Union[int, float], threshold_op: TresholdCmpOp, servable=None):
+    def __init__(self, modelversion_id: int, threshold: Union[int, float], threshold_op: TresholdCmpOp, servable=None):
         self.servable = servable
         self.threshold_op = threshold_op
         self.threshold = threshold
-        self.model_version_id = model_version_id
+        self.modelversion_id = modelversion_id
 
 
-class MetricSpec:
-    """
-    Metric specification
-    """
+class MetricSpec(RequestsErrorHandler):
     BASE_URL = "/api/v2/monitoring/metricspec"
-    GET_SPEC_URL = BASE_URL + "/"
 
-# FIXME: if modelversion upload failed it would not have a servable and will fail here (try runnning fail_upload tests before monitoring tests in tests_modelversions)
+    @classmethod
+    def list_all(cls, cluster: Cluster) -> List['MetricSpec']:
+        """
+        Sends request and returns list with all available metric specs.
+
+        :param cluster: active cluster
+        :raises MetricSpecException: If server returned not 200
+        :return: list with all available metric specs
+        """
+        resp = cluster.request("GET", MetricSpec.BASE_URL)
+        cls.handle_request_error(
+            resp, f"Failed to list MetricSpecs. {resp.status_code} {resp.text}")
+        return [MetricSpec.__parse_json(cluster, x) for x in resp.json()]
+
+    @classmethod
+    def list_for_modelversion(cls, cluster: Cluster, modelversion_id: int) -> List['MetricSpec']:
+        """
+        Sends request and returns list with specs by model version.
+
+        :param cluster: active cluster
+        :param modelversion_id:
+        :raises MetricSpecException: If server returned not 200
+        :return: list of metric spec objs
+        """
+        url = urljoin(MetricSpec.BASE_URL, f"modelversion/{modelversion_id}")
+        resp = cluster.request("get", url)
+        cls.handle_request_error(
+            resp, f"Failed to list MetricSpecs for modelversion_id={modelversion_id}. {resp.status_code} {resp.text}")
+        return [MetricSpec.__parse_json(cluster, x) for x in resp.json()]
+
+    @classmethod
+    def find_by_id(cls, cluster: Cluster, metric_spec_id: int) -> 'MetricSpec':
+        """
+        Returns MetricSpec by id.
+
+        :param cluster: active cluster
+        :param metric_spec_id: 
+        :return: MetricSpec
+        """
+        url = urljoin(MetricSpec.BASE_URL, str(metric_spec_id))
+        resp = cluster.request("get", url)
+        cls.handle_request_error(
+            resp, f"Failed to retrieve MetricSpec for metric_spec_id={metric_spec_id}. {resp.status_code} {resp.text}")
+        return MetricSpec.__parse_json(cluster, resp.json())
+
+    @classmethod
+    def delete(cls, cluster: Cluster, metric_spec_id: int) -> dict:
+        """
+        Deletes MetricSpec.
+
+        :return: result of deletion
+        """
+        url = urljoin(MetricSpec.BASE_URL, str(self.metric_spec_id))
+        resp = cluster.request("delete", url)
+        cls.handle_request_error(
+            resp, f"Failed to delete MetricSpec for metric_spec_id={metric_spec_id}. {resp.status_code} {resp.text}")
+        return resp.json()
+    
+    @classmethod
+    def create(cls, cluster: Cluster, name: str, modelversion_id: int, config: MetricSpecConfig) -> 'MetricSpec':
+        """
+        Create MetricSpec and returns corresponding instance.
+
+        :param cluster: active cluster
+        :param name: name of the metric
+        :param modelversion_id: ModelVersion for which to create a MetricSpec
+        :param config: config, describing MetricSpec
+        :return: metricSpec
+        """
+        d = {
+            'name': name,
+            'modelVersionId': modelversion_id,
+            'config': {
+                'modelVersionId': config.modelversion_id,
+                'threshold': config.threshold,
+                'thresholdCmpOperator': {
+                    'kind': config.threshold_op
+                }
+            }
+        }
+        resp = cluster.request("POST", MetricSpec.BASE_URL, json=d)
+        cls.handle_request_error(
+            resp, f"Failed to create a MetricSpec for name={name}, modelversion_id={modelversion_id}. {resp.status_code} {resp.text}")
+        return MetricSpec.__parse_json(cluster, resp.json())
+
+    # FIXME: if modelversion upload failed it would not have a servable and will fail here (try runnning fail_upload tests before monitoring tests in tests_modelversions)
     @staticmethod
     def __parse_json(cluster: Cluster, json_dict: dict) -> 'MetricSpec':
         """
-        Deserialize metric spec from json
+        Deserialize MetricSpec from json.
 
         :param cluster: active cluster
         :param json_dict:
@@ -58,9 +139,9 @@ class MetricSpec:
         return MetricSpec(
             cluster=cluster,
             name=json_dict['name'],
-            model_version_id=json_dict['modelVersionId'],
+            modelversion_id=json_dict['modelVersionId'],
             config=MetricSpecConfig(
-                model_version_id=json_dict['config']['modelVersionId'],
+                modelversion_id=json_dict['config']['modelVersionId'],
                 threshold=json_dict['config']['threshold'],
                 threshold_op=json_dict['config']['thresholdCmpOperator']['kind'],
                 servable=json_dict['config']['servable']
@@ -68,111 +149,13 @@ class MetricSpec:
             metric_spec_id=json_dict['id']
         )
 
-    @staticmethod
-    def create(cluster: Cluster, name: str, model_version_id: int, config: MetricSpecConfig):
-        """
-        Sends request to create metric spec and returns it
-
-        :param cluster: active cluster
-        :param name:
-        :param model_version_id:
-        :param config:
-        :raises MetricSpecException: If server returned not 200
-        :return: metricSpec
-        """
-        d = {
-            'name': name,
-            'modelVersionId': model_version_id,
-            'config': {
-                'modelVersionId': config.model_version_id,
-                'threshold': config.threshold,
-                'thresholdCmpOperator': {
-                    'kind': config.threshold_op
-                }
-            }
-        }
-        resp = cluster.request("POST", MetricSpec.BASE_URL, json=d)
-        if resp.ok:
-            return MetricSpec.__parse_json(cluster, resp.json())
-        else:
-            raise MetricSpecException(
-                f"Failed to create a MetricSpec. Name={name}, model_version_id={model_version_id}. {resp.status_code} {resp.text}")
-
-    @staticmethod
-    def list_all(cluster: Cluster):
-        """
-        Sends request and returns list with all available metric specs
-
-        :param cluster: active cluster
-        :raises MetricSpecException: If server returned not 200
-        :return: list with all available metric specs
-        """
-        resp = cluster.request("get", MetricSpec.BASE_URL)
-        if resp.ok:
-            return [MetricSpec.__parse_json(cluster, x) for x in resp.json()]
-        else:
-            raise MetricSpecException(f"Failed to list MetricSpecs. {resp.status_code} {resp.text}")
-
-    @staticmethod
-    def list_for_model(cluster: Cluster, model_version_id: int):
-        """
-        Sends request and returns list with specs by model version
-
-        :param cluster: active cluster
-        :param model_version_id:
-        :raises MetricSpecException: If server returned not 200
-        :return: list of metric spec objs
-        """
-        url = urljoin(MetricSpec.GET_SPEC_URL, f"modelversion/{model_version_id}")
-        # print(url)
-        resp = cluster.request("get", url)
-        if resp.ok:
-            return [MetricSpec.__parse_json(cluster, x) for x in resp.json()]
-        else:
-            raise MetricSpecException(
-                f"Failed to list MetricSpecs for model_version_id={model_version_id}. {resp.status_code} {resp.text}")
-
-    @staticmethod
-    def get(cluster: Cluster, metric_spec_id: int):
-        """
-        Sends request and returns metric spec by its id
-
-        :param cluster: active cluster
-        :param metric_spec_id:
-        :raises MetricSpecException: If server returned not 200
-        :return: MetricSpec or None if nout found
-        """
-        url = urljoin(MetricSpec.BASE_URL, str(metric_spec_id))
-        resp = cluster.request("get", url)
-        if resp.ok:
-            return MetricSpec.__parse_json(cluster, resp.json())
-        elif resp.status_code == 404:
-            return None
-        else:
-            raise MetricSpecException(
-                f"Failed to list MetricSpecs for metric_spec_id={metric_spec_id}. {resp.status_code} {resp.text}")
-
-    def __init__(self, cluster: Cluster, metric_spec_id: int, name: str, model_version_id: int,
-                 config: MetricSpecConfig):
+    def __init__(self, cluster: Cluster, metric_spec_id: int, name: str, modelversion_id: int,
+                 config: MetricSpecConfig) -> 'MetricSpec':
         self.cluster = cluster
         self.metric_spec_id = metric_spec_id
         self.config = config
-        self.model_version_id = model_version_id
+        self.modelversion_id = modelversion_id
         self.name = name
 
-    def delete(self) -> bool:
-        """
-        Deletes self (metric spec)
-
-        :raises MetricSpecException: If server returned not 200
-        :return: result of deletion
-        """
-        url = urljoin(MetricSpec.BASE_URL, str(self.metric_spec_id))
-        resp = self.cluster.request("delete", url)
-        if resp.ok:
-            return True
-        elif resp.status_code == 404:
-            return False
-        else:
-            raise MetricSpecException(
-                f"Failed to delete MetricSpecs for metric_spec_id={self.metric_spec_id}. {resp.status_code} {resp.text}")
+    class BadRequest(Exception):
+        pass

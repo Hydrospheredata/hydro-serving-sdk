@@ -197,51 +197,6 @@ def shape_to_dict(shape) -> dict:
     return result_dict
 
 
-def _contract_yaml_to_contract_dict(model_name: str, yaml_contract: dict) -> dict:
-    """
-    Internal method.
-    Yaml parsing methods create dict contracts with structure different to contracts we receive from servers, this method restructs yaml contract to the standart contract structure
-    Yaml-dict:
-    {'name': 'infer', 'inputs': {'input': {'shape': 'scalar', 'type': 'int64', 'profile': 'numerical'}}, 'outputs': {'output': {'shape': 'scalar', 'type': 'int64', 'profile': 'numerical'}}}
-    Contract-dict:
-    {'modelName': 'infer', 'predict': {'signatureName': 'infer', 'inputs': [{'input': {'shape': 'scalar', 'type': 'int64', 'profile': 'numerical'}}], 'outputs': [{'output': {'shape': 'scalar', 'type': 'int64', 'profile': 'numerical'}}]}}
-
-    :param model_name:
-    :param yaml_contract:
-    :return:
-    """
-
-    # make list of dicts from dict of dicts
-    inputs = [{field_key: field_def} for field_key, field_def in yaml_contract.get("inputs").items()]
-
-    frmt_inputs = []
-    for input_ in inputs:
-        for field_name, field_dict in input_.items():
-            frmt_inputs.append(field_from_dict(field_name=field_name, field_dict=field_dict))
-
-    # make list of dicts from dict of dicts
-    outputs = [{field_key: field_def} for field_key, field_def in yaml_contract.get("outputs").items()]
-
-    frmt_outputs = []
-    # TODO: make one general method for inputs/outputs -> frmt_inputs/frmt_outputs
-    for output in outputs:
-        for field_name, field_dict in output.items():
-            frmt_outputs.append(field_from_dict(field_name=field_name, field_dict=field_dict))
-
-    signature_name = yaml_contract.get("name")
-
-    contract_dict = {
-        "modelName": model_name,
-        "predict": {
-            "signatureName": signature_name,
-            "inputs": inputs,
-            "outputs": outputs
-        }
-    }
-
-    return contract_dict
-
-
 def _contract_dict_to_signature_dict(contract: dict) -> tuple:
     """
     Internal method.
@@ -303,19 +258,6 @@ def _signature_dict_to_ModelSignature(data: dict) -> ModelSignature:
     )
 
     return signature
-
-
-def contract_yaml_to_ModelContract(model_name: str, yaml_contract: dict) -> ModelContract:
-    """
-    Helper method that makes a ModelContract out of contract yaml
-
-    :param model_name:
-    :param yaml_contract:
-    :return:
-    """
-    contract_dict = _contract_yaml_to_contract_dict(model_name=model_name, yaml_contract=yaml_contract)
-    modelContract = contract_dict_to_ModelContract(contract=contract_dict)
-    return modelContract
 
 
 def contract_dict_to_ModelContract(contract: dict) -> ModelContract:
@@ -604,18 +546,3 @@ def mock_input_data(signature: ModelSignature):
             raise Exception("{} does not support mock data generation yet.".format(field.dtype))
         input_tensors.append(x)
     return input_tensors
-
-# TODO: if commented, should be deleted?
-# def contract_from_df(example_df):
-#     """
-#     Suggest contract definition for model contract from dataframe
-#     :param example_df:
-#     :return:
-#     """
-#     signature_name = getattr(example_df, "name", "predict")
-#     inputs = []
-#     for name, dtype in zip(example_df.columns, example_df.dtypes):
-#         field = ModelField()
-#         inputs.append(Field(name, (-1, 1), dtype.type, profile=ProfilingType.NUMERICAL))
-#     signature = ModelSignature(signature_name, inputs, [])
-#     return ModelContract(predict=signature)
