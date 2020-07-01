@@ -1,5 +1,6 @@
 import json
 import logging
+from typing import Optional, Dict
 from urllib import parse
 
 import grpc
@@ -16,11 +17,9 @@ class Cluster:
     @staticmethod
     def connect(http_address: str, grpc_address: str = None) -> 'Cluster':
         """
-        The preferable factory method for Cluster creation. Use it.
-
-        :param http_address: http connection address
-        :param grpc_address: optional grpc connection address
-        :return: cluster object
+        :param http_address: HTTP connection address of a Hydrosphere cluster
+        :param grpc_address: gRPC connection address of a Hydrosphere cluster
+        :return: Cluster
 
         Checks the address, the connectivity, and creates an instance of Cluster.
         """
@@ -34,12 +33,29 @@ class Cluster:
         logging.info("Connected to the {} cluster".format(info))
         return cl
 
-    def __init__(self, http_address, grpc_address=None, ssl=False,
-                 grpc_credentials=None, grpc_options=None, grpc_compression=None):
+    def __init__(self, http_address: str,
+                 grpc_address: Optional[str] = None, ssl: bool = False,
+                 grpc_credentials: Optional[grpc.ChannelCredentials] = None,
+                 grpc_options: Optional[Dict] = None, grpc_compression: Optional[grpc.Compression] = None):
         """
-        Cluster ctor. Don't use it unless you understand what you are doing.
-        :param http_address:
-        :param grpc_address:
+        Creates a Cluster object which hides networking details and provides a connection to a deployed Hydrosphere cluster.
+
+        :param http_address: HTTP connection address of a Hydrosphere cluster
+        :param grpc_address: gRPC connection address of a Hydrosphere cluster
+        :param ssl: Whether to use an SSL-enabled channel for a gRPC connection
+        :param grpc_credentials: An optional ChannelCredentials instance
+        :param grpc_options: An optional list of key-value pairs (channel args in gRPC Core runtime) to configure the channel
+        :param grpc_compression: An optional value indicating the compression method to be used over the lifetime of the channel
+
+        Examples:
+            Example of creating a Cluster::
+
+                # Cluster with only an HTTP connection
+                Cluster("your-cluster-url")
+
+                # Example of creating a Cluster with an HTTP and a secured gRPC connection::
+                from grpc import ssl_channel_credentials
+                Cluster("http-cluster-address", grpc_address="grpc-cluster-address", ssl=True, grpc_credentials=ssl_channel_credentials())
         """
         # TODO: add better url validation (but not python validators lib!)
         parse.urlsplit(http_address)  # check if address is ok
@@ -91,10 +107,11 @@ class Cluster:
     def applications(self):
         return []
 
-    def build_info(self):
+    def build_info(self) -> Dict:
         """
-        Returns manager, gateway, sonar builds info
-        :return: manager, gateway, sonar build infos
+        Returns Manager, Gateway and Sonar services builds information containing version, release commit, etc.
+
+        :return: Dictionary with build information
         """
         manager_bl = self.safe_buildinfo("/api/buildinfo")
         gateway_bl = self.safe_buildinfo("/gateway/buildinfo")
@@ -106,13 +123,6 @@ class Cluster:
         }
 
     def safe_buildinfo(self, url):
-        """
-
-        :param url:
-        :raises ConnectionError: if no connection
-        :raises JSONDecodeError: if json is not properly formatted
-        :return: result request json
-        """
         try:
             result = self.request("GET", url).json()
             if 'status' not in result:

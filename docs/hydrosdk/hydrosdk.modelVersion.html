@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>hydrosdk.modelversion module &mdash; hydrosdk 2.3.0 documentation</title>
+  <title>hydrosdk.modelversion module &mdash; hydrosdk 2.3.2 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.3.0
+                2.3.2
               </div>
             
           
@@ -91,16 +91,15 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../whats_new.html">What’s new in 2.3.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whats_new.html">What’s new in 2.3.2</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Sample tutorial</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="hydrosdk.html">hydrosdk package</a><ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../getting_started_tutorial.html">Getting Started Tutorial</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="hydrosdk.html">hydrosdk API</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.application.html">hydrosdk.application module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.cluster.html">hydrosdk.cluster module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.contract.html">hydrosdk.contract module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.errors.html">hydrosdk.errors module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.exceptions.html">hydrosdk.exceptions module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="hydrosdk.host_selector.html">hydrosdk.host_selector module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.image.html">hydrosdk.image module</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">hydrosdk.modelversion module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.monitoring.html">hydrosdk.monitoring module</a></li>
@@ -156,7 +155,7 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-          <li><a href="hydrosdk.html">hydrosdk package</a> &raquo;</li>
+          <li><a href="hydrosdk.html">hydrosdk API</a> &raquo;</li>
         
       <li>hydrosdk.modelversion module</li>
     
@@ -185,23 +184,23 @@
 </dl>
 <dl class="py class">
 <dt id="hydrosdk.modelversion.LocalModel">
-<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.modelversion.</code><code class="sig-name descname">LocalModel</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">runtime</span></em>, <em class="sig-param"><span class="n">payload</span></em>, <em class="sig-param"><span class="n">contract</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">metadata</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">install_command</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">training_data</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.modelversion.LocalModel" title="Permalink to this definition">¶</a></dt>
-<dd><p>Local Model
-A model is a machine learning model or a processing function that consumes provided inputs
-and produces predictions or transformations</p>
-<p><a class="reference external" href="https://hydrosphere.io/serving-docs/latest/overview/concepts.html#models">https://hydrosphere.io/serving-docs/latest/overview/concepts.html#models</a></p>
-<dl class="py method">
-<dt id="hydrosdk.modelversion.LocalModel.create">
-<em class="property">static </em><code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span></em>, <em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">runtime</span></em>, <em class="sig-param"><span class="n">contract</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">install_command</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.modelversion.LocalModel.create" title="Permalink to this definition">¶</a></dt>
-<dd><p>Validates contract
-:param path:
-:param name:
-:param runtime:
-:param contract:
-:param install_command:
-:return: None</p>
-</dd></dl>
-
+<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.modelversion.</code><code class="sig-name descname">LocalModel</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">runtime</span><span class="p">:</span> <span class="n"><a class="reference internal" href="hydrosdk.image.html#hydrosdk.image.DockerImage" title="hydrosdk.image.DockerImage">hydrosdk.image.DockerImage</a></span></em>, <em class="sig-param"><span class="n">payload</span><span class="p">:</span> <span class="n">List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">contract</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>hydro_serving_grpc.contract.model_contract_pb2.ModelContract<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">path</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">metadata</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Dict<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">install_command</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">training_data</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.modelversion.LocalModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a LocalModel with all the information needed to upload it to a cluster.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The model name</p></li>
+<li><p><strong>runtime</strong> (<a class="reference internal" href="hydrosdk.image.html#hydrosdk.image.DockerImage" title="hydrosdk.image.DockerImage"><em>hydrosdk.image.DockerImage</em></a>) – A Docker image used to run your code.</p></li>
+<li><p><strong>payload</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em>) – A list of paths to files (absolute or relative) with any additional resources that
+will be exported to the container. If the <cite>path</cite> is provided, it’ll be appended as a prefix to all paths inside the payload.</p></li>
+<li><p><strong>contract</strong> (<em>Optional</em><em>[</em><em>hydro_serving_grpc.contract.model_contract_pb2.ModelContract</em><em>]</em>) – ModelContract which specifies name of function called, as well as its types and shapes of both inputs and outputs</p></li>
+<li><p><strong>path</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em>) – Common path (absolute or relative) to a directory, which is used as a prefix path for all paths in a payload.</p></li>
+<li><p><strong>metadata</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em><em>]</em>) – Dictionary with string keys and values used for describing uploaded ModelVersions</p></li>
+<li><p><strong>install_command</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em>) – Command to run with <cite>runtime</cite> when uploaded</p></li>
+<li><p><strong>training_data</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em>) – Path (absolute, relative or an S3 URI) to a csv file with training data</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt id="hydrosdk.modelversion.LocalModel.from_file">
 <em class="property">static </em><code class="sig-name descname">from_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.modelversion.LocalModel.from_file" title="Permalink to this definition">¶</a></dt>
@@ -213,11 +212,22 @@ and produces predictions or transformations</p>
 
 <dl class="py method">
 <dt id="hydrosdk.modelversion.LocalModel.upload">
-<code class="sig-name descname">upload</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cluster</span><span class="p">:</span> <span class="n"><a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster">hydrosdk.cluster.Cluster</a></span></em>, <em class="sig-param"><span class="n">wait</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a><a class="headerlink" href="#hydrosdk.modelversion.LocalModel.upload" title="Permalink to this definition">¶</a></dt>
-<dd><p>Uploads Local Model
-:param cluster: active cluster
-:param wait: wait till model version is released
-:return: {model_obj: upload_resp}</p>
+<code class="sig-name descname">upload</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cluster</span><span class="p">:</span> <span class="n"><a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster">hydrosdk.cluster.Cluster</a></span></em>, <em class="sig-param"><span class="n">wait</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span> <span class="o">=</span> <span class="default_value">True</span></em><span class="sig-paren">)</span> &#x2192; Dict<span class="p">[</span><a class="reference internal" href="#hydrosdk.modelversion.LocalModel" title="hydrosdk.modelversion.LocalModel">hydrosdk.modelversion.LocalModel</a><span class="p">, </span><a class="reference internal" href="#hydrosdk.modelversion.UploadResponse" title="hydrosdk.modelversion.UploadResponse">hydrosdk.modelversion.UploadResponse</a><span class="p">]</span><a class="headerlink" href="#hydrosdk.modelversion.LocalModel.upload" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uploads LocalModel to a Hydrosphere cluster</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cluster</strong> (<a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster"><em>hydrosdk.cluster.Cluster</em></a>) – Hydrosphere cluster</p></li>
+<li><p><strong>wait</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – If True, method waits for the model “Released” status</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>{model_obj: upload_resp}</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Dict[<a class="reference internal" href="#hydrosdk.modelversion.LocalModel" title="hydrosdk.modelversion.LocalModel">hydrosdk.modelversion.LocalModel</a>, <a class="reference internal" href="#hydrosdk.modelversion.UploadResponse" title="hydrosdk.modelversion.UploadResponse">hydrosdk.modelversion.UploadResponse</a>]</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -233,12 +243,15 @@ and produces predictions or transformations</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>threshold</strong> – </p></li>
-<li><p><strong>comparator</strong> – </p></li>
+<li><p><strong>threshold</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>comparator</strong> (<a class="reference internal" href="hydrosdk.monitoring.html#hydrosdk.monitoring.MetricSpec" title="hydrosdk.monitoring.MetricSpec"><em>hydrosdk.monitoring.MetricSpec</em></a>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>MetricModel</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="hydrosdk.monitoring.html#hydrosdk.monitoring.MetricModel" title="hydrosdk.monitoring.MetricModel">hydrosdk.monitoring.MetricModel</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -249,7 +262,7 @@ and produces predictions or transformations</p>
 <dd><p>Adds metrics to the model</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>metrics</strong> – list of metrics</p>
+<dd class="field-odd"><p><strong>metrics</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a>) – list of metrics</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>self Metricable</p>
@@ -261,11 +274,28 @@ and produces predictions or transformations</p>
 
 <dl class="py class">
 <dt id="hydrosdk.modelversion.ModelVersion">
-<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.modelversion.</code><code class="sig-name descname">ModelVersion</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">id</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></span></em>, <em class="sig-param"><span class="n">model_id</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></span></em>, <em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">version</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></span></em>, <em class="sig-param"><span class="n">contract</span><span class="p">:</span> <span class="n">hydro_serving_grpc.contract.model_contract_pb2.ModelContract</span></em>, <em class="sig-param"><span class="n">cluster</span><span class="p">:</span> <span class="n"><a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster">hydrosdk.cluster.Cluster</a></span></em>, <em class="sig-param"><span class="n">status</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span><a class="reference internal" href="#hydrosdk.modelversion.ModelVersionStatus" title="hydrosdk.modelversion.ModelVersionStatus">hydrosdk.modelversion.ModelVersionStatus</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">image</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">runtime</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span><a class="reference internal" href="hydrosdk.image.html#hydrosdk.image.DockerImage" title="hydrosdk.image.DockerImage">hydrosdk.image.DockerImage</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">is_external</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span></em>, <em class="sig-param"><span class="n">metadata</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">install_command</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.modelversion.ModelVersion" title="Permalink to this definition">¶</a></dt>
-<dd><p>Model (A model is a machine learning model or a processing function that consumes provided inputs
-and produces predictions or transformations
-<a class="reference external" href="https://hydrosphere.io/serving-docs/latest/overview/concepts.html#models">https://hydrosphere.io/serving-docs/latest/overview/concepts.html#models</a>)
-ModelVersion represents one of the Model’s versions.</p>
+<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.modelversion.</code><code class="sig-name descname">ModelVersion</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">id</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></span></em>, <em class="sig-param"><span class="n">model_id</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></span></em>, <em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">version</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></span></em>, <em class="sig-param"><span class="n">contract</span><span class="p">:</span> <span class="n">hydro_serving_grpc.contract.model_contract_pb2.ModelContract</span></em>, <em class="sig-param"><span class="n">cluster</span><span class="p">:</span> <span class="n"><a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster">hydrosdk.cluster.Cluster</a></span></em>, <em class="sig-param"><span class="n">status</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span><a class="reference internal" href="#hydrosdk.modelversion.ModelVersionStatus" title="hydrosdk.modelversion.ModelVersionStatus">hydrosdk.modelversion.ModelVersionStatus</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">image</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Dict<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">runtime</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span><a class="reference internal" href="hydrosdk.image.html#hydrosdk.image.DockerImage" title="hydrosdk.image.DockerImage">hydrosdk.image.DockerImage</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">is_external</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></span></em>, <em class="sig-param"><span class="n">metadata</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">install_command</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.modelversion.ModelVersion" title="Permalink to this definition">¶</a></dt>
+<dd><p>ModelVersion is a machine learning model or a processing function that consumes provided inputs
+and produces predictions or transformations</p>
+<p>ModelVersion represents one of the Model’s versions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – ModelVersion id assigned by the cluster</p></li>
+<li><p><strong>model_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Model id assigned by the cluster</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The name of the Model this ModelVersion belongs to.</p></li>
+<li><p><strong>version</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The version of the Model this ModelVersion belongs to.</p></li>
+<li><p><strong>contract</strong> (<em>hydro_serving_grpc.contract.model_contract_pb2.ModelContract</em>) – ModelContract which specifies name of function called, as well as its types and shapes of both inputs and outputs</p></li>
+<li><p><strong>cluster</strong> (<a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster"><em>hydrosdk.cluster.Cluster</em></a>) – Hydrosphere cluster</p></li>
+<li><p><strong>status</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="#hydrosdk.modelversion.ModelVersionStatus" title="hydrosdk.modelversion.ModelVersionStatus"><em>hydrosdk.modelversion.ModelVersionStatus</em></a><em>]</em>) – Status of this ModelVersion, one of {Assembling, Released, Failed}</p></li>
+<li><p><strong>image</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>]</em>) – Dict[uri, tag, sha] which represents the ModelVersion image inside cluster DockerRegistry</p></li>
+<li><p><strong>runtime</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="hydrosdk.image.html#hydrosdk.image.DockerImage" title="hydrosdk.image.DockerImage"><em>hydrosdk.image.DockerImage</em></a><em>]</em>) – DockerImage of a runtime which was used to build an ‘image’</p></li>
+<li><p><strong>is_external</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – Indicates whether model is running outside the Cluster</p></li>
+<li><p><strong>metadata</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – Dictionary with string keys and values used for describing ModelVersion</p></li>
+<li><p><strong>install_command</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Command which was run in the <cite>runtime</cite> when this ModelVersion was uploaded</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py exception">
 <dt id="hydrosdk.modelversion.ModelVersion.BadRequest">
 <em class="property">exception </em><code class="sig-name descname">BadRequest</code><a class="headerlink" href="#hydrosdk.modelversion.ModelVersion.BadRequest" title="Permalink to this definition">¶</a></dt>
@@ -284,41 +314,74 @@ ModelVersion represents one of the Model’s versions.</p>
 <dl class="py method">
 <dt id="hydrosdk.modelversion.ModelVersion.create">
 <em class="property">static </em><code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cluster</span></em>, <em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">contract</span><span class="p">:</span> <span class="n">hydro_serving_grpc.contract.model_contract_pb2.ModelContract</span></em>, <em class="sig-param"><span class="n">metadata</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#hydrosdk.modelversion.ModelVersion" title="hydrosdk.modelversion.ModelVersion">hydrosdk.modelversion.ModelVersion</a><a class="headerlink" href="#hydrosdk.modelversion.ModelVersion.create" title="Permalink to this definition">¶</a></dt>
-<dd><p>Creates modelversion on the server
-:param cluster: active cluster
-:param name: name of model
-:param contract:
-:param metadata:
-:raises Exception: If server returned not 200
-:return: modelversion</p>
+<dd><dl class="simple">
+<dt>Register an external ModelVersion. Learn more about external models here -</dt><dd><p><a class="reference external" href="https://hydrosphere.io/serving-docs/latest/how-to/monitoring-external-models.html">https://hydrosphere.io/serving-docs/latest/how-to/monitoring-external-models.html</a></p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cluster</strong> – Hydrosphere cluster</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The model name</p></li>
+<li><p><strong>contract</strong> (<em>hydro_serving_grpc.contract.model_contract_pb2.ModelContract</em>) – ModelContract which specifies name of function called, as well as its types and shapes of both inputs and outputs</p></li>
+<li><p><strong>metadata</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a><em>]</em>) – Dictionary with string keys and values used for describing uploaded ModelVersions</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference internal" href="#hydrosdk.modelversion.ModelVersion.BadRequest" title="hydrosdk.modelversion.ModelVersion.BadRequest"><strong>BadRequest</strong></a> – If server returned not 200</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>ModelVersion</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#hydrosdk.modelversion.ModelVersion" title="hydrosdk.modelversion.ModelVersion">hydrosdk.modelversion.ModelVersion</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="hydrosdk.modelversion.ModelVersion.delete_by_model_id">
-<em class="property">static </em><code class="sig-name descname">delete_by_model_id</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cluster</span><span class="p">:</span> <span class="n"><a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster">hydrosdk.cluster.Cluster</a></span></em>, <em class="sig-param"><span class="n">model_id</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a><a class="headerlink" href="#hydrosdk.modelversion.ModelVersion.delete_by_model_id" title="Permalink to this definition">¶</a></dt>
-<dd><p>Deletes modelversion by model id
-:param cluster: active cluster
-:param model_id: model version id
-:return: if 200, json. Otherwise None</p>
+<em class="property">static </em><code class="sig-name descname">delete_by_model_id</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cluster</span><span class="p">:</span> <span class="n"><a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster">hydrosdk.cluster.Cluster</a></span></em>, <em class="sig-param"><span class="n">model_id</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></span></em><span class="sig-paren">)</span> &#x2192; Dict<a class="headerlink" href="#hydrosdk.modelversion.ModelVersion.delete_by_model_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Permanently deletes ModelVersion from the cluster</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cluster</strong> (<a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster"><em>hydrosdk.cluster.Cluster</em></a>) – Hydrosphere cluster</p></li>
+<li><p><strong>model_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The ModelVersion id</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference internal" href="#hydrosdk.modelversion.ModelVersion.BadRequest" title="hydrosdk.modelversion.ModelVersion.BadRequest"><strong>BadRequest</strong></a> – In case of non-ok responses</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Dict</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="hydrosdk.modelversion.ModelVersion.find">
 <em class="property">static </em><code class="sig-name descname">find</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cluster</span><span class="p">:</span> <span class="n"><a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster">hydrosdk.cluster.Cluster</a></span></em>, <em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">version</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#hydrosdk.modelversion.ModelVersion" title="hydrosdk.modelversion.ModelVersion">hydrosdk.modelversion.ModelVersion</a><a class="headerlink" href="#hydrosdk.modelversion.ModelVersion.find" title="Permalink to this definition">¶</a></dt>
-<dd><p>Finds a model on server by name and version (not ModelVersion!)</p>
+<dd><p>Finds an uploaded ModelVersion in a cluster by its name and version</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>cluster</strong> – active cluster</p></li>
-<li><p><strong>name</strong> – model name</p></li>
-<li><p><strong>version</strong> – version</p></li>
+<li><p><strong>cluster</strong> (<a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster"><em>hydrosdk.cluster.Cluster</em></a>) – Hydrosphere cluster</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The model name</p></li>
+<li><p><strong>version</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – The model version</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises</dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.8)"><strong>Exception</strong></a> – if server returned not 200</p>
 </dd>
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>ModelVersion obj</p>
+<dd class="field-odd"><p>ModelVersion</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#hydrosdk.modelversion.ModelVersion" title="hydrosdk.modelversion.ModelVersion">hydrosdk.modelversion.ModelVersion</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -326,42 +389,59 @@ ModelVersion represents one of the Model’s versions.</p>
 <dl class="py method">
 <dt id="hydrosdk.modelversion.ModelVersion.find_by_id">
 <em class="property">static </em><code class="sig-name descname">find_by_id</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cluster</span><span class="p">:</span> <span class="n"><a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster">hydrosdk.cluster.Cluster</a></span></em>, <em class="sig-param"><span class="n">id_</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#hydrosdk.modelversion.ModelVersion" title="hydrosdk.modelversion.ModelVersion">hydrosdk.modelversion.ModelVersion</a><a class="headerlink" href="#hydrosdk.modelversion.ModelVersion.find_by_id" title="Permalink to this definition">¶</a></dt>
-<dd><p>Finds a modelversion on server by id</p>
+<dd><p>Finds an uploaded ModelVersion in a cluster by its id</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>cluster</strong> – active cluster</p></li>
-<li><p><strong>id</strong> – model version id</p></li>
+<li><p><strong>cluster</strong> (<a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster"><em>hydrosdk.cluster.Cluster</em></a>) – Hydrosphere cluster</p></li>
+<li><p><strong>id</strong> – The ModelVersion id</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises</dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.8)"><strong>Exception</strong></a> – if server returned not 200</p>
 </dd>
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>ModelVersion obj</p>
+<dd class="field-odd"><p>ModelVersion</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#hydrosdk.modelversion.ModelVersion" title="hydrosdk.modelversion.ModelVersion">hydrosdk.modelversion.ModelVersion</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="hydrosdk.modelversion.ModelVersion.from_json">
-<em class="property">static </em><code class="sig-name descname">from_json</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cluster</span><span class="p">:</span> <span class="n"><a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster">hydrosdk.cluster.Cluster</a></span></em>, <em class="sig-param"><span class="n">model_version</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#hydrosdk.modelversion.ModelVersion" title="hydrosdk.modelversion.ModelVersion">hydrosdk.modelversion.ModelVersion</a><a class="headerlink" href="#hydrosdk.modelversion.ModelVersion.from_json" title="Permalink to this definition">¶</a></dt>
-<dd><p>Internal method used for deserealization of a Model from json object
-:param cluster:
-:param model_version: a dictionary
-:return: A Model instance</p>
+<em class="property">static </em><code class="sig-name descname">from_json</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cluster</span><span class="p">:</span> <span class="n"><a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster">hydrosdk.cluster.Cluster</a></span></em>, <em class="sig-param"><span class="n">model_version</span><span class="p">:</span> <span class="n">Dict</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#hydrosdk.modelversion.ModelVersion" title="hydrosdk.modelversion.ModelVersion">hydrosdk.modelversion.ModelVersion</a><a class="headerlink" href="#hydrosdk.modelversion.ModelVersion.from_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deserialize ModelVersion from a JSON object</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cluster</strong> (<a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster"><em>hydrosdk.cluster.Cluster</em></a>) – Hydrosphere Cluster</p></li>
+<li><p><strong>model_version</strong> (<em>Dict</em>) – JSON representation of a ModelVersion</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>ModelVersion</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#hydrosdk.modelversion.ModelVersion" title="hydrosdk.modelversion.ModelVersion">hydrosdk.modelversion.ModelVersion</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="hydrosdk.modelversion.ModelVersion.list_model_versions">
 <em class="property">static </em><code class="sig-name descname">list_model_versions</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cluster</span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span><a class="reference internal" href="#hydrosdk.modelversion.ModelVersion" title="hydrosdk.modelversion.ModelVersion">hydrosdk.modelversion.ModelVersion</a><span class="p">]</span><a class="headerlink" href="#hydrosdk.modelversion.ModelVersion.list_model_versions" title="Permalink to this definition">¶</a></dt>
-<dd><p>List all model versions on server</p>
+<dd><p>List all Model Versions uploaded to the cluster</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>cluster</strong> – active cluster</p>
+<dd class="field-odd"><p><strong>cluster</strong> – Hydrosphere cluster</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>list of modelversions</p>
+<dd class="field-even"><p>List of uploaded Model Versions</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>List[<a class="reference internal" href="#hydrosdk.modelversion.ModelVersion" title="hydrosdk.modelversion.ModelVersion">hydrosdk.modelversion.ModelVersion</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -369,27 +449,31 @@ ModelVersion represents one of the Model’s versions.</p>
 <dl class="py method">
 <dt id="hydrosdk.modelversion.ModelVersion.list_modelversions_by_model_name">
 <em class="property">static </em><code class="sig-name descname">list_modelversions_by_model_name</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cluster</span><span class="p">:</span> <span class="n"><a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster">hydrosdk.cluster.Cluster</a></span></em>, <em class="sig-param"><span class="n">model_name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)">list</a><a class="headerlink" href="#hydrosdk.modelversion.ModelVersion.list_modelversions_by_model_name" title="Permalink to this definition">¶</a></dt>
-<dd><p>List all model versions on server filtered by model_name, sorted in ascending order by version</p>
+<dd><p>List all Model Versions uploaded to the cluster filtered by model_name, sorted in ascending order by version</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>cluster</strong> – active cluster</p></li>
-<li><p><strong>model_name</strong> – model name</p></li>
+<li><p><strong>cluster</strong> (<a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster"><em>hydrosdk.cluster.Cluster</em></a>) – Hydrosphere cluster</p></li>
+<li><p><strong>model_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The Model name</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>list of Models versions for provided model name</p>
+<dd class="field-even"><p>List of ModelVersions with <cite>model_name</cite></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)">list</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="hydrosdk.modelversion.ModelVersion.to_proto">
-<code class="sig-name descname">to_proto</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.modelversion.ModelVersion.to_proto" title="Permalink to this definition">¶</a></dt>
-<dd><p>Turns Model to Model version</p>
+<code class="sig-name descname">to_proto</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; hydro_serving_grpc.manager.entities_pb2.ModelVersion<a class="headerlink" href="#hydrosdk.modelversion.ModelVersion.to_proto" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts ModelVersion object into a ModelVersion proto message
+:return: ModelVersion proto message</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>model version obj</p>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>hydro_serving_grpc.manager.entities_pb2.ModelVersion</p>
 </dd>
 </dl>
 </dd></dl>
@@ -399,7 +483,7 @@ ModelVersion represents one of the Model’s versions.</p>
 <dl class="py class">
 <dt id="hydrosdk.modelversion.ModelVersionStatus">
 <em class="property">class </em><code class="sig-prename descclassname">hydrosdk.modelversion.</code><code class="sig-name descname">ModelVersionStatus</code><a class="headerlink" href="#hydrosdk.modelversion.ModelVersionStatus" title="Permalink to this definition">¶</a></dt>
-<dd><p>Model building statuses</p>
+<dd><p>Model building statuses.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -408,11 +492,24 @@ ModelVersion represents one of the Model’s versions.</p>
 <dd><p>Class that wraps assembly status and logs logic.</p>
 <p>Check the status of the assembly using <cite>get_status()</cite>
 Check the build logs using <cite>logs()</cite></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>modelversion</strong> (<a class="reference internal" href="#hydrosdk.modelversion.ModelVersion" title="hydrosdk.modelversion.ModelVersion"><em>hydrosdk.modelversion.ModelVersion</em></a>) – </p></li>
+<li><p><strong>sse_client</strong> (<em>sseclient.SSEClient</em>) – </p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt id="hydrosdk.modelversion.UploadResponse.building">
 <code class="sig-name descname">building</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><a class="headerlink" href="#hydrosdk.modelversion.UploadResponse.building" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks current status and returns if it is building
 :return: if building</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -432,6 +529,11 @@ Check the build logs using <cite>logs()</cite></p>
 <dd><p>Waits till the model is released
 :raises ModelVersion.BadRequest: if model upload fails
 :return:</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -446,6 +548,11 @@ Check the build logs using <cite>logs()</cite></p>
 <code class="sig-name descname">not_ok</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><a class="headerlink" href="#hydrosdk.modelversion.UploadResponse.not_ok" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks current status and returns if it is not ok
 :return: if not uploaded</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -453,6 +560,11 @@ Check the build logs using <cite>logs()</cite></p>
 <code class="sig-name descname">ok</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a><a class="headerlink" href="#hydrosdk.modelversion.UploadResponse.ok" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks current status and returns if it is ok
 :return: if uploaded</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -461,6 +573,11 @@ Check the build logs using <cite>logs()</cite></p>
 <dd><p>Checks last log record and sets upload status
 :raises StopIteration: If something went wrong with iteration over logs
 :return: None</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>

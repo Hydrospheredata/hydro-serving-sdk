@@ -2,7 +2,7 @@ import numbers
 import operator
 from enum import Enum
 from functools import reduce
-from typing import Optional
+from typing import Optional, Union, Iterable
 
 import numpy as np
 from hydro_serving_grpc.contract import ModelContract, ModelSignature, ModelField, DataProfileType
@@ -20,7 +20,7 @@ class ContractViolationException(Exception):
 
 class ProfilingType(Enum):
     """
-
+    Profiling Types are used to tell monitoring services how to analyse signature fields.
     """
     NONE = 0
     CATEGORICAL = 1
@@ -97,7 +97,7 @@ def field_from_dict(field_name: str, field_dict: dict) -> ModelField:
 
 def ModelSignature_to_signature_dict(signature: ModelSignature) -> dict:
     """
-    Serializes ModelSignature into signature dict
+    Serializes ModelSignature into a signature dict
 
     :param signature: model signature obj
     :raises TypeError: If signature invalid
@@ -344,16 +344,18 @@ def signature_dict_to_ModelContract(model_name: str, signature: dict) -> ModelCo
     return modelContract
 
 
-def parse_field(name, dtype, shape, profile=ProfilingType.NONE):
+def parse_field(name: str, dtype: Union[str, int, np.dtype],
+                shape: Iterable[int], profile=ProfilingType.NONE) -> ModelField:
     """
-    Deserializes into model field
+    Creates a proto ModelField object
 
-    :param name: name of model field
-    :param dtype: data type of model field
-    :param shape: shape of model field
-    :param profile: profile of model field
+    :param name: name of a model field
+    :param dtype: data type of model field, either string dtype alias ("double", "int" .. ),
+     proto DataType value or name, or a Numpy data type
+    :param shape: shape of a model field
+    :param profile: profile of a model field
     :raises ValueError: If dtype is invalid
-    :return: model field obj
+    :return: ModelField proto object
     """
     if profile not in DataProfileType.keys():
         profile = "NONE"
@@ -396,44 +398,51 @@ def parse_field(name, dtype, shape, profile=ProfilingType.NONE):
 
 
 class SignatureBuilder:
-    """
-    Build Model Signature
-    """
-
     def __init__(self, name):
+        """
+        SignatureBuilder is used to help with the creation of a ModelSignature.
+
+        Example:
+            signature = SignatureBuilder('infer') \
+                .with_input('x', 'double', "scalar") \
+                .with_output('y', 'double', "scalar").build()
+        """
         self.name = name
         self.inputs = []
         self.outputs = []
 
-    def with_input(self, name, dtype, shape, profile=ProfilingType.NONE):
+    def with_input(self, name: str, dtype: Union[int, str, np.dtype],
+                   shape: Iterable[int], profile=ProfilingType.NONE) -> 'SignatureBuilder':
         """
-        Adds input to the SignatureBuilder
+        Adds an input field to the current ModelSignature
 
-        :param name:
-        :param dtype:
-        :param shape:
-        :param profile:
+        :param name: The fields name
+        :param dtype: The fields data type, either string dtype alias ("double", "int" .. ),
+         proto DataType value or name, or Numpy data type
+        :param shape: The fields shape
+        :param profile: The fields profile
         :return: self SignatureBuilder
         """
         return self.__with_field(self.inputs, name, dtype, shape, profile)
 
-    def with_output(self, name, dtype, shape, profile=ProfilingType.NONE):
+    def with_output(self, name: str, dtype: Union[int, str, np.dtype],
+                    shape: Iterable[int], profile=ProfilingType.NONE) -> 'SignatureBuilder':
         """
-        Adds output to the SignatureBuilder
+        Adds an output field to the current ModelSignature
 
-        :param name:
-        :param dtype:
-        :param shape:
-        :param profile:
+        :param name: The fields name
+        :param dtype: The fields data type, either string dtype alias ("double", "int" .. ),
+         proto DataType value or name, or Numpy data type
+        :param shape: The fields shape
+        :param profile: The fields profile
         :return: self SignatureBuilder
         """
         return self.__with_field(self.outputs, name, dtype, shape, profile)
 
-    def build(self):
+    def build(self) -> ModelSignature:
         """
-        Creates Model Signature
-
-        :return: ModelSignature obj
+        Creates ModelSignature
+        :return: ModelSignature proto object
         """
         return ModelSignature(
             signature_name=self.name,
@@ -444,13 +453,6 @@ class SignatureBuilder:
     def __with_field(self, collection, name, dtype, shape, profile=ProfilingType.NONE):
         """
         Adds fields to the SignatureBuilder
-
-        :param collection: input or output
-        :param name:
-        :param dtype:
-        :param shape:
-        :param profile:
-        :return: self SignatureBuilder obj
         """
         proto_field = parse_field(name, dtype, shape, profile)
         collection.append(proto_field)
@@ -459,7 +461,7 @@ class SignatureBuilder:
 
 class AnyDimSize(object):
     """
-    Validation class for dimensions
+    Validation class for dimensions, used for -1 dims
     """
 
     def __eq__(self, other):

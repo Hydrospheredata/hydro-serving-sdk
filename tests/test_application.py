@@ -29,7 +29,7 @@ def create_test_application(cluster, upload_response: dict = None, local_model=N
             print("While creating App, there was an exception: " + str(e))
 
             # if app already existed, delete first
-            Application.delete(cluster=cluster, app_name=DEFAULT_APP_NAME)
+            Application.delete(cluster=cluster, application_name=DEFAULT_APP_NAME)
             time.sleep(3)
             application = Application.create(cluster, app_as_dict)
 
@@ -49,7 +49,7 @@ def test_find_by_name():
     cluster = create_test_cluster()
 
     created_application = create_test_application(cluster)
-    found_application = Application.find_by_name(cluster=cluster, app_name=DEFAULT_APP_NAME)
+    found_application = Application.find_by_name(cluster=cluster, application_name=DEFAULT_APP_NAME)
     assert found_application.name == DEFAULT_APP_NAME
 
 
@@ -57,10 +57,10 @@ def test_delete():
     cluster = create_test_cluster()
 
     created_application = create_test_application(cluster=cluster)
-    deleted_application = Application.delete(cluster=cluster, app_name=DEFAULT_APP_NAME)
+    deleted_application = Application.delete(cluster=cluster, application_name=DEFAULT_APP_NAME)
 
     with pytest.raises(Exception, match=r"Failed to find by name.*"):
-        found_application = Application.find_by_name(cluster=cluster, app_name=DEFAULT_APP_NAME)
+        found_application = Application.find_by_name(cluster=cluster, application_name=DEFAULT_APP_NAME)
 
 
 def test_create():
@@ -89,6 +89,6 @@ def test_application_status():
 
     time.sleep(10)
 
-    found_application = Application.find_by_name(cluster=cluster, app_name=DEFAULT_APP_NAME)
+    found_application = Application.find_by_name(cluster=cluster, application_name=DEFAULT_APP_NAME)
 
     assert found_application.status == ApplicationStatus.READY

@@ -1,6 +1,6 @@
 from collections import namedtuple
 from enum import Enum
-from typing import List
+from typing import List, Dict
 
 from hydro_serving_grpc.contract import ModelSignature
 
@@ -27,6 +27,9 @@ def streaming_params(in_topic, out_topic):
 
 
 class ApplicationStatus(Enum):
+    """
+    Possible statuses of an Application
+    """
     FAILED = 0
     ASSEMBLING = 1
     READY = 2
@@ -34,7 +37,7 @@ class ApplicationStatus(Enum):
 
 class Application:
     """
-    An application is a publicly available endpoint to reach your models (https://hydrosphere.io/serving-docs/latest/overview/concepts.html#applications)
+    An application is a publicly available endpoint to reach your models. Learn more about them - https://hydrosphere.io/serving-docs/latest/overview/concepts.html#applications
     """
 
     def __init__(self, name, execution_graph, kafka_streaming, metadata, status, signature: ModelSignature,
@@ -47,28 +50,34 @@ class Application:
         self.signature = signature
         self.cluster = cluster
 
-    def predictor(self, return_type=PredictorDT.DICT_NP_ARRAY) -> PredictServiceClient:
-        self.impl = MonitorableImplementation(channel=self.cluster.channel, target=self.name)
-        self.predictor_return_type = return_type
+    def predictor(self, return_type: PredictorDT = PredictorDT.DICT_NP_ARRAY) -> PredictServiceClient:
+        """
+        Returns a predictor object which is used to pass data into the Application.
+         Data passed to the Application will be automatically shadowed into monitoring services.
 
-        return PredictServiceClient(impl=self.impl, signature=self.signature,
-                                    return_type=self.predictor_return_type)
+        :param return_type: Specifies into which data format should predictor return Servable outputs
+        :return: PredictServiceClient
+        """
+
+        return PredictServiceClient(impl=MonitorableImplementation(channel=self.cluster.channel, target=self.name),
+                                    signature=self.signature,
+                                    return_type=return_type)
 
     def update_status(self) -> None:
         """
         Setter method that updates application status
         :return: None
         """
-        application = Application.find_by_name(cluster=self.cluster, app_name=self.name)
+        application = Application.find_by_name(cluster=self.cluster, application_name=self.name)
         self.status = application.status
 
     @staticmethod
     def app_json_to_app_obj(cluster: Cluster, application_json: dict) -> 'Application':
         """
-        Deserializes json into Application
-        :param cluster: active cluster
-        :param application_json: input json with application object fields
-        :return Application : application object
+        Deserializes Application JSON representation into an Application
+        :param cluster: Hydrosphere cluster
+        :param application_json: JSON representation of an Application
+        :return Application: Application
         """
         app_name = application_json.get("name")
         app_execution_graph = application_json.get("executionGraph")
@@ -82,13 +91,13 @@ class Application:
         return app
 
     @staticmethod
-    def list_all(cluster):
+    def list_all(cluster) -> List['Application']:
         """
-        Lists all available applications from server
+        Lists all available applications in the cluster
 
-        :param cluster: active cluster
+        :param cluster: Hydrosphere cluster
         :raises Exception: If response from server is not 200
-        :return: deserialized list of application objects
+        :return: List of all Applications
         """
         resp = cluster.request("GET", "/api/v2/application")
         if resp.ok:
@@ -101,48 +110,48 @@ class Application:
             f"Failed to list all models. {resp.status_code} {resp.text}")
 
     @staticmethod
-    def find_by_name(cluster, app_name):
+    def find_by_name(cluster, application_name) -> 'Application':
         """
-        By the *app_name* searches for the Application
+        Finds an Application in a cluster by its name
 
-        :param cluster: active cluster
+        :param cluster: Hydrosphere cluster
         :raises Exception: If response from server is not 200
-        :return: deserialized Application object
+        :return: Application
         """
-        resp = cluster.request("GET", "/api/v2/application/{}".format(app_name))
+        resp = cluster.request("GET", "/api/v2/application/{}".format(application_name))
         if resp.ok:
             resp_json = resp.json()
             app = Application.app_json_to_app_obj(cluster=cluster, application_json=resp_json)
             return app
 
         raise Exception(
-            f"Failed to find by name. Name = {app_name}. {resp.status_code} {resp.text}")
+            f"Failed to find by name. Name = {application_name}. {resp.status_code} {resp.text}")
 
     @staticmethod
-    def delete(cluster, app_name):
+    def delete(cluster, application_name):
         """
-        By the *app_name* deletes Application
+        Permanently deletes Application from the cluster
 
         :param cluster: active cluster
         :raises Exception: If response from server is not 200
         :return: response from the server
         """
-        resp = cluster.request("DELETE", "/api/v2/application/{}".format(app_name))
+        resp = cluster.request("DELETE", "/api/v2/application/{}".format(application_name))
         if resp.ok:
             return resp.json()
 
         raise Exception(
-            f"Failed to delete application. Name = {app_name}. {resp.status_code} {resp.text}")
+            f"Failed to delete application. Name = {application_name}. {resp.status_code} {resp.text}")
 
     @staticmethod
-    def create(cluster, application: dict):
+    def create(cluster, application: dict) -> 'Application':
         """
-        By the *app_name* searches for the Application
+        Creates an Application in the cluster from existing ModelVersions.
 
-        :param cluster: active cluster
-        :param application: dict with necessary to create application fields
+        :param cluster: Hydrosphere cluster
+        :param application: JSON representation of Application created
         :raises Exception: If response from server is not 200
-        :return: deserialized Application object
+        :return: Application
         """
         resp = cluster.request(method="POST", url="/api/v2/application", json=application)
         if resp.ok:
@@ -154,12 +163,12 @@ class Application:
             f"Failed to create application. Application = {application}. {resp.status_code} {resp.text}")
 
     @staticmethod
-    def parse_streaming_params(in_list: List[dict]) -> list:
+    def parse_streaming_params(in_list: List[Dict]) -> List[Dict]:
         """
-        Deserializes from input list StreamingParams
+        Deserializes list of StreamingParams
 
-        :param in_list: input list of dicts
-        :return: list ofr StreamingParams
+        :param in_list: input list of Dict
+        :return: list of dicts in a form of {'sourceTopic': in_topic, 'destinationTopic': out_topic}
         """
         params = []
         for item in in_list:
