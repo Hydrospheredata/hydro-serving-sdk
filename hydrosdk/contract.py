@@ -8,7 +8,7 @@ import numpy as np
 from hydro_serving_grpc.contract import ModelContract, ModelSignature, ModelField, DataProfileType
 from hydro_serving_grpc.tf.types_pb2 import *
 
-from hydrosdk.data.types import name2dtype, shape_to_proto, PY_TO_DTYPE, np2proto_dtype, proto2np_dtype
+from hydrosdk.data.types import alias_to_proto_dtype, shape_to_proto, PY_TO_DTYPE, np_to_proto_dtype, proto_to_np_dtype
 
 
 class ContractViolationException(Exception):
@@ -74,7 +74,7 @@ def field_from_dict(field_name: str, field_dict: dict) -> ModelField:
                 subfields_buffer.append(subfield)
             result_subfields = subfields_buffer
     else:
-        result_dtype = name2dtype(dtype)
+        result_dtype = alias_to_proto_dtype(dtype)
 
     if result_dtype is not None:
         result_field = ModelField(
@@ -374,14 +374,14 @@ def parse_field(name, dtype, shape, profile=ProfilingType.NONE):
     else:
         if dtype in DataType.keys():  # exact name e.g. DT_STRING
             result_dtype = dtype
-        elif dtype in DataType.values():
+        elif dtype in DataType.values():  # int value of DataType
             result_dtype = dtype
-        elif isinstance(dtype, str):  # string alias
-            result_dtype = name2dtype(dtype)
+        elif isinstance(dtype, str):  # string alias e.g. 'double'
+            result_dtype = alias_to_proto_dtype(dtype)
         elif isinstance(dtype, type):  # type. could be python or numpy type
             result_dtype = PY_TO_DTYPE.get(dtype)
             if not result_dtype:
-                result_dtype = np2proto_dtype(dtype)
+                result_dtype = np_to_proto_dtype(dtype)
         else:
             result_dtype = DT_INVALID
 
@@ -590,7 +590,7 @@ def mock_input_data(signature: ModelSignature):
             simple_shape = [1]
         field_shape = tuple(np.abs(simple_shape))
         size = reduce(operator.mul, field_shape)
-        npdtype = proto2np_dtype(field.dtype)
+        npdtype = proto_to_np_dtype(field.dtype)
         if field.dtype == DT_BOOL:
             x = (np.random.randn(*field_shape) >= 0).astype(np.bool)
         elif field.dtype in [DT_FLOAT, DT_HALF, DT_DOUBLE, DT_COMPLEX128, DT_COMPLEX64]:
