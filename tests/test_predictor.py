@@ -77,9 +77,7 @@ def test_predict_application():
 
     upload_response = model.upload(cluster=cluster)
 
-    tensor_application = create_test_application(cluster=cluster, upload_response=upload_response, local_model=model)
-
-    value = int(random() * 1e5)
+    tensor_application = create_test_application(cluster, upload_response[model])
 
     while tensor_application.status != ApplicationStatus.READY:
         tensor_application.update_status()
@@ -92,6 +90,7 @@ def test_predict_application():
 
     predictor_client = tensor_application.predictor(return_type=PredictorDT.DICT_PYTHON)
 
+    value = random() * 1e5
     inputs = {'input': [value]}
 
     predictions = predictor_client.predict(inputs)
