@@ -1,10 +1,13 @@
+from random import random
+
 import numpy as np
 import pytest
 from hydro_serving_grpc.tf import *
 from hydro_serving_grpc.tf import TensorProto, TensorShapeProto
 
-from hydrosdk.data.conversions import np_to_tensor_proto, tensor_proto_to_np, proto_to_np_dtype, tensor_shape_proto_from_tuple
-from hydrosdk.data.types import DTYPE_TO_FIELDNAME, np_to_proto_dtype
+from hydrosdk.data.conversions import np_to_tensor_proto, tensor_proto_to_np, proto_to_np_dtype, \
+    tensor_shape_proto_from_tuple, list_to_tensor_proto, tensor_proto_to_py
+from hydrosdk.data.types import DTYPE_TO_FIELDNAME, np_to_proto_dtype, PredictorDT, find_in_list_by_name
 
 int_dtypes = [DT_INT64, DT_UINT16, DT_UINT8, DT_INT8, DT_INT16, DT_INT32, DT_UINT32, DT_UINT64]
 float_types = [DT_DOUBLE, DT_FLOAT, ]
@@ -152,3 +155,16 @@ class TestConversion:
         tensor_proto = np_to_tensor_proto(x)
         x_restored = tensor_proto_to_np(tensor_proto)
         assert x == x_restored
+
+    def test_tensor_proto_to_py(self, tensor_servable):
+        list_value = [int(random() * 1e5)]
+        predictor_client = tensor_servable.predictor(return_type=PredictorDT.DICT_PYTHON)
+
+        signature_field = find_in_list_by_name(some_list=predictor_client.signature.inputs,
+                                               name="input")
+        tensor_proto = list_to_tensor_proto(list_value, signature_field.dtype, signature_field.shape)
+
+        value_again = tensor_proto_to_py(t=tensor_proto)
+
+        assert list_value == value_again
+        assert isinstance(value_again, list)
