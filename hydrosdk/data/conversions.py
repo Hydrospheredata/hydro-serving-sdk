@@ -1,9 +1,10 @@
+import collections
+
 import numpy as np
 import pandas as pd
 from hydro_serving_grpc import TensorProto, DataType, TensorShapeProto
 
-from hydrosdk.data.types import NP_TO_HS_DTYPE, DTYPE_TO_FIELDNAME, np2proto_shape, PY_TO_DTYPE, PredictorDT, \
-    signature_get_item
+from hydrosdk.data.types import NP_TO_HS_DTYPE, DTYPE_TO_FIELDNAME, np2proto_shape, PY_TO_DTYPE, signature_get_item
 
 
 def numpy_data_to_tensor_proto(data, dtype, shape):
@@ -28,6 +29,18 @@ def dtype_to_tensor_proto(data: int, dtype: str, shape: TensorShapeProto):
 
 def python_dtype_to_proto(value, key, signature) -> TensorProto:
     return numpy_data_to_tensor_proto(value, signature.inputs[key].dtype, signature.inputs[key].shape)
+
+
+def isinstance_namedtuple(obj) -> bool:
+    """
+    based on https://stackoverflow.com/a/49325922/7127824 and https://github.com/Hydrospheredata/hydro-serving-sdk/pull/51
+
+    :param obj: any object
+    :return: bool if object is an instance of namedtuple
+    """
+    return (isinstance(obj, tuple) and
+            getattr(obj, '_asdict', None) and
+            getattr(obj, '_fields', None))
 
 
 def convert_inputs_to_tensor_proto(inputs, signature) -> dict:
@@ -57,7 +70,7 @@ def convert_inputs_to_tensor_proto(inputs, signature) -> dict:
     elif isinstance(inputs, pd.DataFrame):
         for key, value in dict(inputs).items():
             tensors[key] = numpy_data_to_tensor_proto(value.ravel(), value.dtype, value.shape)
-    elif callable(getattr(inputs, "_asdict", None)):
+    elif isinstance_namedtuple(inputs):
         return convert_inputs_to_tensor_proto(inputs._asdict(), signature=signature)
     else:
         raise ValueError(
