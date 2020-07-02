@@ -154,6 +154,18 @@ def tensor_shape_proto_from_tuple(shape: Iterable[int]) -> TensorShapeProto:
     return TensorShapeProto(dim=[TensorShapeProto.Dim(size=s) for s in shape])
 
 
+def isinstance_namedtuple(obj) -> bool:
+    """
+    based on https://stackoverflow.com/a/49325922/7127824 and https://github.com/Hydrospheredata/hydro-serving-sdk/pull/51
+
+    :param obj: any object
+    :return: bool if object is an instance of namedtuple
+    """
+    return (isinstance(obj, tuple) and
+            getattr(obj, '_asdict', None) and
+            getattr(obj, '_fields', None))
+
+
 def convert_inputs_to_tensor_proto(inputs: Dict, signature: ModelSignature) -> Dict[str, TensorProto]:
     """
     Generate Dict[str, TensorProto] from pd.DataFrame or Dict[str, Union[np.array, np.ScalarType]]
@@ -184,7 +196,7 @@ def convert_inputs_to_tensor_proto(inputs: Dict, signature: ModelSignature) -> D
     elif isinstance(inputs, pd.DataFrame):
         for key, value in dict(inputs).items():
             tensors[key] = nparray_to_tensor_proto(value.ravel())
-    elif callable(getattr(inputs, "_asdict", None)):
+    elif isinstance_namedtuple(inputs):
         return convert_inputs_to_tensor_proto(inputs._asdict(), signature=signature)
     else:
         raise ValueError(f"Conversion failed. Expected [pandas.DataFrame, dict[str, numpy.ndarray],\
