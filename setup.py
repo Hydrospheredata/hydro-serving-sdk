@@ -10,6 +10,7 @@ pkgs = find_packages(exclude=['tests', 'tests.*'])
 print("FOUND PKGS", pkgs)
 
 reqs = [
+    'importlib_metadata~=1.7.0',
     'hydro-serving-grpc~=2.2.1',
     'sseclient-py~=1.7',
     'numpy~=1.18.3',
@@ -29,6 +30,10 @@ setup(
     url="https://hydrosphere.io/",
     license="Apache 2.0",
     packages=pkgs,
+    classifiers=["License :: OSI Approved :: Apache Software License",
+                 "Intended Audience :: Developers",
+                 "Intended Audience :: Information Technology",
+                 "Topic :: Software Development :: Libraries :: Python Modules"],
     install_requires=reqs,
     include_package_data=True,
     setup_requires=['pytest-runner'],
