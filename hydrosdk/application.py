@@ -8,7 +8,7 @@ from hydrosdk.cluster import Cluster
 from hydrosdk.contract import _signature_dict_to_ModelSignature
 from hydrosdk.data.types import PredictorDT
 from hydrosdk.predictor import PredictServiceClient, MonitorableImplementation
-from hydrosdk.exceptions import RequestsErrorHandler
+from hydrosdk.exceptions import handle_request_error
 
 ApplicationDef = namedtuple('ApplicationDef', ('name', 'executionGraph', 'kafkaStreaming'))
 
@@ -33,74 +33,73 @@ class ApplicationStatus(Enum):
     READY = 2
 
 
-class Application(RequestsErrorHandler):
+class Application:
     """
     An application is a publicly available endpoint to reach your models (https://hydrosphere.io/serving-docs/latest/overview/concepts.html#applications)
     """
 
-    @classmethod
-    def list_all(cls, cluster: Cluster) -> List['Application']:
+    @staticmethod
+    def list_all(cluster: Cluster) -> List['Application']:
         """
-        Lists all available applications from server
+        List all available applications from server.
 
         :param cluster: active cluster
-        :raises Exception: If response from server is not 200
         :return: deserialized list of application objects
         """
         resp = cluster.request("GET", "/api/v2/application")
-        cls.handle_request_error(
+        handle_request_error(
             resp, f"Failed to list all applications. {resp.status_code} {resp.text}")
         applications = [Application.app_json_to_app_obj(cluster, app_json) 
                         for app_json in resp.json()]
         return applications
 
-    @classmethod
-    def find_by_name(cls, cluster: Cluster, app_name: str) -> 'Application':
+    @staticmethod
+    def find_by_name(cluster: Cluster, application_name: str) -> 'Application':
         """
-        By the *app_name* searches for the Application
+        Search for an application by name. 
 
         :param cluster: active cluster
-        :raises Exception: If response from server is not 200
-        :return: deserialized Application object
+        :param application_name: application name
+        :return: deserialized application object
         """
-        resp = cluster.request("GET", "/api/v2/application/{}".format(app_name))
-        cls.handle_request_error(
-            resp, f"Failed to find application by name={app_name}. {resp.status_code} {resp.text}")
+        resp = cluster.request("GET", "/api/v2/application/{}".format(application_name))
+        handle_request_error(
+            resp, f"Failed to find application by name={application_name}. {resp.status_code} {resp.text}")
         return Application.app_json_to_app_obj(cluster, resp.json())
 
-    @classmethod
-    def delete(cls, cluster: Cluster, app_name: str) -> dict:
+    @staticmethod
+    def delete(cluster: Cluster, application_name: str) -> dict:
         """
-        By the *app_name* deletes Application
+        Delete an application by name.
 
         :param cluster: active cluster
-        :raises Exception: If response from server is not 200
+        :param application_name: application name
         :return: response from the server
         """
-        resp = cluster.request("DELETE", "/api/v2/application/{}".format(app_name))
-        cls.handle_request_error(
-            resp, f"Failed to delete application for name={app_name}. {resp.status_code} {res.text}")
+        resp = cluster.request("DELETE", "/api/v2/application/{}".format(application_name))
+        handle_request_error(
+            resp, f"Failed to delete application for name={application_name}. {resp.status_code} {res.text}")
         return resp.json()
 
-    @classmethod
-    def create(cls, cluster: Cluster, application: dict):
+    @staticmethod
+    def create(cluster: Cluster, application_json: dict) -> 'Application':
         """
-        By the *app_name* searches for the Application
+        Create an application from json definition.
 
         :param cluster: active cluster
-        :param application: dict with necessary to create application fields
-        :raises Exception: If response from server is not 200
-        :return: deserialized Application object
+        :param application_json: dict with necessary fields to create an application
+        :return: deserialized application object
         """
-        resp = cluster.request(method="POST", url="/api/v2/application", json=application)
-        cls.handle_request_error(
+        resp = cluster.request(method="POST", url="/api/v2/application", json=application_json)
+        handle_request_error(
             resp, f"Failed to create an application. {resp.status_code} {res.text}")
         return Application.app_json_to_app_obj(cluster=cluster, application_json=resp.json())
 
     @staticmethod
     def app_json_to_app_obj(cluster: Cluster, application_json: dict) -> 'Application':
         """
-        Deserializes json into Application
+        Deserialize json into application object. 
+
         :param cluster: active cluster
         :param application_json: input json with application object fields
         :return Application : application object
@@ -119,7 +118,7 @@ class Application(RequestsErrorHandler):
     @staticmethod
     def parse_streaming_params(in_list: List[dict]) -> list:
         """
-        Deserializes from input list StreamingParams
+        Deserialize StreamingParams from input list.
 
         :param in_list: input list of dicts
         :return: list ofr StreamingParams
@@ -244,19 +243,47 @@ class Application(RequestsErrorHandler):
             kafkaStreaming=streaming_def
         )
 
+    def _update_status(self):
+        self.status = self.find_by_name(cluster=self.cluster, app_name=self.name).status
+    
+    def _is_assembling(self) -> bool:
+        self._update_status()
+        if self.status == ApplicationStatus.ASSEMBLING.value:
+            return True
+        return False
+
+    def _is_ready(self) -> bool:
+        self._update_status()
+        if self.status == ApplicationStatus.READY.value:
+            return True
+        return False
+
+    def lock_till_ready(self) -> bool:
+        """
+        Lock till the application completes deployment.
+
+        :return: True if model has been released successfully, False if failed
+        """
+        events_steam = cluster.request("GET", "/api/v2/events", stream=True)
+        events_client = sseclient.SSEClient(events_stream)
+
+        if not self._is_assembling() and self._is_ready(self.status): 
+            return True
+        try:
+            for event in events_client.events():
+                if event.event == "ApplicationUpdate":
+                    data = json.loads(event.data)
+                    if data.get("name") == self.name:
+                        return self._is_ready()
+        finally:
+            events_client.close()
+
     def predictor(self, return_type=PredictorDT.DICT_NP_ARRAY) -> PredictServiceClient:
         self.impl = MonitorableImplementation(channel=self.cluster.channel, target=self.name)
         self.predictor_return_type = return_type
 
         return PredictServiceClient(impl=self.impl, signature=self.signature,
                                     return_type=self.predictor_return_type)
-
-    def update_status(self) -> None:
-        """
-        Setter method that updates application status
-        :return: None
-        """
-        self.status = self.find_by_name(cluster=self.cluster, app_name=self.name).status
 
     def __init__(self, cluster: Cluster, name: str, execution_graph: dict, status: int, signature: ModelSignature, 
                  kafka_streaming: Optional[dict] = None, metadata: Optional[dict] = None):
@@ -267,9 +294,3 @@ class Application(RequestsErrorHandler):
         self.status = status
         self.signature = signature
         self.cluster = cluster
-
-    class BadRequest(Exception):
-        """
-        Used for cases, when cluster returns 4xx response on user request.
-        """
-        pass

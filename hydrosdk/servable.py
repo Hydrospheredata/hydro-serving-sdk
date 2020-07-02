@@ -11,7 +11,7 @@ from sseclient import Event
 
 from hydrosdk.cluster import Cluster
 from hydrosdk.data.types import PredictorDT
-from hydrosdk.exceptions import ServableException, RequestsErrorHandler
+from hydrosdk.exceptions import ServableException, handle_request_error
 from hydrosdk.modelversion import ModelVersion
 from hydrosdk.predictor import PredictServiceClient, MonitorableImplementation, UnmonitorableImplementation
 
@@ -39,7 +39,7 @@ class ServableStatus(Enum):
         return ServableStatus[re.sub(r'(?<!^)(?=[A-Z])', '_', camel_case_servable_status).upper()]
 
 
-class Servable(RequestsErrorHandler):
+class Servable:
     """
     Servable is an instance of a model version which could be used in application or by itself as it exposes various endpoints to your model
      version: HTTP, gRPC, and Kafka.
@@ -66,8 +66,8 @@ class Servable(RequestsErrorHandler):
                         status_message=modelversion_json['status']['msg'],
                         metadata=modelversion_data['metadata'])
 
-    @classmethod
-    def create(cls, cluster: Cluster, model_name: str, version: str,
+    @staticmethod
+    def create(cluster: Cluster, model_name: str, version: str,
                metadata: dict = None) -> 'Servable':
         """
         Deploy an instance of uploaded model version at your cluster.
@@ -87,12 +87,12 @@ class Servable(RequestsErrorHandler):
         }
 
         resp = cluster.request(method='POST', url='/api/v2/servable', json=msg)
-        cls.handle_request_error(
+        handle_request_error(
             resp, f"Failed to create a servable. {resp.status_code} {resp.text}")
         return Servable.modelversion_json_to_servable(cluster, res.json())
 
-    @classmethod
-    def find(cls, cluster: Cluster, servable_name: str) -> 'Servable':
+    @staticmethod
+    def find(cluster: Cluster, servable_name: str) -> 'Servable':
         """
         Connects to servable at your cluster.
 
@@ -102,25 +102,25 @@ class Servable(RequestsErrorHandler):
         :return: Servable
         """
         resp = cluster.request("GET", Servable.BASE_URL + "/{}".format(servable_name))
-        cls.handle_request_error(
+        handle_request_error(
             resp, f"Failed to find servable for name={servable_name}. {resp.status_code} {resp.text}")
         return Servable.modelversion_json_to_servable(cluster, res.json())
 
-    @classmethod
-    def list_all(cls, cluster: Cluster) -> List['Servable']:
+    @staticmethod
+    def list_all(cluster: Cluster) -> List['Servable']:
         """
         Retrieve list of all servables available at your cluster
         :param cluster: Cluster connected to Hydrosphere
         :return: List of all Servables available at your cluster
         """
         resp = cluster.request("GET", "/api/v2/servable")
-        cls.handle_request_error(
+        handle_request_error(
             resp, f"Failed to list servables. {resp.status_code} {resp.text}")
         return [Servable.modelversion_json_to_servable(cluster, servable_json) for
                 servable_json in res.json()]
 
-    @classmethod
-    def delete(cls, cluster: Cluster, servable_name: str) -> dict:
+    @staticmethod
+    def delete(cluster: Cluster, servable_name: str) -> dict:
         """
         Shut down and delete servable instance.
 
@@ -132,7 +132,7 @@ class Servable(RequestsErrorHandler):
         .. warnings also: Use with caution. Predictors previously associated with this servable will not be able to connect to it.
         """
         resp = cluster.request("DELETE", "/api/v2/servable/{}".format(servable_name))
-        cls.handle_request_error(
+        handle_request_error(
             resp, f"Failed to delete servable with name={servable_name}. {resp.status_code} {resp.text}")
         return res.json()
 
@@ -171,6 +171,3 @@ class Servable(RequestsErrorHandler):
         self.predictor_return_type = return_type
         return PredictServiceClient(impl=self.impl, signature=self.modelversion.contract.predict,
                                     return_type=self.predictor_return_type)
-
-    class BadRequest(Exception):
-        pass

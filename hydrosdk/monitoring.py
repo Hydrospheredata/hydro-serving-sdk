@@ -2,7 +2,7 @@ from typing import Union, List
 from urllib.parse import urljoin
 
 from hydrosdk.cluster import Cluster
-from hydrosdk.exceptions import MetricSpecException, RequestsErrorHandler
+from hydrosdk.exceptions import MetricSpecException, handle_request_error
 
 
 class TresholdCmpOp:
@@ -38,11 +38,11 @@ class MetricSpecConfig:
         self.modelversion_id = modelversion_id
 
 
-class MetricSpec(RequestsErrorHandler):
+class MetricSpec:
     BASE_URL = "/api/v2/monitoring/metricspec"
 
-    @classmethod
-    def list_all(cls, cluster: Cluster) -> List['MetricSpec']:
+    @staticmethod
+    def list_all(cluster: Cluster) -> List['MetricSpec']:
         """
         Sends request and returns list with all available metric specs.
 
@@ -51,12 +51,12 @@ class MetricSpec(RequestsErrorHandler):
         :return: list with all available metric specs
         """
         resp = cluster.request("GET", MetricSpec.BASE_URL)
-        cls.handle_request_error(
+        handle_request_error(
             resp, f"Failed to list MetricSpecs. {resp.status_code} {resp.text}")
         return [MetricSpec.__parse_json(cluster, x) for x in resp.json()]
 
-    @classmethod
-    def list_for_modelversion(cls, cluster: Cluster, modelversion_id: int) -> List['MetricSpec']:
+    @staticmethod
+    def list_for_modelversion(cluster: Cluster, modelversion_id: int) -> List['MetricSpec']:
         """
         Sends request and returns list with specs by model version.
 
@@ -67,12 +67,12 @@ class MetricSpec(RequestsErrorHandler):
         """
         url = urljoin(MetricSpec.BASE_URL, f"modelversion/{modelversion_id}")
         resp = cluster.request("get", url)
-        cls.handle_request_error(
+        handle_request_error(
             resp, f"Failed to list MetricSpecs for modelversion_id={modelversion_id}. {resp.status_code} {resp.text}")
         return [MetricSpec.__parse_json(cluster, x) for x in resp.json()]
 
-    @classmethod
-    def find_by_id(cls, cluster: Cluster, metric_spec_id: int) -> 'MetricSpec':
+    @staticmethod
+    def find_by_id(cluster: Cluster, metric_spec_id: int) -> 'MetricSpec':
         """
         Returns MetricSpec by id.
 
@@ -82,12 +82,12 @@ class MetricSpec(RequestsErrorHandler):
         """
         url = urljoin(MetricSpec.BASE_URL, str(metric_spec_id))
         resp = cluster.request("get", url)
-        cls.handle_request_error(
+        handle_request_error(
             resp, f"Failed to retrieve MetricSpec for metric_spec_id={metric_spec_id}. {resp.status_code} {resp.text}")
         return MetricSpec.__parse_json(cluster, resp.json())
 
-    @classmethod
-    def delete(cls, cluster: Cluster, metric_spec_id: int) -> dict:
+    @staticmethod
+    def delete(cluster: Cluster, metric_spec_id: int) -> dict:
         """
         Deletes MetricSpec.
 
@@ -95,12 +95,12 @@ class MetricSpec(RequestsErrorHandler):
         """
         url = urljoin(MetricSpec.BASE_URL, str(self.metric_spec_id))
         resp = cluster.request("delete", url)
-        cls.handle_request_error(
+        handle_request_error(
             resp, f"Failed to delete MetricSpec for metric_spec_id={metric_spec_id}. {resp.status_code} {resp.text}")
         return resp.json()
     
-    @classmethod
-    def create(cls, cluster: Cluster, name: str, modelversion_id: int, config: MetricSpecConfig) -> 'MetricSpec':
+    @staticmethod
+    def create(cluster: Cluster, name: str, modelversion_id: int, config: MetricSpecConfig) -> 'MetricSpec':
         """
         Create MetricSpec and returns corresponding instance.
 
@@ -122,7 +122,7 @@ class MetricSpec(RequestsErrorHandler):
             }
         }
         resp = cluster.request("POST", MetricSpec.BASE_URL, json=d)
-        cls.handle_request_error(
+        handle_request_error(
             resp, f"Failed to create a MetricSpec for name={name}, modelversion_id={modelversion_id}. {resp.status_code} {resp.text}")
         return MetricSpec.__parse_json(cluster, resp.json())
 
@@ -157,5 +157,3 @@ class MetricSpec(RequestsErrorHandler):
         self.modelversion_id = modelversion_id
         self.name = name
 
-    class BadRequest(Exception):
-        pass

@@ -20,7 +20,7 @@ from hydrosdk.contract import ModelContract_to_contract_dict, contract_dict_to_M
 from hydrosdk.errors import InvalidYAMLFile
 from hydrosdk.image import DockerImage
 from hydrosdk.monitoring import MetricSpec, MetricSpecConfig, MetricModel
-from hydrosdk.exceptions import RequestsErrorHandler
+from hydrosdk.exceptions import BadRequest, BadResponse, handle_request_error
 
 
 def _upload_training_data(cluster: Cluster, modelversion_id: int, path: str) -> 'DataUploadResponse':
@@ -30,7 +30,7 @@ def _upload_training_data(cluster: Cluster, modelversion_id: int, path: str) -> 
     :param cluster: Cluster instance
     :param modelversion_id: Id of the model version, for which to upload training data
     :param path: Path to the training data
-    :raises Cluster.BadResponse: if request failed to process by Hydrosphere
+    :raises BadResponse: if request failed to process by Hydrosphere
     :return: DataUploadResponse obj
     """
     if path.startswith('s3://'):
@@ -39,7 +39,7 @@ def _upload_training_data(cluster: Cluster, modelversion_id: int, path: str) -> 
         resp = _upload_local_file(cluster, modelversion_id, path)
     if resp.ok:
         return DataUploadResponse(cluster, modelversion_id)
-    raise Cluster.BadResponse('Failed to upload training data')
+    raise BadResponse('Failed to upload training data')
 
 
 def _upload_local_file(cluster: Cluster, modelversion_id: int, path: str, 
@@ -89,7 +89,7 @@ def resolve_paths(path: str, payload: List[str]) -> Dict[str, str]:
     return {os.path.normpath(os.path.join(path, v)): v for v in payload}
 
 
-class LocalModel(RequestsErrorHandler):
+class LocalModel:
     """
     Local Model
     A model is a machine learning model or a processing function that consumes provided inputs
@@ -197,7 +197,7 @@ class LocalModel(RequestsErrorHandler):
         resp = cluster.request("POST", "/api/v2/model/upload",
                                data=encoder,
                                headers={'Content-Type': encoder.content_type})
-        self.handle_request_error(
+        handle_request_error(
             resp, f"Failed to upload local model. {resp.status_code} {res.text}")
 
         modelversion = ModelVersion.from_json(
@@ -205,32 +205,17 @@ class LocalModel(RequestsErrorHandler):
         modelversion.training_data = self.training_data
         return modelversion
 
-    class BadRequest(Exception): 
-        pass
-
 
 class ModelVersionStatus(Enum):
     """
     Model building statuses
     """
-    Assembling = "Assembling"
-    Released = "Released"
-    Failed = "Failed"
-
-    @classmethod
-    def is_assembling(cls, status: str) -> bool:
-        if status == cls.Assembling.value:
-            return True
-        return False
-
-    @classmethod
-    def is_released(cls, status: str) -> bool:
-        if status == cls.Released.value:
-            return True
-        return False
+    ASSEMBLING = "Assembling"
+    RELEASED = "Released"
+    FAILED = "Failed"
 
 
-class ModelVersion(RequestsErrorHandler):
+class ModelVersion:
     """
     Model (A model is a machine learning model or a processing function that consumes provided inputs
     and produces predictions or transformations
@@ -239,8 +224,8 @@ class ModelVersion(RequestsErrorHandler):
     """
     BASE_URL = "/api/v2/model"
 
-    @classmethod
-    def find(cls, cluster: Cluster, name: str, version: int) -> 'ModelVersion':
+    @staticmethod
+    def find(cluster: Cluster, name: str, version: int) -> 'ModelVersion':
         """
         Finds a model on server by name and version (not ModelVersion!)
 
@@ -251,12 +236,12 @@ class ModelVersion(RequestsErrorHandler):
         :return: ModelVersion obj
         """
         resp = cluster.request("GET", ModelVersion.BASE_URL + "/version/{}/{}".format(name, version))
-        cls.handle_request_error(
+        handle_request_error(
             resp, f"Failed to find modelversion for name={name}, version={version}. {resp.status_code} {resp.text}")
         return ModelVersion.from_json(cluster=cluster, model_version=resp.json())
 
-    @classmethod
-    def find_by_id(cls, cluster: Cluster, id: int) -> 'ModelVersion':
+    @staticmethod
+    def find_by_id(cluster: Cluster, id: int) -> 'ModelVersion':
         """
         Finds a modelversion on server by id.
 
@@ -266,7 +251,7 @@ class ModelVersion(RequestsErrorHandler):
         :return: ModelVersion obj
         """
         resp = cluster.request("GET", ModelVersion.BASE_URL + "/version")
-        cls.handle_request_error(
+        handle_request_error(
             resp, f"Failed to find modelversion by id={id}. {resp.status_code} {resp.text}")
         for model_json in resp.json():
             if model_json['id'] == id:
@@ -317,8 +302,8 @@ class ModelVersion(RequestsErrorHandler):
             metadata=metadata,
         )
 
-    @classmethod
-    def create_externalmodel(cls, cluster: Cluster, name: str, contract: ModelContract, 
+    @staticmethod
+    def create_externalmodel(cluster: Cluster, name: str, contract: ModelContract, 
                metadata: Optional[dict] = None, training_data: Optional[str] = None) -> 'ModelVersion':
         """
         Creates an external model version on the server. 
@@ -327,9 +312,6 @@ class ModelVersion(RequestsErrorHandler):
         :param name: name of model
         :param contract: contract of the model
         :param metadata: metadata for the model
-        :raises ModelVersion.BadRequest: if a model registration request was invalid
-        :raises Cluster.BadResponse: if the server failed to register an external model
-        :raises Cluster.UnknownException: if received unknown exception from the server
         :return: instance of ModelVersion
         """
         model = {
@@ -338,12 +320,12 @@ class ModelVersion(RequestsErrorHandler):
             "metadata": metadata
         }
         resp = cluster.request(method="POST", url="/api/v2/externalmodel", json=model)
-        cls.handle_request_error(
+        handle_request_error(
             resp, f"Failed to create an external model. {resp.status_code} {resp.text}")
         return ModelVersion.from_json(cluster, resp.json())
 
-    @classmethod
-    def list_model_versions(cls, cluster: Cluster) -> List['ModelVersion']:
+    @staticmethod
+    def list_model_versions(cluster: Cluster) -> List['ModelVersion']:
         """
         List all model versions on server
 
@@ -351,7 +333,7 @@ class ModelVersion(RequestsErrorHandler):
         :return: list of modelversions
         """
         resp = cluster.request("GET", ModelVersion.BASE_URL + "/version")
-        cls.handle_request_error(
+        handle_request_error(
             resp, f"Failed to list model versions. {resp.status_code} {resp.text}")
         return [ModelVersion.from_json(cluster=cluster, model_version=model_version_json)
                 for model_version_json in resp.json()]
@@ -370,32 +352,38 @@ class ModelVersion(RequestsErrorHandler):
         sorted_by_version = sorted(modelversions_by_name, key=lambda model: model.version)
         return sorted_by_version
     
-    def update_status(self):
-        """
-        Setter method that updates modelversion status.
-        :return: None
-        """
+    def _update_status(self):
         self.status = self.find(self.cluster, self.name, self.version).status
     
+    def _is_assembling(self) -> bool:
+        self._update_status()
+        if self.status == ModelVersionStatus.ASSEMBLING.value:
+            return True
+        return False
+
+    def _is_released(self) -> bool:
+        self._update_status()
+        if self.status == ModelVersionStatus.RELEASED.value:
+            return True
+        return False
+
     def lock_till_released(self) -> bool:
         """
-        Waits till the model completes assembling.
+        Lock till the model completes assembling.
 
-        :return: True if model has been released successfully, False otherwise
+        :return: True if model has been released successfully, False if failed
         """
         events_steam = cluster.request("GET", "/api/v2/events", stream=True)
         events_client = sseclient.SSEClient(events_stream)
 
-        self.update_status()
-        if not ModelVersionStatus.is_assembling(self.status) \
-                and ModelVersionStatus.is_released(self.status): 
+        if not self._is_assembling() and self._is_released(): 
             return True
         try:
             for event in events_client.events():
                 if event.event == "ModelUpdate":
                     data = json.loads(event.data)
                     if data.get("id") == self.id:
-                        return ModelVersionStatus.is_released(data.get("status"))
+                        return self._is_released()
         finally:
             events_client.close()
     
@@ -427,16 +415,15 @@ class ModelVersion(RequestsErrorHandler):
         :return: self
         """
         if wait and not self.lock_till_released():
-            raise ModelVersion.BadRequest(
-                f"Failed to assign_metrics for {self.name}:{self.version}. Monitored model failed to be released."
+            raise BadRequest(
+                f"Failed to assign metrics for {self}. Monitored model failed to release."
             )
         
         for metric in metrics:
             modelversion = metric.model.upload(self.cluster)
             if wait and not modelversion.lock_till_released():
-                raise ModelVersion.BadRequest(
-                    f"Failed to assign_metrics for {self.name}:{self.version}. "
-                    f"Monitoring model {modelversion.name}:{modelversion.version} failed to be released."
+                raise BadRequest(
+                    f"Failed to assign metrics for {self}. Monitoring model {modelversion} failed to release."
                 )
 
             msc = MetricSpecConfig(
@@ -498,25 +485,17 @@ class ModelVersion(RequestsErrorHandler):
     def __repr__(self):
         return "ModelVersion {}:{}".format(self.name, self.version)
 
-    class NotFound(Exception):
-        pass
-
-    class BadRequest(Exception):
-        pass
-
 
 class DataProfileStatus(Enum):
-    Success = "Success"
-    Failure = "Failure"
-    Processing = "Processing"
-    NotRegistered = "NotRegistered"
+    SUCCESS = "Success"
+    FAILURE = "Failure"
+    PROCESSING = "Processing"
+    NOT_REGISTERED = "NotRegistered"
 
 
-class DataUploadResponse(RequestsErrorHandler):
+class DataUploadResponse:
     """
-    Class that wraps processing status of the training data upload.
-
-    Check the status of the processing using `get_status()`
+    Class that wraps processing status of the training data upload    Check the status of the processing using `get_status()`
     Wait for the processing using `wait()`
     """
 
@@ -540,7 +519,7 @@ class DataUploadResponse(RequestsErrorHandler):
 
     def get_status(self) -> DataProfileStatus:
         resp = self.cluster.request('GET', self.url)
-        self.handle_request_error(
+        handle_request_error(
             resp, f"Failed to get status for modelversion_id={self.modelversion_id}. {resp.status_code} {resp.text}")
         return response.json()['kind']
 
@@ -553,22 +532,19 @@ class DataUploadResponse(RequestsErrorHandler):
         """
         while True:
             status = self.get_status()
-            if status == DataProfileStatus.Success.value:
+            if status == DataProfileStatus.SUCCESS.value:
                 break
-            elif status == DataProfileStatus.Processing.value:
+            elif status == DataProfileStatus.PROCESSING.value:
                 can_be_polled, retry = self.__tick(retry, sleep)
                 if can_be_polled:
                     continue
                 raise DataUploadResponse.DataProcessingNotFinished
-            elif status == DataProfileStatus.NotRegistered.value:
+            elif status == DataProfileStatus.NOT_REGISTERED.value:
                 can_be_polled, retry = self.__tick(retry, sleep)
                 if can_be_polled:
                     continue
                 raise DataUploadResponse.DataProcessingNotRegistered
             raise DataUploadResponse.DataProcessingFailed
-
-    class BadRequest(Exception):
-        pass
 
     class DataProcessingNotRegistered(Exception):
         pass
