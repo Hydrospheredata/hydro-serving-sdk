@@ -16,7 +16,7 @@ from hydro_serving_grpc.manager import ModelVersion as grpc_ModelVersion, Docker
 from requests_toolbelt.multipart.encoder import MultipartEncoder
 
 from hydrosdk.cluster import Cluster
-from hydrosdk.contract import ModelContract_to_contract_dict, contract_dict_to_ModelContract
+from hydrosdk.contract import ModelContract_to_contract_dict, contract_dict_to_ModelContract, validate_contract
 from hydrosdk.errors import InvalidYAMLFile
 from hydrosdk.image import DockerImage
 from hydrosdk.monitoring import MetricSpec, MetricSpecConfig, MetricModel, ThresholdCmpOp
@@ -120,20 +120,7 @@ class LocalModel:
 
         if not isinstance(contract, ModelContract):
             raise TypeError("contract is not a ModelContract")
-
-        # TODO: move out contract validation
-        # HYD-171
-        if not contract.HasField("predict"):
-            raise ValueError("Creating model without contract.predict is not allowed")
-        if not contract.predict.signature_name:
-            raise ValueError("Creating model without contract.predict.signature_name is not allowed")
-        for model_field in contract.predict.inputs:
-            if model_field.dtype == 0:
-                raise ValueError("Creating model with invalid dtype in contract-input is not allowed")
-        for model_field in contract.predict.outputs:
-            if model_field.dtype == 0:
-                raise ValueError("Creating model with invalid dtype in contract-output is not allowed")
-
+        validate_contract(contract)
         self.contract = contract
 
         if isinstance(payload, list):

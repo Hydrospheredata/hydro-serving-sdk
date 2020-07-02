@@ -50,7 +50,7 @@ class Application:
         resp = cluster.request("GET", "/api/v2/application")
         handle_request_error(
             resp, f"Failed to list all applications. {resp.status_code} {resp.text}")
-        applications = [Application._app_json_to_app_obj(cluster, app_json) 
+        applications = [Application._from_json(cluster, app_json) 
                         for app_json in resp.json()]
         return applications
 
@@ -66,7 +66,7 @@ class Application:
         resp = cluster.request("GET", f"/api/v2/application/{application_name}")
         handle_request_error(
             resp, f"Failed to find application by name={application_name}. {resp.status_code} {resp.text}")
-        return Application._app_json_to_app_obj(cluster, resp.json())
+        return Application._from_json(cluster, resp.json())
 
     @staticmethod
     def delete(cluster: Cluster, application_name: str) -> dict:
@@ -83,7 +83,7 @@ class Application:
         return resp.json()
 
     @staticmethod
-    def _app_json_to_app_obj(cluster: Cluster, application_json: dict) -> 'Application':
+    def _from_json(cluster: Cluster, application_json: dict) -> 'Application':
         """
         Deserialize json into application object. 
 

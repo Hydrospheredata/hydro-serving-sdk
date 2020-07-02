@@ -9,14 +9,7 @@ from hydro_serving_grpc.contract import ModelContract, ModelSignature, ModelFiel
 from hydro_serving_grpc.tf.types_pb2 import *
 
 from hydrosdk.data.types import alias_to_proto_dtype, shape_to_proto, PY_TO_DTYPE, np_to_proto_dtype, proto_to_np_dtype
-
-
-class ContractViolationException(Exception):
-    """
-    Exception raised when contract is violated
-    """
-    pass
-
+from hydrosdk.exceptions import ContractViolationException
 
 class ProfilingType(Enum):
     """
@@ -425,101 +418,21 @@ class AnyDimSize(object):
             raise TypeError("Unexpected other argument {}".format(other))
 
 
-# TODO: method not used
-def are_shapes_compatible(a, b):
-    """
-    Compares if shapes are compatible
-
-    :param a:
-    :param b:
-    :return: result of comparision as bool
-    """
-
-    if len(a) == 0:
-        # scalar input can be used in following scenarios
-        if b == tuple():
-            return True
-        else:
-            if max(b) == 1:  # All dimensions are equal to 1
-                return True
-            else:
-                return False
-    if len(a) == len(b):
-        possible_shape = tuple([AnyDimSize if s == -1 else s for s in a])
-        is_valid = possible_shape == b
-    else:
-        is_valid = False
-    return is_valid
-
-
-# TODO: method not used
-def are_dtypes_compatible(a, b, strict=False):
-    """
-    Compares if data types are compatible
-
-    :param a:
-    :param b:
-    :param strict:
-    :return: result of comparision as bool
-    """
-    if strict:
-        if a == b:
-            return True, None
-        elif a.kind == "U":
-            # Numpy specify max string length in dtype, but HS has no such info in dtype, so we just check that it is the unicode-string
-            return a.kind == b.kind
-        else:
-            return False
-    else:
-        if np.can_cast(b, a):
-            return True
-        else:
-            return False
-
-
-# TODO: what is it doing here? should contract validation be moved out of LocalModel create?
-def validate(self, t, strict=False):
-    """
-    Return bool whether array is valid for this field and error message, if not valid.
-    Error message is None if array is valid.
-
-    :param strict: Strict comparison for dtypes.
-    :param t: input Tensor
-    :return: is_valid, error_message
-    """
-    is_shape_valid, shape_error_message = self.validate_shape(t.shape)
-    is_dtype_valid, dtype_error_message = self.validate_dtype(t.dtype, strict=strict)
-    error_message = ', '.join(filter(None, (shape_error_message, dtype_error_message)))
-    return is_dtype_valid & is_dtype_valid, error_message if error_message else None
-
-
-# TODO: method not used
-def check_tensor_fields(tensors, fields):
-    is_valid = True
-    error_messages = []
-
-    tensors_dict = dict(zip(map(lambda x: x.name, tensors), tensors))
-    field_dict = dict(zip(map(lambda x: x.name, fields), fields))
-
-    extra_tensor_names = set(tensors_dict.keys()).difference(set(field_dict.keys()))
-    missing_tensor_names = set(field_dict.keys()).difference(set(tensors_dict.keys()))
-    common_tensor_names = set(tensors_dict.keys()).intersection(set(field_dict.keys()))
-
-    if extra_tensor_names:
-        is_valid = False
-        error_messages.append("Extra tensors provided: {}".format(extra_tensor_names))
-
-    if missing_tensor_names:
-        is_valid = False
-        error_messages.append("Missing tensors: {}".format(missing_tensor_names))
-
-    for tensor_name in common_tensor_names:
-        is_tensor_valid, error_message = field_dict[tensor_name].validate(tensors_dict[tensor_name])
-        is_valid &= is_tensor_valid
-        if error_message:
-            error_messages.append(error_message)
-
-    return is_valid, error_messages if error_messages else None
+def validate_contract(contract: ModelContract):
+    if not contract.HasField("predict"):
+        raise ContractViolationException("Creating model without contract.predict is not allowed")
+    if not contract.predict.signature_name:
+        raise ContractViolationException("Creating model without contract.predict.signature_name is not allowed")
+    if len(contract.predict.inputs) == 0:
+        raise ContractViolationException("Creating model without inputs is not allowed")
+    if len(contract.predict.outputs) == 0:
+        raise ContractViolationException("Creating model without outputs is not allowed")
+    for model_field in contract.predict.inputs:
+        if model_field.dtype == 0:
+            raise ContractViolationException("Creating model with invalid dtype in contract-input is not allowed")
+    for model_field in contract.predict.outputs:
+        if model_field.dtype == 0:
+            raise ContractViolationException("Creating model with invalid dtype in contract-output is not allowed")
 
 
 def mock_input_data(signature: ModelSignature):

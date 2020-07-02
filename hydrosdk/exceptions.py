@@ -28,3 +28,11 @@ class MetricSpecException(BaseException):
     Metric Spec base exception
     """
     pass
+
+
+class ContractViolationException(Exception):
+    """
+    Exception raised when contract is violated
+    """
+    pass
+
