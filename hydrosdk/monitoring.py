@@ -2,10 +2,10 @@ from typing import Union, List
 from urllib.parse import urljoin
 
 from hydrosdk.cluster import Cluster
-from hydrosdk.exceptions import MetricSpecException, handle_request_error
+from hydrosdk.exceptions import MetricSpecException
+from hydrosdk.utils import handle_request_error
 
-
-class TresholdCmpOp:
+class ThresholdCmpOp:
     """
     Threshold comparison operator
     """
@@ -21,7 +21,7 @@ class MetricModel:
     """
     Model having extra metric fields
     """
-    def __init__(self, model, threshold, comparator):
+    def __init__(self, model, threshold: float, comparator: ThresholdCmpOp):
         self.model = model
         self.threshold = threshold
         self.comparator = comparator
@@ -31,7 +31,14 @@ class MetricSpecConfig:
     """
     Metric specification config
     """
-    def __init__(self, modelversion_id: int, threshold: Union[int, float], threshold_op: TresholdCmpOp, servable=None):
+    def __init__(self, modelversion_id: int, threshold: Union[int, float], threshold_op: ThresholdCmpOp, servable=None):
+        """
+        Create MetricSpecConfig for specified ModelVersion.
+
+        :param modelversion_id: an id of the ModelVersion, which will be used as a monitoring metric
+        :param threshold: a threshold for the metric
+        :param threshold_op: operator to be used to compare metric values against threshold
+        """
         self.servable = servable
         self.threshold_op = threshold_op
         self.threshold = threshold
@@ -44,10 +51,9 @@ class MetricSpec:
     @staticmethod
     def list_all(cluster: Cluster) -> List['MetricSpec']:
         """
-        Sends request and returns list with all available metric specs.
+        Send request and returns list with all available metric specs.
 
         :param cluster: active cluster
-        :raises MetricSpecException: If server returned not 200
         :return: list with all available metric specs
         """
         resp = cluster.request("GET", MetricSpec.BASE_URL)
@@ -58,12 +64,11 @@ class MetricSpec:
     @staticmethod
     def list_for_modelversion(cluster: Cluster, modelversion_id: int) -> List['MetricSpec']:
         """
-        Sends request and returns list with specs by model version.
+        Send request and returns list with specs by model version.
 
         :param cluster: active cluster
-        :param modelversion_id:
-        :raises MetricSpecException: If server returned not 200
-        :return: list of metric spec objs
+        :param modelversion_id: ModelVersions for which to return metrics.
+        :return: list of metric spec objects
         """
         url = urljoin(MetricSpec.BASE_URL, f"modelversion/{modelversion_id}")
         resp = cluster.request("get", url)
@@ -74,7 +79,7 @@ class MetricSpec:
     @staticmethod
     def find_by_id(cluster: Cluster, metric_spec_id: int) -> 'MetricSpec':
         """
-        Returns MetricSpec by id.
+        Return MetricSpec by id.
 
         :param cluster: active cluster
         :param metric_spec_id: 
@@ -89,7 +94,7 @@ class MetricSpec:
     @staticmethod
     def delete(cluster: Cluster, metric_spec_id: int) -> dict:
         """
-        Deletes MetricSpec.
+        Delete MetricSpec.
 
         :return: result of deletion
         """

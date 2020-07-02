@@ -8,7 +8,7 @@ from hydrosdk.cluster import Cluster
 from hydrosdk.contract import _signature_dict_to_ModelSignature
 from hydrosdk.data.types import PredictorDT
 from hydrosdk.predictor import PredictServiceClient, MonitorableImplementation
-from hydrosdk.exceptions import handle_request_error
+from hydrosdk.utils import handle_request_error
 
 
 class ApplicationStatus(Enum):
@@ -25,12 +25,16 @@ class Application:
     :Example:
 
     List all applications created on the cluster.
+    >>> from hydrosdk.cluster import Cluster 
+    >>> cluster = Cluster("http-cluster-endpoint")
     >>> apps = Application.list_all(cluster)
     >>> for app in apps: 
     >>>     print(app)
 
-    Find an application by name and perfrom a prediction from it. 
-    >>> app = Application.find_by_name("my-application")
+    Find an application by name and perfrom a prediction from it.
+    >>> from hydrosdk.cluster import Cluster
+    >>> cluster = Cluster("http-cluster-endpoint", "grpc-cluster-endpoint")  # important to use gRPC endpoint 
+    >>> app = Application.find_by_name(cluster, "my-application")
     >>> pred = app.predictor()
     >>> resp = pred.predict({"my-input": 1})
     """
@@ -38,7 +42,7 @@ class Application:
     @staticmethod
     def list_all(cluster: Cluster) -> List['Application']:
         """
-        List all available applications from server.
+        List all available applications from the cluster.
 
         :param cluster: active cluster
         :return: deserialized list of application objects
@@ -71,47 +75,12 @@ class Application:
 
         :param cluster: active cluster
         :param application_name: application name
-        :return: response from the server
+        :return: response from the cluster
         """
         resp = cluster.request("DELETE", f"/api/v2/application/{application_name}")
         handle_request_error(
             resp, f"Failed to delete application for name={application_name}. {resp.status_code} {res.text}")
         return resp.json()
-
-    def delete(self) -> dict:
-        """
-        Delete an application by name.
-        
-        :return: response from the server
-        """
-        return Application.delete(self.cluster, self.name)
-
-    def lock_till_ready(self):
-        """
-        Lock till the application completes deployment.
-
-        :raises Application.DeployFailed: if application failed to be deployed
-        :return: None
-        """
-        events_steam = cluster.request("GET", "/api/v2/events", stream=True)
-        events_client = sseclient.SSEClient(events_stream)
-
-        if not self._is_assembling() and self._is_ready(self.status): 
-            return None
-        try:
-            for event in events_client.events():
-                if event.event == "ApplicationUpdate":
-                    data = json.loads(event.data)
-                    if data.get("name") == self.name:
-                        if not self._is_ready():
-                            raise Application.DeployFailed(f"{self} failed to be deployed.")
-                        return None
-        finally:
-            events_client.close()
-
-    def predictor(self, return_type=PredictorDT.DICT_NP_ARRAY) -> PredictServiceClient:
-        impl = MonitorableImplementation(channel=self.cluster.channel, target=self.name)
-        return PredictServiceClient(impl=impl, signature=self.signature, return_type=return_type)
 
     @staticmethod
     def _app_json_to_app_obj(cluster: Cluster, application_json: dict) -> 'Application':
@@ -135,18 +104,10 @@ class Application:
 
     def _update_status(self):
         self.status = self.find_by_name(self.cluster, self.name).status
-    
-    def _is_assembling(self) -> bool:
-        self._update_status()
-        if self.status == ApplicationStatus.ASSEMBLING.value:
-            return True
-        return False
 
-    def _is_ready(self) -> bool:
-        self._update_status()
-        if self.status == ApplicationStatus.READY.value:
-            return True
-        return False
+    def predictor(self, return_type=PredictorDT.DICT_NP_ARRAY) -> PredictServiceClient:
+        impl = MonitorableImplementation(channel=self.cluster.channel, target=self.name)
+        return PredictServiceClient(impl=impl, signature=self.signature, return_type=return_type)
 
     def __init__(self, cluster: Cluster, name: str, execution_graph: dict, status: int, 
                  signature: ModelSignature, kafka_streaming: Optional[dict] = None, 
@@ -161,6 +122,3 @@ class Application:
 
     def __str__(self):
         return f"Application {self.name}"
-
-    class DeployFailed(BaseException):
-        pass

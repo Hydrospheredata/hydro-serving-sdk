@@ -1,4 +1,5 @@
-"""This module contains all the code associated with Servables and their management at Hydrosphere platform.
+"""
+This module contains all the code associated with Servables and their management at Hydrosphere platform.
 You can learn more about Servables here https://hydrosphere.io/serving-docs/latest/overview/concepts.html#servable.
 """
 import re
@@ -11,9 +12,10 @@ from sseclient import Event
 
 from hydrosdk.cluster import Cluster
 from hydrosdk.data.types import PredictorDT
-from hydrosdk.exceptions import ServableException, handle_request_error
+from hydrosdk.exceptions import ServableException
 from hydrosdk.modelversion import ModelVersion
 from hydrosdk.predictor import PredictServiceClient, MonitorableImplementation, UnmonitorableImplementation
+from hydrosdk.utils import handle_request_error
 
 
 class ServableStatus(Enum):
@@ -41,9 +43,8 @@ class ServableStatus(Enum):
 
 class Servable:
     """
-    Servable is an instance of a model version which could be used in application or by itself as it exposes various endpoints to your model
-     version: HTTP, gRPC, and Kafka.
-    You can find more about Servables in the documentation https://hydrosphere.io/serving-docs/latest/overview/concepts.html#servable
+    Servable is an instance of a model version which is used within applications. Intendend for
+    internal usage only.
     """
     BASE_URL = "/api/v2/servable"
 
@@ -124,12 +125,12 @@ class Servable:
         """
         Shut down and delete servable instance.
 
-        :param cluster:
-        :param servable_name:
-        :raises ServableException: If server returned not 200
+        :param cluster: active cluster
+        :param servable_name: name of the servable
         :return: json response from server
 
-        .. warnings also: Use with caution. Predictors previously associated with this servable will not be able to connect to it.
+        .. warnings also: Use with caution. Predictors previously associated with this servable 
+        will not be able to connect to it.
         """
         resp = cluster.request("DELETE", "/api/v2/servable/{}".format(servable_name))
         handle_request_error(
@@ -152,7 +153,7 @@ class Servable:
         else:
             url = urljoin(self.BASE_URL, f"{self.name}/logs")
             resp = self.cluster.request("GET", url)
-        self.handle_request_error(
+        handle_request_error(
             resp, f"Failed to retrieve logs for {self}. {resp.status_code} {resp.text}")
         return sseclient.SSEClient(resp).events()
 

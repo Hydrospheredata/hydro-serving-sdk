@@ -11,7 +11,7 @@ from hydrosdk.utils import grpc_server_on
 
 class Cluster:
     """
-    Cluster responsible for server interactions.
+    Cluster responsible for interactions with the server.
     """
     def __init__(self, http_address: str, grpc_address: Optional[str] = None, ssl: bool = False,
                  grpc_credentials: Optional[grpc.ChannelCredentials] = None, 

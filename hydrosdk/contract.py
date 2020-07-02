@@ -347,27 +347,33 @@ class SignatureBuilder:
         self.inputs = []
         self.outputs = []
 
-    def with_input(self, name, dtype, shape, profile=ProfilingType.NONE):
+    def with_input(self, name: str, dtype: Union[DataType, np.dtype, str, type], 
+                   shape: Union["scalar", Iterable[int]], 
+                   profile: ProfilingType = ProfilingType.NONE) -> 'SignatureBuilder':
         """
         Adds input to the SignatureBuilder
 
-        :param name:
-        :param dtype:
-        :param shape:
-        :param profile:
-        :return: self SignatureBuilder
+        :param name: string containing a name of the field
+        :param dtype: type of the field (one of: DataType, numpy's dtype, string representing datatypes
+            like 'double', 'int64', standard python types like `int`, `float`, `str`)
+        :param shape: shape of the field (one of: 'scalar', iterable of ints)
+        :param profile: one of the options from ProfilingType
+        :return: SignatureBuilder object
         """
         return self.__with_field(self.inputs, name, dtype, shape, profile)
 
-    def with_output(self, name, dtype, shape, profile=ProfilingType.NONE):
+    def with_output(self, name: str, dtype: Union[DataType, np.dtype, str, type], 
+                    shape: Union["scalar", Iterable[int]], 
+                    profile: ProfilingType = ProfilingType.NONE) -> 'SignatureBuilder':
         """
         Adds output to the SignatureBuilder
 
-        :param name:
-        :param dtype:
-        :param shape:
-        :param profile:
-        :return: self SignatureBuilder
+        :param name: string containing a name of the field
+        :param dtype: type of the field (one of: DataType, numpy's dtype, string representing datatypes
+            like 'double', 'int64', standard python types like `int`, `float`, `str`)
+        :param shape: shape of the field (one of: 'scalar', iterable of ints)
+        :param profile: one of the options from ProfilingType
+        :return: SignatureBuilder object
         """
         return self.__with_field(self.outputs, name, dtype, shape, profile)
 
@@ -388,11 +394,12 @@ class SignatureBuilder:
         Adds fields to the SignatureBuilder
 
         :param collection: input or output
-        :param name:
-        :param dtype:
-        :param shape:
-        :param profile:
-        :return: self SignatureBuilder obj
+        :param name: string containing a name of the field
+        :param dtype: type of the field (one of: DataType, numpy's dtype, string representing datatypes
+            like 'double', 'int64', standard python types like `int`, `float`, `str`)
+        :param shape: shape of the field (one of: 'scalar', iterable of ints)
+        :param profile: one of the options from ProfilingType
+        :return: SignatureBuilder object
         """
         proto_field = parse_field(name, dtype, shape, profile)
         collection.append(proto_field)
