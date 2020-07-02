@@ -1,94 +1,91 @@
 import os
+import time
 
 import pytest
-import time
-import yaml
+from hydro_serving_grpc.contract import ModelContract
 
-from hydrosdk.application import Application, ApplicationStatus
-from tests.resources.test_config import DEFAULT_APP_NAME
-from tests.test_modelversion import create_test_cluster, create_test_local_model
-
-
-def create_test_application(cluster, upload_response: dict = None, local_model=None):
-    with open(os.path.dirname(os.path.abspath(__file__)) + '/resources/application.yml') as f:
-        d = yaml.safe_load(f)
-        app = Application.parse_application(d)
-        app_as_dict = app._asdict()
-
-        if not local_model and not upload_response:
-            # name of model in applcation.yml should match model name in app_as_dict
-            local_model = create_test_local_model(name=app_as_dict['name'])
-            upload_response = local_model.upload(cluster=cluster)
-
-        app_as_dict["executionGraph"]["stages"][0]["modelVariants"][0]["modelVersionId"] = upload_response[
-            local_model].modelversion.version
-
-        try:
-            application = Application.create(cluster, app_as_dict)
-        except Exception as e:
-            print("While creating App, there was an exception: " + str(e))
-
-            # if app already existed, delete first
-            Application.delete(cluster=cluster, app_name=DEFAULT_APP_NAME)
-            time.sleep(3)
-            application = Application.create(cluster, app_as_dict)
-
-        return application
+from hydrosdk.application import Application, ApplicationStatus, ExecutionStageBuilder, ApplicationBuilder
+from hydrosdk.cluster import Cluster
+from hydrosdk.contract import SignatureBuilder
+from hydrosdk.image import DockerImage
+from hydrosdk.modelversion import LocalModel
+from hydrosdk.modelversion import ModelVersion
+from tests.resources.test_config import DEFAULT_APP_NAME, HTTP_CLUSTER_ENDPOINT
 
 
-def test_list_all():
-    cluster = create_test_cluster()
-
-    created_application = create_test_application(cluster=cluster)
-    all_applications = Application.list_all(cluster)
-
-    assert all_applications is not None
+@pytest.fixture(scope="module")
+def cluster():
+    return Cluster(HTTP_CLUSTER_ENDPOINT)
 
 
-def test_find_by_name():
-    cluster = create_test_cluster()
+@pytest.fixture(scope="module")
+def test_model(cluster):
+    signature = SignatureBuilder('infer') \
+        .with_input('x', 'double', "scalar") \
+        .with_output('y', 'double', "scalar").build()
 
-    created_application = create_test_application(cluster)
-    found_application = Application.find_by_name(cluster=cluster, app_name=DEFAULT_APP_NAME)
-    assert found_application.name == DEFAULT_APP_NAME
+    contract = ModelContract(predict=signature)
 
+    path = os.path.dirname(os.path.abspath(__file__)) + "/resources/sqrt_model/"
+    payload = ['src/func_main.py']
 
-def test_delete():
-    cluster = create_test_cluster()
-
-    created_application = create_test_application(cluster=cluster)
-    deleted_application = Application.delete(cluster=cluster, app_name=DEFAULT_APP_NAME)
-
-    with pytest.raises(Exception, match=r"Failed to find by name.*"):
-        found_application = Application.find_by_name(cluster=cluster, app_name=DEFAULT_APP_NAME)
-
-
-def test_create():
-    cluster = create_test_cluster()
-
-    created_application = create_test_application(cluster=cluster)
-
-    all_applications = Application.list_all(cluster=cluster)
-
-    found_application = False
-    for application in all_applications:
-        if application.name == DEFAULT_APP_NAME:
-            found_application = True
-            break
-
-    assert found_application
+    test_model = LocalModel(name="test_model",
+                            contract=contract,
+                            runtime=DockerImage("hydrosphere/serving-runtime-python-3.7", "2.3.2", None),
+                            payload=payload,
+                            path=path)
+    test_model.upload(cluster, wait=True)
+    test_model = ModelVersion.find(cluster, name="test_model", version=1)
+    return test_model
 
 
-def test_application_status():
-    cluster = create_test_cluster()
+def create_test_application(cluster, test_model, name=DEFAULT_APP_NAME, ):
+    mv = ModelVersion.find_by_id(cluster, test_model.id)
+    stage = ExecutionStageBuilder().with_model_variant(mv, 100).build()
+    application = ApplicationBuilder(cluster, name).with_stage(stage).with_metadata("key", "value").build()
+    return application
 
-    Application.delete(cluster, DEFAULT_APP_NAME)
-    created_application = create_test_application(cluster=cluster)
 
-    assert created_application.status == ApplicationStatus.ASSEMBLING
+class TestApplicaton:
 
-    time.sleep(10)
+    @classmethod
+    def setup_class(cls):
+        cluster = Cluster(HTTP_CLUSTER_ENDPOINT)
+        apps = Application.list_all(cluster)
+        for app in apps:
+            app.delete()
 
-    found_application = Application.find_by_name(cluster=cluster, app_name=DEFAULT_APP_NAME)
+    @pytest.fixture(autouse=True)
+    def create_delete_application(self, request, cluster, test_model):
+        app = create_test_application(cluster, test_model)
+        request.addfinalizer(app.delete)
 
-    assert found_application.status == ApplicationStatus.READY
+    def test_list_all_non_empty(self, cluster):
+        all_applications = Application.list_all(cluster)
+        assert all_applications is not None
+        assert len(all_applications) == 1
+
+    def test_find_by_name(self, cluster):
+        found_application = Application.find_by_name(cluster=cluster, name=DEFAULT_APP_NAME)
+        assert found_application.name == DEFAULT_APP_NAME
+
+    def test_application_status(self, cluster):
+        app = Application.find_by_name(cluster=cluster, name=DEFAULT_APP_NAME)
+        assert app.status == ApplicationStatus.ASSEMBLING
+        time.sleep(10)
+        app.update_status()
+        assert app.status == ApplicationStatus.READY
+
+    def test_execution_graph(self, cluster, test_model):
+        app = Application.find_by_name(cluster=cluster, name=DEFAULT_APP_NAME)
+        ex_graph = app.execution_graph
+        assert ex_graph.stages
+        assert len(ex_graph.stages) == 1
+        assert len(ex_graph.stages[0].model_variants) == 1
+        assert ex_graph.stages[0].model_variants[0].modelVersion.id == test_model.id
+        assert ex_graph.stages[0].model_variants[0].weight == 100
+
+    @pytest.mark.xfail(reason="(HYD-399) Bug in the hydro-serving-manager")
+    def test_metadata(self, cluster):
+        app = Application.find_by_name(cluster=cluster, name=DEFAULT_APP_NAME)
+        assert app.metadata == {"key": "value"}

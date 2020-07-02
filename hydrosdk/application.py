@@ -41,8 +41,7 @@ class Application:
             app = Application.from_json(cluster=cluster, application_json=resp_json)
             return app
 
-        raise Exception(
-            f"Failed to find by name. Name = {name}. {resp.status_code} {resp.text}")
+        raise Exception(f"Failed to find by name. Name = {name}. {resp.status_code} {resp.text}")
 
     @staticmethod
     def delete(cluster, name):
@@ -128,6 +127,12 @@ class Application:
         """Polls a cluster for a new Application status"""
         application = Application.find_by_name(cluster=self.cluster, name=self.name)
         self.status = application.status
+
+    def delete(self, ):
+        resp = self.cluster.request("DELETE", f"{Application._BASE_URL}/{self.name}")
+        if resp.ok:
+            return True
+        raise Exception(f"Failed to delete application. Name = {self.name}. {resp.status_code} {resp.text}")
 
 
 class ApplicationBuilder:
