@@ -156,14 +156,16 @@ def tensor_shape_proto_from_tuple(shape: Iterable[int]) -> TensorShapeProto:
 
 def isinstance_namedtuple(obj) -> bool:
     """
-    based on https://stackoverflow.com/a/49325922/7127824 and https://github.com/Hydrospheredata/hydro-serving-sdk/pull/51
+    Based on https://stackoverflow.com/a/49325922/7127824 and https://github.com/Hydrospheredata/hydro-serving-sdk/pull/51
+    The main use is to check for namedtuples returned by pandas.DataFrame.itertuples()
 
     :param obj: any object
     :return: bool if object is an instance of namedtuple
     """
+
     return (isinstance(obj, tuple) and
-            getattr(obj, '_asdict', None) and
-            getattr(obj, '_fields', None))
+            hasattr(obj, '_asdict') and
+            hasattr(obj, '_fields'))
 
 
 def convert_inputs_to_tensor_proto(inputs: Dict, signature: ModelSignature) -> Dict[str, TensorProto]:
@@ -197,6 +199,7 @@ def convert_inputs_to_tensor_proto(inputs: Dict, signature: ModelSignature) -> D
         for key, value in dict(inputs).items():
             tensors[key] = nparray_to_tensor_proto(value.ravel())
     elif isinstance_namedtuple(inputs):
+        # also <class 'pandas.core.frame.Pandas'> goes here
         return convert_inputs_to_tensor_proto(inputs._asdict(), signature=signature)
     else:
         raise ValueError(f"Conversion failed. Expected [pandas.DataFrame, dict[str, numpy.ndarray],\
