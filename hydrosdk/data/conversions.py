@@ -1,4 +1,4 @@
-from typing import Dict, List, Iterable
+from typing import Dict, List, Iterable, Union
 
 import numpy as np
 import pandas as pd
@@ -168,7 +168,7 @@ def isinstance_namedtuple(obj) -> bool:
             hasattr(obj, '_fields'))
 
 
-def convert_inputs_to_tensor_proto(inputs: Dict, signature: ModelSignature) -> Dict[str, TensorProto]:
+def convert_inputs_to_tensor_proto(inputs: Union[pd.DataFrame, dict, pd.Series], signature: ModelSignature) -> Dict[str, TensorProto]:
     """
     Generate Dict[str, TensorProto] from pd.DataFrame or Dict[str, Union[np.array, np.ScalarType]]
 
@@ -200,7 +200,7 @@ def convert_inputs_to_tensor_proto(inputs: Dict, signature: ModelSignature) -> D
             tensors[key] = nparray_to_tensor_proto(value.ravel())
     elif isinstance_namedtuple(inputs):
         # also <class 'pandas.core.frame.Pandas'> goes here
-        return convert_inputs_to_tensor_proto(inputs._asdict(), signature=signature)
+        return convert_inputs_to_tensor_proto(inputs, signature=signature)
     else:
         raise ValueError(f"Conversion failed. Expected [pandas.DataFrame, dict[str, numpy.ndarray],\
                            dict[str, list], dict[str, np.ScalarType]], got {type(inputs)}")
