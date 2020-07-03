@@ -182,6 +182,11 @@ def convert_inputs_to_tensor_proto(inputs: Union[pd.DataFrame, dict, pd.Series],
     :return: Dictionary with TensorProtos to be used in forming a PredictRequest
     """
     tensors = {}
+
+    # if we get a namedtuple, we pass further dict
+    if isinstance_namedtuple(inputs):
+        inputs = inputs._asdict()
+
     if isinstance(inputs, dict):
         for key, value in inputs.items():
             if isinstance(value, list):  # x: [1,2,3,4]
@@ -194,13 +199,9 @@ def convert_inputs_to_tensor_proto(inputs: Union[pd.DataFrame, dict, pd.Series],
                 tensors[key] = nparray_to_tensor_proto(value)
             else:
                 raise TypeError("Unsupported objects in dict values {}".format(type(value)))
-
     elif isinstance(inputs, pd.DataFrame):
         for key, value in dict(inputs).items():
             tensors[key] = nparray_to_tensor_proto(value.ravel())
-    elif isinstance_namedtuple(inputs):
-        # also <class 'pandas.core.frame.Pandas'> goes here
-        return convert_inputs_to_tensor_proto(inputs, signature=signature)
     else:
         raise ValueError(f"Conversion failed. Expected [pandas.DataFrame, dict[str, numpy.ndarray],\
                            dict[str, list], dict[str, np.ScalarType]], got {type(inputs)}")
