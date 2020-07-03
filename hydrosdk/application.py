@@ -4,6 +4,7 @@ from typing import List, Dict
 
 from hydro_serving_grpc.contract import ModelSignature
 
+from exceptions import ApplicationNotFoundError, ApplicationCreationError, ApplicationDeletionError, BadResponse
 from hydrosdk.cluster import Cluster
 from hydrosdk.contract import _signature_dict_to_ModelSignature
 from hydrosdk.data.types import PredictorDT
@@ -30,25 +31,24 @@ class Application:
             applications = [Application.from_json(cluster=cluster, application_json=app_json) for app_json in resp.json()]
             return applications
 
-        raise Exception(
-            f"Failed to list all models. {resp.status_code} {resp.text}")
+        raise BadResponse(f"Failed to list all models. {resp.status_code} {resp.text}")
 
     @staticmethod
-    def find_by_name(cluster, name) -> 'Application':
+    def find(cluster, name) -> 'Application':
         resp = cluster.request("GET", f"{Application._BASE_URL}/{name}")
         if resp.ok:
             resp_json = resp.json()
             app = Application.from_json(cluster=cluster, application_json=resp_json)
             return app
 
-        raise Exception(f"Failed to find by name. Name = {name}. {resp.status_code} {resp.text}")
+        raise ApplicationNotFoundError(f"Failed to find by name. Name = {name}. {resp.status_code} {resp.text}")
 
     @staticmethod
     def delete(cluster, name):
         resp = cluster.request("DELETE", f"{Application._BASE_URL}/{name}")
         if resp.ok:
             return True
-        raise Exception(f"Failed to delete application. Name = {name}. {resp.status_code} {resp.text}")
+        raise ApplicationDeletionError(f"Failed to delete application. Name = {name}. {resp.status_code} {resp.text}")
 
     def __init__(self,
                  id: int,
@@ -125,14 +125,14 @@ class Application:
 
     def update_status(self) -> None:
         """Polls a cluster for a new Application status"""
-        application = Application.find_by_name(cluster=self.cluster, name=self.name)
+        application = Application.find(cluster=self.cluster, name=self.name)
         self.status = application.status
 
     def delete(self, ):
         resp = self.cluster.request("DELETE", f"{Application._BASE_URL}/{self.name}")
         if resp.ok:
             return True
-        raise Exception(f"Failed to delete application. Name = {self.name}. {resp.status_code} {resp.text}")
+        raise ApplicationDeletionError(f"Failed to delete application. Name = {self.name}. {resp.status_code} {resp.text}")
 
 
 class ApplicationBuilder:
@@ -200,7 +200,7 @@ class ApplicationBuilder:
             app = Application.from_json(cluster=self.cluster, application_json=resp_json)
             return app
 
-        raise Exception(f"Failed to create application {self.name}. {resp.status_code} {resp.text}")
+        raise ApplicationCreationError(f"Failed to create application {self.name}. {resp.status_code} {resp.text}")
 
 
 class ExecutionGraph:

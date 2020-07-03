@@ -65,19 +65,19 @@ class TestApplicaton:
         assert all_applications is not None
         assert len(all_applications) == 1
 
-    def test_find_by_name(self, cluster):
-        found_application = Application.find_by_name(cluster=cluster, name=DEFAULT_APP_NAME)
+    def test_find(self, cluster):
+        found_application = Application.find(cluster=cluster, name=DEFAULT_APP_NAME)
         assert found_application.name == DEFAULT_APP_NAME
 
     def test_application_status(self, cluster):
-        app = Application.find_by_name(cluster=cluster, name=DEFAULT_APP_NAME)
+        app = Application.find(cluster=cluster, name=DEFAULT_APP_NAME)
         assert app.status == ApplicationStatus.ASSEMBLING
         time.sleep(10)
         app.update_status()
         assert app.status == ApplicationStatus.READY
 
     def test_execution_graph(self, cluster, test_model):
-        app = Application.find_by_name(cluster=cluster, name=DEFAULT_APP_NAME)
+        app = Application.find(cluster=cluster, name=DEFAULT_APP_NAME)
         ex_graph = app.execution_graph
         assert ex_graph.stages
         assert len(ex_graph.stages) == 1
@@ -87,5 +87,5 @@ class TestApplicaton:
 
     @pytest.mark.xfail(reason="(HYD-399) Bug in the hydro-serving-manager")
     def test_metadata(self, cluster):
-        app = Application.find_by_name(cluster=cluster, name=DEFAULT_APP_NAME)
+        app = Application.find(cluster=cluster, name=DEFAULT_APP_NAME)
         assert app.metadata == {"key": "value"}
