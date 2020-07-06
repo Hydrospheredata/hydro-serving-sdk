@@ -8,4 +8,4 @@ from hydrosdk.contract import SignatureBuilder, ModelContract
 from hydrosdk.monitoring import MetricSpec, MetricSpecConfig, TresholdCmpOp
 
 
-__version__ = importlib_metadata.version("sagemaker")
+__version__ = importlib_metadata.version("hydrosdk")
