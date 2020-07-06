@@ -1,5 +1,7 @@
 import grpc
 
+ALLOWED_TIMEOUT_gRPC_SECONDS = 5
+
 
 def grpc_server_on(channel: grpc.Channel) -> bool:
     """
@@ -10,7 +12,7 @@ def grpc_server_on(channel: grpc.Channel) -> bool:
     :return: status bool
     """
     try:
-        grpc.channel_ready_future(channel).result()
+        grpc.channel_ready_future(channel).result(ALLOWED_TIMEOUT_gRPC_SECONDS)
         return True
     except grpc.FutureTimeoutError:
         return False
