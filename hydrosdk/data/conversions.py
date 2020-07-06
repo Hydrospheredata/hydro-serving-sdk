@@ -1,4 +1,4 @@
-from typing import Dict, List, Iterable
+from typing import Dict, List, Iterable, Union
 
 import numpy as np
 import pandas as pd
@@ -154,7 +154,21 @@ def tensor_shape_proto_from_tuple(shape: Iterable[int]) -> TensorShapeProto:
     return TensorShapeProto(dim=[TensorShapeProto.Dim(size=s) for s in shape])
 
 
-def convert_inputs_to_tensor_proto(inputs: Dict, signature: ModelSignature) -> Dict[str, TensorProto]:
+def isinstance_namedtuple(obj) -> bool:
+    """
+    Based on https://stackoverflow.com/a/49325922/7127824 and https://github.com/Hydrospheredata/hydro-serving-sdk/pull/51
+    The main use is to check for namedtuples returned by pandas.DataFrame.itertuples()
+
+    :param obj: any object
+    :return: bool if object is an instance of namedtuple
+    """
+
+    return (isinstance(obj, tuple) and
+            hasattr(obj, '_asdict') and
+            hasattr(obj, '_fields'))
+
+
+def convert_inputs_to_tensor_proto(inputs: Union[pd.DataFrame, dict, pd.Series], signature: ModelSignature) -> Dict[str, TensorProto]:
     """
     Generate Dict[str, TensorProto] from pd.DataFrame or Dict[str, Union[np.array, np.ScalarType]]
 
@@ -168,6 +182,11 @@ def convert_inputs_to_tensor_proto(inputs: Dict, signature: ModelSignature) -> D
     :return: Dictionary with TensorProtos to be used in forming a PredictRequest
     """
     tensors = {}
+
+    # if we get a namedtuple, we pass further dict
+    if isinstance_namedtuple(inputs):
+        inputs = inputs._asdict()
+
     if isinstance(inputs, dict):
         for key, value in inputs.items():
             if isinstance(value, list):  # x: [1,2,3,4]
@@ -180,7 +199,6 @@ def convert_inputs_to_tensor_proto(inputs: Dict, signature: ModelSignature) -> D
                 tensors[key] = nparray_to_tensor_proto(value)
             else:
                 raise TypeError("Unsupported objects in dict values {}".format(type(value)))
-
     elif isinstance(inputs, pd.DataFrame):
         for key, value in dict(inputs).items():
             tensors[key] = nparray_to_tensor_proto(value.ravel())

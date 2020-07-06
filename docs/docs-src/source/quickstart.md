@@ -40,19 +40,25 @@ for modelversion in ModelVersion.list_model_versions(cluster=cluster):
 
 It's also easy to send data to your deployed models.
 For example, the following loads a csv and sends all rows to your deployed model through predictor object,
- which is designed to make inference for your data.
+ which is designed to make inference for your data via GRPC API.
  
 ```python
+from hydrosdk.cluster import Cluster
 from hydrosdk.application import Application
+from grpc import ssl_channel_credentials
 import pandas as pd
+
+cluster = Cluster("http-cluster-address",
+                  grpc_address="grpc-cluster-address", ssl=True,
+                  grpc_credentials=ssl_channel_credentials())
 
 app = Application.find_by_name(cluster, "my-model")
 predictor = app.predictor()
 
 df = pd.read_csv("path/to/data.csv")
 for row in df.itertuples(index=False):
-    predictor.predict(row._as_dict())
+    predictor.predict(row._asdict())
 ```
 
-Other topics such as LocalModels, Metrics and ... will be covered in more detail in the following sections,
+Other topics such as LocalModels, metrics and uploading training data will be covered in more detail in the following sections,
  so don't worry if you do not completely understand the examples.

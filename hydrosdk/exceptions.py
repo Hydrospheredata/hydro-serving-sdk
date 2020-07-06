@@ -24,3 +24,10 @@ class ApplicationCreationError(ApplicationException):
 
 class BadResponse(Exception):
     pass
+
+
+class MetricSpecException(BaseException):
+    """
+    Metric Spec base exception
+    """
+    pass

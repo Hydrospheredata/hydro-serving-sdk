@@ -1,4 +1,4 @@
-hydrosdk package
+hydrosdk API
 ================
 
 .. toctree::
@@ -9,7 +9,6 @@ hydrosdk package
    hydrosdk.contract
    hydrosdk.errors
    hydrosdk.exceptions
-   hydrosdk.host_selector
    hydrosdk.image
    hydrosdk.modelversion
    hydrosdk.monitoring

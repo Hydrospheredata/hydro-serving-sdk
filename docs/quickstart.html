@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Quickstart &mdash; hydrosdk 2.3.0 documentation</title>
+  <title>Quickstart &mdash; hydrosdk 2.3.2 documentation</title>
   
 
   
@@ -37,8 +37,8 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Sample tutorial" href="tutorial.html" />
-    <link rel="prev" title="What’s new in 2.3.0" href="whats_new.html" /> 
+    <link rel="next" title="Getting Started Tutorial" href="getting_started_tutorial.html" />
+    <link rel="prev" title="What’s new in 2.3.2" href="whats_new.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.3.0
+                2.3.2
               </div>
             
           
@@ -91,14 +91,14 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="whats_new.html">What’s new in 2.3.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="whats_new.html">What’s new in 2.3.2</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Quickstart</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#using-hydrosdk">Using hydrosdk</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Sample tutorial</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hydrosdk/hydrosdk.html">hydrosdk package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started_tutorial.html">Getting Started Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydrosdk/hydrosdk.html">hydrosdk API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="getting_help.html">Getting Help</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/Hydrospheredata/hydro-serving-sdk">Github Repository</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://pypi.org/project/hydrosdk/">PyPi package</a></li>
@@ -204,19 +204,25 @@ The following lists all model versions deployed to your platform and prints thei
 </div>
 <p>It’s also easy to send data to your deployed models.
 For example, the following loads a csv and sends all rows to your deployed model through predictor object,
-which is designed to make inference for your data.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">hydrosdk.application</span> <span class="kn">import</span> <span class="n">Application</span>
+which is designed to make inference for your data via GRPC API.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">hydrosdk.cluster</span> <span class="kn">import</span> <span class="n">Cluster</span>
+<span class="kn">from</span> <span class="nn">hydrosdk.application</span> <span class="kn">import</span> <span class="n">Application</span>
+<span class="kn">from</span> <span class="nn">grpc</span> <span class="kn">import</span> <span class="n">ssl_channel_credentials</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+
+<span class="n">cluster</span> <span class="o">=</span> <span class="n">Cluster</span><span class="p">(</span><span class="s2">&quot;http-cluster-address&quot;</span><span class="p">,</span>
+                  <span class="n">grpc_address</span><span class="o">=</span><span class="s2">&quot;grpc-cluster-address&quot;</span><span class="p">,</span> <span class="n">ssl</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                  <span class="n">grpc_credentials</span><span class="o">=</span><span class="n">ssl_channel_credentials</span><span class="p">())</span>
 
 <span class="n">app</span> <span class="o">=</span> <span class="n">Application</span><span class="o">.</span><span class="n">find_by_name</span><span class="p">(</span><span class="n">cluster</span><span class="p">,</span> <span class="s2">&quot;my-model&quot;</span><span class="p">)</span>
 <span class="n">predictor</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">predictor</span><span class="p">()</span>
 
 <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;path/to/data.csv&quot;</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">itertuples</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
-    <span class="n">predictor</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">_as_dict</span><span class="p">())</span>
+    <span class="n">predictor</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">_asdict</span><span class="p">())</span>
 </pre></div>
 </div>
-<p>Other topics such as LocalModels, Metrics and … will be covered in more detail in the following sections,
+<p>Other topics such as LocalModels, metrics and uploading training data will be covered in more detail in the following sections,
 so don’t worry if you do not completely understand the examples.</p>
 </div>
 </div>
@@ -229,10 +235,10 @@ so don’t worry if you do not completely understand the examples.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="tutorial.html" class="btn btn-neutral float-right" title="Sample tutorial" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="getting_started_tutorial.html" class="btn btn-neutral float-right" title="Getting Started Tutorial" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="whats_new.html" class="btn btn-neutral float-left" title="What’s new in 2.3.0" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="whats_new.html" class="btn btn-neutral float-left" title="What’s new in 2.3.2" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
