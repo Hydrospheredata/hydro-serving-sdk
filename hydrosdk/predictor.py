@@ -3,7 +3,7 @@ from typing import Union, Dict
 
 import numpy as np
 import pandas as pd
-from hydro_serving_grpc import PredictionServiceStub, ModelSpec, predict_pb2, PredictResponse
+from hydro_serving_grpc import PredictionServiceStub, ModelSpec, predict_pb2, PredictResponse, TensorProto
 from hydro_serving_grpc.contract import ModelSignature
 from hydro_serving_grpc.gateway import GatewayServiceStub, api_pb2
 
@@ -24,21 +24,15 @@ class PredictImplementation(ABC):
 class MonitorableImplementation(PredictImplementation):
     def __init__(self, channel, target: str):
         """
-
+        Sends data to an application/servable and shadows it to monitoring services
         :param channel:
-        :param target: name of application/servable it's been created to
+        :param target: Name of an application/servable which will receive data
         """
         self.stub = PredictionServiceStub(channel)
         self.send_params = self.get_monitoring_spec_params(target=target)
 
     def send_data(self, inputs: dict):
-        """
-
-        :param inputs:
-        :return:
-        """
         model_spec = self.send_params
-
         request = predict_pb2.PredictRequest(model_spec=model_spec, inputs=inputs)
         return self.stub.Predict(request)
 
@@ -47,23 +41,14 @@ class MonitorableImplementation(PredictImplementation):
 
 
 class UnmonitorableImplementation(PredictImplementation):
-    def __init__(self, channel, target: str):
-        """
+    """ This implementation sends data to a servable without shadowing it to monitoring services"""
 
-        :param channel:
-        :param target: servable name
-        """
+    def __init__(self, channel, target: str):
         self.stub = GatewayServiceStub(channel)
         self.send_params = self.get_monitoring_spec_params(target=target)
 
-    def send_data(self, inputs: dict):
-        """
-
-        :param inputs:
-        :return:
-        """
+    def send_data(self, inputs: Dict[str, TensorProto]):
         servable_name = self.send_params
-
         request = api_pb2.ServablePredictRequest(servable_name=servable_name, data=inputs)
         return self.stub.ShadowlessPredictServable(request)
 
@@ -72,22 +57,27 @@ class UnmonitorableImplementation(PredictImplementation):
 
 
 class PredictServiceClient:
-    """Client to use with Predict. Have to be created in order to do predict"""
+    """PredictServiceClient is the main way of passing your data to a deployed ModelVersion"""
 
     def __init__(self, impl: PredictImplementation, signature: ModelSignature, return_type: PredictorDT):
+        """
+        Creates a client through which you could send your data.
+        :param impl: implementation - either Monitorable (which shadows data to monitoring services), either not
+        :param signature: ModelVersion signature which is used to encode/decode your data into proto messages
+        :param return_type: One of 3 ways (Pandas, Numpy, Python) to represent a ModelVersion output
+        """
         self.impl = impl
-
         self.signature = signature
         self.return_type = return_type
 
-    # TODO: fix doc
-    def predict(self, inputs: Union[pd.DataFrame, dict, pd.Series]) -> Union[pd.DataFrame, dict, pd.Series]:
+    def predict(self, inputs: Union[pd.DataFrame, dict, pd.Series]) -> Union[pd.DataFrame, Dict]:
         """
-        It forms a PredictRequest. PredictRequest specifies which TensorFlow model to run, as well as
-        how inputs are mapped to tensors and how outputs are filtered before returning to user.
-        :param inputs: dict in the format of {string: Union[python_primitive_types, numpy_primitive_type]} with contract info
-        :param model_spec: model specification created for associated servable
-        :return: PredictResponse with outputs in protobuf format
+        Sends data to the model version deployed in the cluster and returns the response from it.
+
+        This methods hides the conversion of Python/Numpy objects into a TensorProto objects.
+
+        :param inputs: Input data in either Pandas DataFrame, Numpy or Python lists/scalars.
+        :return: Output data in a format specified by `return_type`
         """
         inputs_as_proto = convert_inputs_to_tensor_proto(inputs, self.signature)
 
@@ -106,6 +96,11 @@ class PredictServiceClient:
 
     @staticmethod
     def predict_resp_to_dict_pydtype(response: PredictResponse) -> Dict:
+        """
+        Transform PredictResponse into a Dictionary with Python lists/scalars
+        :param response: PredictResponse proto message returned from the runtime
+        :return: Dictionary with Python list/scalars
+        """
         output_tensors_dict = {}
         for tensor_name, tensor_proto in response.outputs.items():
             output_tensors_dict[tensor_name] = tensor_proto_to_py(tensor_proto)
@@ -114,9 +109,9 @@ class PredictServiceClient:
     @staticmethod
     def predict_resp_to_dict_np(response: PredictResponse) -> Dict[str, np.array]:
         """
-        Transform tensors insider PredictResponse into np.arrays to create Dict[str, np.array]
-        :param response:
-        :return:
+        Transform PredictResponse into a Dictionary with Numpy arrays/scalars
+        :param response: PredictResponse proto message returned from the runtime
+        :return: Dictionary with Numpy arrays
         """
         output_tensors_dict = dict()
         for tensor_name, tensor_proto in response.outputs.items():
@@ -126,9 +121,9 @@ class PredictServiceClient:
     @staticmethod
     def predict_resp_to_df(response: PredictResponse) -> pd.DataFrame:
         """
-        Transform PredictResponse into pandas.DataFrame by using intermediate representation of Ditt[str, np.array]
-        :param response:
-        :return:
+        Transform PredictResponse into a pandas.DataFrame by using intermediate representation of Dict[str, np.array]
+        :param response: PredictResponse proto message returned from the runtime
+        :return: pandas DataFrame
         """
         response_dict: Dict[str, np.array] = PredictServiceClient.predict_resp_to_dict_np(response)
         return pd.DataFrame(response_dict)

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>hydrosdk.predictor module &mdash; hydrosdk 2.3.0 documentation</title>
+  <title>hydrosdk.predictor module &mdash; hydrosdk 2.3.2 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.3.0
+                2.3.2
               </div>
             
           
@@ -91,16 +91,15 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../whats_new.html">What’s new in 2.3.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whats_new.html">What’s new in 2.3.2</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Sample tutorial</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="hydrosdk.html">hydrosdk package</a><ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../getting_started_tutorial.html">Getting Started Tutorial</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="hydrosdk.html">hydrosdk API</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.application.html">hydrosdk.application module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.cluster.html">hydrosdk.cluster module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.contract.html">hydrosdk.contract module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.errors.html">hydrosdk.errors module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.exceptions.html">hydrosdk.exceptions module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="hydrosdk.host_selector.html">hydrosdk.host_selector module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.image.html">hydrosdk.image module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.modelversion.html">hydrosdk.modelversion module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.monitoring.html">hydrosdk.monitoring module</a></li>
@@ -156,7 +155,7 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-          <li><a href="hydrosdk.html">hydrosdk package</a> &raquo;</li>
+          <li><a href="hydrosdk.html">hydrosdk API</a> &raquo;</li>
         
       <li>hydrosdk.predictor module</li>
     
@@ -186,19 +185,14 @@
 <dl class="py class">
 <dt id="hydrosdk.predictor.MonitorableImplementation">
 <em class="property">class </em><code class="sig-prename descclassname">hydrosdk.predictor.</code><code class="sig-name descname">MonitorableImplementation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">channel</span></em>, <em class="sig-param"><span class="n">target</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.predictor.MonitorableImplementation" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py method">
-<dt id="hydrosdk.predictor.MonitorableImplementation.send_data">
-<code class="sig-name descname">send_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.predictor.MonitorableImplementation.send_data" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Sends data to an application/servable and shadows it to monitoring services
+:param channel:
+:param target: Name of an application/servable which will receive data</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>inputs</strong> – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-odd"><p><strong>target</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p>
 </dd>
 </dl>
-</dd></dl>
-
 </dd></dl>
 
 <dl class="py class">
@@ -209,15 +203,84 @@
 <dl class="py class">
 <dt id="hydrosdk.predictor.PredictServiceClient">
 <em class="property">class </em><code class="sig-prename descclassname">hydrosdk.predictor.</code><code class="sig-name descname">PredictServiceClient</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">impl</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#hydrosdk.predictor.PredictImplementation" title="hydrosdk.predictor.PredictImplementation">hydrosdk.predictor.PredictImplementation</a></span></em>, <em class="sig-param"><span class="n">signature</span><span class="p">:</span> <span class="n">hydro_serving_grpc.contract.model_signature_pb2.ModelSignature</span></em>, <em class="sig-param"><span class="n">return_type</span><span class="p">:</span> <span class="n">hydrosdk.data.types.PredictorDT</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.predictor.PredictServiceClient" title="Permalink to this definition">¶</a></dt>
-<dd><p>Client to use with Predict. Have to be created in order to do predict</p>
+<dd><p>PredictServiceClient is the main way of passing your data to a deployed ModelVersion</p>
+<p>Creates a client through which you could send your data.
+:param impl: implementation - either Monitorable (which shadows data to monitoring services), either not
+:param signature: ModelVersion signature which is used to encode/decode your data into proto messages
+:param return_type: One of 3 ways (Pandas, Numpy, Python) to represent a ModelVersion output</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>impl</strong> (<a class="reference internal" href="#hydrosdk.predictor.PredictImplementation" title="hydrosdk.predictor.PredictImplementation"><em>hydrosdk.predictor.PredictImplementation</em></a>) – </p></li>
+<li><p><strong>signature</strong> (<em>hydro_serving_grpc.contract.model_signature_pb2.ModelSignature</em>) – </p></li>
+<li><p><strong>return_type</strong> (<em>hydrosdk.data.types.PredictorDT</em>) – </p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt id="hydrosdk.predictor.PredictServiceClient.predict">
-<code class="sig-name descname">predict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>pandas.core.frame.DataFrame<span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a><span class="p">, </span>pandas.core.series.Series<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span>pandas.core.frame.DataFrame<span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a><span class="p">, </span>pandas.core.series.Series<span class="p">]</span><a class="headerlink" href="#hydrosdk.predictor.PredictServiceClient.predict" title="Permalink to this definition">¶</a></dt>
-<dd><p>It forms a PredictRequest. PredictRequest specifies which TensorFlow model to run, as well as
-how inputs are mapped to tensors and how outputs are filtered before returning to user.
-:param inputs: dict in the format of {string: Union[python_primitive_types, numpy_primitive_type]} with contract info
-:param model_spec: model specification created for associated servable
-:return: PredictResponse with outputs in protobuf format</p>
+<code class="sig-name descname">predict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>pandas.core.frame.DataFrame<span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a><span class="p">, </span>pandas.core.series.Series<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span>pandas.core.frame.DataFrame<span class="p">, </span>Dict<span class="p">]</span><a class="headerlink" href="#hydrosdk.predictor.PredictServiceClient.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sends data to the model version deployed in the cluster and returns the response from it.</p>
+<p>This methods hides the conversion of Python/Numpy objects into a TensorProto objects.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>inputs</strong> (<em>Union</em><em>[</em><em>pandas.core.frame.DataFrame</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a><em>, </em><em>pandas.core.series.Series</em><em>]</em>) – Input data in either Pandas DataFrame, Numpy or Python lists/scalars.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Output data in a format specified by <cite>return_type</cite></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Union[pandas.core.frame.DataFrame, Dict]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hydrosdk.predictor.PredictServiceClient.predict_resp_to_df">
+<em class="property">static </em><code class="sig-name descname">predict_resp_to_df</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">response</span><span class="p">:</span> <span class="n">hydro_serving_grpc.tf.api.predict_pb2.PredictResponse</span></em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="headerlink" href="#hydrosdk.predictor.PredictServiceClient.predict_resp_to_df" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transform PredictResponse into a pandas.DataFrame by using intermediate representation of Dict[str, np.array]
+:param response: PredictResponse proto message returned from the runtime
+:return: pandas DataFrame</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>response</strong> (<em>hydro_serving_grpc.tf.api.predict_pb2.PredictResponse</em>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>pandas.core.frame.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hydrosdk.predictor.PredictServiceClient.predict_resp_to_dict_np">
+<em class="property">static </em><code class="sig-name descname">predict_resp_to_dict_np</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">response</span><span class="p">:</span> <span class="n">hydro_serving_grpc.tf.api.predict_pb2.PredictResponse</span></em><span class="sig-paren">)</span> &#x2192; Dict<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span>numpy.array<span class="p">]</span><a class="headerlink" href="#hydrosdk.predictor.PredictServiceClient.predict_resp_to_dict_np" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transform PredictResponse into a Dictionary with Numpy arrays/scalars
+:param response: PredictResponse proto message returned from the runtime
+:return: Dictionary with Numpy arrays</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>response</strong> (<em>hydro_serving_grpc.tf.api.predict_pb2.PredictResponse</em>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Dict[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a>, numpy.array]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hydrosdk.predictor.PredictServiceClient.predict_resp_to_dict_pydtype">
+<em class="property">static </em><code class="sig-name descname">predict_resp_to_dict_pydtype</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">response</span><span class="p">:</span> <span class="n">hydro_serving_grpc.tf.api.predict_pb2.PredictResponse</span></em><span class="sig-paren">)</span> &#x2192; Dict<a class="headerlink" href="#hydrosdk.predictor.PredictServiceClient.predict_resp_to_dict_pydtype" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transform PredictResponse into a Dictionary with Python lists/scalars
+:param response: PredictResponse proto message returned from the runtime
+:return: Dictionary with Python list/scalars</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>response</strong> (<em>hydro_serving_grpc.tf.api.predict_pb2.PredictResponse</em>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Dict</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -225,19 +288,12 @@ how inputs are mapped to tensors and how outputs are filtered before returning t
 <dl class="py class">
 <dt id="hydrosdk.predictor.UnmonitorableImplementation">
 <em class="property">class </em><code class="sig-prename descclassname">hydrosdk.predictor.</code><code class="sig-name descname">UnmonitorableImplementation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">channel</span></em>, <em class="sig-param"><span class="n">target</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.predictor.UnmonitorableImplementation" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="py method">
-<dt id="hydrosdk.predictor.UnmonitorableImplementation.send_data">
-<code class="sig-name descname">send_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.predictor.UnmonitorableImplementation.send_data" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>This implementation sends data to a servable without shadowing it to monitoring services</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>inputs</strong> – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
+<dd class="field-odd"><p><strong>target</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p>
 </dd>
 </dl>
-</dd></dl>
-
 </dd></dl>
 
 </div>

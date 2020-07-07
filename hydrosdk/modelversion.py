@@ -7,12 +7,13 @@ import time
 import urllib.parse
 from enum import Enum
 from typing import Optional, Dict, List, Tuple, Iterator, Generator
+from urllib.parse import urljoin
 
 import sseclient
 import requests
 from sseclient import Event
 from hydro_serving_grpc.contract import ModelContract
-from hydro_serving_grpc.manager import ModelVersion as grpc_ModelVersion, DockerImage as DockerImageProto
+from hydro_serving_grpc.manager import ModelVersion as ModelVersionProto, DockerImage as DockerImageProto
 from requests_toolbelt.multipart.encoder import MultipartEncoder
 
 from hydrosdk.cluster import Cluster
@@ -54,7 +55,7 @@ def _upload_local_file(cluster: Cluster, modelversion_id: int, path: str,
     :param chunk_size: chunk size to use for streaming
     """    
     gen = read_in_chunks(path, chunk_size)
-    url = '/monitoring/profiles/batch/{}'.format(modelversion_id)
+    url = f'/monitoring/profiles/batch/{model_version_id}'
     return cluster.request("POST", url, data=gen, stream=True)
 
 
@@ -108,9 +109,23 @@ class LocalModel:
     >>> modelversion.lock_till_released()
     >>> data_upload_response = modelversion.upload_training_data()
     """
+    _BASE_URL = "/api/v2/model"
+
     def __init__(self, name: str, runtime: DockerImage, payload: List[str], contract: ModelContract, 
-                 metadata: Optional[dict] = None, install_command: Optional[str] = None,
+                 metadata: Optional[Dict[str, str]] = None, install_command: Optional[str] = None,
                  training_data: Optional[str] = None) -> 'LocalModel':
+        """
+        :param name: a name of the model
+        :param runtime: a docker image used to run your code
+        :param payload: a list of paths to files (absolute or relative) with any additional resources 
+                        that will be exported to the container
+        :param contract: ModelContract which specifies name of function called, as well as its types 
+                         and shapes of both inputs and outputs
+        :param metadata: a metadata dict used to describe uploaded ModelVersions
+        :param install_command: a command to run within a runtime to prepare a modelversion environment
+        :param training_data: path (absolute, relative or an S3 URI) to a csv file with the training 
+                              data
+        """
         if not isinstance(name, str):
             raise TypeError("name is not a string")
         self.name = name
@@ -189,9 +204,8 @@ class LocalModel:
             }
         )
         
-        resp = cluster.request("POST", "/api/v2/model/upload",
-                               data=encoder,
-                               headers={'Content-Type': encoder.content_type})
+        url = urljoin(self._BASE_URL, "upload")
+        resp = cluster.request("POST", url, data=encoder, headers={'Content-Type': encoder.content_type})
         handle_request_error(
             resp, f"Failed to upload local model. {resp.status_code} {res.text}")
 
@@ -203,7 +217,7 @@ class LocalModel:
 
 class ModelVersionStatus(Enum):
     """
-    Model building statuses
+    Model building statuses.
     """
     ASSEMBLING = "Assembling"
     RELEASED = "Released"
@@ -274,8 +288,23 @@ class ModelVersion:
     >>> for event in modelversion.logs():
             print(event.data)
     """
-    BASE_URL = "/api/v2/model"
+    _BASE_URL = "/api/v2/model"
 
+    @staticmethod
+    def list_all(cluster: Cluster) -> List['ModelVersion']:
+        """
+        List all model versions on the cluster.
+
+        :param cluster: active cluster
+        :return: list of ModelVersions 
+        """
+        url = urljoin(ModelVersion._BASE_URL, "version")
+        resp = cluster.request("GET", url)
+        handle_request_error(
+            resp, f"Failed to list model versions. {resp.status_code} {resp.text}")
+        return [ModelVersion._from_json(cluster=cluster, model_version=model_version_json)
+                for model_version_json in resp.json()]
+    
     @staticmethod
     def find(cluster: Cluster, name: str, version: int) -> 'ModelVersion':
         """
@@ -286,7 +315,8 @@ class ModelVersion:
         :param version: version of the model
         :return: ModelVersion object
         """
-        resp = cluster.request("GET", ModelVersion.BASE_URL + "/version/{}/{}".format(name, version))
+        url = urljoin(ModelVersion._BASE_URL, f"version/{name}/{version}")
+        resp = cluster.request("GET", url)
         handle_request_error(
             resp, f"Failed to find modelversion for name={name}, version={version}. {resp.status_code} {resp.text}")
         return ModelVersion._from_json(cluster=cluster, model_version=resp.json())
@@ -300,12 +330,28 @@ class ModelVersion:
         :param id: model version id
         :return: ModelVersion object
         """
-        resp = cluster.request("GET", ModelVersion.BASE_URL + "/version")
+        url = urljoin(ModelVersion._BASE_URL, "version")
+        resp = cluster.request("GET", url)
         handle_request_error(
             resp, f"Failed to find modelversion by id={id}. {resp.status_code} {resp.text}")
         for modelversion_json in resp.json():
             if modelversion_json['id'] == id:
                 return ModelVersion._from_json(cluster, modelversion_json)
+
+    @staticmethod
+    def find_by_model_name(cluster: Cluster, model_name: str) -> list:
+        """
+        Find all model versions on the cluster filtered by model_name, sorted in ascending 
+        order by version.
+
+        :param cluster: active cluster
+        :param model_name: a model name
+        :return: list of ModelVersions with `model_name`
+        """
+        all_models = ModelVersion.list_all(cluster=cluster)
+        modelversions_by_name = [model for model in all_models if model.name == model_name]
+        sorted_by_version = sorted(modelversions_by_name, key=lambda model: model.version)
+        return sorted_by_version
 
     @staticmethod
     def _from_json(cluster: Cluster, model_version: dict) -> 'ModelVersion':
@@ -369,42 +415,16 @@ class ModelVersion:
             "contract": ModelContract_to_contract_dict(contract),
             "metadata": metadata
         }
-        resp = cluster.request(method="POST", url="/api/v2/externalmodel", json=model)
+        resp = cluster.request("POST", "/api/v2/externalmodel", json=model)
         handle_request_error(
             resp, f"Failed to create an external model. {resp.status_code} {resp.text}")
         return ModelVersion._from_json(cluster, resp.json())
 
-    @staticmethod
-    def list_all(cluster: Cluster) -> List['ModelVersion']:
+    def update_status(self):
         """
-        List all model versions on the cluster.
-
-        :param cluster: active cluster
-        :return: list of ModelVersions 
+        Poll the cluster for a new ModelVersion status.
         """
-        resp = cluster.request("GET", ModelVersion.BASE_URL + "/version")
-        handle_request_error(
-            resp, f"Failed to list model versions. {resp.status_code} {resp.text}")
-        return [ModelVersion._from_json(cluster=cluster, model_version=model_version_json)
-                for model_version_json in resp.json()]
-
-    @staticmethod
-    def list_all_by_model_name(cluster: Cluster, model_name: str) -> list:
-        """
-        List all model versions on the cluster filtered by model_name, sorted in ascending 
-        order by version.
-
-        :param cluster: active cluster
-        :param model_name: model name
-        :return: list of Models versions for provided model name
-        """
-        all_models = ModelVersion.list_all(cluster=cluster)
-        modelversions_by_name = [model for model in all_models if model.name == model_name]
-        sorted_by_version = sorted(modelversions_by_name, key=lambda model: model.version)
-        return sorted_by_version
-    
-    def _update_status(self):
-        self.status = self.find(self.cluster, self.name, self.version).status
+        self.status = self.find_by_id(self.cluster, self.id).status
 
     def lock_till_released(self) -> bool:
         """
@@ -437,8 +457,8 @@ class ModelVersion:
 
         :return: Iterator over sseclient.Event
         """
-        url = "/api/v2/model/version/{}/logs".format(self.modelversion.id)
-        logs_response = self.cluster.request("GET", url, stream=True)
+        url = urljoin(self._BASE_URL, f"{self.modeversion.id}/logs")
+        resp = self.cluster.request("GET", url, stream=True)
         return sseclient.SSEClient(logs_response).events()
 
     def upload_training_data(self) -> 'DataUploadResponse':
@@ -482,13 +502,13 @@ class ModelVersion:
                 config=msc
             )
 
-    def to_proto(self):
+    def to_proto(self) -> ModelVersionProto:
         """
-        Converts to ModelVersion protobuf message.
+        Convert ModelVersion object into a ModelVersion proto message.
 
-        :return: model version obj
+        :return: ModelVersion proto message
         """
-        return grpc_ModelVersion(
+        return ModelVersionProto(
             _id=self.id,
             name=self.name,
             version=self.version,
@@ -509,9 +529,26 @@ class ModelVersion:
         return MetricModel(model=self, threshold=threshold, comparator=comparator)
 
     def __init__(self, cluster: Cluster, id: int, model_id: int, name: str, version: int, 
-                 contract: ModelContract, status: Optional[ModelVersionStatus], image: Optional[dict], 
-                 runtime: Optional[DockerImage], is_external: bool, metadata: Optional[dict] = None, 
-                 install_command: Optional[str] = None, training_data: Optional[str] = None):
+                 contract: ModelContract, status: Optional[ModelVersionStatus], image: Optional[DockerImage], 
+                 runtime: Optional[DockerImage], is_external: bool, 
+                 metadata: Optional[Dict[str, str]] = None, install_command: Optional[str] = None, 
+                 training_data: Optional[str] = None):
+        """
+        :param cluster: active cluster
+        :param id: id of the modelversion assigned by the cluster
+        :param model_id: id of the model assigned by the cluster
+        :param name: a name of the model this ModelVersion belongs to
+        :param version: a version of the model this ModelVersion belongs to
+        :param contract: a ModelContract which specifies name of function called, as well as its types 
+                         and shapes of both inputs and outputs
+        :param status: a status of this ModelVersion, one of {Assembling, Released, Failed}
+        :param image: DockerImage of a packed ModelVersion stored inside the cluster
+        :param runtime: DockerImage of a runtime which was used to build an `image`
+        :param is_external: indicates whether model is running outside the cluster
+        :param metadata: metadata used for describing a ModelVersion
+        :param install_command: a command which was run within a runtime to prepare a modelversion 
+                                environment
+        """
         self.id = id
         self.model_id = model_id
         self.name = name
@@ -527,9 +564,9 @@ class ModelVersion:
         self.training_data = training_data
 
     def __repr__(self):
-        return "ModelVersion {}:{}".format(self.name, self.version)
+        return f"ModelVersion {self.name}:{self.version}"
 
-    class ReleaseFailed(BaseException):
+    class ReleaseFailed(Exception):
         pass
 
 

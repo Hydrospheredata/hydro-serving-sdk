@@ -5,17 +5,18 @@ import requests
 from hydrosdk.exceptions import BadRequest, BadResponse, UnknownException
 
 
-def grpc_server_on(channel: grpc.Channel) -> bool:
+def grpc_server_on(channel: grpc.Channel, timeout: int) -> bool:
     """
     The channel_ready_future function allows the client to wait for a specified timeout 
     duration (in seconds) for the server to be ready. If our client times out, it raises.
 
     :param channel:
+    :param timeout: timeout value to check for gRPC connection
     :raises grpc.FutureTimeoutError: if server is off
     :return: status bool
     """
     try:
-        grpc.channel_ready_future(channel).result()
+        grpc.channel_ready_future(channel).result(timeout)
         return True
     except grpc.FutureTimeoutError:
         return False

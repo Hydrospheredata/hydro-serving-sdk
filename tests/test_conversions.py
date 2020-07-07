@@ -1,10 +1,16 @@
+from collections import namedtuple
+from random import random
+
 import numpy as np
+import pandas as pd
 import pytest
 from hydro_serving_grpc.tf import *
 from hydro_serving_grpc.tf import TensorProto, TensorShapeProto
 
-from hydrosdk.data.conversions import np_to_tensor_proto, tensor_proto_to_np, proto_to_np_dtype, tensor_shape_proto_from_tuple
-from hydrosdk.data.types import DTYPE_TO_FIELDNAME, np_to_proto_dtype
+from hydrosdk.data.conversions import np_to_tensor_proto, tensor_proto_to_np, proto_to_np_dtype, \
+    tensor_shape_proto_from_tuple, list_to_tensor_proto, tensor_proto_to_py, isinstance_namedtuple
+from hydrosdk.data.types import DTYPE_TO_FIELDNAME, np_to_proto_dtype, PredictorDT, find_in_list_by_name
+from tests.test_predictor import tensor_servable
 
 int_dtypes = [DT_INT64, DT_UINT16, DT_UINT8, DT_INT8, DT_INT16, DT_INT32, DT_UINT32, DT_UINT64]
 float_types = [DT_DOUBLE, DT_FLOAT, ]
@@ -152,3 +158,34 @@ class TestConversion:
         tensor_proto = np_to_tensor_proto(x)
         x_restored = tensor_proto_to_np(tensor_proto)
         assert x == x_restored
+
+    def test_tensor_proto_to_py(self, tensor_servable):
+        list_value = [int(random() * 1e5)]
+        predictor_client = tensor_servable.predictor(return_type=PredictorDT.DICT_PYTHON)
+
+        signature_field = find_in_list_by_name(some_list=predictor_client.signature.inputs,
+                                               name="input")
+        tensor_proto = list_to_tensor_proto(list_value, signature_field.dtype, signature_field.shape)
+
+        value_again = tensor_proto_to_py(t=tensor_proto)
+
+        assert list_value == value_again
+        assert isinstance(value_again, list)
+
+    def test_isinstance_namedtuple_namedtuple(self):
+        Point = namedtuple('Point', ['x', 'y'])
+        pt = Point(1.0, 5.0)
+
+        assert isinstance_namedtuple(pt)
+
+    def test_isinstance_namedtuple_tuple(self):
+        pt = (1, 2, 3)
+
+        assert not isinstance_namedtuple(pt)
+
+    def test_isinstance_namedtuple_itertuples(self):
+        d = {'col1': [1, 2], 'col2': [3, 4]}
+        df = pd.DataFrame(data=d)
+
+        for row in df.itertuples():
+            assert isinstance_namedtuple(row)

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>hydrosdk.servable module &mdash; hydrosdk 2.3.0 documentation</title>
+  <title>hydrosdk.servable module &mdash; hydrosdk 2.3.2 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.3.0
+                2.3.2
               </div>
             
           
@@ -91,16 +91,15 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../whats_new.html">What’s new in 2.3.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whats_new.html">What’s new in 2.3.2</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Sample tutorial</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="hydrosdk.html">hydrosdk package</a><ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../getting_started_tutorial.html">Getting Started Tutorial</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="hydrosdk.html">hydrosdk API</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.application.html">hydrosdk.application module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.cluster.html">hydrosdk.cluster module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.contract.html">hydrosdk.contract module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.errors.html">hydrosdk.errors module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.exceptions.html">hydrosdk.exceptions module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="hydrosdk.host_selector.html">hydrosdk.host_selector module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.image.html">hydrosdk.image module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.modelversion.html">hydrosdk.modelversion module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.monitoring.html">hydrosdk.monitoring module</a></li>
@@ -156,7 +155,7 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-          <li><a href="hydrosdk.html">hydrosdk package</a> &raquo;</li>
+          <li><a href="hydrosdk.html">hydrosdk API</a> &raquo;</li>
         
       <li>hydrosdk.servable module</li>
     
@@ -188,10 +187,10 @@ You can learn more about Servables here <a class="reference external" href="http
 <dl class="py class">
 <dt id="hydrosdk.servable.Servable">
 <em class="property">class </em><code class="sig-prename descclassname">hydrosdk.servable.</code><code class="sig-name descname">Servable</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cluster</span></em>, <em class="sig-param"><span class="n">modelversion</span></em>, <em class="sig-param"><span class="n">servable_name</span></em>, <em class="sig-param"><span class="n">status</span></em>, <em class="sig-param"><span class="n">status_message</span></em>, <em class="sig-param"><span class="n">metadata</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.servable.Servable" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="simple">
-<dt>Servable is an instance of a model version which could be used in application or by itself as it exposes various endpoints to your model</dt><dd><p>version: HTTP, gRPC, and Kafka.</p>
-</dd>
-</dl>
+<dd><p>Servable is a deployed instance of a ModelVersion which is used inside an Application or by itself.
+It exposes gRPC and HTTP endpoints. Servables are not meant to be used in production setup
+since they have no scaling and monitoring. If you want to deploy your ModelVersion to production
+please use Applications.</p>
 <p>You can find more about Servables in the documentation <a class="reference external" href="https://hydrosphere.io/serving-docs/latest/overview/concepts.html#servable">https://hydrosphere.io/serving-docs/latest/overview/concepts.html#servable</a></p>
 <dl class="py method">
 <dt id="hydrosdk.servable.Servable.create">
@@ -200,10 +199,10 @@ You can learn more about Servables here <a class="reference external" href="http
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>cluster</strong> – Cluster connected to Hydrosphere</p></li>
-<li><p><strong>model_name</strong> – Name of uploaded model</p></li>
-<li><p><strong>version</strong> – Version of uploaded model</p></li>
-<li><p><strong>metadata</strong> – Information which you can attach to your servable in form of Dict[str, str]</p></li>
+<li><p><strong>cluster</strong> (<a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster"><em>hydrosdk.cluster.Cluster</em></a>) – Cluster connected to Hydrosphere</p></li>
+<li><p><strong>model_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Name of uploaded model</p></li>
+<li><p><strong>version</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Version of uploaded model</p></li>
+<li><p><strong>metadata</strong> (<em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em>) – Information which you can attach to your servable in form of Dict[str, str]</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises</dt>
@@ -211,6 +210,9 @@ You can learn more about Servables here <a class="reference external" href="http
 </dd>
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>servable</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#hydrosdk.servable.Servable" title="hydrosdk.servable.Servable">hydrosdk.servable.Servable</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -222,8 +224,8 @@ You can learn more about Servables here <a class="reference external" href="http
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>cluster</strong> – </p></li>
-<li><p><strong>servable_name</strong> – </p></li>
+<li><p><strong>cluster</strong> (<a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster"><em>hydrosdk.cluster.Cluster</em></a>) – </p></li>
+<li><p><strong>servable_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises</dt>
@@ -232,18 +234,21 @@ You can learn more about Servables here <a class="reference external" href="http
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>json response from server</p>
 </dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Dict</p>
+</dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="hydrosdk.servable.Servable.find">
 <em class="property">static </em><code class="sig-name descname">find</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cluster</span><span class="p">:</span> <span class="n"><a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster">hydrosdk.cluster.Cluster</a></span></em>, <em class="sig-param"><span class="n">servable_name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#hydrosdk.servable.Servable" title="hydrosdk.servable.Servable">hydrosdk.servable.Servable</a><a class="headerlink" href="#hydrosdk.servable.Servable.find" title="Permalink to this definition">¶</a></dt>
-<dd><p>Connects to servable at your cluster.</p>
+<dd><p>Finds a serving servable in a cluster</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>cluster</strong> – Cluster connected to Hydrosphere</p></li>
-<li><p><strong>servable_name</strong> – </p></li>
+<li><p><strong>cluster</strong> (<a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster"><em>hydrosdk.cluster.Cluster</em></a>) – Hydrosphere cluster</p></li>
+<li><p><strong>servable_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The Servable name</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises</dt>
@@ -252,30 +257,65 @@ You can learn more about Servables here <a class="reference external" href="http
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Servable</p>
 </dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#hydrosdk.servable.Servable" title="hydrosdk.servable.Servable">hydrosdk.servable.Servable</a></p>
+</dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="hydrosdk.servable.Servable.list">
 <em class="property">static </em><code class="sig-name descname">list</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cluster</span><span class="p">:</span> <span class="n"><a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster">hydrosdk.cluster.Cluster</a></span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span><a class="reference internal" href="#hydrosdk.servable.Servable" title="hydrosdk.servable.Servable">hydrosdk.servable.Servable</a><span class="p">]</span><a class="headerlink" href="#hydrosdk.servable.Servable.list" title="Permalink to this definition">¶</a></dt>
-<dd><p>Retrieve list of all servables available at your cluster
-:param cluster: Cluster connected to Hydrosphere
-:return: List of all Servables available at your cluster</p>
+<dd><p>Retrieve a list of all servables available at your cluster</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cluster</strong> (<a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster"><em>hydrosdk.cluster.Cluster</em></a>) – Hydrosphere cluster</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of all Servables available at your cluster</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>List[<a class="reference internal" href="#hydrosdk.servable.Servable" title="hydrosdk.servable.Servable">hydrosdk.servable.Servable</a>]</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt id="hydrosdk.servable.Servable.model_version_json_to_servable">
 <em class="property">static </em><code class="sig-name descname">model_version_json_to_servable</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model_version_json</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></span></em>, <em class="sig-param"><span class="n">cluster</span><span class="p">:</span> <span class="n"><a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster">hydrosdk.cluster.Cluster</a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#hydrosdk.servable.Servable" title="hydrosdk.servable.Servable">hydrosdk.servable.Servable</a><a class="headerlink" href="#hydrosdk.servable.Servable.model_version_json_to_servable" title="Permalink to this definition">¶</a></dt>
-<dd><p>Deserializes servable json description into servable object</p>
+<dd><p>Deserializes Servable from JSON into a Servable object</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model_version_json</strong> – Servable description in json format</p></li>
-<li><p><strong>cluster</strong> – Cluster connected to Hydrosphere</p></li>
+<li><p><strong>model_version_json</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – Servable description in a JSON format</p></li>
+<li><p><strong>cluster</strong> (<a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster"><em>hydrosdk.cluster.Cluster</em></a>) – Hydrosphere</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Servable object</p>
+<dd class="field-even"><p>Servable</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#hydrosdk.servable.Servable" title="hydrosdk.servable.Servable">hydrosdk.servable.Servable</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hydrosdk.servable.Servable.predictor">
+<code class="sig-name descname">predictor</code><span class="sig-paren">(</span><em class="sig-param">monitorable=True</em>, <em class="sig-param">return_type=&lt;PredictorDT.DICT_NP_ARRAY: 'nparray'&gt;</em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="hydrosdk.predictor.html#hydrosdk.predictor.PredictServiceClient" title="hydrosdk.predictor.PredictServiceClient">hydrosdk.predictor.PredictServiceClient</a><a class="headerlink" href="#hydrosdk.servable.Servable.predictor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a predictor object which is used to pass data into the deployed Servable</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>monitorable</strong> – If True, the data will be shadowed to the monitoring service</p></li>
+<li><p><strong>return_type</strong> – Specifies into which data format should predictor return Servable outputs</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="hydrosdk.predictor.html#hydrosdk.predictor.PredictServiceClient" title="hydrosdk.predictor.PredictServiceClient">hydrosdk.predictor.PredictServiceClient</a></p>
 </dd>
 </dl>
 </dd></dl>

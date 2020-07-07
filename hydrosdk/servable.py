@@ -46,39 +46,49 @@ class Servable:
     Servable is an instance of a model version which is used within applications. Intendend for
     internal usage only.
     """
-    BASE_URL = "/api/v2/servable"
+    _BASE_URL = "/api/v2/servable"
 
     @staticmethod
-    def modelversion_json_to_servable(cluster: Cluster, modelversion_json: dict) -> 'Servable':
+    def list_all(cluster: Cluster) -> List['Servable']:
         """
-        Deserializes servable json description into servable object
+        Retrieve a list of all servables available at your cluster
 
-        :param cluster: Cluster connected to Hydrosphere
-        :param model_version_json: Servable description in json format
-        :return: Servable object
+        :param cluster: Hydrosphere cluster
+        :return: List of all Servables available at your cluster
         """
-        modelversion_data = modelversion_json['modelVersion']
+        resp = cluster.request("GET", Servable._BASE_URL)
+        handle_request_error(
+            resp, f"Failed to list servables. {resp.status_code} {resp.text}")
+        return [Servable._from_json(cluster, servable_json) for
+                servable_json in res.json()]
 
-        modelversion = ModelVersion.from_json(cluster, modelversion_data)
-        return Servable(cluster=cluster,
-                        modelversion=modelversion,
-                        servable_name=modelversion_json['fullName'],
-                        status=ServableStatus.from_camel_case(modelversion_json['status']['status']),
-                        status_message=modelversion_json['status']['msg'],
-                        metadata=modelversion_data['metadata'])
+    @staticmethod
+    def find(cluster: Cluster, servable_name: str) -> 'Servable':
+        """
+        Finds a serving servable in a cluster
+
+        :param cluster: active cluster
+        :param servable_name: a name of the servable
+        :raises ServableException:
+        :return: Servable
+        """
+        url = urljoin(MetricSpec._BASE_URL, servable_name)
+        resp = cluster.request("GET", url)
+        handle_request_error(
+            resp, f"Failed to find servable for name={servable_name}. {resp.status_code} {resp.text}")
+        return Servable._from_json(cluster, res.json())
 
     @staticmethod
     def create(cluster: Cluster, model_name: str, version: str,
-               metadata: dict = None) -> 'Servable':
+               metadata: Optional[Dict[str, str]] = None) -> 'Servable':
         """
         Deploy an instance of uploaded model version at your cluster.
 
         :param cluster: Cluster connected to Hydrosphere
         :param model_name: Name of uploaded model
         :param version: Version of uploaded model
-        :param metadata: Information which you can attach to your servable in form of Dict[str, str]
+        :param metadata: Information which you can attach to your servable in a form of Dict[str, str]
         :raises ServableException:
-
         :return: servable
         """
         msg = {
@@ -87,38 +97,10 @@ class Servable:
             "metadata": metadata
         }
 
-        resp = cluster.request(method='POST', url='/api/v2/servable', json=msg)
+        resp = cluster.request('POST', Servable._BASE_URL, json=msg)
         handle_request_error(
             resp, f"Failed to create a servable. {resp.status_code} {resp.text}")
-        return Servable.modelversion_json_to_servable(cluster, res.json())
-
-    @staticmethod
-    def find(cluster: Cluster, servable_name: str) -> 'Servable':
-        """
-        Connects to servable at your cluster.
-
-        :param cluster: Cluster connected to Hydrosphere
-        :param servable_name:
-        :raises ServableException:
-        :return: Servable
-        """
-        resp = cluster.request("GET", Servable.BASE_URL + "/{}".format(servable_name))
-        handle_request_error(
-            resp, f"Failed to find servable for name={servable_name}. {resp.status_code} {resp.text}")
-        return Servable.modelversion_json_to_servable(cluster, res.json())
-
-    @staticmethod
-    def list_all(cluster: Cluster) -> List['Servable']:
-        """
-        Retrieve list of all servables available at your cluster
-        :param cluster: Cluster connected to Hydrosphere
-        :return: List of all Servables available at your cluster
-        """
-        resp = cluster.request("GET", "/api/v2/servable")
-        handle_request_error(
-            resp, f"Failed to list servables. {resp.status_code} {resp.text}")
-        return [Servable.modelversion_json_to_servable(cluster, servable_json) for
-                servable_json in res.json()]
+        return Servable._from_json(cluster, res.json())
 
     @staticmethod
     def delete(cluster: Cluster, servable_name: str) -> dict:
@@ -132,10 +114,29 @@ class Servable:
         .. warnings also: Use with caution. Predictors previously associated with this servable 
         will not be able to connect to it.
         """
-        resp = cluster.request("DELETE", "/api/v2/servable/{}".format(servable_name))
+        url = urljoin(MetricSpec._BASE_URL, servable_name)
+        resp = cluster.request("DELETE", url)
         handle_request_error(
-            resp, f"Failed to delete servable with name={servable_name}. {resp.status_code} {resp.text}")
+            resp, f"Failed to delete the servable with name={servable_name}. {resp.status_code} {resp.text}")
         return res.json()
+    
+    @staticmethod
+    def _from_json(cluster: Cluster, modelversion_json: dict) -> 'Servable':
+        """
+        Deserializes Servable from JSON into a Servable object
+
+        :param cluster: active cluster
+        :param model_version_json: Servable description in json format
+        :return: Servable object
+        """
+        modelversion_data = modelversion_json['modelVersion']
+        modelversion = ModelVersion._from_json(cluster, modelversion_data)
+        return Servable(cluster=cluster,
+                        modelversion=modelversion,
+                        servable_name=modelversion_json['fullName'],
+                        status=ServableStatus.from_camel_case(modelversion_json['status']['status']),
+                        status_message=modelversion_json['status']['msg'],
+                        metadata=modelversion_data['metadata'])
 
     def __init__(self, cluster: Cluster, modelversion: ModelVersion, servable_name: str, 
                  status: str, status_message: str, metadata: Optional[dict] = None) -> 'Servable':
@@ -148,10 +149,10 @@ class Servable:
 
     def logs(self, follow=False) -> Iterable[Event]:
         if follow:
-            url = urljoin(self.BASE_URL, f"{self.name}/logs?follow=true")
+            url = urljoin(self._BASE_URL, f"{self.name}/logs?follow=true")
             resp = self.cluster.request("GET", url, stream=True)
         else:
-            url = urljoin(self.BASE_URL, f"{self.name}/logs")
+            url = urljoin(self._BASE_URL, f"{self.name}/logs")
             resp = self.cluster.request("GET", url)
         handle_request_error(
             resp, f"Failed to retrieve logs for {self}. {resp.status_code} {resp.text}")
@@ -164,11 +165,17 @@ class Servable:
         return f"Servable {self.name}"
 
     def predictor(self, monitorable=True, return_type=PredictorDT.DICT_NP_ARRAY) -> PredictServiceClient:
-        if monitorable:
-            self.impl = MonitorableImplementation(channel=self.cluster.channel, target=self.name)
-        else:
-            self.impl = UnmonitorableImplementation(channel=self.cluster.channel, target=self.name)
+        """
+        Returns a predictor object which is used to pass data into the deployed Servable
 
-        self.predictor_return_type = return_type
-        return PredictServiceClient(impl=self.impl, signature=self.modelversion.contract.predict,
-                                    return_type=self.predictor_return_type)
+        :param monitorable: If True, the data will be shadowed to the monitoring service
+        :param return_type: Specifies into which data format should predictor return Servable outputs
+        :return:
+        """
+        if monitorable:
+            impl = MonitorableImplementation(channel=self.cluster.channel, target=self.name)
+        else:
+            impl = UnmonitorableImplementation(channel=self.cluster.channel, target=self.name)
+
+        return PredictServiceClient(impl=impl, signature=self.modelversion.contract.predict,
+                                    return_type=return_type)
