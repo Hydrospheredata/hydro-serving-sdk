@@ -1,89 +1,81 @@
-import pytest
+import json
 import time
-from hydro_serving_grpc.contract import ModelContract
 
-from hydrosdk.exceptions import ServableException
+import pytest
+import sseclient
+
+from hydrosdk.modelversion import LocalModel, ModelVersion
+from hydrosdk.exceptions import BadRequest
 from hydrosdk.servable import Servable, ServableStatus
-from tests.test_modelversion import create_test_cluster, create_test_local_model
-from tests.test_modelversion import create_test_signature
+from tests.common_fixtures import *
+from tests.utils import *
 
 
-def create_test_servable():
-    http_cluster = create_test_cluster()
-
-    signature = create_test_signature()
-    contract = ModelContract(predict=signature)
-
-    model = create_test_local_model(contract=contract)
-
-    upload_resp = model.upload(http_cluster)
-
-    created_servable = Servable.create(model_name=upload_resp[model].modelversion.name,
-                                       version=upload_resp[model].modelversion.version, cluster=http_cluster)
-
-    return created_servable
+def test_servable_create(cluster: Cluster, local_model: LocalModel):
+    mv: ModelVersion = local_model.upload(cluster)
+    mv.lock_till_released()
+    sv: Servable = Servable.create(cluster, mv.name, mv.version)
+    assert Servable.find_by_name(cluster, sv.name)
 
 
-def test_servable_list_all():
-    cluster = create_test_cluster()
-    model = create_test_local_model()
-    upload_resp = model.upload(cluster)
-
-    Servable.create(model_name=upload_resp[model].modelversion.name,
-                    version=upload_resp[model].modelversion.version, cluster=cluster)
-
-    assert Servable.list(cluster=cluster)
+def test_servable_list_all(cluster: Cluster, local_model: LocalModel):
+    mv: ModelVersion = local_model.upload(cluster)
+    mv.lock_till_released()
+    sv: Servable = Servable.create(cluster, mv.name, mv.version)
+    assert sv.name in [servable.name for servable in Servable.list_all(cluster)]
 
 
-def test_servable_find_by_name():
-    pass
+def test_servable_find_by_name(cluster: Cluster, local_model: LocalModel):
+    mv: ModelVersion = local_model.upload(cluster)
+    mv.lock_till_released()
+    sv: Servable = Servable.create(cluster, mv.name, mv.version)
+    sv_found: Servable = Servable.find_by_name(cluster, sv.name) 
+    assert sv.name == sv_found.name
 
 
-def test_servable_list_for_modelversion():
-    pass
+def test_servable_delete(cluster: Cluster, local_model: LocalModel):
+    mv: ModelVersion = local_model.upload(cluster)
+    mv.lock_till_released()
+    sv: Servable = Servable.create(cluster, mv.name, mv.version)
+    servable_lock_till_serving(cluster, sv.name)
+    Servable.delete(cluster, sv.name)
+    with pytest.raises(BadRequest):
+        Servable.find_by_name(cluster, sv.name)
 
 
-def test_servable_delete():
-    cluster = create_test_cluster()
-    model = create_test_local_model()
-    ur = model.upload(cluster)
-
-    created_servable = Servable.create(model_name=ur[model].modelversion.name,
-                                       version=ur[model].modelversion.version, cluster=cluster,
-                                       metadata={"additionalProp1": "prop"})
-    time.sleep(1)
-
-    deleted_servable = Servable.delete(cluster, created_servable.name)
-
-    time.sleep(3)
-
-    with pytest.raises(ServableException):
-        found_servable = Servable.find(cluster, created_servable.name)
+def test_servable_status(cluster: Cluster, local_model: LocalModel):
+    mv: ModelVersion = local_model.upload(cluster)
+    mv.lock_till_released()
+    sv: Servable = Servable.create(cluster, mv.name, mv.version)
+    servable_lock_till_serving(cluster, sv.name)
+    sv: Servable = Servable.find_by_name(cluster, sv.name)
+    assert sv.status == ServableStatus.SERVING
 
 
-def test_servable_create():
-    cluster = create_test_cluster()
-    model = create_test_local_model()
-    upload_resp = model.upload(cluster)
+def test_servable_logs_not_empty(cluster: Cluster, local_model: LocalModel):
+    mv: ModelVersion = local_model.upload(cluster)
+    mv.lock_till_released()
+    sv: Servable = Servable.create(cluster, mv.name, mv.version)
+    servable_lock_till_serving(cluster, sv.name)
+    i = 0
+    for _ in sv.logs():
+        i += 1
+    assert i > 0
 
-    created_servable = Servable.create(model_name=upload_resp[model].modelversion.name,
-                                       version=upload_resp[model].modelversion.version, cluster=cluster)
-    found_servable = Servable.find(cluster, created_servable.name)
 
-    assert found_servable
-
-
-def test_servable_status():
-    cluster = create_test_cluster()
-    model = create_test_local_model()
-    upload_resp = model.upload(cluster)
-
-    created_servable = Servable.create(model_name=upload_resp[model].modelversion.name,
-                                       version=upload_resp[model].modelversion.version, cluster=cluster)
-
-    assert created_servable.status == ServableStatus.STARTING
-
-    time.sleep(10)
-    found_servable = Servable.find(cluster, created_servable.name)
-
-    assert found_servable.status == ServableStatus.SERVING
+def test_servable_logs_follow_not_empty(cluster: Cluster, local_model: LocalModel):
+    mv: ModelVersion = local_model.upload(cluster)
+    mv.lock_till_released()
+    sv: Servable = Servable.create(cluster, mv.name, mv.version)
+    servable_lock_till_serving(cluster, sv.name)
+    i = 0
+    timeout_messages = 3
+    for event in sv.logs(follow=True):
+        if not event.data:
+            if timeout_messages < 0:
+                break
+            timeout_messages -= 1
+        else:
+            i += 1
+            break
+    assert i > 0

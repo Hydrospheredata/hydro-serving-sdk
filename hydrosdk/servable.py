@@ -5,7 +5,6 @@ You can learn more about Servables here https://hydrosphere.io/serving-docs/late
 import re
 from enum import Enum
 from typing import Dict, List, Optional, Iterable
-from urllib.parse import urljoin, url
 
 import sseclient
 from sseclient import Event
@@ -60,10 +59,10 @@ class Servable:
         handle_request_error(
             resp, f"Failed to list servables. {resp.status_code} {resp.text}")
         return [Servable._from_json(cluster, servable_json) for
-                servable_json in res.json()]
+                servable_json in resp.json()]
 
     @staticmethod
-    def find(cluster: Cluster, servable_name: str) -> 'Servable':
+    def find_by_name(cluster: Cluster, servable_name: str) -> 'Servable':
         """
         Finds a serving servable in a cluster
 
@@ -72,11 +71,11 @@ class Servable:
         :raises ServableException:
         :return: Servable
         """
-        url = urljoin(MetricSpec._BASE_URL, servable_name)
-        resp = cluster.request("GET", url)
+        
+        resp = cluster.request("GET", f"{Servable._BASE_URL}/{servable_name}")
         handle_request_error(
             resp, f"Failed to find servable for name={servable_name}. {resp.status_code} {resp.text}")
-        return Servable._from_json(cluster, res.json())
+        return Servable._from_json(cluster, resp.json())
 
     @staticmethod
     def create(cluster: Cluster, model_name: str, version: str,
@@ -100,7 +99,7 @@ class Servable:
         resp = cluster.request('POST', Servable._BASE_URL, json=msg)
         handle_request_error(
             resp, f"Failed to create a servable. {resp.status_code} {resp.text}")
-        return Servable._from_json(cluster, res.json())
+        return Servable._from_json(cluster, resp.json())
 
     @staticmethod
     def delete(cluster: Cluster, servable_name: str) -> dict:
@@ -114,12 +113,11 @@ class Servable:
         .. warnings also: Use with caution. Predictors previously associated with this servable 
         will not be able to connect to it.
         """
-        url = urljoin(MetricSpec._BASE_URL, servable_name)
-        resp = cluster.request("DELETE", url)
+        resp = cluster.request("DELETE", f"{Servable._BASE_URL}/{servable_name}")
         handle_request_error(
             resp, f"Failed to delete the servable with name={servable_name}. {resp.status_code} {resp.text}")
-        return res.json()
-    
+        return resp.json()
+
     @staticmethod
     def _from_json(cluster: Cluster, modelversion_json: dict) -> 'Servable':
         """
@@ -149,13 +147,13 @@ class Servable:
 
     def logs(self, follow=False) -> Iterable[Event]:
         if follow:
-            url = urljoin(self._BASE_URL, f"{self.name}/logs?follow=true")
+            url = f"{self._BASE_URL}/{self.name}/logs?follow=true"
             resp = self.cluster.request("GET", url, stream=True)
         else:
-            url = urljoin(self._BASE_URL, f"{self.name}/logs")
+            url = f"{self._BASE_URL}/{self.name}/logs"
             resp = self.cluster.request("GET", url)
-        handle_request_error(
-            resp, f"Failed to retrieve logs for {self}. {resp.status_code} {resp.text}")
+            handle_request_error(
+                resp, f"Failed to retrieve logs for {self}. {resp.status_code} {resp.text}")
         return sseclient.SSEClient(resp).events()
 
     def __str__(self) -> str:

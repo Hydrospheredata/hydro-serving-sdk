@@ -1,7 +1,6 @@
 from collections import namedtuple
 from enum import Enum
 from typing import List, Optional, Dict
-from urllib.parse import urljoin
 
 from hydro_serving_grpc.contract import ModelSignature
 
@@ -72,8 +71,7 @@ class Application:
         :param application_name: application name
         :return: deserialized application object
         """
-        url = urljoin(Application._BASE_URL, application_name)
-        resp = cluster.request("GET", url)
+        resp = cluster.request("GET", f"{Application._BASE_URL}/{application_name}")
         handle_request_error(
             resp, f"Failed to find an application by name={application_name}. {resp.status_code} {resp.text}")
         return Application._from_json(cluster, resp.json())
@@ -87,14 +85,10 @@ class Application:
         :param application_name: application name
         :return: response from the cluster
         """
-        url = urljoin(Application._BASE_URL, application_name)
-        resp = cluster.request("DELETE", url)
+        resp = cluster.request("DELETE", f"{Application._BASE_URL}/{application_name}")
         handle_request_error(
-            resp, f"Failed to delete application for name={application_name}. {resp.status_code} {res.text}")
+            resp, f"Failed to delete application for name={application_name}. {resp.status_code} {resp.text}")
         return resp.json()
-
-    def delete(self):
-        return Application.delete(self.cluster, self.name)
 
     @staticmethod
     def _from_json(cluster: Cluster, application_json: dict) -> 'Application':
@@ -108,7 +102,7 @@ class Application:
         app_id = application_json.get("id")
         app_name = application_json.get("name")
         app_execution_graph = ExecutionGraph._from_json(cluster, application_json["executionGraph"])
-        streaming_params = [StreamingParams(kafka_param["in-topic"], kafka_param["out-topic"]) 
+        app_kafka_streaming = [StreamingParams(kafka_param["in-topic"], kafka_param["out-topic"]) 
                             for kafka_param in application_json.get("kafkaStreaming")]
         app_metadata = application_json.get("metadata")
         app_signature = _signature_dict_to_ModelSignature(data=application_json.get("signature"))
@@ -151,6 +145,7 @@ class Application:
         :param kafka_streaming: list of Kafka parameters with input and output Kafka topics specified
         :param metadata: metadata with string keys and string values.
         """
+        self.id = id
         self.name = name
         self.execution_graph = execution_graph
         self.kafka_streaming = kafka_streaming
@@ -242,7 +237,7 @@ class ApplicationBuilder:
                             "executionGraph": execution_graph._asdict(),
                             "metadata": self.metadata}
 
-        resp = self.cluster.request("POST", Application._BASE_URL, json=applicaiton_json)
+        resp = self.cluster.request("POST", Application._BASE_URL, json=application_json)
         handle_request_error(
             resp, f"Failed to create an application {self.name}. {resp.status_code} {resp.text}")
         return Application._from_json(self.cluster, resp.json())

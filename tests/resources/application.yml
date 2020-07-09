@@ -1,7 +1,0 @@
-version: 2
-kind: Application
-name: infer
-
-singular:
-  model: infer:56
-

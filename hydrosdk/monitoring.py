@@ -23,9 +23,9 @@ class MetricModel:
     """
     Model having extra metric fields
     """
-    def __init__(self, model: ModelVersion, threshold: float, 
+    def __init__(self, modelversion: 'ModelVersion', threshold: float, 
                  comparator: ThresholdCmpOp) -> 'MetricModel':
-        self.model = model
+        self.modelversion = modelversion
         self.threshold = threshold
         self.comparator = comparator
 
@@ -66,18 +66,17 @@ class MetricSpec:
         return [MetricSpec._from_json(cluster, x) for x in resp.json()]
 
     @staticmethod
-    def find_by_id(cluster: Cluster, metric_spec_id: int) -> 'MetricSpec':
+    def find_by_id(cluster: Cluster, id: int) -> 'MetricSpec':
         """
         Find MetricSpec by id.
 
         :param cluster: active cluster
-        :param metric_spec_id: 
+        :param id: 
         :return: MetricSpec
         """
-        url = urljoin(MetricSpec._BASE_URL, str(metric_spec_id))
-        resp = cluster.request("GET", url)
+        resp = cluster.request("GET", f"{MetricSpec._BASE_URL}/{id}")
         handle_request_error(
-            resp, f"Failed to retrieve MetricSpec for metric_spec_id={metric_spec_id}. {resp.status_code} {resp.text}")
+            resp, f"Failed to retrieve MetricSpec for id={id}. {resp.status_code} {resp.text}")
         return MetricSpec._from_json(cluster, resp.json())
 
     @staticmethod
@@ -89,23 +88,21 @@ class MetricSpec:
         :param modelversion_id: ModelVersions for which to return metrics.
         :return: list of MetricSpec objects
         """
-        url = urljoin(MetricSpec._BASE_URL, f"modelversion/{modelversion_id}")
-        resp = cluster.request("GET", url)
+        resp = cluster.request("GET", f"{MetricSpec._BASE_URL}/modelversion/{modelversion_id}")
         handle_request_error(
             resp, f"Failed to list MetricSpecs for modelversion_id={modelversion_id}. {resp.status_code} {resp.text}")
         return [MetricSpec._from_json(cluster, x) for x in resp.json()]
 
     @staticmethod
-    def delete(cluster: Cluster, metric_spec_id: int) -> dict:
+    def delete(cluster: Cluster, id: int) -> dict:
         """
         Delete MetricSpec.
 
         :return: result of deletion
         """
-        url = urljoin(MetricSpec._BASE_URL, str(self.metric_spec_id))
-        resp = cluster.request("DELETE", url)
+        resp = cluster.request("DELETE", f"{MetricSpec._BASE_URL}/{id}")
         handle_request_error(
-            resp, f"Failed to delete MetricSpec for metric_spec_id={metric_spec_id}. {resp.status_code} {resp.text}")
+            resp, f"Failed to delete MetricSpec for id={id}. {resp.status_code} {resp.text}")
         return resp.json()
     
     @staticmethod
@@ -147,6 +144,7 @@ class MetricSpec:
         """
         return MetricSpec(
             cluster=cluster,
+            id=json_dict['id'],
             name=json_dict['name'],
             modelversion_id=json_dict['modelVersionId'],
             config=MetricSpecConfig(
@@ -155,13 +153,12 @@ class MetricSpec:
                 threshold_op=json_dict['config']['thresholdCmpOperator']['kind'],
                 servable=json_dict['config']['servable']
             ),
-            metric_spec_id=json_dict['id']
         )
 
-    def __init__(self, cluster: Cluster, metric_spec_id: int, name: str, modelversion_id: int,
+    def __init__(self, cluster: Cluster, id: int, name: str, modelversion_id: int,
                  config: MetricSpecConfig) -> 'MetricSpec':
+        self.id = id
         self.cluster = cluster
-        self.metric_spec_id = metric_spec_id
         self.config = config
         self.modelversion_id = modelversion_id
         self.name = name

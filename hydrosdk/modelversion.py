@@ -7,7 +7,6 @@ import time
 import urllib.parse
 from enum import Enum
 from typing import Optional, Dict, List, Tuple, Iterator, Generator
-from urllib.parse import urljoin
 
 import sseclient
 import requests
@@ -18,7 +17,6 @@ from requests_toolbelt.multipart.encoder import MultipartEncoder
 
 from hydrosdk.cluster import Cluster
 from hydrosdk.contract import ModelContract_to_contract_dict, contract_dict_to_ModelContract, validate_contract
-from hydrosdk.errors import InvalidYAMLFile
 from hydrosdk.image import DockerImage
 from hydrosdk.monitoring import MetricSpec, MetricSpecConfig, MetricModel, ThresholdCmpOp
 from hydrosdk.exceptions import BadRequest, BadResponse
@@ -55,7 +53,7 @@ def _upload_local_file(cluster: Cluster, modelversion_id: int, path: str,
     :param chunk_size: chunk size to use for streaming
     """    
     gen = read_in_chunks(path, chunk_size)
-    url = f'/monitoring/profiles/batch/{model_version_id}'
+    url = f'/monitoring/profiles/batch/{modelversion_id}'
     return cluster.request("POST", url, data=gen, stream=True)
 
 
@@ -109,16 +107,16 @@ class LocalModel:
     >>> modelversion.lock_till_released()
     >>> data_upload_response = modelversion.upload_training_data()
     """
-    _BASE_URL = "/api/v2/model"
-
-    def __init__(self, name: str, runtime: DockerImage, payload: List[str], contract: ModelContract, 
-                 metadata: Optional[Dict[str, str]] = None, install_command: Optional[str] = None,
+    def __init__(self, name: str, runtime: DockerImage, path: str, payload: List[str], 
+                 contract: ModelContract, metadata: Optional[Dict[str, str]] = None, 
+                 install_command: Optional[str] = None,
                  training_data: Optional[str] = None) -> 'LocalModel':
         """
         :param name: a name of the model
         :param runtime: a docker image used to run your code
         :param payload: a list of paths to files (absolute or relative) with any additional resources 
                         that will be exported to the container
+        :param path: a path to the root folder of the model
         :param contract: ModelContract which specifies name of function called, as well as its types 
                          and shapes of both inputs and outputs
         :param metadata: a metadata dict used to describe uploaded ModelVersions
@@ -137,12 +135,9 @@ class LocalModel:
             raise TypeError("contract is not a ModelContract")
         validate_contract(contract)
         self.contract = contract
-
-        if isinstance(payload, list):
-            self.payload = resolve_paths(path=path, payload=payload)
-            self.path = path
-        if isinstance(payload, dict):
-            self.payload = payload
+        
+        self.path = path
+        self.payload = resolve_paths(path=path, payload=payload)
 
         if metadata:
             if not isinstance(metadata, dict):
@@ -204,13 +199,11 @@ class LocalModel:
             }
         )
         
-        url = urljoin(self._BASE_URL, "upload")
-        resp = cluster.request("POST", url, data=encoder, headers={'Content-Type': encoder.content_type})
+        resp = cluster.request("POST", "/api/v2/model/upload", data=encoder, headers={'Content-Type': encoder.content_type})
         handle_request_error(
-            resp, f"Failed to upload local model. {resp.status_code} {res.text}")
+            resp, f"Failed to upload local model. {resp.status_code} {resp.text}")
 
-        modelversion = ModelVersion._from_json(
-            cluster=cluster, model_version=resp.json())
+        modelversion = ModelVersion._from_json(cluster, resp.json())
         modelversion.training_data = self.training_data
         return modelversion
 
@@ -219,21 +212,9 @@ class ModelVersionStatus(Enum):
     """
     Model building statuses.
     """
-    ASSEMBLING = "Assembling"
-    RELEASED = "Released"
-    FAILED = "Failed"
-
-    @classmethod
-    def is_assembling(cls, status: str) -> bool:
-        if status == cls.ASSEMBLING.value:
-            return True
-        return False
-
-    @classmethod
-    def is_released(cls, status: str) -> bool:
-        if status == cls.RELEASED.value:
-            return True
-        return False
+    Assembling = "Assembling"
+    Released = "Released"
+    Failed = "Failed"
 
 
 class ModelVersion:
@@ -298,12 +279,12 @@ class ModelVersion:
         :param cluster: active cluster
         :return: list of ModelVersions 
         """
-        url = urljoin(ModelVersion._BASE_URL, "version")
-        resp = cluster.request("GET", url)
+
+        resp = cluster.request("GET", f"{ModelVersion._BASE_URL}/version")
         handle_request_error(
             resp, f"Failed to list model versions. {resp.status_code} {resp.text}")
-        return [ModelVersion._from_json(cluster=cluster, model_version=model_version_json)
-                for model_version_json in resp.json()]
+        return [ModelVersion._from_json(cluster, modelversion_json)
+                for modelversion_json in resp.json()]
     
     @staticmethod
     def find(cluster: Cluster, name: str, version: int) -> 'ModelVersion':
@@ -315,11 +296,10 @@ class ModelVersion:
         :param version: version of the model
         :return: ModelVersion object
         """
-        url = urljoin(ModelVersion._BASE_URL, f"version/{name}/{version}")
-        resp = cluster.request("GET", url)
+        resp = cluster.request("GET", f"{ModelVersion._BASE_URL}/version/{name}/{version}")
         handle_request_error(
             resp, f"Failed to find modelversion for name={name}, version={version}. {resp.status_code} {resp.text}")
-        return ModelVersion._from_json(cluster=cluster, model_version=resp.json())
+        return ModelVersion._from_json(cluster, resp.json())
 
     @staticmethod
     def find_by_id(cluster: Cluster, id: int) -> 'ModelVersion':
@@ -330,8 +310,7 @@ class ModelVersion:
         :param id: model version id
         :return: ModelVersion object
         """
-        url = urljoin(ModelVersion._BASE_URL, "version")
-        resp = cluster.request("GET", url)
+        resp = cluster.request("GET", f"{ModelVersion._BASE_URL}/version")
         handle_request_error(
             resp, f"Failed to find modelversion by id={id}. {resp.status_code} {resp.text}")
         for modelversion_json in resp.json():
@@ -354,35 +333,33 @@ class ModelVersion:
         return sorted_by_version
 
     @staticmethod
-    def _from_json(cluster: Cluster, model_version: dict) -> 'ModelVersion':
+    def _from_json(cluster: Cluster, modelversion_json: dict) -> 'ModelVersion':
         """
         Internal method used for deserealization of a ModelVersion from a json object.
 
         :param cluster: active cluster
-        :param model_version: json response from the cluster
+        :param modelversion_json: json response from the cluster
         :return: ModelVersion object
         """
-        id = model_version["id"]
-        name = model_version["model"]["name"]
-        model_id = model_version["model"]["id"]
-        version = model_version["modelVersion"]
-        model_contract = contract_dict_to_ModelContract(model_version["modelContract"])
+        id = modelversion_json["id"]
+        name = modelversion_json["model"]["name"]
+        model_id = modelversion_json["model"]["id"]
+        version = modelversion_json["modelVersion"]
+        model_contract = contract_dict_to_ModelContract(modelversion_json["modelContract"])
 
         # external model deserialization handling
-        is_external = model_version.get('isExternal', False)
+        is_external = modelversion_json.get('isExternal', False)
         if is_external:
             model_runtime = None
         else:
-            model_runtime = DockerImage(model_version["runtime"]["name"], model_version["runtime"]["tag"],
-                                        model_version["runtime"].get("sha256"))
+            model_runtime = DockerImage(modelversion_json["runtime"]["name"], modelversion_json["runtime"]["tag"],
+                                        modelversion_json["runtime"].get("sha256"))
+        model_image = modelversion_json.get("image")
 
-        model_image = model_version.get("image")
-        model_cluster = cluster
-
-        status = model_version.get('status')
+        status = modelversion_json.get('status')
         if status:
             status = ModelVersionStatus[status]
-        metadata = model_version['metadata']
+        metadata = modelversion_json['metadata']
 
         return ModelVersion(
             id=id,
@@ -393,7 +370,7 @@ class ModelVersion:
             contract=model_contract,
             runtime=model_runtime,
             image=model_image,
-            cluster=model_cluster,
+            cluster=cluster,
             status=status,
             metadata=metadata,
         )
@@ -426,40 +403,39 @@ class ModelVersion:
         """
         self.status = self.find_by_id(self.cluster, self.id).status
 
-    def lock_till_released(self) -> bool:
+    def lock_till_released(self):
         """
         Lock till the model completes assembling.
         
         :raises ModelVersion.ReleaseFailed: if model failed to be released
         """
-        events_steam = cluster.request("GET", "/api/v2/events", stream=True)
+        events_stream = self.cluster.request("GET", "/api/v2/events", stream=True)
         events_client = sseclient.SSEClient(events_stream)
 
-        self._update_status()
-        if not ModelVersionStatus.is_assembling(self.status) and 
-                ModelVersionStatus.is_released(self.status): 
+        self.update_status()
+        if not self.status is ModelVersionStatus.Assembling and \
+                self.status is ModelVersionStatus.Released:
             return None
         try:
             for event in events_client.events():
                 if event.event == "ModelUpdate":
                     data = json.loads(event.data)
                     if data.get("id") == self.id:
-                        self.status = data.get("status")
-                        if ModelVersionStatus.is_released(self.status):
+                        self.status = ModelVersionStatus[data.get('status')]
+                        if self.status is ModelVersionStatus.Released:
                             return None
                         raise ModelVersion.ReleaseFailed()
         finally:
             events_client.close()
     
-    def logs(self) -> Iterator[Event]:
+    def build_logs(self) -> Iterator[Event]:
         """
-        Sends request, saves and returns a logs iterator.
+        Sends request, saves and returns a build logs iterator.
 
         :return: Iterator over sseclient.Event
         """
-        url = urljoin(self._BASE_URL, f"{self.modeversion.id}/logs")
-        resp = self.cluster.request("GET", url, stream=True)
-        return sseclient.SSEClient(logs_response).events()
+        resp = self.cluster.request("GET", f"{self._BASE_URL}/version/{self.id}/logs", stream=True)
+        return sseclient.SSEClient(resp).events()
 
     def upload_training_data(self) -> 'DataUploadResponse':
         """
@@ -478,28 +454,24 @@ class ModelVersion:
         :param metrics: list of metrics
         :return: self
         """
-        if wait and not self.lock_till_released():
-            raise BadRequest(
-                f"Failed to assign metrics for {self}. Monitored model failed to release."
-            )
+        if wait:
+            self.lock_till_released()
         
         for metric in metrics:
-            modelversion = metric.model.upload(self.cluster)
-            if wait and not modelversion.lock_till_released():
-                raise BadRequest(
-                    f"Failed to assign metrics for {self}. Monitoring model {modelversion} failed to release."
-                )
+            modelversion = metric.modelversion
+            if wait:
+                modelversion.lock_till_released()
 
-            msc = MetricSpecConfig(
+            config = MetricSpecConfig(
                 modelversion_id=modelversion.id,
                 threshold=metric.threshold,
                 threshold_op=metric.comparator
             )
-            ms = MetricSpec.create(
+            MetricSpec.create(
                 cluster=self.cluster,
                 name=modelversion.name,
                 modelversion_id=self.id,
-                config=msc
+                config=config
             )
 
     def to_proto(self) -> ModelVersionProto:
@@ -526,7 +498,7 @@ class ModelVersion:
         :param comparator:
         :return: MetricModel
         """
-        return MetricModel(model=self, threshold=threshold, comparator=comparator)
+        return MetricModel(modelversion=self, threshold=threshold, comparator=comparator)
 
     def __init__(self, cluster: Cluster, id: int, model_id: int, name: str, version: int, 
                  contract: ModelContract, status: Optional[ModelVersionStatus], image: Optional[DockerImage], 
@@ -571,10 +543,10 @@ class ModelVersion:
 
 
 class DataProfileStatus(Enum):
-    SUCCESS = "Success"
-    FAILURE = "Failure"
-    PROCESSING = "Processing"
-    NOT_REGISTERED = "NotRegistered"
+    Success = "Success"
+    Failure = "Failure"
+    Processing = "Processing"
+    NotRegistered = "NotRegistered"
 
 
 class DataUploadResponse:
@@ -586,7 +558,7 @@ class DataUploadResponse:
     Wait till data processing gets finished.
     >>> from hydrosdk.cluster import Cluster
     >>> cluster = Cluster("http-cluster-endpoint")
-    >>> modelversion = ModelVerison.find(cluster, "my-model", 1)
+    >>> modelversion = ModelVersion.find(cluster, "my-model", 1)
     >>> modelversion.training_data = "s3://bucket/path/to/training-data.csv"
     >>> data_upload_response = modelversion.upload_training_data()
     >>> try: 
@@ -621,7 +593,7 @@ class DataUploadResponse:
         resp = self.cluster.request('GET', self.url)
         handle_request_error(
             resp, f"Failed to get status for modelversion_id={self.modelversion_id}. {resp.status_code} {resp.text}")
-        return response.json()['kind']
+        return DataProfileStatus[resp.json()['kind']]
 
     def wait(self, retry=12, sleep=30):
         """
@@ -632,19 +604,19 @@ class DataUploadResponse:
         """
         while True:
             status = self.get_status()
-            if status == DataProfileStatus.SUCCESS.value:
+            if status is DataProfileStatus.Success:
                 break
-            elif status == DataProfileStatus.PROCESSING.value:
+            elif status is DataProfileStatus.Processing:
                 can_be_polled, retry = self.__tick(retry, sleep)
                 if can_be_polled:
                     continue
                 raise DataUploadResponse.DataProcessingNotFinished
-            elif status == DataProfileStatus.NOT_REGISTERED.value:
+            elif status is DataProfileStatus.NotRegistered:
                 can_be_polled, retry = self.__tick(retry, sleep)
                 if can_be_polled:
                     continue
-                raise DataUploadResponse.DataProcessingNotRegistered
-            raise DataUploadResponse.DataProcessingFailed
+                raise DataUploadResponse.NotRegistered
+            raise DataUploadResponse.Failed
 
     class NotRegistered(Exception):
         pass

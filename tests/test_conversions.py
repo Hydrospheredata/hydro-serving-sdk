@@ -10,7 +10,9 @@ from hydro_serving_grpc.tf import TensorProto, TensorShapeProto
 from hydrosdk.data.conversions import np_to_tensor_proto, tensor_proto_to_np, proto_to_np_dtype, \
     tensor_shape_proto_from_tuple, list_to_tensor_proto, tensor_proto_to_py, isinstance_namedtuple
 from hydrosdk.data.types import DTYPE_TO_FIELDNAME, np_to_proto_dtype, PredictorDT, find_in_list_by_name
-from tests.test_predictor import tensor_servable
+from hydrosdk.servable import Servable
+from tests.common_fixtures import * 
+from tests.utils import *
 
 int_dtypes = [DT_INT64, DT_UINT16, DT_UINT8, DT_INT8, DT_INT16, DT_INT32, DT_UINT32, DT_UINT64]
 float_types = [DT_DOUBLE, DT_FLOAT, ]
@@ -25,8 +27,17 @@ unsupported_np_types = [np.float128, np.complex256, np.object, np.void,
                         np.longlong, np.ulonglong, np.clongdouble]
 
 
-class TestConversion:
+@pytest.fixture(scope="module")
+def servable_tensor(cluster: Cluster, local_model: LocalModel):
+    mv: ModelVersion = local_model.upload(cluster)
+    mv.lock_till_released()
+    sv: Servable = Servable.create(cluster, mv.name, mv.version)
+    servable_lock_till_serving(cluster, sv.name)
+    yield sv
+    Servable.delete(cluster, sv.name)
 
+
+class TestConversion:
     @pytest.mark.parametrize("dtype", int_dtypes + float_types + [DT_STRING, DT_BOOL, DT_HALF])
     def test_proto_dtype_to_np_to_proto(self, dtype):
         np_type = proto_to_np_dtype(dtype)
@@ -159,33 +170,26 @@ class TestConversion:
         x_restored = tensor_proto_to_np(tensor_proto)
         assert x == x_restored
 
-    def test_tensor_proto_to_py(self, tensor_servable):
-        list_value = [int(random() * 1e5)]
-        predictor_client = tensor_servable.predictor(return_type=PredictorDT.DICT_PYTHON)
-
-        signature_field = find_in_list_by_name(some_list=predictor_client.signature.inputs,
-                                               name="input")
-        tensor_proto = list_to_tensor_proto(list_value, signature_field.dtype, signature_field.shape)
-
-        value_again = tensor_proto_to_py(t=tensor_proto)
-
-        assert list_value == value_again
-        assert isinstance(value_again, list)
-
     def test_isinstance_namedtuple_namedtuple(self):
         Point = namedtuple('Point', ['x', 'y'])
         pt = Point(1.0, 5.0)
-
         assert isinstance_namedtuple(pt)
 
     def test_isinstance_namedtuple_tuple(self):
         pt = (1, 2, 3)
-
         assert not isinstance_namedtuple(pt)
 
     def test_isinstance_namedtuple_itertuples(self):
         d = {'col1': [1, 2], 'col2': [3, 4]}
         df = pd.DataFrame(data=d)
-
         for row in df.itertuples():
             assert isinstance_namedtuple(row)
+
+    def test_tensor_proto_to_py(self, servable_tensor):
+        list_value = [int(random() * 1e5)]
+        predictor = servable_tensor.predictor(return_type=PredictorDT.DICT_PYTHON)
+        signature_field = find_in_list_by_name(some_list=predictor.signature.inputs, name="input")
+        tensor_proto = list_to_tensor_proto(list_value, signature_field.dtype, signature_field.shape)
+        value_again = tensor_proto_to_py(t=tensor_proto)
+        assert list_value == value_again
+        assert isinstance(value_again, list)

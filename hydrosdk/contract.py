@@ -2,7 +2,7 @@ import numbers
 import operator
 from enum import Enum
 from functools import reduce
-from typing import Optional, Union, Iterable
+from typing import Optional, Union, Iterable, List
 
 import numpy as np
 from hydro_serving_grpc.contract import ModelContract, ModelSignature, ModelField, DataProfileType
@@ -339,15 +339,15 @@ class SignatureBuilder:
 
         Example:
             signature = SignatureBuilder('infer') \
-                .with_input('x', 'double', "scalar") \
-                .with_output('y', 'double', "scalar").build()
+                .with_input('x', 'double', 'scalar') \
+                .with_output('y', 'double', 'scalar').build()
         """
         self.name = name
         self.inputs = []
         self.outputs = []
 
-    def with_input(self, name: str, dtype: Union[DataType, np.dtype, str, type], 
-                   shape: Union["scalar", Iterable[int]], 
+    def with_input(self, name: str, dtype: Union[np.dtype, str, type], 
+                   shape: Union[str, Iterable[int]], 
                    profile: ProfilingType = ProfilingType.NONE) -> 'SignatureBuilder':
         """
         Adds an input field to the current ModelSignature
@@ -361,8 +361,8 @@ class SignatureBuilder:
         """
         return self.__with_field(self.inputs, name, dtype, shape, profile)
 
-    def with_output(self, name: str, dtype: Union[DataType, np.dtype, str, type], 
-                    shape: Union["scalar", Iterable[int]], 
+    def with_output(self, name: str, dtype: Union[np.dtype, str, type], 
+                    shape: Union[str, Iterable[int]], 
                     profile: ProfilingType = ProfilingType.NONE) -> 'SignatureBuilder':
         """
         Adds an output field to the current ModelSignature
@@ -386,8 +386,10 @@ class SignatureBuilder:
             inputs=self.inputs,
             outputs=self.outputs
         )
-
-    def __with_field(self, collection, name, dtype, shape, profile=ProfilingType.NONE):
+                    
+    def __with_field(self, collection: List[ModelField], name: str, 
+                     dtype: Union[np.dtype, str, type], shape: Union[str, Iterable[int]], 
+                     profile: ProfilingType = ProfilingType.NONE) -> 'SignatureBuilder':
         """
         Adds fields to the SignatureBuilder
 
