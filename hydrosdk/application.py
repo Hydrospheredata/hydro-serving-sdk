@@ -174,9 +174,9 @@ class ApplicationBuilder:
                     .with_model_variant(mv1, 50) \
                     .with_model_variant(mv2, 50) \ 
                     .build()
-    >>> app = ApplicationBuilder("my-application-ab-test") \
+    >>> app = ApplicationBuilder(cluster, "my-application-ab-test") \
                 .with_stage(Execution) \
-                .build(cluster)
+                .build()
     """
     def __init__(self, cluster: Cluster, name: str) -> 'ApplicationBuilder':
         """
@@ -208,6 +208,16 @@ class ApplicationBuilder:
         :return:
         """
         self.metadata[key] = value
+        return self
+    
+    def with_metadatas(self, metadata: Dict[str, str]) -> 'ApplicationBuilder':
+        """
+        Add a metadata to your future Application.
+
+        :param metadata: a dict containing metadata for your application
+        :return:
+        """
+        self.metadata.update(metadata)
         return self
 
     def with_kafka_params(self, source_topic: str, dest_topic: str) -> 'ApplicationBuilder':
