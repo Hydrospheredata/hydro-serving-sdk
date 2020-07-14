@@ -4,7 +4,7 @@ from typing import List, Dict
 
 from hydro_serving_grpc.contract import ModelSignature
 
-from exceptions import ApplicationNotFoundError, ApplicationCreationError, ApplicationDeletionError, BadResponse
+from hydrosdk.exceptions import ApplicationNotFoundError, ApplicationCreationError, ApplicationDeletionError, BadResponse
 from hydrosdk.cluster import Cluster
 from hydrosdk.contract import _signature_dict_to_ModelSignature
 from hydrosdk.data.types import PredictorDT
