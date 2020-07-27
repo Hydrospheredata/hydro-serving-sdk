@@ -70,3 +70,6 @@ GRPC_CLUSTER_ENDPOINT = config["grpc_cluster"]["ip"] + ":" + config["grpc_cluste
 PATH_TO_SERVING = config["test_model"]["path"] + "/" + config["test_model"]["serving"]
 DEFAULT_APP_NAME = config["default_application_name"]
 DEFAULT_MODEL_NAME = config["default_model_name"]
+
+
+# TODO: add error messages to all tests, hard to debug otherwise

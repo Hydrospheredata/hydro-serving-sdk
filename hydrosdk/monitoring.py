@@ -117,7 +117,7 @@ class MetricSpec:
         :param config: config, describing MetricSpec
         :return: metricSpec
         """
-        d = {
+        metric_spec_json = {
             'name': name,
             'modelVersionId': modelversion_id,
             'config': {
@@ -128,7 +128,7 @@ class MetricSpec:
                 }
             }
         }
-        resp = cluster.request("POST", MetricSpec._BASE_URL, json=d)
+        resp = cluster.request("POST", MetricSpec._BASE_URL, json=metric_spec_json)
         handle_request_error(
             resp, f"Failed to create a MetricSpec for name={name}, modelversion_id={modelversion_id}. {resp.status_code} {resp.text}")
         return MetricSpec._from_json(cluster, resp.json())

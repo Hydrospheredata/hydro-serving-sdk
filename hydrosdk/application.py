@@ -38,7 +38,7 @@ class Application:
     >>> for app in apps: 
     >>>     print(app)
 
-    Find an application by name and perfrom a prediction from it.
+    Find an application by name and perform a prediction from it.
     >>> from hydrosdk.cluster import Cluster
     >>> cluster = Cluster("http-cluster-endpoint", "grpc-cluster-endpoint")  # important to use a gRPC endpoint 
     >>> app = Application.find(cluster, "my-application")
@@ -101,7 +101,7 @@ class Application:
         """
         app_id = application_json.get("id")
         app_name = application_json.get("name")
-        app_execution_graph = ExecutionGraph._from_json(cluster, application_json["executionGraph"])
+        app_execution_graph = ExecutionGraph._from_json(cluster, application_json.get("executionGraph"))
         app_kafka_streaming = [StreamingParams(kafka_param["in-topic"], kafka_param["out-topic"]) 
                             for kafka_param in application_json.get("kafkaStreaming")]
         app_metadata = application_json.get("metadata")
@@ -141,7 +141,7 @@ class Application:
         :param name: application Name
         :param signature: signature, specifying input and output fields names, dtypes and shapes
         :param execution_graph: linear graph which specifies ExecutionStages which sequentially transform input
-        :param status: Application Status - one of (Failed, Assembling, Ready)
+        :param status: Application Status
         :param kafka_streaming: list of Kafka parameters with input and output Kafka topics specified
         :param metadata: metadata with string keys and string values.
         """
