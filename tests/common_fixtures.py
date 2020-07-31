@@ -46,7 +46,7 @@ def local_model(payload, contract, runtime):
 
 
 @pytest.fixture(scope="session")
-def scalar_local_model(payload, contract, runtime):
+def scalar_local_model(payload, runtime):
     current_dir = os.path.dirname(os.path.abspath(__file__))
     model_path = os.path.join(current_dir, 'resources/identity_model/')
     signature = SignatureBuilder('infer') \

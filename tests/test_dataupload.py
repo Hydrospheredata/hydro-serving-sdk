@@ -1,3 +1,4 @@
+import os
 from io import BytesIO
 
 import pytest

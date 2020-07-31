@@ -28,7 +28,6 @@ def app_tensor(cluster: Cluster, local_model: LocalModel):
         .with_stage(stage).build()
     application_lock_till_ready(cluster, app.name)
     yield app
-    # Application.delete(cluster, app.name)
 
 
 @pytest.fixture(scope="module")
@@ -40,7 +39,6 @@ def app_scalar(cluster: Cluster, scalar_local_model: LocalModel):
         .with_stage(stage).build()
     application_lock_till_ready(cluster, app.name)
     yield app
-    # Application.delete(cluster, app.name)
 
     
 def test_predict(app_tensor: Application, value: int):

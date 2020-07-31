@@ -7,6 +7,7 @@ import sseclient
 from hydrosdk.modelversion import LocalModel, ModelVersion
 from hydrosdk.exceptions import BadRequest
 from hydrosdk.servable import Servable, ServableStatus
+from hydrosdk.cluster import Cluster
 from tests.common_fixtures import *
 from tests.utils import *
 
