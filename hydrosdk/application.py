@@ -305,7 +305,24 @@ class ExecutionStageBuilder:
         Builder class to help building ExecutionStage.
         """
         self.model_variants = []
-        self.model_weights = []
+
+    @property
+    def __common_signature(self):
+        return self.model_variants[0].modelVersion.contract.predict
+
+    def __validate(self): 
+        """
+        Validate the stage for correctness.
+        """
+        if len(self.model_variants) == 0:
+            raise ValueError("At least one model variant should be specified.")
+
+        model_variant_signatures = [mv.modelVersion.contract.predict for mv in self.model_variants]
+        if not all(self.__common_signature == mv_signature for mv_signature in model_variant_signatures):
+            raise ValueError("All model variants inside the same stage must have the same signature")
+        
+        if sum(variant.weight for variant in self.model_variants) != 100:
+            raise ValueError("All model variants' weights inside the same stage must sum up to 100")
 
     def with_model_variant(self, model_version: ModelVersion, weight: int) -> 'ExecutionStageBuilder':
         """
@@ -326,10 +343,5 @@ class ExecutionStageBuilder:
 
         :return:
         """
-        common_signature = self.model_variants[0].modelVersion.contract.predict
-        model_variant_signatures = [mv.modelVersion.contract.predict for mv in self.model_variants]
-
-        if not all(common_signature == mv_signature for mv_signature in model_variant_signatures):
-            raise ValueError("All model variants inside the same stage must have the same signature")
-
-        return ExecutionStage(model_variants=self.model_variants, signature=common_signature)
+        self.__validate()
+        return ExecutionStage(model_variants=self.model_variants, signature=self.__common_signature)

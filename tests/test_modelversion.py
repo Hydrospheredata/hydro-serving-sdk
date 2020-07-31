@@ -77,7 +77,7 @@ def test_local_model_upload(cluster: Cluster):
     name = DEFAULT_MODEL_NAME
     payload = ['./src/func_main.py']
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    model_path = os.path.join(current_dir, 'resources/model_1/')
+    model_path = os.path.join(current_dir, 'resources/identity_model/')
     runtime = DockerImage("hydrosphere/serving-runtime-python-3.6", "2.1.0", None)
     signature = SignatureBuilder('infer') \
         .with_input('in1', 'double', [-1, 2], 'numerical') \
@@ -106,7 +106,7 @@ def test_modelversion_find(cluster: Cluster, local_model: LocalModel):
 def test_lock_till_released_failed(cluster: Cluster, runtime: DockerImage, 
                                    payload: list, contract: ModelContract):
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    model_path = os.path.join(current_dir, 'resources/model_1/')
+    model_path = os.path.join(current_dir, 'resources/identity_model/')
     local_model = LocalModel(
         DEFAULT_MODEL_NAME, runtime, model_path, payload, contract, install_command="exit 1")
     mv: ModelVersion = local_model.upload(cluster)
@@ -191,7 +191,7 @@ def test_list_models_by_model_name(cluster: Cluster, runtime: DockerImage,
                                    payload: list, contract: ModelContract):
     def create_local_model(name: str):
         current_dir = os.path.dirname(os.path.abspath(__file__))
-        model_path = os.path.join(current_dir, 'resources/model_1/')
+        model_path = os.path.join(current_dir, 'resources/identity_model/')
         return LocalModel(name, runtime, model_path, payload, contract)
 
     name1 = f"{DEFAULT_MODEL_NAME}-one-{random.randint(0, 1e5)}"

@@ -35,20 +35,20 @@ def payload():
 
 @pytest.fixture(scope="session")
 def runtime():
-    return DockerImage("hydrosphere/serving-runtime-python-3.6", "2.1.0", None)
+    return DockerImage("hydrosphere/serving-runtime-python-3.6", "2.3.2", None)
 
 
 @pytest.fixture(scope="session")
 def local_model(payload, contract, runtime):
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    model_path = os.path.join(current_dir, 'resources/model_1/')
+    model_path = os.path.join(current_dir, 'resources/identity_model/')
     return LocalModel(DEFAULT_MODEL_NAME, runtime, model_path, payload, contract)
 
 
 @pytest.fixture(scope="session")
 def scalar_local_model(payload, contract, runtime):
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    model_path = os.path.join(current_dir, 'resources/scalar_identity_model/')
+    model_path = os.path.join(current_dir, 'resources/identity_model/')
     signature = SignatureBuilder('infer') \
         .with_input('input', 'int64', "scalar", 'numerical') \
         .with_output('output', 'int64', "scalar", 'numerical').build()

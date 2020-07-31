@@ -27,6 +27,16 @@ def app(cluster: Cluster, modelversion: ModelVersion):
     Application.delete(cluster, app.name)
 
 
+def test_model_variants_weights_sum_up_to_100(modelversion: ModelVersion):
+    stage = ExecutionStageBuilder().with_model_variant(modelversion, 100).build()
+    assert stage is not None
+
+
+def test_model_variants_weights_sum_up_to_100_fail(modelversion: ModelVersion):
+    with pytest.raises(ValueError): 
+        stage = ExecutionStageBuilder().with_model_variant(modelversion, 50).build()
+
+    
 def test_list_all_non_empty(cluster: Cluster, app: Application):
     apps = Application.list_all(cluster)
     assert app.name in [item.name for item in apps]

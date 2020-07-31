@@ -12,7 +12,7 @@ from tests.config import *
 @pytest.fixture(scope="module")
 def scalar_training_data():
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    return os.path.join(current_dir, 'resources/scalar_identity_model/training-data.csv')
+    return os.path.join(current_dir, 'resources/identity_model/training-data.csv')
 
 
 def test_read_in_chunks(scalar_training_data: str):

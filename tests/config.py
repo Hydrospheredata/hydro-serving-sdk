@@ -11,7 +11,7 @@ config = {
         },
     "test_model":
         {
-            "path": "tests/resources/scalar_identity_model",
+            "path": "tests/resources/identity_model",
             "serving": "serving.yaml"
         },
     "api_endpoint": "api/v2",
