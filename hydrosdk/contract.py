@@ -2,21 +2,14 @@ import numbers
 import operator
 from enum import Enum
 from functools import reduce
-from typing import Optional, Union, Iterable
+from typing import Optional, Union, Iterable, List
 
 import numpy as np
 from hydro_serving_grpc.contract import ModelContract, ModelSignature, ModelField, DataProfileType
 from hydro_serving_grpc.tf.types_pb2 import *
 
 from hydrosdk.data.types import alias_to_proto_dtype, shape_to_proto, PY_TO_DTYPE, np_to_proto_dtype, proto_to_np_dtype
-
-
-class ContractViolationException(Exception):
-    """
-    Exception raised when contract is violated
-    """
-    pass
-
+from hydrosdk.exceptions import ContractViolationException
 
 class ProfilingType(Enum):
     """
@@ -197,51 +190,6 @@ def shape_to_dict(shape) -> dict:
     return result_dict
 
 
-def _contract_yaml_to_contract_dict(model_name: str, yaml_contract: dict) -> dict:
-    """
-    Internal method.
-    Yaml parsing methods create dict contracts with structure different to contracts we receive from servers, this method restructs yaml contract to the standart contract structure
-    Yaml-dict:
-    {'name': 'infer', 'inputs': {'input': {'shape': 'scalar', 'type': 'int64', 'profile': 'numerical'}}, 'outputs': {'output': {'shape': 'scalar', 'type': 'int64', 'profile': 'numerical'}}}
-    Contract-dict:
-    {'modelName': 'infer', 'predict': {'signatureName': 'infer', 'inputs': [{'input': {'shape': 'scalar', 'type': 'int64', 'profile': 'numerical'}}], 'outputs': [{'output': {'shape': 'scalar', 'type': 'int64', 'profile': 'numerical'}}]}}
-
-    :param model_name:
-    :param yaml_contract:
-    :return:
-    """
-
-    # make list of dicts from dict of dicts
-    inputs = [{field_key: field_def} for field_key, field_def in yaml_contract.get("inputs").items()]
-
-    frmt_inputs = []
-    for input_ in inputs:
-        for field_name, field_dict in input_.items():
-            frmt_inputs.append(field_from_dict(field_name=field_name, field_dict=field_dict))
-
-    # make list of dicts from dict of dicts
-    outputs = [{field_key: field_def} for field_key, field_def in yaml_contract.get("outputs").items()]
-
-    frmt_outputs = []
-    # TODO: make one general method for inputs/outputs -> frmt_inputs/frmt_outputs
-    for output in outputs:
-        for field_name, field_dict in output.items():
-            frmt_outputs.append(field_from_dict(field_name=field_name, field_dict=field_dict))
-
-    signature_name = yaml_contract.get("name")
-
-    contract_dict = {
-        "modelName": model_name,
-        "predict": {
-            "signatureName": signature_name,
-            "inputs": inputs,
-            "outputs": outputs
-        }
-    }
-
-    return contract_dict
-
-
 def _contract_dict_to_signature_dict(contract: dict) -> tuple:
     """
     Internal method.
@@ -303,19 +251,6 @@ def _signature_dict_to_ModelSignature(data: dict) -> ModelSignature:
     )
 
     return signature
-
-
-def contract_yaml_to_ModelContract(model_name: str, yaml_contract: dict) -> ModelContract:
-    """
-    Helper method that makes a ModelContract out of contract yaml
-
-    :param model_name:
-    :param yaml_contract:
-    :return:
-    """
-    contract_dict = _contract_yaml_to_contract_dict(model_name=model_name, yaml_contract=yaml_contract)
-    modelContract = contract_dict_to_ModelContract(contract=contract_dict)
-    return modelContract
 
 
 def contract_dict_to_ModelContract(contract: dict) -> ModelContract:
@@ -388,7 +323,7 @@ def parse_field(name: str, dtype: Union[str, int, np.dtype],
             result_dtype = DT_INVALID
 
         if result_dtype == DT_INVALID:
-            raise ValueError("Invalid contract: {} field has invalid datatype {}".format(name, dtype))
+            raise ValueError(f"Invalid contract: {name} field has invalid datatype {dtype}")
         return ModelField(
             name=name,
             shape=shape_to_proto(shape),
@@ -404,38 +339,40 @@ class SignatureBuilder:
 
         Example:
             signature = SignatureBuilder('infer') \
-                .with_input('x', 'double', "scalar") \
-                .with_output('y', 'double', "scalar").build()
+                .with_input('x', 'double', 'scalar') \
+                .with_output('y', 'double', 'scalar').build()
         """
         self.name = name
         self.inputs = []
         self.outputs = []
 
-    def with_input(self, name: str, dtype: Union[int, str, np.dtype],
-                   shape: Iterable[int], profile=ProfilingType.NONE) -> 'SignatureBuilder':
+    def with_input(self, name: str, dtype: Union[np.dtype, str, type], 
+                   shape: Union[str, Iterable[int]], 
+                   profile: ProfilingType = ProfilingType.NONE) -> 'SignatureBuilder':
         """
         Adds an input field to the current ModelSignature
 
-        :param name: The fields name
-        :param dtype: The fields data type, either string dtype alias ("double", "int" .. ),
-         proto DataType value or name, or Numpy data type
-        :param shape: The fields shape
-        :param profile: The fields profile
-        :return: self SignatureBuilder
+        :param name: string containing a name of the field
+        :param dtype: type of the field (one of: DataType, numpy's dtype, string representing datatypes
+            like 'double', 'int64', standard python types like `int`, `float`, `str`)
+        :param shape: shape of the field (one of: 'scalar', iterable of ints)
+        :param profile: one of the options from ProfilingType
+        :return: SignatureBuilder object
         """
         return self.__with_field(self.inputs, name, dtype, shape, profile)
 
-    def with_output(self, name: str, dtype: Union[int, str, np.dtype],
-                    shape: Iterable[int], profile=ProfilingType.NONE) -> 'SignatureBuilder':
+    def with_output(self, name: str, dtype: Union[np.dtype, str, type], 
+                    shape: Union[str, Iterable[int]], 
+                    profile: ProfilingType = ProfilingType.NONE) -> 'SignatureBuilder':
         """
         Adds an output field to the current ModelSignature
 
-        :param name: The fields name
-        :param dtype: The fields data type, either string dtype alias ("double", "int" .. ),
-         proto DataType value or name, or Numpy data type
-        :param shape: The fields shape
-        :param profile: The fields profile
-        :return: self SignatureBuilder
+        :param name: string containing a name of the field
+        :param dtype: type of the field (one of: DataType, numpy's dtype, string representing datatypes
+            like 'double', 'int64', standard python types like `int`, `float`, `str`)
+        :param shape: shape of the field (one of: 'scalar', iterable of ints)
+        :param profile: one of the options from ProfilingType
+        :return: SignatureBuilder object
         """
         return self.__with_field(self.outputs, name, dtype, shape, profile)
 
@@ -449,10 +386,20 @@ class SignatureBuilder:
             inputs=self.inputs,
             outputs=self.outputs
         )
-
-    def __with_field(self, collection, name, dtype, shape, profile=ProfilingType.NONE):
+                    
+    def __with_field(self, collection: List[ModelField], name: str, 
+                     dtype: Union[np.dtype, str, type], shape: Union[str, Iterable[int]], 
+                     profile: ProfilingType = ProfilingType.NONE) -> 'SignatureBuilder':
         """
         Adds fields to the SignatureBuilder
+
+        :param collection: input or output
+        :param name: string containing a name of the field
+        :param dtype: type of the field (one of: DataType, numpy's dtype, string representing datatypes
+            like 'double', 'int64', standard python types like `int`, `float`, `str`)
+        :param shape: shape of the field (one of: 'scalar', iterable of ints)
+        :param profile: one of the options from ProfilingType
+        :return: SignatureBuilder object
         """
         proto_field = parse_field(name, dtype, shape, profile)
         collection.append(proto_field)
@@ -475,104 +422,24 @@ class AnyDimSize(object):
         if isinstance(other, numbers.Number):
             return True
         else:
-            raise TypeError("Unexpected other argument {}".format(other))
+            raise TypeError(f"Unexpected other argument {other}")
 
 
-# TODO: method not used
-def are_shapes_compatible(a, b):
-    """
-    Compares if shapes are compatible
-
-    :param a:
-    :param b:
-    :return: result of comparision as bool
-    """
-
-    if len(a) == 0:
-        # scalar input can be used in following scenarios
-        if b == tuple():
-            return True
-        else:
-            if max(b) == 1:  # All dimensions are equal to 1
-                return True
-            else:
-                return False
-    if len(a) == len(b):
-        possible_shape = tuple([AnyDimSize if s == -1 else s for s in a])
-        is_valid = possible_shape == b
-    else:
-        is_valid = False
-    return is_valid
-
-
-# TODO: method not used
-def are_dtypes_compatible(a, b, strict=False):
-    """
-    Compares if data types are compatible
-
-    :param a:
-    :param b:
-    :param strict:
-    :return: result of comparision as bool
-    """
-    if strict:
-        if a == b:
-            return True, None
-        elif a.kind == "U":
-            # Numpy specify max string length in dtype, but HS has no such info in dtype, so we just check that it is the unicode-string
-            return a.kind == b.kind
-        else:
-            return False
-    else:
-        if np.can_cast(b, a):
-            return True
-        else:
-            return False
-
-
-# TODO: what is it doing here? should contract validation be moved out of LocalModel create?
-def validate(self, t, strict=False):
-    """
-    Return bool whether array is valid for this field and error message, if not valid.
-    Error message is None if array is valid.
-
-    :param strict: Strict comparison for dtypes.
-    :param t: input Tensor
-    :return: is_valid, error_message
-    """
-    is_shape_valid, shape_error_message = self.validate_shape(t.shape)
-    is_dtype_valid, dtype_error_message = self.validate_dtype(t.dtype, strict=strict)
-    error_message = ', '.join(filter(None, (shape_error_message, dtype_error_message)))
-    return is_dtype_valid & is_dtype_valid, error_message if error_message else None
-
-
-# TODO: method not used
-def check_tensor_fields(tensors, fields):
-    is_valid = True
-    error_messages = []
-
-    tensors_dict = dict(zip(map(lambda x: x.name, tensors), tensors))
-    field_dict = dict(zip(map(lambda x: x.name, fields), fields))
-
-    extra_tensor_names = set(tensors_dict.keys()).difference(set(field_dict.keys()))
-    missing_tensor_names = set(field_dict.keys()).difference(set(tensors_dict.keys()))
-    common_tensor_names = set(tensors_dict.keys()).intersection(set(field_dict.keys()))
-
-    if extra_tensor_names:
-        is_valid = False
-        error_messages.append("Extra tensors provided: {}".format(extra_tensor_names))
-
-    if missing_tensor_names:
-        is_valid = False
-        error_messages.append("Missing tensors: {}".format(missing_tensor_names))
-
-    for tensor_name in common_tensor_names:
-        is_tensor_valid, error_message = field_dict[tensor_name].validate(tensors_dict[tensor_name])
-        is_valid &= is_tensor_valid
-        if error_message:
-            error_messages.append(error_message)
-
-    return is_valid, error_messages if error_messages else None
+def validate_contract(contract: ModelContract):
+    if not contract.HasField("predict"):
+        raise ContractViolationException("Creating model without contract.predict is not allowed")
+    if not contract.predict.signature_name:
+        raise ContractViolationException("Creating model without contract.predict.signature_name is not allowed")
+    if len(contract.predict.inputs) == 0:
+        raise ContractViolationException("Creating model without inputs is not allowed")
+    if len(contract.predict.outputs) == 0:
+        raise ContractViolationException("Creating model without outputs is not allowed")
+    for model_field in contract.predict.inputs:
+        if model_field.dtype == 0:
+            raise ContractViolationException("Creating model with invalid dtype in contract-input is not allowed")
+    for model_field in contract.predict.outputs:
+        if model_field.dtype == 0:
+            raise ContractViolationException("Creating model with invalid dtype in contract-output is not allowed")
 
 
 def mock_input_data(signature: ModelSignature):
@@ -603,21 +470,6 @@ def mock_input_data(signature: ModelSignature):
         elif field.dtype == DT_STRING:
             x = np.array(["foo"] * size).reshape(field_shape)
         else:
-            raise Exception("{} does not support mock data generation yet.".format(field.dtype))
+            raise ValueError(f"{field.dtype} does not support mock data generation yet.")
         input_tensors.append(x)
     return input_tensors
-
-# TODO: if commented, should be deleted?
-# def contract_from_df(example_df):
-#     """
-#     Suggest contract definition for model contract from dataframe
-#     :param example_df:
-#     :return:
-#     """
-#     signature_name = getattr(example_df, "name", "predict")
-#     inputs = []
-#     for name, dtype in zip(example_df.columns, example_df.dtypes):
-#         field = ModelField()
-#         inputs.append(Field(name, (-1, 1), dtype.type, profile=ProfilingType.NUMERICAL))
-#     signature = ModelSignature(signature_name, inputs, [])
-#     return ModelContract(predict=signature)

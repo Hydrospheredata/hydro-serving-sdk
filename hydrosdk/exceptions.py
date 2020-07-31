@@ -1,4 +1,25 @@
+class BadRequest(Exception):
+    """
+    Exception for client-side errors.
+    """
+    pass
+
+
+class BadResponse(Exception):
+    """
+    Exception for server-side errors.
+    """
+    pass
+
+
+class UnknownException(Exception):
+    pass
+
+
 class ServableException(Exception):
+    """
+    Servable class base exception
+    """
     pass
 
 
@@ -6,28 +27,8 @@ class MetricSpecException(Exception):
     pass
 
 
-class ApplicationException(Exception):
-    pass
-
-
-class ApplicationNotFoundError(ApplicationException):
-    pass
-
-
-class ApplicationDeletionError(ApplicationException):
-    pass
-
-
-class ApplicationCreationError(ApplicationException):
-    pass
-
-
-class BadResponse(Exception):
-    pass
-
-
-class MetricSpecException(BaseException):
+class ContractViolationException(Exception):
     """
-    Metric Spec base exception
+    Exception raised when contract is violated
     """
     pass

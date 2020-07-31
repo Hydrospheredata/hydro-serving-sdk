@@ -2,61 +2,52 @@ import json
 import logging
 from typing import Optional, Dict
 from urllib import parse
+from typing import Optional
 
 import grpc
 import requests
 
-from hydrosdk.utils import grpc_server_on
+from hydrosdk.utils import grpc_server_on, handle_request_error
 
 
 class Cluster:
     """
-    Cluster responsible for server interactions
+    Cluster responsible for interactions with the server.
+
+    :Example:
+
+    Create a cluster instance only with HTTP connection.
+    >>> cluster = Cluster("http-cluster-endpoint")
+    >>> print(cluster.build_info())
+
+    Create a cluster instance with both HTTP and gRPC connection.
+    >>> from grpc import ssl_channel_credentials
+    >>> grpc_credentials = ssl_channel_credentials()
+    >>> cluster = Cluster(
+            "http-cluster-endpoint", "grpc-cluster-endpoint", 
+            ssl=True, grpc_credentials=grpc_credentials
+        )
+    >>> print(cluster.build_info())
     """
-
-    @staticmethod
-    def connect(http_address: str, grpc_address: str = None) -> 'Cluster':
+    def __init__(self, http_address: str, grpc_address: Optional[str] = None, ssl: bool = False,
+                 grpc_credentials: Optional[grpc.ChannelCredentials] = None, 
+                 grpc_options: Optional[list] = None, grpc_compression: Optional[grpc.Compression] = None,
+                 timeout: int = 5) -> 'Cluster':
         """
-        :param http_address: HTTP connection address of a Hydrosphere cluster
-        :param grpc_address: gRPC connection address of a Hydrosphere cluster
-        :return: Cluster
+        A cluster object which hides networking details and provides a connection to a 
+        deployed Hydrosphere cluster.
 
-        Checks the address, the connectivity, and creates an instance of Cluster.
+        :param http_address: HTTP endpoint of the cluster
+        :param grpc_address: gRPC endpoint of the cluster
+        :param ssl: whether to use SSL connection for gRPC endpoint
+        :param grpc_credentials: an optional instance of ChannelCredentials to use for gRPC endpoint
+        :param grpc_options: an optional list of key-value pairs to configure the channel
+        :param grpc_compression: an optional value indicating the compression method to be
+                                 used over the lifetime of the channel
+        :param timeout: timeout value to check for gRPC connection
+        :returns: Cluster instance
         """
-        cl = Cluster(http_address=http_address, grpc_address=grpc_address)
 
-        logging.info("Connecting to {} cluster".format(cl.http_address))
-        info = cl.build_info()
-        if info['manager']['status'] != 'Ok':
-            raise ConnectionError(
-                "Couldn't establish connection with cluster {}. {}".format(http_address, info['manager'].get('reason')))
-        logging.info("Connected to the {} cluster".format(info))
-        return cl
-
-    def __init__(self, http_address: str,
-                 grpc_address: Optional[str] = None, ssl: bool = False,
-                 grpc_credentials: Optional[grpc.ChannelCredentials] = None,
-                 grpc_options: Optional[Dict] = None, grpc_compression: Optional[grpc.Compression] = None):
-        """
-        Creates a Cluster object which hides networking details and provides a connection to a deployed Hydrosphere cluster.
-
-        :param http_address: HTTP connection address of a Hydrosphere cluster
-        :param grpc_address: gRPC connection address of a Hydrosphere cluster
-        :param ssl: Whether to use an SSL-enabled channel for a gRPC connection
-        :param grpc_credentials: An optional ChannelCredentials instance
-        :param grpc_options: An optional list of key-value pairs (channel args in gRPC Core runtime) to configure the channel
-        :param grpc_compression: An optional value indicating the compression method to be used over the lifetime of the channel
-
-        Examples:
-            Example of creating a Cluster::
-
-                # Cluster with only an HTTP connection
-                Cluster("your-cluster-url")
-
-                # Example of creating a Cluster with an HTTP and a secured gRPC connection::
-                from grpc import ssl_channel_credentials
-                Cluster("http-cluster-address", grpc_address="grpc-cluster-address", ssl=True, grpc_credentials=ssl_channel_credentials())
-        """
         # TODO: add better url validation (but not python validators lib!)
         parse.urlsplit(http_address)  # check if address is ok
         self.http_address = http_address
@@ -68,7 +59,6 @@ class Cluster:
             if ssl:
                 if not grpc_credentials:
                     raise ValueError("Missing grpc credentials")
-
                 self.channel = grpc.secure_channel(target=self.grpc_address, credentials=grpc_credentials,
                                                    options=grpc_options,
                                                    compression=grpc_compression)
@@ -76,14 +66,12 @@ class Cluster:
                 self.channel = grpc.insecure_channel(target=self.grpc_address, options=grpc_options,
                                                      compression=grpc_compression)
 
-            # with grpc.secure_channel it takes a lot of time to check the grpc-connection
-            if not grpc_server_on(self.channel):
+            if not grpc_server_on(self.channel, timeout):
                 raise ConnectionError(
-                    "Couldn't establish connection with grpc {}. No connection".format(self.grpc_address))
+                    f"Couldn't establish connection with grpc {self.grpc_address}. No connection")
+            logging.info(f"Connected to the grpc - {self.grpc_address}")
 
-            logging.info("Connected to the grpc - {}".format(self.grpc_address))
-
-    def request(self, method, url, **kwargs):
+    def request(self, method: str, url: str, **kwargs) -> requests.Response:
         """
         Formats address and url, send request
 
@@ -95,19 +83,7 @@ class Cluster:
         url = parse.urljoin(self.http_address, url)
         return requests.request(method, url, **kwargs)
 
-    def host_selectors(self):
-        return []
-
-    def models(self):
-        return []
-
-    def servables(self):
-        return []
-
-    def applications(self):
-        return []
-
-    def build_info(self) -> Dict:
+    def build_info(self) -> Dict[str, str]:
         """
         Returns Manager, Gateway and Sonar services builds information containing version, release commit, etc.
 
@@ -122,13 +98,16 @@ class Cluster:
             "sonar": sonar_bl
         }
 
-    def safe_buildinfo(self, url):
+    def safe_buildinfo(self, url: str) -> Dict[str, str]:
         try:
-            result = self.request("GET", url).json()
-            if 'status' not in result:
-                result['status'] = "Ok"
-            return result
+            resp = self.request("GET", url)
+            handle_request_error(
+                resp, f"Can't fetch buildinfo for {url}. {resp.status_code} {resp.text}")
+            resp_json = resp.json()
+            if 'status' not in resp_json:
+                resp_json['status'] = "Ok"
+            return resp_json
         except requests.exceptions.ConnectionError as ex:
-            return {"status": "Unavailable", "reason": "Can't establish connection"}
+            return {"status": "Unavailable", "reason": f"Can't establish connection. {ex}"}
         except json.decoder.JSONDecodeError as ex:
-            return {"status": "Unknown", "reason": "Can't parse JSON response. {}".format(ex)}
+            return {"status": "Unknown", "reason": f"Can't parse JSON response. {ex}"}

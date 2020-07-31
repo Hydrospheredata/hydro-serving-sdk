@@ -11,7 +11,7 @@ config = {
         },
     "test_model":
         {
-            "path": "tests/resources/scalar_identity_model",
+            "path": "tests/resources/identity_model",
             "serving": "serving.yaml"
         },
     "api_endpoint": "api/v2",
@@ -61,10 +61,15 @@ config = {
                 }
 
         },
-    "default_application_name": "infer"
+    "default_application_name": "infer",
+    "default_model_name": "infer"
 }
 
 HTTP_CLUSTER_ENDPOINT = config["http_cluster"]["ip"] + ":" + config["http_cluster"]["port"]
 GRPC_CLUSTER_ENDPOINT = config["grpc_cluster"]["ip"] + ":" + config["grpc_cluster"]["port"]
 PATH_TO_SERVING = config["test_model"]["path"] + "/" + config["test_model"]["serving"]
 DEFAULT_APP_NAME = config["default_application_name"]
+DEFAULT_MODEL_NAME = config["default_model_name"]
+
+
+# TODO: add error messages to all tests, hard to debug otherwise

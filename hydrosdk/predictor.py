@@ -92,7 +92,7 @@ class PredictServiceClient:
             elif self.return_type == PredictorDT.DICT_PYTHON:
                 return self.predict_resp_to_dict_pydtype(response=response)
         except Exception as err:
-            raise Exception(f"Failed to predict.{str(err)} ")
+            raise Exception(f"Failed to predict. {str(err)} ")
 
     @staticmethod
     def predict_resp_to_dict_pydtype(response: PredictResponse) -> Dict:

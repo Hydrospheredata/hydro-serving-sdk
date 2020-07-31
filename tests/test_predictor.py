@@ -1,160 +1,80 @@
-import os
-import time
-from random import random
+import random
 
-import numpy as np
 import pytest
-from hydro_serving_grpc.contract import ModelContract
-from pandas import DataFrame
+import numpy as np
+import pandas as pd
 
-from hydrosdk.application import ApplicationStatus
-from hydrosdk.contract import SignatureBuilder
 from hydrosdk.data.types import PredictorDT
-from hydrosdk.image import DockerImage
-from hydrosdk.modelversion import LocalModel
-from hydrosdk.servable import Servable
-from tests.test_application import create_test_application
-from tests.test_modelversion import create_test_cluster, create_test_local_model, create_test_signature
-
+from hydrosdk.modelversion import LocalModel, ModelVersion
+from hydrosdk.cluster import Cluster
+from hydrosdk.application import Application, ApplicationBuilder, ExecutionStageBuilder
+from tests.common_fixtures import *
+from tests.utils import *
+from tests.config import *
 
 # TODO: add servable Unmonitored tests
 
 @pytest.fixture
-def tensor_servable():
-    cluster = create_test_cluster()
-
-    signature = create_test_signature()
-
-    contract = ModelContract(predict=signature)
-
-    model = create_test_local_model(contract=contract)
-
-    upload_resp = model.upload(cluster=cluster)
-
-    servable = Servable.create(model_name=upload_resp[model].modelversion.name,
-                               version=upload_resp[model].modelversion.version, cluster=cluster)
-
-    # wait for servable to assemble
-    time.sleep(20)
-    return servable
+def value(): 
+    return random.randint(0, 1e5)
 
 
-@pytest.fixture
-def scalar_servable():
-    cluster = create_test_cluster()
-
-    signature = SignatureBuilder('infer') \
-        .with_input('input', 'int64', "scalar", 'numerical') \
-        .with_output('output', 'int64', "scalar", 'numerical').build()
-
-    payload = {os.path.dirname(os.path.abspath(__file__)) + '/resources/scalar_identity_model/src/func_main.py': './src/func_main.py'}
-
-    contract = ModelContract(predict=signature)
-
-    local_model = LocalModel(
-        name="scalar_model",
-        contract=contract,
-        runtime=DockerImage("hydrosphere/serving-runtime-python-3.6", "2.1.0", None),
-        payload=payload,
-        path=None
-    )
-
-    upload_resp = local_model.upload(cluster)
-
-    servable = Servable.create(model_name=upload_resp[local_model].modelversion.name,
-                               version=upload_resp[local_model].modelversion.version,
-                               cluster=cluster)
-
-    # wait for servable to assemble
-    time.sleep(20)
-
-    return servable
+@pytest.fixture(scope="module")
+def app_tensor(cluster: Cluster, local_model: LocalModel):
+    mv: ModelVersion = local_model.upload(cluster)
+    mv.lock_till_released()
+    stage = ExecutionStageBuilder().with_model_variant(mv, 100).build()
+    app = ApplicationBuilder(cluster, f"{DEFAULT_APP_NAME}-{random.randint(0, 1e5)}") \
+        .with_stage(stage).build()
+    application_lock_till_ready(cluster, app.name)
+    yield app
 
 
-def test_predict_application():
-    cluster = create_test_cluster()
-    model = create_test_local_model()
+@pytest.fixture(scope="module")
+def app_scalar(cluster: Cluster, scalar_local_model: LocalModel):
+    mv: ModelVersion = scalar_local_model.upload(cluster)
+    mv.lock_till_released()
+    stage = ExecutionStageBuilder().with_model_variant(mv, 100).build()
+    app = ApplicationBuilder(cluster, f"{DEFAULT_APP_NAME}-{random.randint(0, 1e5)}") \
+        .with_stage(stage).build()
+    application_lock_till_ready(cluster, app.name)
+    yield app
 
-    upload_response = model.upload(cluster=cluster)
-
-    tensor_application = create_test_application(cluster, upload_response[model])
-
-    while tensor_application.status != ApplicationStatus.READY:
-        tensor_application.update_status()
-
-    for servable in Servable.list(cluster=cluster):
-        if upload_response[model].modelversion.version == servable.modelversion.version:
-            # TODO: Add to servables status and then del sleep
-            time.sleep(20)
-            break
-
-    predictor_client = tensor_application.predictor(return_type=PredictorDT.DICT_PYTHON)
-
-    value = random() * 1e5
-    inputs = {'input': [value]}
-
-    predictions = predictor_client.predict(inputs)
-
+    
+def test_predict(app_tensor: Application, value: int):
+    predictor = app_tensor.predictor(return_type=PredictorDT.DICT_PYTHON)
+    predictions = predictor.predict({"input": [value]})
     assert isinstance(predictions, dict)
     assert isinstance(predictions['output'], list)
     assert predictions['output'] == [value]
 
 
-def test_predict_list(tensor_servable):
-    value = int(random() * 1e5)
-    predictor_client = tensor_servable.predictor(return_type=PredictorDT.DICT_PYTHON)
-
-    inputs = {'input': [value]}
-    predictions = predictor_client.predict(inputs)
-
-    assert isinstance(predictions, dict)
-    assert isinstance(predictions['output'], list)
-    assert predictions['output'] == [value]
-
-
-def test_predict_nparray(tensor_servable):
-    value = int(random() * 1e5)
-
-    predictor_client = tensor_servable.predictor(return_type=PredictorDT.DICT_NP_ARRAY)
-    inputs = {'input': np.array([value])}
-    predictions = predictor_client.predict(inputs=inputs)
-
+def test_predict_nparray(app_tensor: Application, value: int):
+    predictor = app_tensor.predictor(return_type=PredictorDT.DICT_NP_ARRAY)
+    predictions = predictor.predict({"input": np.array([value])})
     assert isinstance(predictions, dict)
     assert isinstance(predictions['output'], np.ndarray)
     assert predictions['output'] == np.array([value])
 
 
-def test_predict_np_scalar_type(scalar_servable):
-    value = np.int(random() * 1e5)
+def test_predict_df(app_tensor: Application, value: int):
+    predictor = app_tensor.predictor(return_type=PredictorDT.DF)
+    predictions = predictor.predict(pd.DataFrame({'input': [value]}))
+    assert isinstance(predictions, pd.DataFrame)
+    assert predictions.equals(pd.DataFrame({'output': [value]}))
 
-    predictor_client = scalar_servable.predictor(return_type=PredictorDT.DICT_NP_ARRAY)
-    inputs = {'input': value}
-    predictions = predictor_client.predict(inputs=inputs)
 
+def test_predict_np_scalar_type(app_scalar: Application, value: int):
+    predictor = app_scalar.predictor(return_type=PredictorDT.DICT_NP_ARRAY)
+    predictions = predictor.predict({'input': value})
     assert isinstance(predictions, dict)
     assert isinstance(predictions['output'], np.ScalarType)
     assert predictions['output'] == value
 
 
-def test_predict_python_scalar_type(scalar_servable):
-    value = int(random() * 1e5)
-
-    predictor_client = scalar_servable.predictor(return_type=PredictorDT.DICT_NP_ARRAY)
-    inputs = {'input': value}
-    predictions = predictor_client.predict(inputs=inputs)
-
+def test_predict_python_scalar_type(app_scalar: Application, value: int):
+    predictor = app_scalar.predictor(return_type=PredictorDT.DICT_NP_ARRAY)
+    predictions = predictor.predict({'input': value})
     assert isinstance(predictions, dict)
     assert isinstance(predictions['output'], np.int64)
     assert predictions['output'] == value
-
-
-def test_predict_df(tensor_servable):
-    value = int(random() * 1e5)
-
-    predictor_client = tensor_servable.predictor(return_type=PredictorDT.DF)
-    inputs_dict = {'input': [value]}
-    inputs_df = DataFrame(inputs_dict)
-    predictions = predictor_client.predict(inputs=inputs_df)
-
-    assert isinstance(predictions, DataFrame)
-    assert predictions.equals(DataFrame({'output': [value]}))
