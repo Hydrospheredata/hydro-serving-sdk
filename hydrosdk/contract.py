@@ -280,7 +280,7 @@ def signature_dict_to_ModelContract(model_name: str, signature: dict) -> ModelCo
 
 
 def parse_field(name: str, dtype: Union[str, int, np.dtype],
-                shape: Iterable[int], profile=ProfilingType.NONE) -> ModelField:
+                shape: Iterable[int], profile: ProfilingType = ProfilingType.NONE) -> ModelField:
     """
     Creates a proto ModelField object
 
@@ -292,9 +292,6 @@ def parse_field(name: str, dtype: Union[str, int, np.dtype],
     :raises ValueError: If dtype is invalid
     :return: ModelField proto object
     """
-    if profile not in DataProfileType.keys():
-        profile = "NONE"
-
     if dtype is None:
         raise ValueError("Invalid field. Neither dtype nor subfields are present in dict", name)
     elif isinstance(dtype, dict):
@@ -306,7 +303,7 @@ def parse_field(name: str, dtype: Union[str, int, np.dtype],
             name=name,
             shape=shape_to_proto(shape),
             subfields=ModelField.Subfield(data=subfields_buffer),
-            profile=profile
+            profile=profile.value
         )
     else:
         if dtype in DataType.keys():  # exact name e.g. DT_STRING
@@ -328,7 +325,7 @@ def parse_field(name: str, dtype: Union[str, int, np.dtype],
             name=name,
             shape=shape_to_proto(shape),
             dtype=result_dtype,
-            profile=profile
+            profile=profile.value
         )
 
 
@@ -401,6 +398,9 @@ class SignatureBuilder:
         :param profile: one of the options from ProfilingType
         :return: SignatureBuilder object
         """
+        if not isinstance(profile, ProfilingType):
+            raise ValueError("`profile` should be of instance ProfilingType.")
+
         proto_field = parse_field(name, dtype, shape, profile)
         collection.append(proto_field)
         return self
