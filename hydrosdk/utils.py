@@ -1,7 +1,10 @@
-from typing import Generator
+import re
+from dataclasses import is_dataclass
+from typing import Generator, Dict, _GenericAlias
 
 import grpc
 import requests
+
 from hydrosdk.exceptions import BadRequest, BadResponse, UnknownException
 
 
@@ -54,3 +57,56 @@ def read_in_chunks(filename: str, chunk_size: int) -> Generator[bytes, None, Non
             if not data:
                 break
             yield data
+
+
+def enable_camel_case(cls):
+    def to_camel_case(s):
+        components = s.split('_')
+        return components[0] + ''.join(x.title() for x in components[1:])
+
+    def to_snake_case(s):
+        s = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', s)
+        return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s).lower()
+
+    def from_camel_case_dict(d) -> cls:
+        keys = list(d.keys())
+        camel_to_snake_keys = dict(((k, to_snake_case(k)) for k in keys))
+
+        snake_case_dict = dict()
+
+        for k, v in d.items():
+            snake_case_key = camel_to_snake_keys[k]
+            item_type = cls.__annotations__[snake_case_key]
+            if is_dataclass(item_type):
+                snake_case_dict[snake_case_key] = item_type.from_camel_case_dict(v)
+            elif isinstance(item_type, _GenericAlias):
+                if item_type._name == 'List':
+                    if len(item_type.__args__) == 1:
+                        if is_dataclass(item_type.__args__[0]):
+                            snake_case_dict[snake_case_key] = [item_type.__args__[0].from_camel_case_dict(x) for x in v]
+                            continue
+                snake_case_dict[snake_case_key] = v
+            else:
+                snake_case_dict[snake_case_key] = v
+
+        return cls(**snake_case_dict)
+
+    def to_camel_case_dict(self) -> Dict:
+        camel_cased_dict = dict()
+        for k, v in self.__dict__.items():
+            if v is None or k.startswith("_"): continue
+            camel_case_key = to_camel_case(k)
+            if is_dataclass(v):
+                camel_cased_dict[camel_case_key] = v.to_camel_case_dict()
+            elif isinstance(v, list):
+                if all(map(is_dataclass, v)):
+                    camel_cased_dict[camel_case_key] = [x.to_camel_case_dict() for x in v]
+                else:
+                    camel_cased_dict[camel_case_key] = v
+            else:
+                camel_cased_dict[camel_case_key] = v
+        return camel_cased_dict
+
+    setattr(cls, "from_camel_case_dict", from_camel_case_dict)
+    setattr(cls, "to_camel_case_dict", to_camel_case_dict)
+    return cls
