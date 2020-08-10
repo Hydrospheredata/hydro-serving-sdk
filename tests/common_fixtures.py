@@ -1,7 +1,7 @@
 import os
 
 import pytest
-import grpc
+from grpc import ssl_channel_credentials
 
 from hydrosdk.cluster import Cluster
 from hydrosdk.image import DockerImage
@@ -13,7 +13,11 @@ from tests.utils import *
 
 @pytest.fixture(scope="session")
 def cluster():
-    return Cluster(HTTP_CLUSTER_ENDPOINT, GRPC_CLUSTER_ENDPOINT)
+    if GRPC_CLUSTER_ENDPOINT_SSL:
+        credentials = ssl_channel_credentials()
+        return Cluster(HTTP_CLUSTER_ENDPOINT, GRPC_CLUSTER_ENDPOINT, ssl=True, grpc_credentials=ssl_channel_credentials())
+    else:
+        return Cluster(HTTP_CLUSTER_ENDPOINT, GRPC_CLUSTER_ENDPOINT)
 
 
 @pytest.fixture(scope="session")
@@ -46,12 +50,12 @@ def local_model(payload, contract, runtime):
 
 
 @pytest.fixture(scope="session")
-def scalar_local_model(payload, runtime):
+def tensor_local_model(payload, runtime):
     current_dir = os.path.dirname(os.path.abspath(__file__))
     model_path = os.path.join(current_dir, 'resources/identity_model/')
     signature = SignatureBuilder('infer') \
-        .with_input('input', 'int64', "scalar", ProfilingType.NUMERICAL) \
-        .with_output('output', 'int64', "scalar", ProfilingType.NUMERICAL).build()
+        .with_input('input', 'int64', [1], ProfilingType.NONE) \
+        .with_output('output', 'int64', [1], ProfilingType.NONE).build()
     contract = ModelContract(predict=signature)
     return LocalModel(DEFAULT_MODEL_NAME, runtime, model_path, payload, contract)
 
