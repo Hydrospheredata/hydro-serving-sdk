@@ -6,7 +6,7 @@ from unittest.mock import MagicMock
 import pytest
 import yaml
 
-from hydrosdk.deployment_configuration import DeploymentConfig, DeploymentConfigBuilder, ResourceRequirements, Toleration, Affinity, \
+from hydrosdk.deployment_configuration import DeploymentConfig, DeploymentConfigBuilder, ResourceRequirements, Affinity, \
     NodeAffinity, PodAntiAffinity, PodAffinity
 
 
@@ -89,10 +89,10 @@ def test_deployment_configuration_builder(deployment_config_json):
     config_builder = DeploymentConfigBuilder(name="cool-deployment-config", cluster=None)
     config_builder.with_hpa(max_replicas=10, min_replicas=2, target_cpu_utilization_percentage=80). \
         with_pod_node_selector({"im": "a map", "foo": "bar"}). \
-        with_resource_requirements(ResourceRequirements(limits={"cpu": "4", "memory": "4g"}, requests={"cpu": "2", "memory": "2g"})). \
+        with_resource_requirements(limits={"cpu": "4", "memory": "4g"}, requests={"cpu": "2", "memory": "2g"}). \
         with_replicas(replica_count=4). \
-        with_toleration(Toleration(effect="PreferNoSchedule", key="equalToleration", toleration_seconds=30, operator="Equal", value="kek")). \
-        with_toleration(Toleration(effect="PreferNoSchedule", key="equalToleration", toleration_seconds=30, operator="Exists")). \
+        with_toleration(effect="PreferNoSchedule", key="equalToleration", toleration_seconds=30, operator="Equal", value="kek"). \
+        with_toleration(effect="PreferNoSchedule", key="equalToleration", toleration_seconds=30, operator="Exists"). \
         with_affinity(affinity)
 
     config_builder.build = MagicMock(return_value=DeploymentConfig(name=config_builder.name,

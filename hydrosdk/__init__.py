@@ -6,6 +6,7 @@ from hydrosdk.application import Application
 from hydrosdk.cluster import Cluster
 from hydrosdk.contract import SignatureBuilder, ModelContract
 from hydrosdk.monitoring import MetricSpec, MetricSpecConfig, ThresholdCmpOp
+from hydrosdk.deployment_configuration import DeploymentConfig, DeploymentConfigBuilder
 
 
 __version__ = importlib_metadata.version("hydrosdk")
