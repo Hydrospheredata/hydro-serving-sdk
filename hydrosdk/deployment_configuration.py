@@ -3,8 +3,6 @@ from typing import List, Dict
 
 from hydrosdk.utils import handle_request_error, enable_camel_case
 
-_BASE_URL = "kek"
-
 
 @enable_camel_case
 @dataclass
@@ -16,23 +14,81 @@ class HorizontalPodAutoScalerSpec:
 
 @enable_camel_case
 @dataclass
+class NodeSelectorRequirement:
+    key: str
+    operator: str
+    values: List[str] = None
+
+
+@enable_camel_case
+@dataclass
+class NodeSelectorTerm:
+    match_expressions: List[NodeSelectorRequirement] = None
+    match_fields: List[NodeSelectorRequirement] = None
+
+
+@enable_camel_case
+@dataclass
+class PreferredSchedulingTerm:
+    weight: int
+    preference: NodeSelectorTerm
+
+
+@enable_camel_case
+@dataclass
+class NodeSelector:
+    node_selector_terms: List[NodeSelectorTerm] = field(default_factory=list)
+
+
+@enable_camel_case
+@dataclass
+class LabelSelectorRequirement:
+    key: str
+    operator: str
+    values: List[str] = None
+
+
+@enable_camel_case
+@dataclass
+class LabelSelector:
+    match_expressions: List[LabelSelectorRequirement] = None
+    match_labels: Dict[str, str] = None
+
+
+@enable_camel_case
+@dataclass
+class PodAffinityTerm:
+    label_selector: LabelSelector
+    topology_key: str
+    namespaces: List[str] = field(default_factory=list)
+
+
+@enable_camel_case
+@dataclass
+class WeightedPodAffinityTerm:
+    weight: int
+    pod_affinity_term: PodAffinityTerm
+
+
+@enable_camel_case
+@dataclass
 class NodeAffinity:
-    preferred_during_scheduling_ignored_during_execution: List = field(default_factory=list)
-    required_during_scheduling_ignored_during_execution: Dict[str, str] = field(default_factory=dict)
+    preferred_during_scheduling_ignored_during_execution: List[PreferredSchedulingTerm] = field(default_factory=list)
+    required_during_scheduling_ignored_during_execution: NodeSelector = None
 
 
 @enable_camel_case
 @dataclass
 class PodAffinity:
-    preferred_during_scheduling_ignored_during_execution: List = field(default_factory=list)
-    required_during_scheduling_ignored_during_execution: List = field(default_factory=list)
+    preferred_during_scheduling_ignored_during_execution: List[WeightedPodAffinityTerm] = field(default_factory=list)
+    required_during_scheduling_ignored_during_execution: List[PodAffinityTerm] = field(default_factory=list)
 
 
 @enable_camel_case
 @dataclass
 class PodAntiAffinity:
-    preferred_during_scheduling_ignored_during_execution: List = field(default_factory=list)
-    required_during_scheduling_ignored_during_execution: List = field(default_factory=list)
+    preferred_during_scheduling_ignored_during_execution: List[WeightedPodAffinityTerm] = field(default_factory=list)
+    required_during_scheduling_ignored_during_execution: List[PodAffinityTerm] = field(default_factory=list)
 
 
 @enable_camel_case
@@ -97,9 +153,9 @@ class ContainerSpec:
 
 @enable_camel_case
 @dataclass
-class DeploymentConfig:
+class DeploymentConfiguration:
     """
-    DeploymentConfig encapsulates information about how your Servables should run TODO
+    DeploymentConfiguration encapsulates information about how your Servables and ModelVariants should run
 
     :param name: Unique Name of a Deployment Configuration
     :param hpa: HorizontalPodAutoScaler specification
@@ -112,7 +168,18 @@ class DeploymentConfig:
     pod: PodSpec = None
     container: ContainerSpec = None
     deployment: DeploymentSpec = None
-    _BASE_URL: str = "deployment_config"
+    _BASE_URL: str = "/api/v2/deployment_configuration"
+
+    @staticmethod
+    def list(cluster):
+        """
+        List all deployment configurations
+        :param cluster:
+        :return:
+        """
+        resp = cluster.request("GET", f"{DeploymentConfiguration._BASE_URL}/")
+        handle_request_error(resp, f"Failed to find Deployment Configuration {resp.status_code} {resp.text}")
+        return [DeploymentConfiguration.from_camel_case(cluster, app_json) for app_json in resp.json()]
 
     @staticmethod
     def find(cluster, name):
@@ -122,9 +189,9 @@ class DeploymentConfig:
         :param name:
         :return:
         """
-        resp = cluster.request("GET", f"{DeploymentConfig._BASE_URL}/{name}")
+        resp = cluster.request("GET", f"{DeploymentConfiguration._BASE_URL}/{name}")
         handle_request_error(resp, f"Failed to find Deployment Configuration {resp.status_code} {resp.text}")
-        return DeploymentConfig.from_camel_case(resp.json())
+        return DeploymentConfiguration.from_camel_case(resp.json())
 
     @staticmethod
     def delete(cluster, name):
@@ -133,13 +200,13 @@ class DeploymentConfig:
         :param cluster: Active Cluster
         :param name: Deployment configuration name
         """
-        resp = cluster.request("DELETE", f"{DeploymentConfig._BASE_URL}/{name}")
+        resp = cluster.request("DELETE", f"{DeploymentConfiguration._BASE_URL}/{name}")
         handle_request_error(resp, f"Failed to delete Deployment Configuration {resp.status_code} {resp.text}")
 
 
 class DeploymentConfigBuilder:
     """
-    Deployment Config Builder is used to create a new DeploymentConfig
+    Deployment Config Builder is used to create a new DeploymentConfiguration
 
     :Example:
 
@@ -172,7 +239,7 @@ class DeploymentConfigBuilder:
 
     def with_hpa(self, max_replicas, min_replicas=1, target_cpu_utilization_percentage=None) -> 'DeploymentConfigBuilder':
         """
-        Adds a HorizontalPodAutoScaler specs to a DeploymentConfig
+        Adds a HorizontalPodAutoScaler specs to a DeploymentConfiguration
 
         :param min_replicas: minReplicas is the lower limit for the number of replicas to which the autoscaler can scale down.
                              It defaults to 1 pod. minReplicas is allowed to be 0 if the alpha feature gate HPAScaleToZero
@@ -268,17 +335,17 @@ class DeploymentConfigBuilder:
             self.deployment_spec.replica_count = replica_count
         return self
 
-    def build(self) -> DeploymentConfig:
+    def build(self) -> DeploymentConfiguration:
         """
         Create the Deployment Configuration in your Hydrosphere cluster.
         :return: Deployment Configuration object from the Hydrosphere cluster
         """
-        new_deployment_config = DeploymentConfig(name=self.name,
-                                                 hpa=self.hpa,
-                                                 pod=self.pod_spec,
-                                                 container=self.container_spec,
-                                                 deployment=self.deployment_spec)
+        new_deployment_config = DeploymentConfiguration(name=self.name,
+                                                        hpa=self.hpa,
+                                                        pod=self.pod_spec,
+                                                        container=self.container_spec,
+                                                        deployment=self.deployment_spec)
 
-        resp = self.cluster.request("POST", DeploymentConfig._BASE_URL_, json=new_deployment_config.to_camel_case())
+        resp = self.cluster.request("POST", DeploymentConfiguration._BASE_URL_, json=new_deployment_config.to_camel_case())
         handle_request_error(resp, f"Failed to upload new Deployment Configuration {resp.status_code} {resp.text}")
-        return DeploymentConfig.from_camel_case(resp.json())
+        return DeploymentConfiguration.from_camel_case(resp.json())

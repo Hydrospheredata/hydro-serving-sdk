@@ -9,9 +9,9 @@ from typing import Dict, List, Optional, Iterable
 import sseclient
 from sseclient import Event
 
+from hydrosdk import DeploymentConfiguration
 from hydrosdk.cluster import Cluster
 from hydrosdk.data.types import PredictorDT
-from hydrosdk.exceptions import ServableException
 from hydrosdk.modelversion import ModelVersion
 from hydrosdk.predictor import PredictServiceClient, MonitorableImplementation, UnmonitorableImplementation
 from hydrosdk.utils import handle_request_error
@@ -71,7 +71,7 @@ class Servable:
         :raises ServableException:
         :return: Servable
         """
-        
+
         resp = cluster.request("GET", f"{Servable._BASE_URL}/{servable_name}")
         handle_request_error(
             resp, f"Failed to find servable for name={servable_name}. {resp.status_code} {resp.text}")
@@ -134,16 +134,23 @@ class Servable:
                         servable_name=modelversion_json['fullName'],
                         status=ServableStatus.from_camel_case(modelversion_json['status']['status']),
                         status_message=modelversion_json['status']['msg'],
-                        metadata=modelversion_data['metadata'])
+                        metadata=modelversion_data['metadata'],
+                        deployment_configuration=DeploymentConfiguration.from_camel_case_dict(modelversion_json['deploymentConfiguration']))
 
-    def __init__(self, cluster: Cluster, modelversion: ModelVersion, servable_name: str, 
-                 status: str, status_message: str, metadata: Optional[dict] = None) -> 'Servable':
+    def __init__(self, cluster: Cluster,
+                 modelversion: ModelVersion,
+                 servable_name: str,
+                 status: ServableStatus,
+                 status_message: str,
+                 deployment_configuration: Optional[DeploymentConfiguration],
+                 metadata: Optional[dict] = None) -> 'Servable':
         self.modelversion = modelversion
         self.name = servable_name
         self.meta = metadata or {}
         self.cluster = cluster
         self.status = status
         self.status_message = status_message
+        self.deployment_configuration = deployment_configuration
 
     def logs(self, follow=False) -> Iterable[Event]:
         if follow:

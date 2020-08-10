@@ -25,29 +25,21 @@ pod:
         - matchExpressions:
           - key: exp1
             operator: Exists
-            values:
-            - a
-            - b
-            - c
           matchFields:
           - key: fields1
             operator: Exists
-            values:
-            - aa
-            - bb
-            - cc
       preferredDuringSchedulingIgnoredDuringExecution:
       - preference:
           matchExpressions:
           - key: exp2
-            operator: Exists
+            operator: NotIn
             values:
             - aaaa
             - bvzv
             - czxc
           matchFields:
           - key: fields3
-            operator: Exists
+            operator: NotIn
             values:
             - aaa
             - cccc
@@ -64,8 +56,6 @@ pod:
             values:
             - a
             - b
-          - key: kek
-            operator: DoesNotExist
         namespaces:
         - namespace1
         topologyKey: top
@@ -81,7 +71,7 @@ pod:
               values:
               - a
               - b
-            - key: kek
+            - key: kek2
               operator: NotIn
               values:
               - b
@@ -94,12 +84,12 @@ pod:
           matchExpressions:
           - key: kek
             operator: Exists
-          - key: key
+          - key: key2
             operator: NotIn
             values:
             - a
             - b
-          - key: kek
+          - key: kek2
             operator: DoesNotExist
         namespaces:
         - namespace1

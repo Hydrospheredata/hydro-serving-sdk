@@ -69,6 +69,8 @@ def enable_camel_case(cls):
         return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s).lower()
 
     def from_camel_case_dict(d) -> cls:
+        if d is None: return None
+        
         keys = list(d.keys())
         camel_to_snake_keys = dict(((k, to_snake_case(k)) for k in keys))
 
