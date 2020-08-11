@@ -119,6 +119,7 @@ def modelversion_json():
             "git.branch.head.author.email": "your.email@example.com"
         },
         "modelVersion": 1,
+        "monitoringConfiguration": {"batch_size": 100},
         "runtime": {
             "name": "hydrosphere/serving-runtime-python-3.6",
             "tag": "2.3.2"
@@ -180,6 +181,7 @@ def external_modelversion_json():
             "key": "value"
         },
         "modelVersion": 1,
+        "monitoringConfiguration": {"batch_size": 100},
         "created": "2020-05-22T12:38:05.021Z"
     }
   

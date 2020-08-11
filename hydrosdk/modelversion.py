@@ -346,7 +346,7 @@ class ModelVersion:
         model_id = modelversion_json["model"]["id"]
         version = modelversion_json["modelVersion"]
         model_contract = contract_dict_to_ModelContract(modelversion_json["modelContract"])
-        monitoring_configuration = modelversion_json["monitoring_configuration"]
+        monitoring_configuration = modelversion_json["monitoringConfiguration"]
 
         # external model deserialization handling
         is_external = modelversion_json.get('isExternal', False)
