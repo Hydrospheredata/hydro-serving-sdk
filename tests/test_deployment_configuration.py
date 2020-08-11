@@ -109,7 +109,7 @@ def test_deployment_configuration_builder(deployment_config_json):
 
     affinity = Affinity(pod_affinity=pod_affinity, pod_anti_affinity=pod_anti_affinity, node_affinity=node_affinity)
 
-    config_builder = DeploymentConfigBuilder(name="cool-deployment-config", cluster=None)
+    config_builder = DeploymentConfigurationBuilder(name="cool-deployment-config", cluster=None)
     config_builder.with_hpa(max_replicas=10, min_replicas=2, target_cpu_utilization_percentage=80). \
         with_pod_node_selector({"im": "a map", "foo": "bar"}). \
         with_resource_requirements(limits={"cpu": "4", "memory": "4g"}, requests={"cpu": "2", "memory": "2g"}). \
