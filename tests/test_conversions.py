@@ -28,8 +28,8 @@ unsupported_np_types = [np.float128, np.complex256, np.object, np.void,
 
 
 @pytest.fixture(scope="module")
-def servable_tensor(cluster: Cluster, local_model: LocalModel):
-    mv: ModelVersion = local_model.upload(cluster)
+def servable_tensor(cluster: Cluster, tensor_local_model: LocalModel):
+    mv: ModelVersion = tensor_local_model.upload(cluster)
     mv.lock_till_released()
     sv: Servable = Servable.create(cluster, mv.name, mv.version)
     servable_lock_till_serving(cluster, sv.name)

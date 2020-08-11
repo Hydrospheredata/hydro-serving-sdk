@@ -151,7 +151,7 @@ class MetricSpec:
                 modelversion_id=json_dict['config']['modelVersionId'],
                 threshold=json_dict['config']['threshold'],
                 threshold_op=json_dict['config']['thresholdCmpOperator']['kind'],
-                servable=json_dict['config']['servable']
+                servable=json_dict['config'].get('servable')
             ),
         )
 
