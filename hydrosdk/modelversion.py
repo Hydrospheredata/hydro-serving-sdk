@@ -511,7 +511,7 @@ class ModelVersion:
                  contract: ModelContract, status: Optional[ModelVersionStatus], image: Optional[DockerImage], 
                  runtime: Optional[DockerImage], is_external: bool, 
                  metadata: Optional[Dict[str, str]] = None, install_command: Optional[str] = None, 
-                 training_data: Optional[str] = None, monitoring_configuration: MonitoringConfiguration = None):
+                 training_data: Optional[str] = None, monitoring_configuration: Optional[MonitoringConfiguration] = None):
         """
         :param cluster: active cluster
         :param id: id of the modelversion assigned by the cluster
