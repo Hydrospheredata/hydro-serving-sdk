@@ -80,6 +80,11 @@ def resolve_paths(path: str, payload: List[str]) -> Dict[str, str]:
     return {os.path.normpath(os.path.join(path, v)): v for v in payload}
 
 
+class MonitoringConfiguration:
+    def __init__(self, batch_size: int):
+        self.batch_size = batch_size
+
+
 class LocalModel:
     """
     A local instance of the model yet to be uploaded to the cluster.
@@ -346,7 +351,7 @@ class ModelVersion:
         model_id = modelversion_json["model"]["id"]
         version = modelversion_json["modelVersion"]
         model_contract = contract_dict_to_ModelContract(modelversion_json["modelContract"])
-        monitoring_configuration = modelversion_json["monitoringConfiguration"]
+        monitoring_configuration = MonitoringConfiguration(batch_size=modelversion_json["monitoringConfiguration"]["batch_size"])
 
         # external model deserialization handling
         is_external = modelversion_json.get('isExternal', False)
@@ -506,7 +511,7 @@ class ModelVersion:
                  contract: ModelContract, status: Optional[ModelVersionStatus], image: Optional[DockerImage], 
                  runtime: Optional[DockerImage], is_external: bool, 
                  metadata: Optional[Dict[str, str]] = None, install_command: Optional[str] = None, 
-                 training_data: Optional[str] = None, monitoring_configuration: dict = None):
+                 training_data: Optional[str] = None, monitoring_configuration: MonitoringConfiguration = None):
         """
         :param cluster: active cluster
         :param id: id of the modelversion assigned by the cluster
