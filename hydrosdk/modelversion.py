@@ -103,9 +103,9 @@ class LocalModel:
     >>> contract = ModelContract(predict=signature)
     >>> localmodel = LocalModel(name="my-model", runtime=runtime, payload=payload, contract=contract
                                 install_command=install_command, training_data=training_data)
-    >>> modelversion = localmodel.upload(cluster)
-    >>> modelversion.lock_till_released()
-    >>> data_upload_response = modelversion.upload_training_data()
+    >>> model_version = localmodel.upload(cluster)
+    >>> model_version.lock_till_released()
+    >>> data_upload_response = model_version.upload_training_data()
     """
     def __init__(self, name: str, runtime: DockerImage, path: str, payload: List[str], 
                  contract: ModelContract, metadata: Optional[Dict[str, str]] = None, 
@@ -120,7 +120,7 @@ class LocalModel:
         :param contract: ModelContract which specifies name of function called, as well as its types 
                          and shapes of both inputs and outputs
         :param metadata: a metadata dict used to describe uploaded ModelVersions
-        :param install_command: a command to run within a runtime to prepare a modelversion environment
+        :param install_command: a command to run within a runtime to prepare a model_version environment
         :param training_data: path (absolute, relative or an S3 URI) to a csv file with the training 
                               data
         """
@@ -227,25 +227,25 @@ class ModelVersion:
     List all modelversions, registered on the cluster.
     >>> from hydrosdk.cluster import Cluster
     >>> cluster = Cluster("http-cluster-endpoint")
-    >>> for modelversion in ModelVersion.list_all(cluster):
-            print(modelversion)
+    >>> for model_version in ModelVersion.list_all(cluster):
+            print(model_version)
 
-    Upload training data for a modelversion.
+    Upload training data for a model_version.
     >>> from hydrosdk.cluster import Cluster
     >>> cluster = Cluster("http-cluster-endpoint")
-    >>> modelversion = ModelVersion.find(cluster, "my-model", 1)
-    >>> modelversion.lock_till_released()
-    >>> modelversion.training_data = "s3://my-bucket/path/to/training-data.csv"
-    >>> data_upload_response = modelversion.upload_traininf_data()
+    >>> model_version = ModelVersion.find(cluster, "my-model", 1)
+    >>> model_version.lock_till_released()
+    >>> model_version.training_data = "s3://my-bucket/path/to/training-data.csv"
+    >>> data_upload_response = model_version.upload_traininf_data()
 
-    Assign custom monitoring metrics for a modelversion.
+    Assign custom monitoring metrics for a model_version.
     >>> from hydrosdk.cluster import Cluster
     >>> from hydrosdk.monitoring import ThresholdCmpOp
     >>> cluster = Cluster("http-cluster-endpoint")
-    >>> modelversion = ModelVersion.find(cluster, "my-model", 1)
+    >>> model_version = ModelVersion.find(cluster, "my-model", 1)
     >>> modelversion_metric = ModelVersion.find(cluster, "my-model-metric", 1)
     >>> modelversion_metric = modmodelversion_metric.as_metric(1.4, ThresholdCmpOp.LESS_EQ)
-    >>> modelversion.assign_metrics([modelversion_metric])
+    >>> model_version.assign_metrics([modelversion_metric])
 
     Create an external model.
     >>> from hydrosdk.cluster import Cluster
@@ -257,16 +257,16 @@ class ModelVersion:
             .build()
     >>> training_data = "training-data.csv"
     >>> contract = ModelContract(predict=signature)
-    >>> modelversion = ModelVersion.create_externalmodel(
+    >>> model_version = ModelVersion.create_externalmodel(
             cluster=cluster, name="my-external-model", contract=contract, training_data=training_data
         )
-    >>> data_upload_response = modelversion.upload_training_data()
+    >>> data_upload_response = model_version.upload_training_data()
 
     Check logs from a ModelVersion.
     >>> from hydrosdk.cluster import Cluster
     >>> cluster = Cluster("http-cluster-endpoint")
-    >>> modelversion = ModelVersion.find(cluster, "my-model", 1)
-    >>> for event in modelversion.logs():
+    >>> model_version = ModelVersion.find(cluster, "my-model", 1)
+    >>> for event in model_version.logs():
             print(event.data)
     """
     _BASE_URL = "/api/v2/model"
@@ -298,7 +298,7 @@ class ModelVersion:
         """
         resp = cluster.request("GET", f"{ModelVersion._BASE_URL}/version/{name}/{version}")
         handle_request_error(
-            resp, f"Failed to find modelversion for name={name}, version={version}. {resp.status_code} {resp.text}")
+            resp, f"Failed to find model_version for name={name}, version={version}. {resp.status_code} {resp.text}")
         return ModelVersion._from_json(cluster, resp.json())
 
     @staticmethod
@@ -312,7 +312,7 @@ class ModelVersion:
         """
         resp = cluster.request("GET", f"{ModelVersion._BASE_URL}/version")
         handle_request_error(
-            resp, f"Failed to find modelversion by id={id}. {resp.status_code} {resp.text}")
+            resp, f"Failed to find model_version by id={id}. {resp.status_code} {resp.text}")
         for modelversion_json in resp.json():
             if modelversion_json['id'] == id:
                 return ModelVersion._from_json(cluster, modelversion_json)
@@ -439,7 +439,7 @@ class ModelVersion:
 
     def upload_training_data(self) -> 'DataUploadResponse':
         """
-        Uploads training data for a given modelversion.
+        Uploads training data for a given model_version.
 
         :raises: ValueError if training data is not specified
         """
@@ -507,7 +507,7 @@ class ModelVersion:
                  training_data: Optional[str] = None):
         """
         :param cluster: active cluster
-        :param id: id of the modelversion assigned by the cluster
+        :param id: id of the model_version assigned by the cluster
         :param model_id: id of the model assigned by the cluster
         :param name: a name of the model this ModelVersion belongs to
         :param version: a version of the model this ModelVersion belongs to
@@ -518,7 +518,7 @@ class ModelVersion:
         :param runtime: DockerImage of a runtime which was used to build an `image`
         :param is_external: indicates whether model is running outside the cluster
         :param metadata: metadata used for describing a ModelVersion
-        :param install_command: a command which was run within a runtime to prepare a modelversion 
+        :param install_command: a command which was run within a runtime to prepare a model_version
                                 environment
         """
         self.id = id
@@ -558,9 +558,9 @@ class DataUploadResponse:
     Wait till data processing gets finished.
     >>> from hydrosdk.cluster import Cluster
     >>> cluster = Cluster("http-cluster-endpoint")
-    >>> modelversion = ModelVersion.find(cluster, "my-model", 1)
-    >>> modelversion.training_data = "s3://bucket/path/to/training-data.csv"
-    >>> data_upload_response = modelversion.upload_training_data()
+    >>> model_version = ModelVersion.find(cluster, "my-model", 1)
+    >>> model_version.training_data = "s3://bucket/path/to/training-data.csv"
+    >>> data_upload_response = model_version.upload_training_data()
     >>> try: 
             data_upload_response.wait(retry=3, sleep=30) 
         except DataUploadResponse.TimeOut:

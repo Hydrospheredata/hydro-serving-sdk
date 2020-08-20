@@ -1,14 +1,12 @@
 import os
 
 import pytest
-import grpc
 
-from hydrosdk.cluster import Cluster
-from hydrosdk.image import DockerImage
 from hydrosdk.contract import ModelContract, SignatureBuilder
+from hydrosdk.image import DockerImage
 from hydrosdk.modelversion import LocalModel
 from tests.config import *
-from tests.utils import * 
+from tests.utils import *
 
 
 @pytest.fixture(scope="session")
@@ -182,4 +180,3 @@ def external_modelversion_json():
         "modelVersion": 1,
         "created": "2020-05-22T12:38:05.021Z"
     }
-  

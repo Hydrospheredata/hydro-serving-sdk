@@ -78,8 +78,9 @@ class Servable:
         return Servable._from_json(cluster, resp.json())
 
     @staticmethod
-    def create(cluster: Cluster, model_name: str, version: str,
-               metadata: Optional[Dict[str, str]] = None) -> 'Servable':
+    def create(cluster: Cluster, model_name: str, version: int,
+               metadata: Optional[Dict[str, str]] = None,
+               deployment_configuration: Optional[DeploymentConfiguration] = None) -> 'Servable':
         """
         Deploy an instance of uploaded model version at your cluster.
 
@@ -93,8 +94,12 @@ class Servable:
         msg = {
             "modelName": model_name,
             "version": version,
-            "metadata": metadata
         }
+        if metadata:
+            msg['metadata'] = metadata
+
+        if deployment_configuration:
+            msg['deploymentConfigName'] = deployment_configuration.name
 
         resp = cluster.request('POST', Servable._BASE_URL, json=msg)
         handle_request_error(
@@ -119,7 +124,7 @@ class Servable:
         return resp.json()
 
     @staticmethod
-    def _from_json(cluster: Cluster, modelversion_json: dict) -> 'Servable':
+    def _from_json(cluster: Cluster, servable_json: dict) -> 'Servable':
         """
         Deserializes Servable from JSON into a Servable object
 
@@ -127,24 +132,29 @@ class Servable:
         :param model_version_json: Servable description in json format
         :return: Servable object
         """
-        modelversion_data = modelversion_json['modelVersion']
-        modelversion = ModelVersion._from_json(cluster, modelversion_data)
+        model_version = ModelVersion._from_json(cluster, servable_json['modelVersion'])
+
+        if 'deploymentConfiguration' in servable_json:
+            deployment_configuration = DeploymentConfiguration.from_camel_case_dict(servable_json['deploymentConfiguration'])
+        else:
+            deployment_configuration = None
+
         return Servable(cluster=cluster,
-                        modelversion=modelversion,
-                        servable_name=modelversion_json['fullName'],
-                        status=ServableStatus.from_camel_case(modelversion_json['status']['status']),
-                        status_message=modelversion_json['status']['msg'],
-                        metadata=modelversion_data['metadata'],
-                        deployment_configuration=DeploymentConfiguration.from_camel_case_dict(modelversion_json['deploymentConfiguration']))
+                        model_version=model_version,
+                        servable_name=servable_json['fullName'],
+                        status=ServableStatus.from_camel_case(servable_json['status']['status']),
+                        status_message=servable_json['status']['msg'],
+                        metadata=servable_json['metadata'],
+                        deployment_configuration=deployment_configuration)
 
     def __init__(self, cluster: Cluster,
-                 modelversion: ModelVersion,
+                 model_version: ModelVersion,
                  servable_name: str,
                  status: ServableStatus,
                  status_message: str,
                  deployment_configuration: Optional[DeploymentConfiguration],
                  metadata: Optional[dict] = None) -> 'Servable':
-        self.modelversion = modelversion
+        self.model_version = model_version
         self.name = servable_name
         self.meta = metadata or {}
         self.cluster = cluster
@@ -164,7 +174,7 @@ class Servable:
         return sseclient.SSEClient(resp).events()
 
     def __str__(self) -> str:
-        return f"Servable '{self.name}' for modelversion {self.modelversion.name}:{self.modelversion.version}"
+        return f"Servable '{self.name}' for model_version {self.model_version.name}:{self.model_version.version}"
 
     def __repr__(self) -> str:
         return f"Servable {self.name}"
@@ -182,5 +192,5 @@ class Servable:
         else:
             impl = UnmonitorableImplementation(channel=self.cluster.channel, target=self.name)
 
-        return PredictServiceClient(impl=impl, signature=self.modelversion.contract.predict,
+        return PredictServiceClient(impl=impl, signature=self.model_version.contract.predict,
                                     return_type=return_type)

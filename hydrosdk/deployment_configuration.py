@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from typing import List, Dict
 
+from hydrosdk.cluster import Cluster
 from hydrosdk.utils import handle_request_error, enable_camel_case
 
 
@@ -274,16 +275,16 @@ class DeploymentConfiguration:
     _BASE_URL: str = "/api/v2/deployment_configuration"
 
     @staticmethod
-    def list(cluster):
+    def list(cluster: Cluster):
         """
         List all deployment configurations
 
         :param cluster:
         :return:
         """
-        resp = cluster.request("GET", f"{DeploymentConfiguration._BASE_URL}/")
+        resp = cluster.request("GET", DeploymentConfiguration._BASE_URL)
         handle_request_error(resp, f"Failed to get a list of Deployment Configurations - {resp.status_code} {resp.text}")
-        return [DeploymentConfiguration.from_camel_case(cluster, app_json) for app_json in resp.json()]
+        return [DeploymentConfiguration.from_camel_case_dict(app_json) for app_json in resp.json()]
 
     @staticmethod
     def find(cluster, name):
@@ -296,7 +297,7 @@ class DeploymentConfiguration:
         """
         resp = cluster.request("GET", f"{DeploymentConfiguration._BASE_URL}/{name}")
         handle_request_error(resp, f"Failed to find Deployment Configuration named {name} {resp.status_code} {resp.text}")
-        return DeploymentConfiguration.from_camel_case(resp.json())
+        return DeploymentConfiguration.from_camel_case_dict(resp.json())
 
     @staticmethod
     def delete(cluster, name):
@@ -468,6 +469,6 @@ class DeploymentConfigurationBuilder:
                                                         container=self.container_spec,
                                                         deployment=self.deployment_spec)
 
-        resp = self.cluster.request("POST", DeploymentConfiguration._BASE_URL_, json=new_deployment_config.to_camel_case())
-        handle_request_error(resp, f"Failed to upload new Deployment Configuration {resp.status_code} {resp.text}")
-        return DeploymentConfiguration.from_camel_case(resp.json())
+        resp = self.cluster.request("POST", DeploymentConfiguration._BASE_URL, json=new_deployment_config.to_camel_case_dict())
+        handle_request_error(resp, f"Failed to upload new Deployment Configuration. {resp.status_code} {resp.text}")
+        return DeploymentConfiguration.from_camel_case_dict(resp.json())

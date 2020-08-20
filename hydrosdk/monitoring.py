@@ -88,7 +88,7 @@ class MetricSpec:
         :param modelversion_id: ModelVersions for which to return metrics.
         :return: list of MetricSpec objects
         """
-        resp = cluster.request("GET", f"{MetricSpec._BASE_URL}/modelversion/{modelversion_id}")
+        resp = cluster.request("GET", f"{MetricSpec._BASE_URL}/model_version/{modelversion_id}")
         handle_request_error(
             resp, f"Failed to list MetricSpecs for modelversion_id={modelversion_id}. {resp.status_code} {resp.text}")
         return [MetricSpec._from_json(cluster, x) for x in resp.json()]

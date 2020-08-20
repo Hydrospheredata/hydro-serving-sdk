@@ -108,8 +108,14 @@ class Application:
         app_metadata = application_json.get("metadata")
         app_signature = _signature_dict_to_ModelSignature(data=application_json.get("signature"))
         app_status = ApplicationStatus[application_json.get("status").upper()]
-        app = Application(cluster=cluster, id=app_id, name=app_name, execution_graph=app_execution_graph,
-                          status=app_status, signature=app_signature, kafka_streaming=app_kafka_streaming,
+
+        app = Application(cluster=cluster,
+                          id=app_id,
+                          name=app_name,
+                          execution_graph=app_execution_graph,
+                          status=app_status,
+                          signature=app_signature,
+                          kafka_streaming=app_kafka_streaming,
                           metadata=app_metadata)
         return app
 
@@ -167,7 +173,7 @@ class ApplicationBuilder:
     
     Create an application from existing modelversions.
     >>> from hydrosdk.cluster import Cluster
-    >>> from hydrosdk.modelversion import ModelVersion
+    >>> from hydrosdk.model_version import ModelVersion
     >>> cluster = Cluster('http-cluster-endpoint')
     >>> mv1 = ModelVersion.find(cluster, "my-model", 1)
     >>> mv2 = ModelVersion.find(cluster, "my-model", 2)
@@ -291,9 +297,15 @@ class ExecutionStage:
         self.model_variants = model_variants
 
     def _asdict(self) -> Dict[str, List[Dict[str, int]]]:
-        return {"modelVariants": [{"modelVersionId": mv.modelVersion.id,
-                                   "weight": mv.weight,
-                                   "deploymentConfiguration": mv.deploymentConfig.name} for mv in self.model_variants]}
+        model_variants = []
+        for model_variant in self.model_variants:
+            dict_repr = {"modelVersionId": model_variant.modelVersion.id,
+                         "weight": model_variant.weight}
+            if model_variant.deploymentConfig is not None:
+                dict_repr['deploymentConfigName'] = model_variant.deploymentConfig.name
+
+            model_variants.append(dict_repr)
+        return {"modelVariants": model_variants}
 
     @staticmethod
     def _from_json(cluster: Cluster, execution_stage_dict: Dict) -> 'ExecutionStage':

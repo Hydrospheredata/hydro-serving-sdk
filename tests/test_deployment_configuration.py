@@ -5,10 +5,18 @@ from unittest.mock import MagicMock
 import pytest
 import yaml
 
+from hydrosdk import Cluster
 from hydrosdk.deployment_configuration import *
+from hydrosdk.utils import BadRequest
 
 
-@pytest.fixture
+@pytest.fixture()
+def cluster():
+    cluster = Cluster("http://localhost")
+    return cluster
+
+
+@pytest.fixture()
 def deployment_config_json() -> Dict:
     current_dir = os.path.dirname(os.path.abspath(__file__))
     deployment_config_json_path = os.path.join(current_dir, 'resources/deployment_configuration.json')
@@ -18,7 +26,7 @@ def deployment_config_json() -> Dict:
     return deployment_config_json
 
 
-@pytest.fixture
+@pytest.fixture()
 def deployment_config_yaml() -> Dict:
     current_dir = os.path.dirname(os.path.abspath(__file__))
     deployment_config_yaml_path = os.path.join(current_dir, 'resources/deployment_configuration.yaml')
@@ -60,7 +68,7 @@ def test_converting_back_to_camel_case(deployment_config_json):
     assert json.dumps(camel_case_config, sort_keys=True) == json.dumps(deployment_config_json, sort_keys=True)
 
 
-def test_deployment_configuration_builder(deployment_config_json):
+def test_deployment_configuration_builder(deployment_config_json, cluster, mock=False):
     wpats = [WeightedPodAffinityTerm(weight=100,
                                      pod_affinity_term=PodAffinityTerm(topology_key="toptop", namespaces=["namespace2"],
                                                                        label_selector=LabelSelector(
@@ -109,7 +117,7 @@ def test_deployment_configuration_builder(deployment_config_json):
 
     affinity = Affinity(pod_affinity=pod_affinity, pod_anti_affinity=pod_anti_affinity, node_affinity=node_affinity)
 
-    config_builder = DeploymentConfigurationBuilder(name="cool-deployment-config", cluster=None)
+    config_builder = DeploymentConfigurationBuilder(name="cool-deployment-config", cluster=cluster)
     config_builder.with_hpa(max_replicas=10, min_replicas=2, target_cpu_utilization_percentage=80). \
         with_pod_node_selector({"im": "a map", "foo": "bar"}). \
         with_resource_requirements(limits={"cpu": "4", "memory": "4g"}, requests={"cpu": "2", "memory": "2g"}). \
@@ -118,16 +126,39 @@ def test_deployment_configuration_builder(deployment_config_json):
         with_toleration(effect="PreferNoSchedule", key="equalToleration", toleration_seconds=30, operator="Exists"). \
         with_affinity(affinity)
 
-    config_builder.build = MagicMock(return_value=DeploymentConfiguration(name=config_builder.name,
-                                                                          hpa=config_builder.hpa,
-                                                                          pod=config_builder.pod_spec,
-                                                                          container=config_builder.container_spec,
-                                                                          deployment=config_builder.deployment_spec))
+    if mock:
+        config_builder.build = MagicMock(return_value=DeploymentConfiguration(name=config_builder.name,
+                                                                              hpa=config_builder.hpa,
+                                                                              pod=config_builder.pod_spec,
+                                                                              container=config_builder.container_spec,
+                                                                              deployment=config_builder.deployment_spec))
 
     new_config = config_builder.build()
     camel_case_config = new_config.to_camel_case_dict()
 
-    print(json.dumps(deployment_config_json, sort_keys=True))
-    print(json.dumps(camel_case_config, sort_keys=True))
-
     assert json.dumps(camel_case_config, sort_keys=True) == json.dumps(deployment_config_json, sort_keys=True)
+
+
+def test_with_cluster(cluster):
+    print(cluster.http_address)
+    config_builder = DeploymentConfigurationBuilder(name="config_example", cluster=cluster)
+    deployment_config = config_builder.with_hpa(max_replicas=4).with_replicas(replica_count=2).build()
+
+    assert deployment_config.name == "config_example"
+
+    assert deployment_config.hpa.max_replicas == 4
+    assert deployment_config.hpa.min_replicas == 1
+
+    assert deployment_config.deployment.replica_count == 2
+
+    DeploymentConfiguration.find(cluster, "config_example")
+
+    DeploymentConfiguration.delete(cluster, "config_example")
+
+    with pytest.raises(BadRequest, match=r"Failed to find .* config_example .*"):
+        DeploymentConfiguration.find(cluster, "config_example")
+
+
+def test_list_deployment_configs(cluster):
+    deployment_configs = DeploymentConfiguration.list(cluster)
+    assert isinstance(deployment_configs, list)
