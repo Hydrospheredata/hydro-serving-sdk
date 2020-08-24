@@ -1,8 +1,6 @@
 from typing import Union, List
-from urllib.parse import urljoin
 
 from hydrosdk.cluster import Cluster
-from hydrosdk.exceptions import MetricSpecException
 from hydrosdk.utils import handle_request_error
 
 
@@ -23,7 +21,8 @@ class MetricModel:
     """
     Model having extra metric fields
     """
-    def __init__(self, modelversion: 'ModelVersion', threshold: float, 
+
+    def __init__(self, modelversion: 'ModelVersion', threshold: float,
                  comparator: ThresholdCmpOp) -> 'MetricModel':
         self.modelversion = modelversion
         self.threshold = threshold
@@ -34,7 +33,8 @@ class MetricSpecConfig:
     """
     Metric specification config
     """
-    def __init__(self, modelversion_id: int, threshold: Union[int, float], 
+
+    def __init__(self, modelversion_id: int, threshold: Union[int, float],
                  threshold_op: ThresholdCmpOp, servable=None) -> 'MetricSpecConfig':
         """
         Create MetricSpecConfig for specified ModelVersion.
@@ -104,9 +104,9 @@ class MetricSpec:
         handle_request_error(
             resp, f"Failed to delete MetricSpec for id={id}. {resp.status_code} {resp.text}")
         return resp.json()
-    
+
     @staticmethod
-    def create(cluster: Cluster, name: str, modelversion_id: int, 
+    def create(cluster: Cluster, name: str, modelversion_id: int,
                config: MetricSpecConfig) -> 'MetricSpec':
         """
         Create MetricSpec and returns corresponding instance.
@@ -162,4 +162,3 @@ class MetricSpec:
         self.config = config
         self.modelversion_id = modelversion_id
         self.name = name
-

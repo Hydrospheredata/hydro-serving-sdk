@@ -84,6 +84,7 @@ class Servable:
         """
         Deploy an instance of uploaded model version at your cluster.
 
+        :param deployment_configuration: k8s configurations used to run this servable
         :param cluster: Cluster connected to Hydrosphere
         :param model_name: Name of uploaded model
         :param version: Version of uploaded model
@@ -101,9 +102,9 @@ class Servable:
         if deployment_configuration:
             msg['deploymentConfigName'] = deployment_configuration.name
 
+        print(msg)
         resp = cluster.request('POST', Servable._BASE_URL, json=msg)
-        handle_request_error(
-            resp, f"Failed to create a servable. {resp.status_code} {resp.text}")
+        handle_request_error(resp, f"Failed to create a servable. {resp.status_code} {resp.text}")
         return Servable._from_json(cluster, resp.json())
 
     @staticmethod
@@ -129,7 +130,7 @@ class Servable:
         Deserializes Servable from JSON into a Servable object
 
         :param cluster: active cluster
-        :param model_version_json: Servable description in json format
+        :param servable_json: Servable description in json format
         :return: Servable object
         """
         model_version = ModelVersion._from_json(cluster, servable_json['modelVersion'])

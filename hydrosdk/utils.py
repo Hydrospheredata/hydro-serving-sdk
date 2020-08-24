@@ -60,6 +60,27 @@ def read_in_chunks(filename: str, chunk_size: int) -> Generator[bytes, None, Non
 
 
 def enable_camel_case(cls):
+    """
+    Decorator used for translating Python dataclasses with snake_named
+     attributes to same-named backend entities with camelCase named attributes.
+     If attributes are dataclasses, then they are converted to\from camelCase recursively
+
+     e.g.
+     @dataclass
+     @enable_camel_case
+     class A:
+        super_variable: int = 0
+
+    >> A().to_camel_case_dict()
+    {"superVariable" : 0}
+
+    >> A.from_camel_case_dict({"superVariable": 23})
+    A(super_variable=23)
+
+    :param cls:
+    :return:
+    """
+
     def to_camel_case(s):
         components = s.split('_')
         return components[0] + ''.join(x.title() for x in components[1:])
@@ -70,7 +91,7 @@ def enable_camel_case(cls):
 
     def from_camel_case_dict(d) -> cls:
         if d is None: return None
-        
+
         keys = list(d.keys())
         camel_to_snake_keys = dict(((k, to_snake_case(k)) for k in keys))
 

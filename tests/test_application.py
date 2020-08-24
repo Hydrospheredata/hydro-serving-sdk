@@ -19,7 +19,7 @@ def modelversion(cluster: Cluster, local_model: LocalModel):
 def deployment_configuration(cluster):
     deployment_configuration = DeploymentConfigurationBuilder("app_dep_config", cluster).with_replicas(4).build()
     yield deployment_configuration
-    # DeploymentConfiguration.delete(cluster, deployment_configuration.name)
+    DeploymentConfiguration.delete(cluster, "app_dep_config")
 
 
 @pytest.fixture(scope="module")
@@ -29,7 +29,7 @@ def app(cluster: Cluster, modelversion: ModelVersion, deployment_configuration: 
         .with_stage(stage).with_metadata("key", "value").build()
     application_lock_till_ready(cluster, app.name)
     yield app
-    # Application.delete(cluster, app.name)
+    Application.delete(cluster, app.name)
 
 
 def test_model_variants_weights_sum_up_to_100(modelversion: ModelVersion):
@@ -64,6 +64,7 @@ def test_execution_graph(app: Application, modelversion: ModelVersion):
 def test_deployment_config(app: Application):
     app_dep_config = app.execution_graph.stages[0].model_variants[0].deploymentConfig
     assert app_dep_config is not None
+    assert app_dep_config.name == "app_dep_config"
 
 
 @pytest.mark.xfail(reason="(HYD-399) Bug in the hydro-serving-manager")

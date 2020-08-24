@@ -10,7 +10,7 @@ hydrosdk API
    hydrosdk.errors
    hydrosdk.exceptions
    hydrosdk.image
-   hydrosdk.modelversion
+   hydrosdk.modelVersion
    hydrosdk.monitoring
    hydrosdk.predictor
    hydrosdk.servable

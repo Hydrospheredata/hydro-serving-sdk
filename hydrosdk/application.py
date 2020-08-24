@@ -172,8 +172,7 @@ class ApplicationBuilder:
     :Example:
     
     Create an application from existing modelversions.
-    >>> from hydrosdk.cluster import Cluster
-    >>> from hydrosdk.model_version import ModelVersion
+    >>> from hydrosdk import Cluster, ModelVersion
     >>> cluster = Cluster('http-cluster-endpoint')
     >>> mv1 = ModelVersion.find(cluster, "my-model", 1)
     >>> mv2 = ModelVersion.find(cluster, "my-model", 2)

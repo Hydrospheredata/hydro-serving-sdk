@@ -259,7 +259,7 @@ class ContainerSpec:
 @dataclass
 class DeploymentConfiguration:
     """
-    DeploymentConfiguration encapsulates information about how your Servables and ModelVariants should run
+    DeploymentConfiguration encapsulates k8s configs about how your Servables and ModelVariants should run.
 
     :param name: Unique Name of a Deployment Configuration
     :param hpa: HorizontalPodAutoScaler specification
@@ -313,7 +313,7 @@ class DeploymentConfiguration:
 
 class DeploymentConfigurationBuilder:
     """
-    Deployment Config Builder is used to create a new DeploymentConfiguration
+    DeploymentConfigBuilder is used to create a new DeploymentConfiguration.
 
     :Example:
 
