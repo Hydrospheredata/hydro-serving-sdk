@@ -102,7 +102,6 @@ class Servable:
         if deployment_configuration:
             msg['deploymentConfigName'] = deployment_configuration.name
 
-        print(msg)
         resp = cluster.request('POST', Servable._BASE_URL, json=msg)
         handle_request_error(resp, f"Failed to create a servable. {resp.status_code} {resp.text}")
         return Servable._from_json(cluster, resp.json())

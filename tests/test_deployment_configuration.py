@@ -5,7 +5,6 @@ from unittest.mock import MagicMock
 import pytest
 import yaml
 
-from hydrosdk import Cluster
 from hydrosdk.deployment_configuration import *
 from hydrosdk.utils import BadRequest
 
