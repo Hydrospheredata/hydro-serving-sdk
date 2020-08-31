@@ -113,10 +113,11 @@ class Servable:
 
         :param cluster: active cluster
         :param servable_name: name of the servable
-        :return: json response from server
+        :return: json response from serve
 
-        .. warnings also: Use with caution. Predictors previously associated with this servable 
-        will not be able to connect to it.
+        .. warnings also::
+          Use with caution. Predictors previously associated with this servable will not be able to connect to it.
+
         """
         resp = cluster.request("DELETE", f"{Servable._BASE_URL}/{servable_name}")
         handle_request_error(

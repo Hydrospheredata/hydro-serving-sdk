@@ -1,4 +1,5 @@
 What's new in |release|
 ##########################
 
-* Bug fixes in 'conversion' module
+* Added support for `DeploymentConfiguration`
+* New DataUpload functionality

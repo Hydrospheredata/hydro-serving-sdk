@@ -33,6 +33,7 @@ class Application:
     :Example:
 
     List all applications created on the cluster.
+
     >>> from hydrosdk.cluster import Cluster 
     >>> cluster = Cluster("http-cluster-endpoint")
     >>> apps = Application.list(cluster)
@@ -40,6 +41,7 @@ class Application:
     >>>     print(app)
 
     Find an application by name and perform a prediction from it.
+
     >>> from hydrosdk.cluster import Cluster
     >>> cluster = Cluster("http-cluster-endpoint", "grpc-cluster-endpoint")  # important to use a gRPC endpoint 
     >>> app = Application.find(cluster, "my-application")
@@ -172,6 +174,7 @@ class ApplicationBuilder:
     :Example:
     
     Create an application from existing modelversions.
+
     >>> from hydrosdk import Cluster, ModelVersion
     >>> cluster = Cluster('http-cluster-endpoint')
     >>> mv1 = ModelVersion.find(cluster, "my-model", 1)

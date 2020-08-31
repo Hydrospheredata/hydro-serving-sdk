@@ -88,6 +88,7 @@ class LocalModel:
     :Example:
 
     Create a local instance of the model and upload it to the cluster.
+
     >>> from hydrosdk.cluster import Cluster
     >>> from hydrosdk.image import DockerImage
     >>> from hydrosdk.contract import SignatureBuilder, ProfilingType, ModelContract
@@ -225,12 +226,14 @@ class ModelVersion:
     :Example:
 
     List all modelversions, registered on the cluster.
+
     >>> from hydrosdk.cluster import Cluster
     >>> cluster = Cluster("http-cluster-endpoint")
     >>> for model_version in ModelVersion.list(cluster):
             print(model_version)
 
     Upload training data for a model_version.
+
     >>> from hydrosdk.cluster import Cluster
     >>> cluster = Cluster("http-cluster-endpoint")
     >>> model_version = ModelVersion.find(cluster, "my-model", 1)
@@ -239,6 +242,7 @@ class ModelVersion:
     >>> data_upload_response = model_version.upload_traininf_data()
 
     Assign custom monitoring metrics for a model_version.
+
     >>> from hydrosdk.cluster import Cluster
     >>> from hydrosdk.monitoring import ThresholdCmpOp
     >>> cluster = Cluster("http-cluster-endpoint")
@@ -248,6 +252,7 @@ class ModelVersion:
     >>> model_version.assign_metrics([modelversion_metric])
 
     Create an external model.
+
     >>> from hydrosdk.cluster import Cluster
     >>> from hydrosdk.contract import SignatureBuilder, ProfilingType, ModelContract
     >>> cluster = Cluster("http-cluster-endpoint")
@@ -263,6 +268,7 @@ class ModelVersion:
     >>> data_upload_response = model_version.upload_training_data()
 
     Check logs from a ModelVersion.
+
     >>> from hydrosdk.cluster import Cluster
     >>> cluster = Cluster("http-cluster-endpoint")
     >>> model_version = ModelVersion.find(cluster, "my-model", 1)
@@ -556,6 +562,7 @@ class DataUploadResponse:
     :Example:
 
     Wait till data processing gets finished.
+
     >>> from hydrosdk.cluster import Cluster
     >>> cluster = Cluster("http-cluster-endpoint")
     >>> model_version = ModelVersion.find(cluster, "my-model", 1)

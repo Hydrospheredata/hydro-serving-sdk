@@ -87,10 +87,18 @@ html_favicon = '_static/favicon.svg'
 #     ]
 # }
 
-github_url = "https://github.com/Hydrospheredata/hydro-serving-sdk"
+html_theme_options = {
+    'analytics_id': 'UA-160853646-4',
+    'prev_next_buttons_location': 'bottom',
+    # Toc options
+    'collapse_navigation': False,
+    'sticky_navigation': True,
+    'navigation_depth': 4,
+    'titles_only': False,
+    'style_nav_header_background': '#178CF2'
+}
 
-# TODO
-# google_analytics_id
+github_url = "https://github.com/Hydrospheredata/hydro-serving-sdk"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,

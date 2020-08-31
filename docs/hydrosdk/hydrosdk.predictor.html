@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>hydrosdk.predictor module &mdash; hydrosdk 2.3.2 documentation</title>
+  <title>hydrosdk.predictor module &mdash; hydrosdk 2.4.0rc2 documentation</title>
   
 
   
@@ -38,7 +38,9 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="hydrosdk.servable module" href="hydrosdk.servable.html" />
-    <link rel="prev" title="hydrosdk.monitoring module" href="hydrosdk.monitoring.html" /> 
+    <link rel="prev" title="hydrosdk.monitoring module" href="hydrosdk.monitoring.html" />
+    <link href="../_static/style.css" rel="stylesheet" type="text/css">
+
 </head>
 
 <body class="wy-body-for-nav">
@@ -48,7 +50,7 @@
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
+        <div class="wy-side-nav-search"  style="background: #178CF2" >
           
 
           
@@ -65,7 +67,7 @@
             
             
               <div class="version">
-                2.3.2
+                2.4.0rc2
               </div>
             
           
@@ -91,14 +93,22 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../whats_new.html">What’s new in 2.3.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../getting_started_tutorial.html">Getting Started Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whats_new.html">What’s new in 2.4.0rc2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#using-hydrosdk">Using hydrosdk</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started_tutorial.html">Getting Started Tutorial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started_tutorial.html#upload-your-code-as-a-local-model">Upload your code as a Local Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started_tutorial.html#connect-to-your-deployed-model">Connect to your deployed model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started_tutorial.html#attach-monitoring-model-to-your-inference-model">Attach monitoring model to your inference model</a></li>
+</ul>
+</li>
 <li class="toctree-l1 current"><a class="reference internal" href="hydrosdk.html">hydrosdk API</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.application.html">hydrosdk.application module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.cluster.html">hydrosdk.cluster module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.contract.html">hydrosdk.contract module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="hydrosdk.errors.html">hydrosdk.errors module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.exceptions.html">hydrosdk.exceptions module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.image.html">hydrosdk.image module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.modelversion.html">hydrosdk.modelversion module</a></li>
@@ -108,8 +118,9 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../getting_help.html">Getting Help</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://github.com/Hydrospheredata/hydro-serving-sdk">Github Repository</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://pypi.org/project/hydrosdk/">PyPi package</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Hydrospheredata/hydro-serving-sdk">hydrosdk Github</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Hydrospheredata/hydro-serving">Hydrosphere Platform Github</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pypi.org/project/hydrosdk/">hydrosdk PyPi package</a></li>
 </ul>
 
             
@@ -343,6 +354,18 @@
 
   
   
+    
+    <!-- Theme Analytics -->
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-160853646-4', 'auto');
+    ga('send', 'pageview');
+    </script>
+
     
    
 
