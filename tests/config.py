@@ -1,4 +1,9 @@
 config = {
+    "runtime": 
+        {
+            "image": "hydrosphere/serving-runtime-python-3.6",
+            "tag": "2.3.2"
+        },
     "http_cluster":
         {
             "ip": "http://localhost",
@@ -7,7 +12,8 @@ config = {
     "grpc_cluster":
         {
             "ip": "localhost",
-            "port": "9090"
+            "port": "9090",
+            "ssl": False
         },
     "test_model":
         {
@@ -67,9 +73,11 @@ config = {
 
 HTTP_CLUSTER_ENDPOINT = config["http_cluster"]["ip"] + ":" + config["http_cluster"]["port"]
 GRPC_CLUSTER_ENDPOINT = config["grpc_cluster"]["ip"] + ":" + config["grpc_cluster"]["port"]
-PATH_TO_SERVING = config["test_model"]["path"] + "/" + config["test_model"]["serving"]
+GRPC_CLUSTER_ENDPOINT_SSL = config["grpc_cluster"]["ssl"]
+
 DEFAULT_APP_NAME = config["default_application_name"]
 DEFAULT_MODEL_NAME = config["default_model_name"]
-
+DEFAULT_RUNTIME_IMAGE = config["runtime"]["image"]
+DEFAULT_RUNTIME_TAG = config["runtime"]["tag"]
 
 # TODO: add error messages to all tests, hard to debug otherwise

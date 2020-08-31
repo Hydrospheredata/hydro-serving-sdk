@@ -1,8 +1,9 @@
 import os
 
 import pytest
+from grpc import ssl_channel_credentials
 
-from hydrosdk.contract import ModelContract, SignatureBuilder
+from hydrosdk.contract import ModelContract, SignatureBuilder, ProfilingType
 from hydrosdk.image import DockerImage
 from hydrosdk.modelversion import LocalModel
 from tests.config import *
@@ -11,14 +12,18 @@ from tests.utils import *
 
 @pytest.fixture(scope="session")
 def cluster():
-    return Cluster(HTTP_CLUSTER_ENDPOINT, GRPC_CLUSTER_ENDPOINT)
+    if GRPC_CLUSTER_ENDPOINT_SSL:
+        credentials = ssl_channel_credentials()
+        return Cluster(HTTP_CLUSTER_ENDPOINT, GRPC_CLUSTER_ENDPOINT, ssl=True, grpc_credentials=ssl_channel_credentials())
+    else:
+        return Cluster(HTTP_CLUSTER_ENDPOINT, GRPC_CLUSTER_ENDPOINT)
 
 
 @pytest.fixture(scope="session")
 def signature():
     return SignatureBuilder('infer') \
-        .with_input('input', 'int64', [1], 'numerical') \
-        .with_output('output', 'int64', [1], 'numerical').build()
+        .with_input('input', 'int64', 'scalar', ProfilingType.NUMERICAL) \
+        .with_output('output', 'int64', 'scalar', ProfilingType.NUMERICAL).build()
 
 
 @pytest.fixture(scope="session")
@@ -33,7 +38,7 @@ def payload():
 
 @pytest.fixture(scope="session")
 def runtime():
-    return DockerImage("hydrosphere/serving-runtime-python-3.6", "2.3.2", None)
+    return DockerImage(DEFAULT_RUNTIME_IMAGE, DEFAULT_RUNTIME_TAG, None)
 
 
 @pytest.fixture(scope="session")
@@ -44,12 +49,12 @@ def local_model(payload, contract, runtime):
 
 
 @pytest.fixture(scope="session")
-def scalar_local_model(payload, runtime):
+def tensor_local_model(payload, runtime):
     current_dir = os.path.dirname(os.path.abspath(__file__))
     model_path = os.path.join(current_dir, 'resources/identity_model/')
     signature = SignatureBuilder('infer') \
-        .with_input('input', 'int64', "scalar", 'numerical') \
-        .with_output('output', 'int64', "scalar", 'numerical').build()
+        .with_input('input', 'int64', [1], ProfilingType.NONE) \
+        .with_output('output', 'int64', [1], ProfilingType.NONE).build()
     contract = ModelContract(predict=signature)
     return LocalModel(DEFAULT_MODEL_NAME, runtime, model_path, payload, contract)
 

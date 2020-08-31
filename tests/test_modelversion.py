@@ -29,7 +29,7 @@ def test_resolve_paths():
 
 def test_model_create_programmatically():
     name = DEFAULT_MODEL_NAME
-    runtime = DockerImage("hydrosphere/serving-runtime-python-3.6", "2.1.0", None)
+    runtime = DockerImage(DEFAULT_RUNTIME_IMAGE, DEFAULT_RUNTIME_TAG, None)
     path = "/home/user/folder/model/cool/"
     payload = [
         './src/func_main.py',
@@ -38,8 +38,8 @@ def test_model_create_programmatically():
         './model/snapshot.proto'
     ]
     signature = SignatureBuilder('infer') \
-        .with_input('in1', 'double', [-1, 2], 'numerical') \
-        .with_output('out1', 'double', [-1], 'numerical').build()
+        .with_input('in1', 'double', [-1, 2], ProfilingType.NUMERICAL) \
+        .with_output('out1', 'double', [-1], ProfilingType.NUMERICAL).build()
     contract = ModelContract(predict=signature)
     metadata = {"key": "value"}
     install_command = "pip install -r requirements.txt"
@@ -55,7 +55,7 @@ def test_model_create_programmatically():
 
 def test_model_create_contract_validation():
     name = DEFAULT_MODEL_NAME
-    runtime = DockerImage("hydrosphere/serving-runtime-python-3.6", "2.1.0", None)
+    runtime = DockerImage(DEFAULT_RUNTIME_IMAGE, DEFAULT_RUNTIME_TAG, None)
     path = "/home/user/folder/model/cool/"
     payload = [
         './src/func_main.py',
@@ -78,10 +78,10 @@ def test_local_model_upload(cluster: Cluster):
     payload = ['./src/func_main.py']
     current_dir = os.path.dirname(os.path.abspath(__file__))
     model_path = os.path.join(current_dir, 'resources/identity_model/')
-    runtime = DockerImage("hydrosphere/serving-runtime-python-3.6", "2.1.0", None)
+    runtime = DockerImage(DEFAULT_RUNTIME_IMAGE, DEFAULT_RUNTIME_TAG, None)
     signature = SignatureBuilder('infer') \
-        .with_input('in1', 'double', [-1, 2], 'numerical') \
-        .with_output('out1', 'double', [-1], 'numerical').build()
+        .with_input('in1', 'double', [-1, 2], ProfilingType.NONE) \
+        .with_output('out1', 'double', [-1], ProfilingType.NONE).build()
     contract = ModelContract(predict=signature)
     metadata = {"key": "value"}
     local_model = LocalModel(name, runtime, model_path, payload, contract, metadata)
@@ -130,7 +130,7 @@ def test_modelversion_list(cluster: Cluster, local_model: LocalModel):
     
 def test_ModelField_dt_invalid_input():
     name = DEFAULT_MODEL_NAME
-    runtime = DockerImage("hydrosphere/serving-runtime-python-3.6", "2.1.0", None)
+    runtime = DockerImage(DEFAULT_RUNTIME_IMAGE, DEFAULT_RUNTIME_TAG, None)
     path = "/home/user/folder/model/cool/"
     payload = []
     signature = ModelSignature(signature_name="test", inputs=[ModelField(name="test", shape=TensorShapeProto())],
@@ -142,7 +142,7 @@ def test_ModelField_dt_invalid_input():
 
 def test_ModelField_dt_invalid_output():
     name = DEFAULT_MODEL_NAME
-    runtime = DockerImage("hydrosphere/serving-runtime-python-3.6", "2.1.0", None)
+    runtime = DockerImage(DEFAULT_RUNTIME_IMAGE, DEFAULT_RUNTIME_TAG, None)
     path = "/home/user/folder/model/cool/"
     payload = []
     signature = ModelSignature(signature_name="test",
@@ -155,7 +155,7 @@ def test_ModelField_dt_invalid_output():
 
 def test_ModelField_contract_predict_None():
     name = DEFAULT_MODEL_NAME
-    runtime = DockerImage("hydrosphere/serving-runtime-python-3.6", "2.1.0", None)
+    runtime = DockerImage(DEFAULT_RUNTIME_IMAGE, DEFAULT_RUNTIME_TAG, None)
     path = "/home/user/folder/model/cool/"
     payload = []
     contract = ModelContract(predict=None)
@@ -165,7 +165,7 @@ def test_ModelField_contract_predict_None():
 
 def test_ModelField_contact_signature_name_none():
     name = DEFAULT_MODEL_NAME
-    runtime = DockerImage("hydrosphere/serving-runtime-python-3.6", "2.1.0", None)
+    runtime = DockerImage(DEFAULT_RUNTIME_IMAGE, DEFAULT_RUNTIME_TAG, None)
     path = "/home/user/folder/model/cool/"
     payload = []
     signature = ModelSignature(inputs=[ModelField(name="test", dtype=DataType.Name(2), shape=TensorShapeProto())],

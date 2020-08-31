@@ -1,4 +1,5 @@
 import random
+import time 
 
 import pytest
 import numpy as np
@@ -20,25 +21,29 @@ def value():
 
 
 @pytest.fixture(scope="module")
-def app_tensor(cluster: Cluster, local_model: LocalModel):
+def app_tensor(cluster: Cluster, tensor_local_model: LocalModel):
+    mv: ModelVersion = tensor_local_model.upload(cluster)
+    mv.lock_till_released()
+    stage = ExecutionStageBuilder().with_model_variant(mv, 100).build()
+    app = ApplicationBuilder(cluster, f"{DEFAULT_APP_NAME}-{random.randint(0, 1e5)}") \
+        .with_stage(stage).build()
+    application_lock_till_ready(cluster, app.name)
+    time.sleep(5)
+    yield app
+    Application.delete(cluster, app.name)
+
+
+@pytest.fixture(scope="module")
+def app_scalar(cluster: Cluster, local_model: LocalModel):
     mv: ModelVersion = local_model.upload(cluster)
     mv.lock_till_released()
     stage = ExecutionStageBuilder().with_model_variant(mv, 100).build()
     app = ApplicationBuilder(cluster, f"{DEFAULT_APP_NAME}-{random.randint(0, 1e5)}") \
         .with_stage(stage).build()
     application_lock_till_ready(cluster, app.name)
+    time.sleep(5)
     yield app
-
-
-@pytest.fixture(scope="module")
-def app_scalar(cluster: Cluster, scalar_local_model: LocalModel):
-    mv: ModelVersion = scalar_local_model.upload(cluster)
-    mv.lock_till_released()
-    stage = ExecutionStageBuilder().with_model_variant(mv, 100).build()
-    app = ApplicationBuilder(cluster, f"{DEFAULT_APP_NAME}-{random.randint(0, 1e5)}") \
-        .with_stage(stage).build()
-    application_lock_till_ready(cluster, app.name)
-    yield app
+    Application.delete(cluster, app.name)
 
     
 def test_predict(app_tensor: Application, value: int):
