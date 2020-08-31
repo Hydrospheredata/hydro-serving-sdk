@@ -1,4 +1,4 @@
-kind: DeploymentConfiguration
+kind: DeploymentConfig
 name: cool-deployment-config
 hpa:
   minReplicas: 2
@@ -16,7 +16,7 @@ container:
       memory: 2G
 pod:
   nodeSelector:
-    im: a map
+    im: a_map
     foo: bar
   affinity:
     nodeAffinity:

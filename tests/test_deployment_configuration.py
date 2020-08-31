@@ -51,14 +51,14 @@ def test_reading_from_camel_case_json(deployment_config_json):
     assert deployment_config.hpa.max_replicas == 10
     assert deployment_config.hpa.cpu_utilization == 80
 
-    assert deployment_config.container.resources.requests['cpu'] == "2"
-    assert deployment_config.container.resources.requests['memory'] == "2g"
-    assert deployment_config.container.resources.limits['cpu'] == "4"
-    assert deployment_config.container.resources.limits['memory'] == "4g"
+    assert deployment_config.container.resources.requests['cpu'] == "250m"
+    assert deployment_config.container.resources.requests['memory'] == "2G"
+    assert deployment_config.container.resources.limits['cpu'] == "500m"
+    assert deployment_config.container.resources.limits['memory'] == "4G"
 
     assert deployment_config.pod.node_selector.keys() == {"foo", "im"}
     assert deployment_config.pod.node_selector["foo"] == "bar"
-    assert deployment_config.pod.node_selector["im"] == "a map"
+    assert deployment_config.pod.node_selector["im"] == "a_map"
 
 
 def test_converting_back_to_camel_case(deployment_config_json):
@@ -118,8 +118,8 @@ def test_deployment_configuration_builder(deployment_config_json, cluster, mock=
 
     config_builder = DeploymentConfigurationBuilder(name="cool-deployment-config", cluster=cluster)
     config_builder.with_hpa(max_replicas=10, min_replicas=2, target_cpu_utilization_percentage=80). \
-        with_pod_node_selector({"im": "a map", "foo": "bar"}). \
-        with_resource_requirements(limits={"cpu": "4", "memory": "4g"}, requests={"cpu": "2", "memory": "2g"}). \
+        with_pod_node_selector({"im": "a_map", "foo": "bar"}). \
+        with_resource_requirements(limits={"cpu": "500m", "memory": "4G"}, requests={"cpu": "250m", "memory": "2G"}). \
         with_replicas(replica_count=4). \
         with_toleration(effect="PreferNoSchedule", key="equalToleration", toleration_seconds=30, operator="Equal", value="kek"). \
         with_toleration(effect="PreferNoSchedule", key="equalToleration", toleration_seconds=30, operator="Exists"). \
@@ -136,6 +136,9 @@ def test_deployment_configuration_builder(deployment_config_json, cluster, mock=
     camel_case_config = new_config.to_camel_case_dict()
 
     assert json.dumps(camel_case_config, sort_keys=True) == json.dumps(deployment_config_json, sort_keys=True)
+
+    if not mock:
+        DeploymentConfiguration.delete(cluster, "cool-deployment-config")
 
 
 def test_with_cluster(cluster):
