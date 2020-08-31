@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Index &mdash; hydrosdk 2.3.2 documentation</title>
+  <title>Index &mdash; hydrosdk 2.4.0rc2 documentation</title>
   
 
   
@@ -37,7 +37,9 @@
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="#" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link href="_static/style.css" rel="stylesheet" type="text/css">
+
 </head>
 
 <body class="wy-body-for-nav">
@@ -47,7 +49,7 @@
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
+        <div class="wy-side-nav-search"  style="background: #178CF2" >
           
 
           
@@ -64,7 +66,7 @@
             
             
               <div class="version">
-                2.3.2
+                2.4.0rc2
               </div>
             
           
@@ -90,13 +92,34 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="whats_new.html">What’s new in 2.3.2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
-<li class="toctree-l1"><a class="reference internal" href="getting_started_tutorial.html">Getting Started Tutorial</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hydrosdk/hydrosdk.html">hydrosdk API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="whats_new.html">What’s new in 2.4.0rc2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#using-hydrosdk">Using hydrosdk</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started_tutorial.html">Getting Started Tutorial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="getting_started_tutorial.html#upload-your-code-as-a-local-model">Upload your code as a Local Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started_tutorial.html#connect-to-your-deployed-model">Connect to your deployed model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started_tutorial.html#attach-monitoring-model-to-your-inference-model">Attach monitoring model to your inference model</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="hydrosdk/hydrosdk.html">hydrosdk API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="hydrosdk/hydrosdk.application.html">hydrosdk.application module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hydrosdk/hydrosdk.cluster.html">hydrosdk.cluster module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hydrosdk/hydrosdk.contract.html">hydrosdk.contract module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hydrosdk/hydrosdk.exceptions.html">hydrosdk.exceptions module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hydrosdk/hydrosdk.image.html">hydrosdk.image module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hydrosdk/hydrosdk.modelversion.html">hydrosdk.modelversion module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hydrosdk/hydrosdk.monitoring.html">hydrosdk.monitoring module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hydrosdk/hydrosdk.predictor.html">hydrosdk.predictor module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hydrosdk/hydrosdk.servable.html">hydrosdk.servable module</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="getting_help.html">Getting Help</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://github.com/Hydrospheredata/hydro-serving-sdk">Github Repository</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://pypi.org/project/hydrosdk/">PyPi package</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Hydrospheredata/hydro-serving-sdk">hydrosdk Github</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Hydrospheredata/hydro-serving">Hydrosphere Platform Github</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pypi.org/project/hydrosdk/">hydrosdk PyPi package</a></li>
 </ul>
 
             
@@ -168,19 +191,15 @@
  | <a href="#C"><strong>C</strong></a>
  | <a href="#D"><strong>D</strong></a>
  | <a href="#F"><strong>F</strong></a>
- | <a href="#G"><strong>G</strong></a>
  | <a href="#H"><strong>H</strong></a>
- | <a href="#I"><strong>I</strong></a>
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
  | <a href="#N"><strong>N</strong></a>
- | <a href="#O"><strong>O</strong></a>
  | <a href="#P"><strong>P</strong></a>
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
  | <a href="#T"><strong>T</strong></a>
  | <a href="#U"><strong>U</strong></a>
- | <a href="#V"><strong>V</strong></a>
  | <a href="#W"><strong>W</strong></a>
  
 </div>
@@ -189,21 +208,17 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="hydrosdk/hydrosdk.contract.html#hydrosdk.contract.AnyDimSize">AnyDimSize (class in hydrosdk.contract)</a>
 </li>
-      <li><a href="hydrosdk/hydrosdk.exceptions.html#hydrosdk.exceptions.ApplicationCreationError">ApplicationCreationError</a>
+      <li><a href="hydrosdk/hydrosdk.application.html#hydrosdk.application.Application">Application (class in hydrosdk.application)</a>
 </li>
-      <li><a href="hydrosdk/hydrosdk.exceptions.html#hydrosdk.exceptions.ApplicationDeletionError">ApplicationDeletionError</a>
-</li>
-      <li><a href="hydrosdk/hydrosdk.exceptions.html#hydrosdk.exceptions.ApplicationException">ApplicationException</a>
+      <li><a href="hydrosdk/hydrosdk.application.html#hydrosdk.application.ApplicationBuilder">ApplicationBuilder (class in hydrosdk.application)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="hydrosdk/hydrosdk.exceptions.html#hydrosdk.exceptions.ApplicationNotFoundError">ApplicationNotFoundError</a>
+      <li><a href="hydrosdk/hydrosdk.application.html#hydrosdk.application.ApplicationStatus">ApplicationStatus (class in hydrosdk.application)</a>
 </li>
-      <li><a href="hydrosdk/hydrosdk.contract.html#hydrosdk.contract.are_dtypes_compatible">are_dtypes_compatible() (in module hydrosdk.contract)</a>
+      <li><a href="hydrosdk/hydrosdk.modelversion.html#hydrosdk.modelversion.ModelVersion.as_metric">as_metric() (hydrosdk.modelversion.ModelVersion method)</a>
 </li>
-      <li><a href="hydrosdk/hydrosdk.contract.html#hydrosdk.contract.are_shapes_compatible">are_shapes_compatible() (in module hydrosdk.contract)</a>
-</li>
-      <li><a href="hydrosdk/hydrosdk.modelversion.html#hydrosdk.modelversion.Metricable.as_metric">as_metric() (hydrosdk.modelversion.Metricable method)</a>
+      <li><a href="hydrosdk/hydrosdk.modelversion.html#hydrosdk.modelversion.ModelVersion.assign_metrics">assign_metrics() (hydrosdk.modelversion.ModelVersion method)</a>
 </li>
       <li><a href="hydrosdk/hydrosdk.contract.html#hydrosdk.contract.attach_ds">attach_ds() (in module hydrosdk.contract)</a>
 </li>
@@ -213,13 +228,17 @@
 <h2 id="B">B</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="hydrosdk/hydrosdk.exceptions.html#hydrosdk.exceptions.BadRequest">BadRequest</a>
+</li>
       <li><a href="hydrosdk/hydrosdk.exceptions.html#hydrosdk.exceptions.BadResponse">BadResponse</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="hydrosdk/hydrosdk.application.html#hydrosdk.application.ApplicationBuilder.build">build() (hydrosdk.application.ApplicationBuilder method)</a>
+</li>
       <li><a href="hydrosdk/hydrosdk.cluster.html#hydrosdk.cluster.Cluster.build_info">build_info() (hydrosdk.cluster.Cluster method)</a>
 </li>
-      <li><a href="hydrosdk/hydrosdk.modelversion.html#hydrosdk.modelversion.UploadResponse.building">building() (hydrosdk.modelversion.UploadResponse method)</a>
+      <li><a href="hydrosdk/hydrosdk.modelversion.html#hydrosdk.modelversion.ModelVersion.build_logs">build_logs() (hydrosdk.modelversion.ModelVersion method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -229,39 +248,43 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="hydrosdk/hydrosdk.cluster.html#hydrosdk.cluster.Cluster">Cluster (class in hydrosdk.cluster)</a>
 </li>
-      <li><a href="hydrosdk/hydrosdk.cluster.html#hydrosdk.cluster.Cluster.connect">connect() (hydrosdk.cluster.Cluster static method)</a>
-</li>
       <li><a href="hydrosdk/hydrosdk.contract.html#hydrosdk.contract.contract_dict_to_ModelContract">contract_dict_to_ModelContract() (in module hydrosdk.contract)</a>
-</li>
-      <li><a href="hydrosdk/hydrosdk.contract.html#hydrosdk.contract.contract_yaml_to_ModelContract">contract_yaml_to_ModelContract() (in module hydrosdk.contract)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="hydrosdk/hydrosdk.contract.html#hydrosdk.contract.ContractViolationException">ContractViolationException</a>
+      <li><a href="hydrosdk/hydrosdk.exceptions.html#hydrosdk.exceptions.ContractViolationException">ContractViolationException</a>
 </li>
-      <li><a href="hydrosdk/hydrosdk.modelversion.html#hydrosdk.modelversion.ModelVersion.create">create() (hydrosdk.modelversion.ModelVersion static method)</a>
-
-      <ul>
-        <li><a href="hydrosdk/hydrosdk.monitoring.html#hydrosdk.monitoring.MetricSpec.create">(hydrosdk.monitoring.MetricSpec static method)</a>
+      <li><a href="hydrosdk/hydrosdk.servable.html#hydrosdk.servable.Servable.create">create() (hydrosdk.servable.Servable static method)</a>
 </li>
-        <li><a href="hydrosdk/hydrosdk.servable.html#hydrosdk.servable.Servable.create">(hydrosdk.servable.Servable static method)</a>
+      <li><a href="hydrosdk/hydrosdk.modelversion.html#hydrosdk.modelversion.ModelVersion.create_externalmodel">create_externalmodel() (hydrosdk.modelversion.ModelVersion static method)</a>
 </li>
-      </ul></li>
   </ul></td>
 </tr></table>
 
 <h2 id="D">D</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="hydrosdk/hydrosdk.monitoring.html#hydrosdk.monitoring.MetricSpec.delete">delete() (hydrosdk.monitoring.MetricSpec method)</a>
+      <li><a href="hydrosdk/hydrosdk.modelversion.html#hydrosdk.modelversion.DataProfileStatus">DataProfileStatus (class in hydrosdk.modelversion)</a>
+</li>
+      <li><a href="hydrosdk/hydrosdk.modelversion.html#hydrosdk.modelversion.DataUploadResponse">DataUploadResponse (class in hydrosdk.modelversion)</a>
+</li>
+      <li><a href="hydrosdk/hydrosdk.modelversion.html#hydrosdk.modelversion.DataUploadResponse.Failed">DataUploadResponse.Failed</a>
+</li>
+      <li><a href="hydrosdk/hydrosdk.modelversion.html#hydrosdk.modelversion.DataUploadResponse.NotRegistered">DataUploadResponse.NotRegistered</a>
+</li>
+      <li><a href="hydrosdk/hydrosdk.modelversion.html#hydrosdk.modelversion.DataUploadResponse.TimeOut">DataUploadResponse.TimeOut</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="hydrosdk/hydrosdk.application.html#hydrosdk.application.Application.delete">delete() (hydrosdk.application.Application static method)</a>
 
       <ul>
         <li><a href="hydrosdk/hydrosdk.servable.html#hydrosdk.servable.Servable.delete">(hydrosdk.servable.Servable static method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="hydrosdk/hydrosdk.modelversion.html#hydrosdk.modelversion.ModelVersion.delete_by_model_id">delete_by_model_id() (hydrosdk.modelversion.ModelVersion static method)</a>
+      <li><a href="hydrosdk/hydrosdk.application.html#hydrosdk.application.ModelVariant.deploymentConfig">deploymentConfig() (hydrosdk.application.ModelVariant property)</a>
+</li>
+      <li><a href="hydrosdk/hydrosdk.application.html#hydrosdk.application.StreamingParams.destinationTopic">destinationTopic() (hydrosdk.application.StreamingParams property)</a>
 </li>
       <li><a href="hydrosdk/hydrosdk.image.html#hydrosdk.image.DockerImage">DockerImage (class in hydrosdk.image)</a>
 </li>
@@ -275,31 +298,19 @@
 </li>
       <li><a href="hydrosdk/hydrosdk.contract.html#hydrosdk.contract.field_to_dict">field_to_dict() (in module hydrosdk.contract)</a>
 </li>
-      <li><a href="hydrosdk/hydrosdk.modelversion.html#hydrosdk.modelversion.ModelVersion.find">find() (hydrosdk.modelversion.ModelVersion static method)</a>
+      <li><a href="hydrosdk/hydrosdk.application.html#hydrosdk.application.Application.find">find() (hydrosdk.application.Application static method)</a>
 
       <ul>
-        <li><a href="hydrosdk/hydrosdk.servable.html#hydrosdk.servable.Servable.find">(hydrosdk.servable.Servable static method)</a>
+        <li><a href="hydrosdk/hydrosdk.modelversion.html#hydrosdk.modelversion.ModelVersion.find">(hydrosdk.modelversion.ModelVersion static method)</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="hydrosdk/hydrosdk.modelversion.html#hydrosdk.modelversion.ModelVersion.find_by_id">find_by_id() (hydrosdk.modelversion.ModelVersion static method)</a>
 </li>
-      <li><a href="hydrosdk/hydrosdk.modelversion.html#hydrosdk.modelversion.LocalModel.from_file">from_file() (hydrosdk.modelversion.LocalModel static method)</a>
+      <li><a href="hydrosdk/hydrosdk.modelversion.html#hydrosdk.modelversion.ModelVersion.find_by_model_name">find_by_model_name() (hydrosdk.modelversion.ModelVersion static method)</a>
 </li>
-      <li><a href="hydrosdk/hydrosdk.modelversion.html#hydrosdk.modelversion.ModelVersion.from_json">from_json() (hydrosdk.modelversion.ModelVersion static method)</a>
-</li>
-  </ul></td>
-</tr></table>
-
-<h2 id="G">G</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="hydrosdk/hydrosdk.monitoring.html#hydrosdk.monitoring.MetricSpec.get">get() (hydrosdk.monitoring.MetricSpec static method)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="hydrosdk/hydrosdk.modelversion.html#hydrosdk.modelversion.UploadResponse.get_status">get_status() (hydrosdk.modelversion.UploadResponse method)</a>
+      <li><a href="hydrosdk/hydrosdk.servable.html#hydrosdk.servable.Servable.find_by_name">find_by_name() (hydrosdk.servable.Servable static method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -307,6 +318,13 @@
 <h2 id="H">H</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    hydrosdk.application
+
+      <ul>
+        <li><a href="hydrosdk/hydrosdk.application.html#module-hydrosdk.application">module</a>
+</li>
+      </ul></li>
       <li>
     hydrosdk.cluster
 
@@ -319,13 +337,6 @@
 
       <ul>
         <li><a href="hydrosdk/hydrosdk.contract.html#module-hydrosdk.contract">module</a>
-</li>
-      </ul></li>
-      <li>
-    hydrosdk.errors
-
-      <ul>
-        <li><a href="hydrosdk/hydrosdk.errors.html#module-hydrosdk.errors">module</a>
 </li>
       </ul></li>
       <li>
@@ -375,34 +386,22 @@
   </ul></td>
 </tr></table>
 
-<h2 id="I">I</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="hydrosdk/hydrosdk.errors.html#hydrosdk.errors.InvalidYAMLFile">InvalidYAMLFile</a>
-</li>
-  </ul></td>
-</tr></table>
-
 <h2 id="L">L</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="hydrosdk/hydrosdk.servable.html#hydrosdk.servable.Servable.list">list() (hydrosdk.servable.Servable static method)</a>
+      <li><a href="hydrosdk/hydrosdk.application.html#hydrosdk.application.Application.list">list() (hydrosdk.application.Application static method)</a>
+
+      <ul>
+        <li><a href="hydrosdk/hydrosdk.modelversion.html#hydrosdk.modelversion.ModelVersion.list">(hydrosdk.modelversion.ModelVersion static method)</a>
 </li>
-      <li><a href="hydrosdk/hydrosdk.monitoring.html#hydrosdk.monitoring.MetricSpec.list_all">list_all() (hydrosdk.monitoring.MetricSpec static method)</a>
+        <li><a href="hydrosdk/hydrosdk.servable.html#hydrosdk.servable.Servable.list">(hydrosdk.servable.Servable static method)</a>
 </li>
-      <li><a href="hydrosdk/hydrosdk.monitoring.html#hydrosdk.monitoring.MetricSpec.list_for_model">list_for_model() (hydrosdk.monitoring.MetricSpec static method)</a>
-</li>
-      <li><a href="hydrosdk/hydrosdk.modelversion.html#hydrosdk.modelversion.ModelVersion.list_model_versions">list_model_versions() (hydrosdk.modelversion.ModelVersion static method)</a>
-</li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="hydrosdk/hydrosdk.modelversion.html#hydrosdk.modelversion.ModelVersion.list_modelversions_by_model_name">list_modelversions_by_model_name() (hydrosdk.modelversion.ModelVersion static method)</a>
-</li>
       <li><a href="hydrosdk/hydrosdk.modelversion.html#hydrosdk.modelversion.LocalModel">LocalModel (class in hydrosdk.modelversion)</a>
 </li>
-      <li><a href="hydrosdk/hydrosdk.modelversion.html#hydrosdk.modelversion.UploadResponse.lock_till_released">lock_till_released() (hydrosdk.modelversion.UploadResponse method)</a>
-</li>
-      <li><a href="hydrosdk/hydrosdk.modelversion.html#hydrosdk.modelversion.UploadResponse.logs">logs() (hydrosdk.modelversion.UploadResponse method)</a>
+      <li><a href="hydrosdk/hydrosdk.modelversion.html#hydrosdk.modelversion.ModelVersion.lock_till_released">lock_till_released() (hydrosdk.modelversion.ModelVersion method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -410,11 +409,7 @@
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="hydrosdk/hydrosdk.modelversion.html#hydrosdk.modelversion.Metricable">Metricable (class in hydrosdk.modelversion)</a>
-</li>
       <li><a href="hydrosdk/hydrosdk.monitoring.html#hydrosdk.monitoring.MetricModel">MetricModel (class in hydrosdk.monitoring)</a>
-</li>
-      <li><a href="hydrosdk/hydrosdk.monitoring.html#hydrosdk.monitoring.MetricSpec">MetricSpec (class in hydrosdk.monitoring)</a>
 </li>
       <li><a href="hydrosdk/hydrosdk.monitoring.html#hydrosdk.monitoring.MetricSpecConfig">MetricSpecConfig (class in hydrosdk.monitoring)</a>
 </li>
@@ -422,33 +417,31 @@
 </li>
       <li><a href="hydrosdk/hydrosdk.contract.html#hydrosdk.contract.mock_input_data">mock_input_data() (in module hydrosdk.contract)</a>
 </li>
-      <li><a href="hydrosdk/hydrosdk.servable.html#hydrosdk.servable.Servable.model_version_json_to_servable">model_version_json_to_servable() (hydrosdk.servable.Servable static method)</a>
-</li>
       <li><a href="hydrosdk/hydrosdk.contract.html#hydrosdk.contract.ModelContract_to_contract_dict">ModelContract_to_contract_dict() (in module hydrosdk.contract)</a>
 </li>
       <li><a href="hydrosdk/hydrosdk.contract.html#hydrosdk.contract.ModelSignature_to_signature_dict">ModelSignature_to_signature_dict() (in module hydrosdk.contract)</a>
 </li>
+      <li><a href="hydrosdk/hydrosdk.application.html#hydrosdk.application.ModelVariant">ModelVariant (class in hydrosdk.application)</a>
+</li>
       <li><a href="hydrosdk/hydrosdk.modelversion.html#hydrosdk.modelversion.ModelVersion">ModelVersion (class in hydrosdk.modelversion)</a>
 </li>
-      <li><a href="hydrosdk/hydrosdk.modelversion.html#hydrosdk.modelversion.ModelVersion.BadRequest">ModelVersion.BadRequest</a>
+      <li><a href="hydrosdk/hydrosdk.application.html#hydrosdk.application.ModelVariant.modelVersion">modelVersion() (hydrosdk.application.ModelVariant property)</a>
 </li>
-      <li><a href="hydrosdk/hydrosdk.modelversion.html#hydrosdk.modelversion.ModelVersion.BadResponse">ModelVersion.BadResponse</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="hydrosdk/hydrosdk.modelversion.html#hydrosdk.modelversion.ModelVersion.NotFound">ModelVersion.NotFound</a>
+      <li><a href="hydrosdk/hydrosdk.modelversion.html#hydrosdk.modelversion.ModelVersion.ReleaseFailed">ModelVersion.ReleaseFailed</a>
 </li>
       <li><a href="hydrosdk/hydrosdk.modelversion.html#hydrosdk.modelversion.ModelVersionStatus">ModelVersionStatus (class in hydrosdk.modelversion)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     module
 
       <ul>
+        <li><a href="hydrosdk/hydrosdk.application.html#module-hydrosdk.application">hydrosdk.application</a>
+</li>
         <li><a href="hydrosdk/hydrosdk.cluster.html#module-hydrosdk.cluster">hydrosdk.cluster</a>
 </li>
         <li><a href="hydrosdk/hydrosdk.contract.html#module-hydrosdk.contract">hydrosdk.contract</a>
-</li>
-        <li><a href="hydrosdk/hydrosdk.errors.html#module-hydrosdk.errors">hydrosdk.errors</a>
 </li>
         <li><a href="hydrosdk/hydrosdk.exceptions.html#module-hydrosdk.exceptions">hydrosdk.exceptions</a>
 </li>
@@ -474,18 +467,6 @@
       <li><a href="hydrosdk/hydrosdk.image.html#hydrosdk.image.DockerImage.name">name() (hydrosdk.image.DockerImage property)</a>
 </li>
   </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="hydrosdk/hydrosdk.modelversion.html#hydrosdk.modelversion.UploadResponse.not_ok">not_ok() (hydrosdk.modelversion.UploadResponse method)</a>
-</li>
-  </ul></td>
-</tr></table>
-
-<h2 id="O">O</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="hydrosdk/hydrosdk.modelversion.html#hydrosdk.modelversion.UploadResponse.ok">ok() (hydrosdk.modelversion.UploadResponse method)</a>
-</li>
-  </ul></td>
 </tr></table>
 
 <h2 id="P">P</h2>
@@ -493,22 +474,24 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="hydrosdk/hydrosdk.contract.html#hydrosdk.contract.parse_field">parse_field() (in module hydrosdk.contract)</a>
 </li>
-      <li><a href="hydrosdk/hydrosdk.modelversion.html#hydrosdk.modelversion.UploadResponse.poll_modelversion">poll_modelversion() (hydrosdk.modelversion.UploadResponse method)</a>
-</li>
       <li><a href="hydrosdk/hydrosdk.predictor.html#hydrosdk.predictor.PredictServiceClient.predict">predict() (hydrosdk.predictor.PredictServiceClient method)</a>
 </li>
       <li><a href="hydrosdk/hydrosdk.predictor.html#hydrosdk.predictor.PredictServiceClient.predict_resp_to_df">predict_resp_to_df() (hydrosdk.predictor.PredictServiceClient static method)</a>
 </li>
       <li><a href="hydrosdk/hydrosdk.predictor.html#hydrosdk.predictor.PredictServiceClient.predict_resp_to_dict_np">predict_resp_to_dict_np() (hydrosdk.predictor.PredictServiceClient static method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="hydrosdk/hydrosdk.predictor.html#hydrosdk.predictor.PredictServiceClient.predict_resp_to_dict_pydtype">predict_resp_to_dict_pydtype() (hydrosdk.predictor.PredictServiceClient static method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="hydrosdk/hydrosdk.predictor.html#hydrosdk.predictor.PredictImplementation">PredictImplementation (class in hydrosdk.predictor)</a>
 </li>
-      <li><a href="hydrosdk/hydrosdk.servable.html#hydrosdk.servable.Servable.predictor">predictor() (hydrosdk.servable.Servable method)</a>
+      <li><a href="hydrosdk/hydrosdk.application.html#hydrosdk.application.Application.predictor">predictor() (hydrosdk.application.Application method)</a>
+
+      <ul>
+        <li><a href="hydrosdk/hydrosdk.servable.html#hydrosdk.servable.Servable.predictor">(hydrosdk.servable.Servable method)</a>
 </li>
+      </ul></li>
       <li><a href="hydrosdk/hydrosdk.predictor.html#hydrosdk.predictor.PredictServiceClient">PredictServiceClient (class in hydrosdk.predictor)</a>
 </li>
       <li><a href="hydrosdk/hydrosdk.contract.html#hydrosdk.contract.ProfilingType">ProfilingType (class in hydrosdk.contract)</a>
@@ -519,12 +502,10 @@
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="hydrosdk/hydrosdk.modelversion.html#hydrosdk.modelversion.read_yaml">read_yaml() (in module hydrosdk.modelversion)</a>
+      <li><a href="hydrosdk/hydrosdk.cluster.html#hydrosdk.cluster.Cluster.request">request() (hydrosdk.cluster.Cluster method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="hydrosdk/hydrosdk.cluster.html#hydrosdk.cluster.Cluster.request">request() (hydrosdk.cluster.Cluster method)</a>
-</li>
       <li><a href="hydrosdk/hydrosdk.modelversion.html#hydrosdk.modelversion.resolve_paths">resolve_paths() (in module hydrosdk.modelversion)</a>
 </li>
   </ul></td>
@@ -539,13 +520,17 @@
 </li>
       <li><a href="hydrosdk/hydrosdk.servable.html#hydrosdk.servable.ServableStatus">ServableStatus (class in hydrosdk.servable)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="hydrosdk/hydrosdk.image.html#hydrosdk.image.DockerImage.sha256">sha256() (hydrosdk.image.DockerImage property)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="hydrosdk/hydrosdk.contract.html#hydrosdk.contract.shape_to_dict">shape_to_dict() (in module hydrosdk.contract)</a>
 </li>
       <li><a href="hydrosdk/hydrosdk.contract.html#hydrosdk.contract.signature_dict_to_ModelContract">signature_dict_to_ModelContract() (in module hydrosdk.contract)</a>
+</li>
+      <li><a href="hydrosdk/hydrosdk.application.html#hydrosdk.application.StreamingParams.sourceTopic">sourceTopic() (hydrosdk.application.StreamingParams property)</a>
+</li>
+      <li><a href="hydrosdk/hydrosdk.application.html#hydrosdk.application.StreamingParams">StreamingParams (class in hydrosdk.application)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -557,9 +542,9 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="hydrosdk/hydrosdk.modelversion.html#hydrosdk.modelversion.ModelVersion.to_proto">to_proto() (hydrosdk.modelversion.ModelVersion method)</a>
+      <li><a href="hydrosdk/hydrosdk.monitoring.html#hydrosdk.monitoring.ThresholdCmpOp">ThresholdCmpOp (class in hydrosdk.monitoring)</a>
 </li>
-      <li><a href="hydrosdk/hydrosdk.monitoring.html#hydrosdk.monitoring.TresholdCmpOp">TresholdCmpOp (class in hydrosdk.monitoring)</a>
+      <li><a href="hydrosdk/hydrosdk.modelversion.html#hydrosdk.modelversion.ModelVersion.to_proto">to_proto() (hydrosdk.modelversion.ModelVersion method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -567,21 +552,21 @@
 <h2 id="U">U</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="hydrosdk/hydrosdk.exceptions.html#hydrosdk.exceptions.UnknownException">UnknownException</a>
+</li>
       <li><a href="hydrosdk/hydrosdk.predictor.html#hydrosdk.predictor.UnmonitorableImplementation">UnmonitorableImplementation (class in hydrosdk.predictor)</a>
 </li>
+      <li><a href="hydrosdk/hydrosdk.application.html#hydrosdk.application.Application.update_status">update_status() (hydrosdk.application.Application method)</a>
+
+      <ul>
+        <li><a href="hydrosdk/hydrosdk.modelversion.html#hydrosdk.modelversion.ModelVersion.update_status">(hydrosdk.modelversion.ModelVersion method)</a>
+</li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="hydrosdk/hydrosdk.modelversion.html#hydrosdk.modelversion.LocalModel.upload">upload() (hydrosdk.modelversion.LocalModel method)</a>
 </li>
-      <li><a href="hydrosdk/hydrosdk.modelversion.html#hydrosdk.modelversion.UploadResponse">UploadResponse (class in hydrosdk.modelversion)</a>
-</li>
-  </ul></td>
-</tr></table>
-
-<h2 id="V">V</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="hydrosdk/hydrosdk.contract.html#hydrosdk.contract.validate">validate() (in module hydrosdk.contract)</a>
+      <li><a href="hydrosdk/hydrosdk.modelversion.html#hydrosdk.modelversion.ModelVersion.upload_training_data">upload_training_data() (hydrosdk.modelversion.ModelVersion method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -589,7 +574,19 @@
 <h2 id="W">W</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="hydrosdk/hydrosdk.modelversion.html#hydrosdk.modelversion.Metricable.with_metrics">with_metrics() (hydrosdk.modelversion.Metricable method)</a>
+      <li><a href="hydrosdk/hydrosdk.modelversion.html#hydrosdk.modelversion.DataUploadResponse.wait">wait() (hydrosdk.modelversion.DataUploadResponse method)</a>
+</li>
+      <li><a href="hydrosdk/hydrosdk.application.html#hydrosdk.application.ModelVariant.weight">weight() (hydrosdk.application.ModelVariant property)</a>
+</li>
+      <li><a href="hydrosdk/hydrosdk.application.html#hydrosdk.application.ApplicationBuilder.with_kafka_params">with_kafka_params() (hydrosdk.application.ApplicationBuilder method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="hydrosdk/hydrosdk.application.html#hydrosdk.application.ApplicationBuilder.with_metadata">with_metadata() (hydrosdk.application.ApplicationBuilder method)</a>
+</li>
+      <li><a href="hydrosdk/hydrosdk.application.html#hydrosdk.application.ApplicationBuilder.with_metadatas">with_metadatas() (hydrosdk.application.ApplicationBuilder method)</a>
+</li>
+      <li><a href="hydrosdk/hydrosdk.application.html#hydrosdk.application.ApplicationBuilder.with_stage">with_stage() (hydrosdk.application.ApplicationBuilder method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -631,6 +628,18 @@
 
   
   
+    
+    <!-- Theme Analytics -->
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-160853646-4', 'auto');
+    ga('send', 'pageview');
+    </script>
+
     
    
 

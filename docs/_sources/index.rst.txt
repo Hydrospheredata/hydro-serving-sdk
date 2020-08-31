@@ -4,6 +4,16 @@ hydrosdk - SDK for Hydrosphere.io
 hydrosdk is the Hydrosphere.io SDK for Python. It enables Python developers to configure, and manage model lifecycle on Hydrosphere.io platform.
 hydrosdk provides an easy to use, object-oriented API.
 
+Hydrosphere is a platform for deploying, versioning and monitoring your machine learning models in production.
+It is language-agnostic and framework-agnostic, with support for all major programming languages and frameworks - Python, Java, Tensorflow, Pytorch, etc.
+
+What to do next?
+
+* ⭐️ Checkout and star `Hydrosphere Github Repo <https://github.com/Hydrospheredata/hydro-serving>`_;
+* 🐍 Install and explore our :doc:`quickstart` tutorial;
+* 🥳 Become part of `Hydrosphere Slack Community <https://join.slack.com/t/hydrospheredata/shared_invite/zt-gg41mrlg-eDz6v6yhkOfoMf~oi2mTug>`_.
+
+
 
 .. toctree::
    :maxdepth: 4
@@ -14,8 +24,9 @@ hydrosdk provides an easy to use, object-oriented API.
    getting_started_tutorial
    hydrosdk/hydrosdk
    getting_help
-   Github Repository <https://github.com/Hydrospheredata/hydro-serving-sdk>
-   PyPi package <https://pypi.org/project/hydrosdk/>
+   hydrosdk Github <https://github.com/Hydrospheredata/hydro-serving-sdk>
+   Hydrosphere Platform Github <https://github.com/Hydrospheredata/hydro-serving>
+   hydrosdk PyPi package <https://pypi.org/project/hydrosdk/>
 
 
 Indices and tables

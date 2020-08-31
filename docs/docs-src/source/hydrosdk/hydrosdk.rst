@@ -7,7 +7,6 @@ hydrosdk API
    hydrosdk.application
    hydrosdk.cluster
    hydrosdk.contract
-   hydrosdk.errors
    hydrosdk.exceptions
    hydrosdk.image
    hydrosdk.modelversion

@@ -9,9 +9,9 @@ from typing import Dict, List, Optional, Iterable
 import sseclient
 from sseclient import Event
 
+from hydrosdk import DeploymentConfiguration
 from hydrosdk.cluster import Cluster
 from hydrosdk.data.types import PredictorDT
-from hydrosdk.exceptions import ServableException
 from hydrosdk.modelversion import ModelVersion
 from hydrosdk.predictor import PredictServiceClient, MonitorableImplementation, UnmonitorableImplementation
 from hydrosdk.utils import handle_request_error
@@ -48,7 +48,7 @@ class Servable:
     _BASE_URL = "/api/v2/servable"
 
     @staticmethod
-    def list_all(cluster: Cluster) -> List['Servable']:
+    def list(cluster: Cluster) -> List['Servable']:
         """
         Retrieve a list of all servables available at your cluster
 
@@ -71,18 +71,20 @@ class Servable:
         :raises ServableException:
         :return: Servable
         """
-        
+
         resp = cluster.request("GET", f"{Servable._BASE_URL}/{servable_name}")
         handle_request_error(
             resp, f"Failed to find servable for name={servable_name}. {resp.status_code} {resp.text}")
         return Servable._from_json(cluster, resp.json())
 
     @staticmethod
-    def create(cluster: Cluster, model_name: str, version: str,
-               metadata: Optional[Dict[str, str]] = None) -> 'Servable':
+    def create(cluster: Cluster, model_name: str, version: int,
+               metadata: Optional[Dict[str, str]] = None,
+               deployment_configuration: Optional[DeploymentConfiguration] = None) -> 'Servable':
         """
         Deploy an instance of uploaded model version at your cluster.
 
+        :param deployment_configuration: k8s configurations used to run this servable
         :param cluster: Cluster connected to Hydrosphere
         :param model_name: Name of uploaded model
         :param version: Version of uploaded model
@@ -93,12 +95,15 @@ class Servable:
         msg = {
             "modelName": model_name,
             "version": version,
-            "metadata": metadata
         }
+        if metadata:
+            msg['metadata'] = metadata
+
+        if deployment_configuration:
+            msg['deploymentConfigName'] = deployment_configuration.name
 
         resp = cluster.request('POST', Servable._BASE_URL, json=msg)
-        handle_request_error(
-            resp, f"Failed to create a servable. {resp.status_code} {resp.text}")
+        handle_request_error(resp, f"Failed to create a servable. {resp.status_code} {resp.text}")
         return Servable._from_json(cluster, resp.json())
 
     @staticmethod
@@ -108,10 +113,11 @@ class Servable:
 
         :param cluster: active cluster
         :param servable_name: name of the servable
-        :return: json response from server
+        :return: json response from serve
 
-        .. warnings also: Use with caution. Predictors previously associated with this servable 
-        will not be able to connect to it.
+        .. warnings also::
+          Use with caution. Predictors previously associated with this servable will not be able to connect to it.
+
         """
         resp = cluster.request("DELETE", f"{Servable._BASE_URL}/{servable_name}")
         handle_request_error(
@@ -119,31 +125,43 @@ class Servable:
         return resp.json()
 
     @staticmethod
-    def _from_json(cluster: Cluster, modelversion_json: dict) -> 'Servable':
+    def _from_json(cluster: Cluster, servable_json: dict) -> 'Servable':
         """
         Deserializes Servable from JSON into a Servable object
 
         :param cluster: active cluster
-        :param model_version_json: Servable description in json format
+        :param servable_json: Servable description in json format
         :return: Servable object
         """
-        modelversion_data = modelversion_json['modelVersion']
-        modelversion = ModelVersion._from_json(cluster, modelversion_data)
-        return Servable(cluster=cluster,
-                        modelversion=modelversion,
-                        servable_name=modelversion_json['fullName'],
-                        status=ServableStatus.from_camel_case(modelversion_json['status']['status']),
-                        status_message=modelversion_json['status']['msg'],
-                        metadata=modelversion_data['metadata'])
+        model_version = ModelVersion._from_json(cluster, servable_json['modelVersion'])
 
-    def __init__(self, cluster: Cluster, modelversion: ModelVersion, servable_name: str, 
-                 status: str, status_message: str, metadata: Optional[dict] = None) -> 'Servable':
-        self.modelversion = modelversion
+        if 'deploymentConfiguration' in servable_json:
+            deployment_configuration = DeploymentConfiguration.from_camel_case_dict(servable_json['deploymentConfiguration'])
+        else:
+            deployment_configuration = None
+
+        return Servable(cluster=cluster,
+                        model_version=model_version,
+                        servable_name=servable_json['fullName'],
+                        status=ServableStatus.from_camel_case(servable_json['status']['status']),
+                        status_message=servable_json['status']['msg'],
+                        metadata=servable_json['metadata'],
+                        deployment_configuration=deployment_configuration)
+
+    def __init__(self, cluster: Cluster,
+                 model_version: ModelVersion,
+                 servable_name: str,
+                 status: ServableStatus,
+                 status_message: str,
+                 deployment_configuration: Optional[DeploymentConfiguration],
+                 metadata: Optional[dict] = None) -> 'Servable':
+        self.model_version = model_version
         self.name = servable_name
         self.meta = metadata or {}
         self.cluster = cluster
         self.status = status
         self.status_message = status_message
+        self.deployment_configuration = deployment_configuration
 
     def logs(self, follow=False) -> Iterable[Event]:
         if follow:
@@ -157,7 +175,7 @@ class Servable:
         return sseclient.SSEClient(resp).events()
 
     def __str__(self) -> str:
-        return f"Servable '{self.name}' for modelversion {self.modelversion.name}:{self.modelversion.version}"
+        return f"Servable '{self.name}' for model_version {self.model_version.name}:{self.model_version.version}"
 
     def __repr__(self) -> str:
         return f"Servable {self.name}"
@@ -175,5 +193,5 @@ class Servable:
         else:
             impl = UnmonitorableImplementation(channel=self.cluster.channel, target=self.name)
 
-        return PredictServiceClient(impl=impl, signature=self.modelversion.contract.predict,
+        return PredictServiceClient(impl=impl, signature=self.model_version.contract.predict,
                                     return_type=return_type)

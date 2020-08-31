@@ -8,6 +8,6 @@ requests~=2.23.0
 requests_toolbelt~=0.9.1
 hydro-serving-grpc~=2.2.1
 pandas~=1.0.3
-
+sseclient==0.0.26
 requests_mock>=1.7.0
 pytest~=5.4.1

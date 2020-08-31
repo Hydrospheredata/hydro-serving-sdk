@@ -1,8 +1,8 @@
 import json
 import logging
-from typing import Optional, Dict
-from urllib import parse
+from typing import Dict
 from typing import Optional
+from urllib import parse
 
 import grpc
 import requests
@@ -17,20 +17,20 @@ class Cluster:
     :Example:
 
     Create a cluster instance only with HTTP connection.
+
     >>> cluster = Cluster("http-cluster-endpoint")
     >>> print(cluster.build_info())
 
     Create a cluster instance with both HTTP and gRPC connection.
+
     >>> from grpc import ssl_channel_credentials
     >>> grpc_credentials = ssl_channel_credentials()
-    >>> cluster = Cluster(
-            "http-cluster-endpoint", "grpc-cluster-endpoint", 
-            ssl=True, grpc_credentials=grpc_credentials
-        )
+    >>> cluster = Cluster("http-cluster-endpoint", "grpc-cluster-endpoint", ssl=True, grpc_credentials=grpc_credentials)
     >>> print(cluster.build_info())
     """
+
     def __init__(self, http_address: str, grpc_address: Optional[str] = None, ssl: bool = False,
-                 grpc_credentials: Optional[grpc.ChannelCredentials] = None, 
+                 grpc_credentials: Optional[grpc.ChannelCredentials] = None,
                  grpc_options: Optional[list] = None, grpc_compression: Optional[grpc.Compression] = None,
                  timeout: int = 5) -> 'Cluster':
         """

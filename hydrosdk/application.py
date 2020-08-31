@@ -7,12 +7,13 @@ from hydro_serving_grpc.contract import ModelSignature
 from hydrosdk.cluster import Cluster
 from hydrosdk.contract import _signature_dict_to_ModelSignature
 from hydrosdk.data.types import PredictorDT
+from hydrosdk.deployment_configuration import DeploymentConfiguration
 from hydrosdk.modelversion import ModelVersion
 from hydrosdk.predictor import PredictServiceClient, MonitorableImplementation
 from hydrosdk.utils import handle_request_error
 
 StreamingParams = namedtuple('StreamingParams', ['sourceTopic', 'destinationTopic'])
-ModelVariant = namedtuple("ModelVariant", ["modelVersion", "weight"])
+ModelVariant = namedtuple("ModelVariant", ["modelVersion", "weight", "deploymentConfig"])
 
 
 class ApplicationStatus(Enum):
@@ -32,13 +33,15 @@ class Application:
     :Example:
 
     List all applications created on the cluster.
+
     >>> from hydrosdk.cluster import Cluster 
     >>> cluster = Cluster("http-cluster-endpoint")
-    >>> apps = Application.list_all(cluster)
+    >>> apps = Application.list(cluster)
     >>> for app in apps: 
     >>>     print(app)
 
     Find an application by name and perform a prediction from it.
+
     >>> from hydrosdk.cluster import Cluster
     >>> cluster = Cluster("http-cluster-endpoint", "grpc-cluster-endpoint")  # important to use a gRPC endpoint 
     >>> app = Application.find(cluster, "my-application")
@@ -48,7 +51,7 @@ class Application:
     _BASE_URL = "/api/v2/application"
 
     @staticmethod
-    def list_all(cluster: Cluster) -> List['Application']:
+    def list(cluster: Cluster) -> List['Application']:
         """
         List all available applications from the cluster.
 
@@ -58,7 +61,7 @@ class Application:
         resp = cluster.request("GET", Application._BASE_URL)
         handle_request_error(
             resp, f"Failed to list all applications. {resp.status_code} {resp.text}")
-        applications = [Application._from_json(cluster, app_json) 
+        applications = [Application._from_json(cluster, app_json)
                         for app_json in resp.json()]
         return applications
 
@@ -102,13 +105,19 @@ class Application:
         app_id = application_json.get("id")
         app_name = application_json.get("name")
         app_execution_graph = ExecutionGraph._from_json(cluster, application_json.get("executionGraph"))
-        app_kafka_streaming = [StreamingParams(kafka_param["in-topic"], kafka_param["out-topic"]) 
-                            for kafka_param in application_json.get("kafkaStreaming")]
+        app_kafka_streaming = [StreamingParams(kafka_param["in-topic"], kafka_param["out-topic"])
+                               for kafka_param in application_json.get("kafkaStreaming")]
         app_metadata = application_json.get("metadata")
         app_signature = _signature_dict_to_ModelSignature(data=application_json.get("signature"))
         app_status = ApplicationStatus[application_json.get("status").upper()]
-        app = Application(cluster=cluster, id=app_id, name=app_name, execution_graph=app_execution_graph, 
-                          status=app_status, signature=app_signature, kafka_streaming=app_kafka_streaming, 
+
+        app = Application(cluster=cluster,
+                          id=app_id,
+                          name=app_name,
+                          execution_graph=app_execution_graph,
+                          status=app_status,
+                          signature=app_signature,
+                          kafka_streaming=app_kafka_streaming,
                           metadata=app_metadata)
         return app
 
@@ -131,9 +140,9 @@ class Application:
         impl = MonitorableImplementation(channel=self.cluster.channel, target=self.name)
         return PredictServiceClient(impl=impl, signature=self.signature, return_type=return_type)
 
-    def __init__(self, cluster: Cluster, id: int, name: str, execution_graph: 'ExecutionGraph', 
-                 status: ApplicationStatus, signature: ModelSignature, 
-                 kafka_streaming: List[StreamingParams], 
+    def __init__(self, cluster: Cluster, id: int, name: str, execution_graph: 'ExecutionGraph',
+                 status: ApplicationStatus, signature: ModelSignature,
+                 kafka_streaming: List[StreamingParams],
                  metadata: Optional[Dict[str, str]] = None) -> 'Application':
         """
         :param cluster: active cluster
@@ -156,7 +165,7 @@ class Application:
 
     def __str__(self):
         return f"Application {self.id} {self.name}"
-    
+
 
 class ApplicationBuilder:
     """
@@ -165,8 +174,8 @@ class ApplicationBuilder:
     :Example:
     
     Create an application from existing modelversions.
-    >>> from hydrosdk.cluster import Cluster
-    >>> from hydrosdk.modelversion import ModelVersion
+
+    >>> from hydrosdk import Cluster, ModelVersion
     >>> cluster = Cluster('http-cluster-endpoint')
     >>> mv1 = ModelVersion.find(cluster, "my-model", 1)
     >>> mv2 = ModelVersion.find(cluster, "my-model", 2)
@@ -175,9 +184,10 @@ class ApplicationBuilder:
                     .with_model_variant(mv2, 50) \ 
                     .build()
     >>> app = ApplicationBuilder(cluster, "my-application-ab-test") \
-                .with_stage(Execution) \
+                .with_stage(stage) \
                 .build()
     """
+
     def __init__(self, cluster: Cluster, name: str) -> 'ApplicationBuilder':
         """
         :param cluster: Hydrosphere cluster where you want to create an Application
@@ -209,7 +219,7 @@ class ApplicationBuilder:
         """
         self.metadata[key] = value
         return self
-    
+
     def with_metadatas(self, metadata: Dict[str, str]) -> 'ApplicationBuilder':
         """
         Add a metadata to your future Application.
@@ -251,7 +261,7 @@ class ApplicationBuilder:
         handle_request_error(
             resp, f"Failed to create an application {self.name}. {resp.status_code} {resp.text}")
         return Application._from_json(self.cluster, resp.json())
-        
+
 
 class ExecutionGraph:
     def __init__(self, stages: List['ExecutionStage']) -> 'ExecutionGraph':
@@ -264,13 +274,13 @@ class ExecutionGraph:
         """
         self.stages = stages
 
-    def _asdict(self) -> Dict[str, List['ExecutionStage']]:
+    def _asdict(self) -> Dict[str, List]:
         return {"stages": [s._asdict() for s in self.stages]}
 
     @staticmethod
     def _from_json(cluster: Cluster, ex_graph_dict: Dict) -> 'ExecutionGraph':
-        return ExecutionGraph([ExecutionStage._from_json(cluster, stage) 
-                              for stage in ex_graph_dict['stages']])
+        return ExecutionGraph([ExecutionStage._from_json(cluster, stage)
+                               for stage in ex_graph_dict['stages']])
 
 
 class ExecutionStage:
@@ -289,12 +299,22 @@ class ExecutionStage:
         self.model_variants = model_variants
 
     def _asdict(self) -> Dict[str, List[Dict[str, int]]]:
-        return {"modelVariants": [{"modelVersionId": mv.modelVersion.id, "weight": mv.weight} for mv in self.model_variants]}
+        model_variants = []
+        for model_variant in self.model_variants:
+            dict_repr = {"modelVersionId": model_variant.modelVersion.id,
+                         "weight": model_variant.weight}
+            if model_variant.deploymentConfig is not None:
+                dict_repr['deploymentConfigName'] = model_variant.deploymentConfig.name
+
+            model_variants.append(dict_repr)
+        return {"modelVariants": model_variants}
 
     @staticmethod
     def _from_json(cluster: Cluster, execution_stage_dict: Dict) -> 'ExecutionStage':
         execution_stage_signature = _signature_dict_to_ModelSignature(execution_stage_dict['signature'])
-        model_variants = [ModelVariant(ModelVersion._from_json(cluster, mv['modelVersion']), mv['weight']) 
+        model_variants = [ModelVariant(ModelVersion._from_json(cluster, mv['modelVersion']),
+                                       mv['weight'],
+                                       DeploymentConfiguration.from_camel_case_dict(mv.get('deploymentConfiguration')))
                           for mv in execution_stage_dict['modelVariants']]
         return ExecutionStage(model_variants=model_variants, signature=execution_stage_signature)
 
@@ -310,7 +330,7 @@ class ExecutionStageBuilder:
     def __common_signature(self):
         return self.model_variants[0].modelVersion.contract.predict
 
-    def __validate(self): 
+    def __validate(self):
         """
         Validate the stage for correctness.
         """
@@ -320,20 +340,23 @@ class ExecutionStageBuilder:
         model_variant_signatures = [mv.modelVersion.contract.predict for mv in self.model_variants]
         if not all(self.__common_signature == mv_signature for mv_signature in model_variant_signatures):
             raise ValueError("All model variants inside the same stage must have the same signature")
-        
+
         if sum(variant.weight for variant in self.model_variants) != 100:
             raise ValueError("All model variants' weights inside the same stage must sum up to 100")
 
-    def with_model_variant(self, model_version: ModelVersion, weight: int) -> 'ExecutionStageBuilder':
+    def with_model_variant(self, model_version: ModelVersion,
+                           weight: int,
+                           deployment_configuration: Optional[DeploymentConfiguration] = None) -> 'ExecutionStageBuilder':
         """
         Add a ModelVersion with a weight to an ExecutionStage.
         
         :param model_version: ModelVersion to which input requests will be shadowed
         :param weight: Weight which affects the chance of choosing a model output as an
          output of an ExecutionStage
+        :param deployment_configuration: K8s Deployment Configuration of this Model Variant
         :return:
         """
-        self.model_variants.append(ModelVariant(model_version, weight))
+        self.model_variants.append(ModelVariant(model_version, weight, deployment_configuration))
         return self
 
     def build(self) -> 'ExecutionStage':
