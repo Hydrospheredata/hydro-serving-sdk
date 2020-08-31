@@ -10,12 +10,14 @@ from hydrosdk.utils import handle_request_error, enable_camel_case
 @dataclass
 class HorizontalPodAutoScalerSpec:
     """
+    HPA Specification
+
     :param max_replicas: upper limit for the number of replicas to which the autoscaler can scale up. It cannot be less that minReplicas.
-    :param min_replicas: minReplicas is the lower limit for the number of replicas to which the autoscaler can scale down.
-     It defaults to 1 pod. minReplicas is allowed to be 0 if the alpha feature gate HPAScaleToZero is enabled and at least
+    :param min_replicas: lower limit for the number of replicas to which the autoscaler can scale down.
+      It defaults to 1 pod. minReplicas is allowed to be 0 if the alpha feature gate HPAScaleToZero is enabled and at least
       one Object or External metric is configured. Scaling is active as long as at least one metric value is available.
     :param cpu_utilization: target average CPU utilization (represented as a percentage of requested CPU)
-         over all the pods; if not specified the default autoscaling policy will be used.
+      over all the pods; if not specified the default autoscaling policy will be used.
     """
     min_replicas: int
     max_replicas: int
@@ -96,10 +98,10 @@ class LabelSelectorRequirement:
 class LabelSelector:
     """
     A label selector is a label query over a set of resources. The result of matchLabels and matchExpressions are ANDed.
-     An empty label selector matches all objects. A null label selector matches no objects.
+    An empty label selector matches all objects. A null label selector matches no objects.
 
-    :param match_labels: matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent
-     to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value".
+    :param match_labels: map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent
+      to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value".
       The requirements are ANDed.
     :param match_expressions: matchExpressions is a list of label selector requirements. The requirements are ANDed.
     """
@@ -112,16 +114,16 @@ class LabelSelector:
 class PodAffinityTerm:
     """
     Defines a set of pods (namely those matching the labelSelector relative to the given namespace(s)) that this pod should be co-located
-     (affinity) or not co-located (anti-affinity) with, where co-located is defined as running on a node whose value of the label with key
-      <topologyKey> matches that of any node on which a pod of the set of pods is running
+    (affinity) or not co-located (anti-affinity) with, where co-located is defined as running on a node whose value of the label with key
+    <topologyKey> matches that of any node on which a pod of the set of pods is running
 
     :param label_selector: A label query over a set of resources, in this case pods.
     :param namespaces: namespaces specifies which namespaces the labelSelector applies to (matches against);
      null or empty list means "this pod's namespace"
     :param topology_key: This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods
      matching the labelSelector in the specified namespaces, where co-located is defined as running on a node whose
-      value of the label with key topologyKey matches that of any node on which any of the selected pods is running.
-       Empty topologyKey is not allowed.
+     value of the label with key topologyKey matches that of any node on which any of the selected pods is running.
+     Empty topologyKey is not allowed.
     """
     label_selector: LabelSelector
     topology_key: str
@@ -331,6 +333,7 @@ class DeploymentConfigurationBuilder:
     :Example:
 
     Create a new deployment configuration.
+
     >>> from hydrosdk import Cluster, DeploymentConfigurationBuilder
     >>> cluster = Cluster('http-cluster-endpoint')
     >>> config_builder = DeploymentConfigurationBuilder(name="new_config", cluster=cluster)

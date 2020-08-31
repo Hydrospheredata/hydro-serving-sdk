@@ -4,12 +4,13 @@ hydrosdk API
 .. toctree::
    :maxdepth: 2
 
-   hydrosdk.application
    hydrosdk.cluster
+   hydrosdk.application
+   hydrosdk.modelversion
+   hydrosdk.predictor
+   hydrosdk.deployment_configuration
    hydrosdk.contract
    hydrosdk.exceptions
    hydrosdk.image
-   hydrosdk.modelversion
    hydrosdk.monitoring
-   hydrosdk.predictor
    hydrosdk.servable
