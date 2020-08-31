@@ -53,7 +53,7 @@ class MetricSpec:
     _BASE_URL = "/api/v2/monitoring/metricspec"
 
     @staticmethod
-    def list_all(cluster: Cluster) -> List['MetricSpec']:
+    def list(cluster: Cluster) -> List['MetricSpec']:
         """
         Send request and returns list with all available metric specs.
 

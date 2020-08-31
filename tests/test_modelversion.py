@@ -123,9 +123,9 @@ def test_build_logs_not_empty(cluster: Cluster, local_model: LocalModel):
     assert i > 0
 
 
-def test_modelversion_list_all(cluster: Cluster, local_model: LocalModel):
+def test_modelversion_list(cluster: Cluster, local_model: LocalModel):
     mv: ModelVersion = local_model.upload(cluster)
-    assert mv.id in [modelversion.id for modelversion in ModelVersion.list_all(cluster)]
+    assert mv.id in [modelversion.id for modelversion in ModelVersion.list(cluster)]
 
     
 def test_ModelField_dt_invalid_input():

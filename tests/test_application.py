@@ -42,8 +42,8 @@ def test_model_variants_weights_sum_up_to_100_fail(modelversion: ModelVersion):
         stage = ExecutionStageBuilder().with_model_variant(modelversion, 50).build()
 
 
-def test_list_all_non_empty(cluster: Cluster, app: Application):
-    apps = Application.list_all(cluster)
+def test_list_non_empty(cluster: Cluster, app: Application):
+    apps = Application.list(cluster)
     assert app.name in [item.name for item in apps]
     assert app.id in [item.id for item in apps]
 

@@ -34,10 +34,10 @@ def test_create_high_level(cluster: Cluster, root_mv: ModelVersion, monitoring_m
     assert monitoring_mv.name in [ms.name for ms in MetricSpec.find_by_modelversion(cluster, root_mv.id)]
 
 
-def test_list_all(cluster: Cluster, root_mv: ModelVersion, monitoring_mv: ModelVersion):
+def test_list(cluster: Cluster, root_mv: ModelVersion, monitoring_mv: ModelVersion):
     ms_config = MetricSpecConfig(monitoring_mv.id, 10, ThresholdCmpOp.NOT_EQ)
-    ms = MetricSpec.create(cluster, "test_list_all", root_mv.id, ms_config)
-    assert ms.name in [item.name for item in MetricSpec.list_all(cluster)]
+    ms = MetricSpec.create(cluster, "test_list", root_mv.id, ms_config)
+    assert ms.name in [item.name for item in MetricSpec.list(cluster)]
 
 
 def test_list_for_modelversion(cluster: Cluster, local_model: LocalModel, monitoring_mv: ModelVersion):

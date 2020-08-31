@@ -227,7 +227,7 @@ class ModelVersion:
     List all modelversions, registered on the cluster.
     >>> from hydrosdk.cluster import Cluster
     >>> cluster = Cluster("http-cluster-endpoint")
-    >>> for model_version in ModelVersion.list_all(cluster):
+    >>> for model_version in ModelVersion.list(cluster):
             print(model_version)
 
     Upload training data for a model_version.
@@ -272,7 +272,7 @@ class ModelVersion:
     _BASE_URL = "/api/v2/model"
 
     @staticmethod
-    def list_all(cluster: Cluster) -> List['ModelVersion']:
+    def list(cluster: Cluster) -> List['ModelVersion']:
         """
         List all model versions on the cluster.
 
@@ -327,7 +327,7 @@ class ModelVersion:
         :param model_name: a model name
         :return: list of ModelVersions with `model_name`
         """
-        all_models = ModelVersion.list_all(cluster=cluster)
+        all_models = ModelVersion.list(cluster=cluster)
         modelversions_by_name = [model for model in all_models if model.name == model_name]
         sorted_by_version = sorted(modelversions_by_name, key=lambda model: model.version)
         return sorted_by_version

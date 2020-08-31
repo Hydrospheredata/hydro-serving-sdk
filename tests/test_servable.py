@@ -35,8 +35,8 @@ def test_servable_create(cluster, servable: Servable):
     assert Servable.find_by_name(cluster, servable.name)
 
 
-def test_servable_list_all(cluster: Cluster, servable: Servable):
-    assert servable.name in [s.name for s in Servable.list_all(cluster)]
+def test_servable_list(cluster: Cluster, servable: Servable):
+    assert servable.name in [s.name for s in Servable.list(cluster)]
 
 
 def test_servable_find_by_name(cluster: Cluster, servable: Servable):

@@ -1,3 +1,4 @@
+import re
 from dataclasses import dataclass, field
 from typing import List, Dict
 
@@ -244,6 +245,15 @@ class ResourceRequirements:
     """
     limits: Dict[str, str]
     requests: Dict[str, str] = None
+
+    def __post_init__(self):
+        quantity_validation_regex = r"^([+-]?[0-9.]+)([eEinumkKMGTP]*[-+]?[0-9]*)$"
+        for resource, quantity in self.limits.items():
+            if not re.match(quantity_validation_regex, quantity):
+                raise ValueError(f"{resource} limit ({quantity}) is invalid. Quantity must match '{quantity_validation_regex}'")
+        for resource, quantity in self.requests.items():
+            if not re.match(quantity_validation_regex, quantity):
+                raise ValueError(f"{resource} request ({quantity}) is invalid. Quantity must match '{quantity_validation_regex}'")
 
 
 @enable_camel_case

@@ -48,7 +48,7 @@ class Servable:
     _BASE_URL = "/api/v2/servable"
 
     @staticmethod
-    def list_all(cluster: Cluster) -> List['Servable']:
+    def list(cluster: Cluster) -> List['Servable']:
         """
         Retrieve a list of all servables available at your cluster
 

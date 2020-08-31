@@ -35,7 +35,7 @@ class Application:
     List all applications created on the cluster.
     >>> from hydrosdk.cluster import Cluster 
     >>> cluster = Cluster("http-cluster-endpoint")
-    >>> apps = Application.list_all(cluster)
+    >>> apps = Application.list(cluster)
     >>> for app in apps: 
     >>>     print(app)
 
@@ -49,7 +49,7 @@ class Application:
     _BASE_URL = "/api/v2/application"
 
     @staticmethod
-    def list_all(cluster: Cluster) -> List['Application']:
+    def list(cluster: Cluster) -> List['Application']:
         """
         List all available applications from the cluster.
 

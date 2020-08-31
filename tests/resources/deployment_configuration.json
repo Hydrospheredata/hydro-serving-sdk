@@ -11,18 +11,18 @@
   "container": {
     "resources": {
       "limits": {
-        "cpu": "4",
-        "memory": "4g"
+        "cpu": "500m",
+        "memory": "4G"
       },
       "requests": {
-        "cpu": "2",
-        "memory": "2g"
+        "cpu": "250m",
+        "memory": "2G"
       }
     }
   },
   "pod": {
     "nodeSelector": {
-      "im": "a map",
+      "im": "a_map",
       "foo": "bar"
     },
     "affinity": {
@@ -50,7 +50,7 @@
             "preference": {
               "matchExpressions": [
                 {
-                  "key": "exp2",
+                  "key": "e",
                   "operator": "NotIn",
                   "values": [
                     "aaaa",
@@ -61,12 +61,10 @@
               ],
               "matchFields": [
                 {
-                  "key": "fields3",
+                  "key": "fff",
                   "operator": "NotIn",
                   "values": [
-                    "aaa",
-                    "cccc",
-                    "zxcc"
+                    "aaa"
                   ]
                 }
               ]
@@ -202,14 +200,13 @@
       {
         "effect": "PreferNoSchedule",
         "key": "equalToleration",
-        "tolerationSeconds": 30,
         "operator": "Equal",
         "value": "kek"
       },
       {
         "key": "equalToleration",
         "operator": "Exists",
-        "effect": "PreferNoSchedule",
+        "effect": "NoExecute",
         "tolerationSeconds": 30
       }
     ]
