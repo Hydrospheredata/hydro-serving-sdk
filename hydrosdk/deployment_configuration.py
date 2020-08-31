@@ -284,6 +284,9 @@ class DeploymentConfiguration:
     deployment: DeploymentSpec = None
     _BASE_URL: str = "/api/v2/deployment_configuration"
 
+    def __str__(self):
+        return f"Deployment Configuration (name={self.name})"
+
     @staticmethod
     def list(cluster: Cluster):
         """
