@@ -1,5 +1,3 @@
-import urllib.parse
-
 config = {
     "runtime": 
         {
