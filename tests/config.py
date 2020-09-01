@@ -1,3 +1,5 @@
+import urllib.parse
+
 config = {
     "runtime": 
         {
@@ -5,15 +7,13 @@ config = {
             "tag": "2.3.2"
         },
     "http_cluster":
-        {
-            "ip": "http://localhost",
-            "port": "80"
+        {  
+            "url": "http://localhost:80"
         },
     "grpc_cluster":
         {
-            "ip": "localhost",
-            "port": "9090",
-            "ssl": False
+            "url": "localhost",
+            "ssl": False 
         },
     "test_model":
         {
@@ -71,8 +71,8 @@ config = {
     "default_model_name": "infer"
 }
 
-HTTP_CLUSTER_ENDPOINT = config["http_cluster"]["ip"] + ":" + config["http_cluster"]["port"]
-GRPC_CLUSTER_ENDPOINT = config["grpc_cluster"]["ip"] + ":" + config["grpc_cluster"]["port"]
+HTTP_CLUSTER_ENDPOINT = config["http_cluster"]["url"]
+GRPC_CLUSTER_ENDPOINT = config["grpc_cluster"]["url"]
 GRPC_CLUSTER_ENDPOINT_SSL = config["grpc_cluster"]["ssl"]
 
 DEFAULT_APP_NAME = config["default_application_name"]
