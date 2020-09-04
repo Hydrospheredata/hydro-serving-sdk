@@ -5,14 +5,9 @@ from unittest.mock import MagicMock
 import pytest
 import yaml
 
+from tests.common_fixtures import cluster
 from hydrosdk.deployment_configuration import *
 from hydrosdk.utils import BadRequest
-
-
-@pytest.fixture()
-def cluster():
-    cluster = Cluster("http://localhost")
-    return cluster
 
 
 @pytest.fixture()
@@ -142,7 +137,6 @@ def test_deployment_configuration_builder(deployment_config_json, cluster, mock=
 
 
 def test_with_cluster(cluster):
-    print(cluster.http_address)
     config_builder = DeploymentConfigurationBuilder(name="config_example", cluster=cluster)
     deployment_config = config_builder.with_hpa(max_replicas=4).with_replicas(replica_count=2).build()
 
