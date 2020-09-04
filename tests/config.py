@@ -25,7 +25,7 @@ config = {
             "create": "/monitoring/metricspec",
             "get": "/monitoring/metricspec/{specId}",
             "delete": "/monitoring/metricspec/{specId}",
-            "get_for_model_version": "/monitoring/metricspec/model_version/{versionId}"
+            "get_for_model_version": "/monitoring/metricspec/modelversion/{versionId}"
         },
             "application": {
                 "delete": "/application/",
