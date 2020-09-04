@@ -80,8 +80,9 @@ class Cluster:
         :param kwargs: additional args
         :return: request res
         """
-        url = parse.urljoin(self.http_address, url)
-        return requests.request(method, url, **kwargs)
+        res = parse.urlsplit(self.http_address)
+        res = res._replace(path=f"{res.path.rstrip('/')}/{url.lstrip('/')}")
+        return requests.request(method, parse.urlunsplit(res), **kwargs)
 
     def build_info(self) -> Dict[str, str]:
         """
