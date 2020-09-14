@@ -80,6 +80,11 @@ def resolve_paths(path: str, payload: List[str]) -> Dict[str, str]:
     return {os.path.normpath(os.path.join(path, v)): v for v in payload}
 
 
+class MonitoringConfiguration:
+    def __init__(self, batch_size: int):
+        self.batch_size = batch_size
+
+
 class LocalModel:
     """
     A local instance of the model yet to be uploaded to the cluster.
@@ -352,6 +357,7 @@ class ModelVersion:
         model_id = modelversion_json["model"]["id"]
         version = modelversion_json["modelVersion"]
         model_contract = contract_dict_to_ModelContract(modelversion_json["modelContract"])
+        monitoring_configuration = MonitoringConfiguration(batch_size=modelversion_json["monitoringConfiguration"]["batch_size"])
 
         # external model deserialization handling
         is_external = modelversion_json.get('isExternal', False)
@@ -379,6 +385,7 @@ class ModelVersion:
             cluster=cluster,
             status=status,
             metadata=metadata,
+            monitoring_configuration=monitoring_configuration
         )
 
     @staticmethod
@@ -510,7 +517,7 @@ class ModelVersion:
                  contract: ModelContract, status: Optional[ModelVersionStatus], image: Optional[DockerImage], 
                  runtime: Optional[DockerImage], is_external: bool, 
                  metadata: Optional[Dict[str, str]] = None, install_command: Optional[str] = None, 
-                 training_data: Optional[str] = None):
+                 training_data: Optional[str] = None, monitoring_configuration: Optional[MonitoringConfiguration] = None):
         """
         :param cluster: active cluster
         :param id: id of the model_version assigned by the cluster
@@ -526,6 +533,7 @@ class ModelVersion:
         :param metadata: metadata used for describing a ModelVersion
         :param install_command: a command which was run within a runtime to prepare a model_version
                                 environment
+        :param monitoring_configuration:
         """
         self.id = id
         self.model_id = model_id
@@ -540,6 +548,7 @@ class ModelVersion:
         self.metadata = metadata
         self.install_command = install_command
         self.training_data = training_data
+        self.monitoring_configuration = monitoring_configuration
 
     def __repr__(self):
         return f"ModelVersion {self.name}:{self.version}"
