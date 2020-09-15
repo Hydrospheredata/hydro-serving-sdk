@@ -50,6 +50,7 @@ def test_reading_from_camel_case_json(deployment_config_json):
     assert deployment_config.container.resources.requests['memory'] == "2G"
     assert deployment_config.container.resources.limits['cpu'] == "500m"
     assert deployment_config.container.resources.limits['memory'] == "4G"
+    assert deployment_config.container.env["ENVIRONMENT"] == "1"
 
     assert deployment_config.pod.node_selector.keys() == {"foo", "im"}
     assert deployment_config.pod.node_selector["foo"] == "bar"
@@ -115,6 +116,7 @@ def test_deployment_configuration_builder(deployment_config_json, cluster, mock=
     config_builder.with_hpa(max_replicas=10, min_replicas=2, target_cpu_utilization_percentage=80). \
         with_pod_node_selector({"im": "a_map", "foo": "bar"}). \
         with_resource_requirements(limits={"cpu": "500m", "memory": "4G"}, requests={"cpu": "250m", "memory": "2G"}). \
+        with_env({"ENVIRONMENT": "1"}). \
         with_replicas(replica_count=4). \
         with_toleration(effect="PreferNoSchedule", key="equalToleration", toleration_seconds=30, operator="Equal", value="kek"). \
         with_toleration(effect="PreferNoSchedule", key="equalToleration", toleration_seconds=30, operator="Exists"). \
@@ -155,6 +157,6 @@ def test_with_cluster(cluster):
         DeploymentConfiguration.find(cluster, "config_example")
 
 
-def test_list_deployment_configs(cluster):
-    deployment_configs = DeploymentConfiguration.list(cluster)
-    assert isinstance(deployment_configs, list)
+# def test_list_deployment_configs(cluster):
+#     deployment_configs = DeploymentConfiguration.list(cluster)
+#     assert isinstance(deployment_configs, list)

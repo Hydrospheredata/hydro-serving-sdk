@@ -66,8 +66,8 @@ def enable_camel_case(cls):
      If attributes are dataclasses, then they are converted to\from camelCase recursively
 
      e.g.
-     @dataclass
      @enable_camel_case
+     @dataclass
      class A:
         super_variable: int = 0
 

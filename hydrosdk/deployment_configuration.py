@@ -265,6 +265,7 @@ class ContainerSpec:
     ContainerSpec contains all configurations related to a container.
     """
     resources: ResourceRequirements = None
+    env: Dict[str, str] = None
 
 
 @enable_camel_case
@@ -339,8 +340,9 @@ class DeploymentConfigurationBuilder:
     >>> config_builder = DeploymentConfigurationBuilder(name="new_config", cluster=cluster)
     >>> config = config_builder.with_hpa(max_replicas=10, min_replicas=2, target_cpu_utilization_percentage=80). \
                     with_pod_node_selector({"label1": "key1", "foo": "bar"}). \
-                    with_resource_requirements(limits={"cpu": "4", "memory": "4g"}, \
-                                               requests={"cpu": "2", "memory": "2g"}). \
+                    with_resource_requirements(limits={"cpu": "4", "memory": "4G"}, \
+                                               requests={"cpu": "2", "memory": "2G"}). \
+                    with_env({"ENVIRONMENT": "1"}).
                     with_replicas(replica_count=4). \
                     with_toleration(effect="PreferNoSchedule", key="equalToleration", toleration_seconds=30, operator="Exists").\
                     build()
@@ -427,6 +429,22 @@ class DeploymentConfigurationBuilder:
         else:
             self.container_spec.resources = new_resource_requirements
         return self
+
+    def with_env(self, env: Dict[str, str]) -> 'DeploymentConfiguration':
+        """
+        Specify env for the container.
+
+        :param env: dictionary with the required environment variables.
+        """
+        if self.container_spec is None:
+            self.container_spec = ContainerSpec(env=env)
+        elif self.container_spec.env is not None:
+            raise ValueError(f"Cannot set env as {env},"
+                             f" they are already set to {self.container_spec.env}")
+        else:
+            self.container_spec.env = env
+        return self
+        
 
     def with_toleration(self,
                         effect: str = None,
