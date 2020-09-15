@@ -157,6 +157,6 @@ def test_with_cluster(cluster):
         DeploymentConfiguration.find(cluster, "config_example")
 
 
-# def test_list_deployment_configs(cluster):
-#     deployment_configs = DeploymentConfiguration.list(cluster)
-#     assert isinstance(deployment_configs, list)
+def test_list_deployment_configs(cluster):
+    deployment_configs = DeploymentConfiguration.list(cluster)
+    assert isinstance(deployment_configs, list)
