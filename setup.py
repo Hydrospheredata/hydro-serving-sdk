@@ -14,6 +14,7 @@ reqs = [
     'hydro-serving-grpc~=2.2.1',
     'sseclient-py~=1.7',
     'numpy~=1.18.3',
+    'pandas~=1.0.3',
     'pyyaml~=5.3.1',
     'requests~=2.23.0',
     'requests_toolbelt~=0.9.1'
