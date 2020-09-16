@@ -391,8 +391,11 @@ class DeploymentConfigurationBuilder:
         """
         if self.pod_spec is None:
             self.pod_spec = PodSpec(node_selector=node_selector)
+        elif self.pod_spec.node_selector is not None:
+            raise ValueError(f"Cannot set Node Selector as {node_selector},"
+                             f" it is already set to {self.pod_spec.node_selector}")
         else:
-            self.pod_spec.node_selector.update(node_selector)
+            self.pod_spec.node_selector = node_selector
         return self
 
     def with_affinity(self, affinity: Affinity) -> 'DeploymentConfigurationBuilder':
