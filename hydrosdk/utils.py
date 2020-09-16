@@ -1,6 +1,6 @@
 import re
 from dataclasses import is_dataclass
-from typing import Generator, Dict, _GenericAlias
+from typing import Generator, Dict
 
 import grpc
 import requests
@@ -102,14 +102,15 @@ def enable_camel_case(cls):
             item_type = cls.__annotations__[snake_case_key]
             if is_dataclass(item_type):
                 snake_case_dict[snake_case_key] = item_type.from_camel_case_dict(v)
-            elif isinstance(item_type, _GenericAlias):
-                if item_type._name == 'List':
-                    if len(item_type.__args__) == 1:
-                        if is_dataclass(item_type.__args__[0]):
-                            snake_case_dict[snake_case_key] = [item_type.__args__[0].from_camel_case_dict(x) for x in v]
-                            continue
-                snake_case_dict[snake_case_key] = v
             else:
+                try:
+                    if item_type._name == 'List' and len(item_type.__args__) == 1 and is_dataclass(item_type.__args__[0]):
+                        snake_case_dict[snake_case_key] = [item_type.__args__[0].from_camel_case_dict(x) for x in v]
+                        continue
+                    else:
+                        snake_case_dict[snake_case_key] = v
+                except AttributeError:
+                    snake_case_dict[snake_case_key] = v
                 snake_case_dict[snake_case_key] = v
 
         return cls(**snake_case_dict)
