@@ -14,6 +14,8 @@ container:
     requests:
       cpu: 250m
       memory: 2G
+  env:
+    ENVIRONMENT: "1"
 pod:
   nodeSelector:
     im: a_map
