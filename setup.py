@@ -17,6 +17,7 @@ reqs = [
     'pandas~=1.0.3',
     'pyyaml~=5.3.1',
     'requests~=2.23.0',
+    'dataclasses==0.7',
     'requests_toolbelt~=0.9.1'
 ]
 
