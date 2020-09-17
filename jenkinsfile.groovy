@@ -1,5 +1,20 @@
 def repository = 'hydro-serving-sdk'
 
+def buildAndPushDocs = {
+ sh """#!/bin/bash
+    python3 -m venv docs_venv
+    source docs_venv/bin/activate
+    python setup.py install
+    pip install -r docs/docs-src requirements.txt
+    make -C docs/docs-src github
+    git add docs/*
+    git commit -m "Documentation rebuilt"
+    git push
+    deactivate
+"""
+}
+
+
 def buildAndPublishReleaseFunction = {
     configFileProvider([configFile(fileId: 'PYPIDeployConfiguration', targetLocation: '.pypirc', variable: 'PYPI_SETTINGS')]) {
         sh """#!/bin/bash
