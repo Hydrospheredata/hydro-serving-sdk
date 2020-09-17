@@ -17,7 +17,7 @@ reqs = [
     'pandas~=1.0.3',
     'pyyaml~=5.3.1',
     'requests~=2.23.0',
-    'dataclasses==0.7',
+    "dataclasses==0.7;python_version<'3.7'",
     'requests_toolbelt~=0.9.1'
 ]
 
@@ -38,6 +38,7 @@ setup(
                  "Topic :: Software Development :: Libraries :: Python Modules"],
     install_requires=reqs,
     include_package_data=True,
+    python_requires=">=3.6",
     setup_requires=['pytest-runner'],
     test_suite='tests',
     tests_require=test_reqs
