@@ -64,7 +64,7 @@ templates_path = ['_templates']
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = []
 
-# Autodocc config
+# Autodoc config
 autoclass_content = 'both'  # Document both - __init__ and class def
 autodoc_member_order = "groupwise"
 autodoc_typehints = "description"
