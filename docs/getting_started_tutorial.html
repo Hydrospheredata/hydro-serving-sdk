@@ -1,15 +1,18 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Getting Started Tutorial &mdash; hydrosdk 2.4.0rc2 documentation</title>
+  <title>Getting Started Tutorial &mdash; hydrosdk 2.4.0rc4 documentation</title>
   
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
 
   
   
@@ -19,7 +22,9 @@
   
 
   
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -31,10 +36,6 @@
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="hydrosdk API" href="hydrosdk/hydrosdk.html" />
@@ -54,7 +55,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> hydrosdk
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> hydrosdk
           
 
           
@@ -67,7 +68,7 @@
             
             
               <div class="version">
-                2.4.0rc2
+                2.4.0rc4
               </div>
             
           
@@ -84,6 +85,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -93,7 +95,7 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="whats_new.html">What’s new in 2.4.0rc2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="whats_new.html">What’s new in 2.4.0rc4</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="quickstart.html#installation">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="quickstart.html#using-hydrosdk">Using hydrosdk</a></li>
@@ -127,6 +129,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -165,7 +168,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html">Docs</a> &raquo;</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
       <li>Getting Started Tutorial</li>
     
@@ -207,7 +210,7 @@ You can learn how to do by checking documentation here - <a class="reference ext
 
 <span class="c1"># This cluster instance uses both - HTTP and GRPC APIs. Latter is used only for sending data to a deployed model</span>
 <span class="n">cluster</span> <span class="o">=</span> <span class="n">Cluster</span><span class="p">(</span><span class="s2">&quot;http-cluster-address&quot;</span><span class="p">,</span>
-                 <span class="n">grpc_address</span><span class="o">=</span><span class="s2">&quot;grpc-cluster-address&quot;</span><span class="p">,</span> <span class="n">ssl</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                 <span class="n">grpc_address</span><span class="o">=</span><span class="s2">&quot;grpc-cluster-address&quot;</span><span class="p">,</span> <span class="n">ssl</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                  <span class="n">grpc_credentials</span><span class="o">=</span><span class="n">ssl_channel_credentials</span><span class="p">())</span>
 </pre></div>
 </div>
@@ -264,13 +267,13 @@ This runtime uses <code class="docutils literal notranslate"><span class="pre">s
 
 <span class="n">sqrt_local_model</span> <span class="o">=</span> <span class="n">LocalModel</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;sqrt_model&quot;</span><span class="p">,</span>
                               <span class="n">contract</span><span class="o">=</span><span class="n">contract</span><span class="p">,</span>
-                              <span class="n">runtime</span><span class="o">=</span><span class="n">DockerImage</span><span class="p">(</span><span class="s2">&quot;hydrosphere/serving-runtime-python-3.7&quot;</span><span class="p">,</span> <span class="s2">&quot;2.3.2&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
+                              <span class="n">runtime</span><span class="o">=</span><span class="n">DockerImage</span><span class="p">(</span><span class="s2">&quot;hydrosphere/serving-runtime-python-3.7&quot;</span><span class="p">,</span> <span class="s2">&quot;2.3.2&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
                               <span class="n">payload</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span>
                               <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>After packing all necessary information into a LocalModel, we finally can upload it.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">upload_response</span> <span class="o">=</span> <span class="n">sqrt_local_model</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span><span class="n">cluster</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">upload_response</span> <span class="o">=</span> <span class="n">sqrt_local_model</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span><span class="n">cluster</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Let’s check whether our model was successfully uploaded to the platform by looking for it.</p>
@@ -296,11 +299,11 @@ You can learn more about Applications <a class="reference external" href="https:
 </pre></div>
 </div>
 <p>Predictors provide <code class="docutils literal notranslate"><span class="pre">predict</span></code> method which we can use to send our data to the model.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">predictor</span><span class="o">.</span><span class="n">predict</span><span class="p">({</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">()})</span>
-    <span class="k">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Now we have finished with testing our model and can safely delete the servable:</p>
@@ -350,11 +353,11 @@ with a single float scalar value in the output.</p>
 <p>Similarly we create a LocalModel and upload it to the cluster</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">monitoring_model</span> <span class="o">=</span> <span class="n">LocalModel</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;sqrt_monitoring_model&quot;</span><span class="p">,</span>
                          <span class="n">contract</span><span class="o">=</span><span class="n">contract</span><span class="p">,</span>
-                         <span class="n">runtime</span><span class="o">=</span><span class="n">DockerImage</span><span class="p">(</span><span class="s2">&quot;hydrosphere/serving-runtime-python-3.7&quot;</span><span class="p">,</span> <span class="s2">&quot;2.3.2&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
+                         <span class="n">runtime</span><span class="o">=</span><span class="n">DockerImage</span><span class="p">(</span><span class="s2">&quot;hydrosphere/serving-runtime-python-3.7&quot;</span><span class="p">,</span> <span class="s2">&quot;2.3.2&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
                          <span class="n">payload</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span>
                          <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">)</span>
 
-<span class="n">monitoring_upload_response</span> <span class="o">=</span> <span class="n">monitoring_model</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span><span class="n">cluster</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">monitoring_upload_response</span> <span class="o">=</span> <span class="n">monitoring_model</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span><span class="n">cluster</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Check that model is uploaded successfully:</p>
@@ -385,7 +388,7 @@ You can explore how metrics behave in the web interface.</p>
 
 <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">):</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">predictor</span><span class="o">.</span><span class="n">predict</span><span class="p">({</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">()})</span>
-    <span class="k">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
 
 <span class="n">Servable</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">cluster</span><span class="p">,</span> <span class="n">sqrt_servable</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 </pre></div>
@@ -414,11 +417,19 @@ You can explore how metrics behave in the web interface.</p>
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2020, Hydrosphere.io
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -429,7 +440,6 @@ You can explore how metrics behave in the web interface.</p>
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {
