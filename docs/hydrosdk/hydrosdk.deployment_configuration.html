@@ -1,15 +1,18 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>hydrosdk.deployment_configuration module &mdash; hydrosdk 2.4.0rc2 documentation</title>
+  <title>hydrosdk.deployment_configuration module &mdash; hydrosdk 2.4.0rc4 documentation</title>
   
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
 
   
   
@@ -19,7 +22,9 @@
   
 
   
-  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -31,10 +36,6 @@
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="hydrosdk.contract module" href="hydrosdk.contract.html" />
@@ -54,7 +55,7 @@
           
 
           
-            <a href="../index.html" class="icon icon-home"> hydrosdk
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> hydrosdk
           
 
           
@@ -67,7 +68,7 @@
             
             
               <div class="version">
-                2.4.0rc2
+                2.4.0rc4
               </div>
             
           
@@ -84,6 +85,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -93,7 +95,7 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../whats_new.html">What’s new in 2.4.0rc2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whats_new.html">What’s new in 2.4.0rc4</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../quickstart.html#installation">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../quickstart.html#using-hydrosdk">Using hydrosdk</a></li>
@@ -127,6 +129,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -165,7 +168,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="../index.html">Docs</a> &raquo;</li>
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="hydrosdk.html">hydrosdk API</a> &raquo;</li>
         
@@ -192,7 +195,7 @@
 <span id="hydrosdk-deployment-configuration-module"></span><h1>hydrosdk.deployment_configuration module<a class="headerlink" href="#module-hydrosdk.deployment_configuration" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt id="hydrosdk.deployment_configuration.Affinity">
-<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">Affinity</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node_affinity</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#hydrosdk.deployment_configuration.NodeAffinity" title="hydrosdk.deployment_configuration.NodeAffinity">hydrosdk.deployment_configuration.NodeAffinity</a></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">pod_affinity</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#hydrosdk.deployment_configuration.PodAffinity" title="hydrosdk.deployment_configuration.PodAffinity">hydrosdk.deployment_configuration.PodAffinity</a></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">pod_anti_affinity</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#hydrosdk.deployment_configuration.PodAntiAffinity" title="hydrosdk.deployment_configuration.PodAntiAffinity">hydrosdk.deployment_configuration.PodAntiAffinity</a></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.Affinity" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">Affinity</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node_affinity</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">pod_affinity</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">pod_anti_affinity</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.Affinity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Group of affinity scheduling rules.</p>
 <dl class="field-list simple">
@@ -212,12 +215,15 @@
 
 <dl class="py class">
 <dt id="hydrosdk.deployment_configuration.ContainerSpec">
-<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">ContainerSpec</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">resources</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#hydrosdk.deployment_configuration.ResourceRequirements" title="hydrosdk.deployment_configuration.ResourceRequirements">hydrosdk.deployment_configuration.ResourceRequirements</a></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.ContainerSpec" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">ContainerSpec</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">resources</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">env</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.ContainerSpec" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>ContainerSpec contains all configurations related to a container.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>resources</strong> (<a class="reference internal" href="#hydrosdk.deployment_configuration.ResourceRequirements" title="hydrosdk.deployment_configuration.ResourceRequirements"><em>hydrosdk.deployment_configuration.ResourceRequirements</em></a>) – </p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>resources</strong> (<a class="reference internal" href="#hydrosdk.deployment_configuration.ResourceRequirements" title="hydrosdk.deployment_configuration.ResourceRequirements"><em>hydrosdk.deployment_configuration.ResourceRequirements</em></a>) – </p></li>
+<li><p><strong>env</strong> (<em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em>) – </p></li>
+</ul>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a></p>
@@ -227,7 +233,7 @@
 
 <dl class="py class">
 <dt id="hydrosdk.deployment_configuration.DeploymentConfiguration">
-<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">DeploymentConfiguration</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">hpa</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#hydrosdk.deployment_configuration.HorizontalPodAutoScalerSpec" title="hydrosdk.deployment_configuration.HorizontalPodAutoScalerSpec">hydrosdk.deployment_configuration.HorizontalPodAutoScalerSpec</a></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">pod</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#hydrosdk.deployment_configuration.PodSpec" title="hydrosdk.deployment_configuration.PodSpec">hydrosdk.deployment_configuration.PodSpec</a></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">container</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#hydrosdk.deployment_configuration.ContainerSpec" title="hydrosdk.deployment_configuration.ContainerSpec">hydrosdk.deployment_configuration.ContainerSpec</a></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">deployment</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#hydrosdk.deployment_configuration.DeploymentSpec" title="hydrosdk.deployment_configuration.DeploymentSpec">hydrosdk.deployment_configuration.DeploymentSpec</a></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">_BASE_URL</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span> <span class="o">=</span> <span class="default_value">'/api/v2/deployment_configuration'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.DeploymentConfiguration" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">DeploymentConfiguration</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">hpa</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">pod</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">container</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">deployment</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">_BASE_URL</span><span class="o">=</span><span class="default_value">'/api/v2/deployment_configuration'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.DeploymentConfiguration" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>DeploymentConfiguration encapsulates k8s configs about how your Servables and ModelVariants should run.</p>
 <dl class="field-list simple">
@@ -278,7 +284,7 @@
 
 <dl class="py method">
 <dt id="hydrosdk.deployment_configuration.DeploymentConfiguration.list">
-<em class="property">static </em><code class="sig-name descname">list</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cluster</span><span class="p">:</span> <span class="n"><a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster">hydrosdk.cluster.Cluster</a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.DeploymentConfiguration.list" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">list</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cluster</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.DeploymentConfiguration.list" title="Permalink to this definition">¶</a></dt>
 <dd><p>List all deployment configurations</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -302,10 +308,11 @@
 <dd class="field-odd"><p></p></dd>
 </dl>
 <p>Create a new deployment configuration.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">hydrosdk</span> <span class="k">import</span> <span class="n">Cluster</span><span class="p">,</span> <span class="n">DeploymentConfigurationBuilder</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">hydrosdk</span> <span class="kn">import</span> <span class="n">Cluster</span><span class="p">,</span> <span class="n">DeploymentConfigurationBuilder</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">cluster</span> <span class="o">=</span> <span class="n">Cluster</span><span class="p">(</span><span class="s1">&#39;http-cluster-endpoint&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">config_builder</span> <span class="o">=</span> <span class="n">DeploymentConfigurationBuilder</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;new_config&quot;</span><span class="p">,</span> <span class="n">cluster</span><span class="o">=</span><span class="n">cluster</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">config</span> <span class="o">=</span> <span class="n">config_builder</span><span class="o">.</span><span class="n">with_hpa</span><span class="p">(</span><span class="n">max_replicas</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">min_replicas</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">target_cpu_utilization_percentage</span><span class="o">=</span><span class="mi">80</span><span class="p">)</span><span class="o">.</span>                     <span class="n">with_pod_node_selector</span><span class="p">({</span><span class="s2">&quot;label1&quot;</span><span class="p">:</span> <span class="s2">&quot;key1&quot;</span><span class="p">,</span> <span class="s2">&quot;foo&quot;</span><span class="p">:</span> <span class="s2">&quot;bar&quot;</span><span class="p">})</span><span class="o">.</span>                     <span class="n">with_resource_requirements</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;cpu&quot;</span><span class="p">:</span> <span class="s2">&quot;4&quot;</span><span class="p">,</span> <span class="s2">&quot;memory&quot;</span><span class="p">:</span> <span class="s2">&quot;4g&quot;</span><span class="p">},</span>                                                <span class="n">requests</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;cpu&quot;</span><span class="p">:</span> <span class="s2">&quot;2&quot;</span><span class="p">,</span> <span class="s2">&quot;memory&quot;</span><span class="p">:</span> <span class="s2">&quot;2g&quot;</span><span class="p">})</span><span class="o">.</span>                     <span class="n">with_replicas</span><span class="p">(</span><span class="n">replica_count</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span>                     <span class="n">with_toleration</span><span class="p">(</span><span class="n">effect</span><span class="o">=</span><span class="s2">&quot;PreferNoSchedule&quot;</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s2">&quot;equalToleration&quot;</span><span class="p">,</span> <span class="n">toleration_seconds</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">operator</span><span class="o">=</span><span class="s2">&quot;Exists&quot;</span><span class="p">)</span><span class="o">.</span>                    <span class="n">build</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">config</span> <span class="o">=</span> <span class="n">config_builder</span><span class="o">.</span><span class="n">with_hpa</span><span class="p">(</span><span class="n">max_replicas</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">min_replicas</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">target_cpu_utilization_percentage</span><span class="o">=</span><span class="mi">80</span><span class="p">)</span><span class="o">.</span>                     <span class="n">with_pod_node_selector</span><span class="p">({</span><span class="s2">&quot;label1&quot;</span><span class="p">:</span> <span class="s2">&quot;key1&quot;</span><span class="p">,</span> <span class="s2">&quot;foo&quot;</span><span class="p">:</span> <span class="s2">&quot;bar&quot;</span><span class="p">})</span><span class="o">.</span>                     <span class="n">with_resource_requirements</span><span class="p">(</span><span class="n">limits</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;cpu&quot;</span><span class="p">:</span> <span class="s2">&quot;4&quot;</span><span class="p">,</span> <span class="s2">&quot;memory&quot;</span><span class="p">:</span> <span class="s2">&quot;4G&quot;</span><span class="p">},</span>                                                <span class="n">requests</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;cpu&quot;</span><span class="p">:</span> <span class="s2">&quot;2&quot;</span><span class="p">,</span> <span class="s2">&quot;memory&quot;</span><span class="p">:</span> <span class="s2">&quot;2G&quot;</span><span class="p">})</span><span class="o">.</span>                     <span class="n">with_env</span><span class="p">({</span><span class="s2">&quot;ENVIRONMENT&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">})</span><span class="o">.</span>
+<span class="go">                with_replicas(replica_count=4).                     with_toleration(effect=&quot;PreferNoSchedule&quot;, key=&quot;equalToleration&quot;, toleration_seconds=30, operator=&quot;Exists&quot;).                    build()</span>
 </pre></div>
 </div>
 <p>Create new Deployment Config Builder</p>
@@ -319,7 +326,7 @@
 </dl>
 <dl class="py method">
 <dt id="hydrosdk.deployment_configuration.DeploymentConfigurationBuilder.build">
-<code class="sig-name descname">build</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#hydrosdk.deployment_configuration.DeploymentConfiguration" title="hydrosdk.deployment_configuration.DeploymentConfiguration">hydrosdk.deployment_configuration.DeploymentConfiguration</a><a class="headerlink" href="#hydrosdk.deployment_configuration.DeploymentConfigurationBuilder.build" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">build</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.DeploymentConfigurationBuilder.build" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create the Deployment Configuration in your Hydrosphere cluster.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -333,7 +340,7 @@
 
 <dl class="py method">
 <dt id="hydrosdk.deployment_configuration.DeploymentConfigurationBuilder.with_affinity">
-<code class="sig-name descname">with_affinity</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">affinity</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#hydrosdk.deployment_configuration.Affinity" title="hydrosdk.deployment_configuration.Affinity">hydrosdk.deployment_configuration.Affinity</a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#hydrosdk.deployment_configuration.DeploymentConfigurationBuilder" title="hydrosdk.deployment_configuration.DeploymentConfigurationBuilder">hydrosdk.deployment_configuration.DeploymentConfigurationBuilder</a><a class="headerlink" href="#hydrosdk.deployment_configuration.DeploymentConfigurationBuilder.with_affinity" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">with_affinity</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">affinity</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.DeploymentConfigurationBuilder.with_affinity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds pod scheduling constraints</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -349,8 +356,22 @@
 </dd></dl>
 
 <dl class="py method">
+<dt id="hydrosdk.deployment_configuration.DeploymentConfigurationBuilder.with_env">
+<code class="sig-name descname">with_env</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">env</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.DeploymentConfigurationBuilder.with_env" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specify env for the container.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>env</strong> (<em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em>) – dictionary with the required environment variables.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#hydrosdk.deployment_configuration.DeploymentConfiguration" title="hydrosdk.deployment_configuration.DeploymentConfiguration">hydrosdk.deployment_configuration.DeploymentConfiguration</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="hydrosdk.deployment_configuration.DeploymentConfigurationBuilder.with_hpa">
-<code class="sig-name descname">with_hpa</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">max_replicas</span></em>, <em class="sig-param"><span class="n">min_replicas</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">target_cpu_utilization_percentage</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#hydrosdk.deployment_configuration.DeploymentConfigurationBuilder" title="hydrosdk.deployment_configuration.DeploymentConfigurationBuilder">hydrosdk.deployment_configuration.DeploymentConfigurationBuilder</a><a class="headerlink" href="#hydrosdk.deployment_configuration.DeploymentConfigurationBuilder.with_hpa" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">with_hpa</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">max_replicas</span></em>, <em class="sig-param"><span class="n">min_replicas</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">target_cpu_utilization_percentage</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.DeploymentConfigurationBuilder.with_hpa" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds a HorizontalPodAutoScaler specs to a DeploymentConfiguration</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -372,7 +393,7 @@ over all the pods; if not specified the default autoscaling policy will be used.
 
 <dl class="py method">
 <dt id="hydrosdk.deployment_configuration.DeploymentConfigurationBuilder.with_pod_node_selector">
-<code class="sig-name descname">with_pod_node_selector</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node_selector</span><span class="p">:</span> <span class="n">Dict<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#hydrosdk.deployment_configuration.DeploymentConfigurationBuilder" title="hydrosdk.deployment_configuration.DeploymentConfigurationBuilder">hydrosdk.deployment_configuration.DeploymentConfigurationBuilder</a><a class="headerlink" href="#hydrosdk.deployment_configuration.DeploymentConfigurationBuilder.with_pod_node_selector" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">with_pod_node_selector</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node_selector</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.DeploymentConfigurationBuilder.with_pod_node_selector" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds selector which must be true for the pod to fit on a node.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -389,7 +410,7 @@ over all the pods; if not specified the default autoscaling policy will be used.
 
 <dl class="py method">
 <dt id="hydrosdk.deployment_configuration.DeploymentConfigurationBuilder.with_replicas">
-<code class="sig-name descname">with_replicas</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">replica_count</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#hydrosdk.deployment_configuration.DeploymentConfigurationBuilder" title="hydrosdk.deployment_configuration.DeploymentConfigurationBuilder">hydrosdk.deployment_configuration.DeploymentConfigurationBuilder</a><a class="headerlink" href="#hydrosdk.deployment_configuration.DeploymentConfigurationBuilder.with_replicas" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">with_replicas</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">replica_count</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.DeploymentConfigurationBuilder.with_replicas" title="Permalink to this definition">¶</a></dt>
 <dd><p>Specify number of desired pods for a deployment</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -407,7 +428,7 @@ Defaults to 1.</p>
 
 <dl class="py method">
 <dt id="hydrosdk.deployment_configuration.DeploymentConfigurationBuilder.with_resource_requirements">
-<code class="sig-name descname">with_resource_requirements</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">limits</span><span class="p">:</span> <span class="n">Dict<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">requests</span><span class="p">:</span> <span class="n">Dict<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#hydrosdk.deployment_configuration.DeploymentConfigurationBuilder" title="hydrosdk.deployment_configuration.DeploymentConfigurationBuilder">hydrosdk.deployment_configuration.DeploymentConfigurationBuilder</a><a class="headerlink" href="#hydrosdk.deployment_configuration.DeploymentConfigurationBuilder.with_resource_requirements" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">with_resource_requirements</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">limits</span></em>, <em class="sig-param"><span class="n">requests</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.DeploymentConfigurationBuilder.with_resource_requirements" title="Permalink to this definition">¶</a></dt>
 <dd><p>Specify resources required by this container.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -429,7 +450,7 @@ otherwise to an implementation-defined value.</p></li>
 
 <dl class="py method">
 <dt id="hydrosdk.deployment_configuration.DeploymentConfigurationBuilder.with_toleration">
-<code class="sig-name descname">with_toleration</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">effect</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">key</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">operator</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span> <span class="o">=</span> <span class="default_value">'Equal'</span></em>, <em class="sig-param"><span class="n">toleration_seconds</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">value</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#hydrosdk.deployment_configuration.DeploymentConfigurationBuilder" title="hydrosdk.deployment_configuration.DeploymentConfigurationBuilder">hydrosdk.deployment_configuration.DeploymentConfigurationBuilder</a><a class="headerlink" href="#hydrosdk.deployment_configuration.DeploymentConfigurationBuilder.with_toleration" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">with_toleration</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">effect</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">key</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">operator</span><span class="o">=</span><span class="default_value">'Equal'</span></em>, <em class="sig-param"><span class="n">toleration_seconds</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">value</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.DeploymentConfigurationBuilder.with_toleration" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>Specify pod’s toleration. The pod this Toleration is attached to tolerates any taint that matches the triple &lt;key,value,effect&gt;</dt><dd><p>using the matching operator &lt;operator&gt;.</p>
 </dd>
@@ -460,7 +481,7 @@ otherwise just a regular string.</p></li>
 
 <dl class="py class">
 <dt id="hydrosdk.deployment_configuration.DeploymentSpec">
-<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">DeploymentSpec</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">replica_count</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></span> <span class="o">=</span> <span class="default_value">1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.DeploymentSpec" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">DeploymentSpec</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">replica_count</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.DeploymentSpec" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>DeploymentSpec contains all configurations related to a deployment.</p>
 <dl class="field-list simple">
@@ -475,7 +496,7 @@ otherwise just a regular string.</p></li>
 
 <dl class="py class">
 <dt id="hydrosdk.deployment_configuration.HorizontalPodAutoScalerSpec">
-<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">HorizontalPodAutoScalerSpec</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">min_replicas</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></span></em>, <em class="sig-param"><span class="n">max_replicas</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></span></em>, <em class="sig-param"><span class="n">cpu_utilization</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.HorizontalPodAutoScalerSpec" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">HorizontalPodAutoScalerSpec</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">min_replicas</span></em>, <em class="sig-param"><span class="n">max_replicas</span></em>, <em class="sig-param"><span class="n">cpu_utilization</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.HorizontalPodAutoScalerSpec" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>HPA Specification</p>
 <dl class="field-list simple">
@@ -497,7 +518,7 @@ over all the pods; if not specified the default autoscaling policy will be used.
 
 <dl class="py class">
 <dt id="hydrosdk.deployment_configuration.LabelSelector">
-<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">LabelSelector</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">match_expressions</span><span class="p">:</span> <span class="n">List<span class="p">[</span><a class="reference internal" href="#hydrosdk.deployment_configuration.LabelSelectorRequirement" title="hydrosdk.deployment_configuration.LabelSelectorRequirement">hydrosdk.deployment_configuration.LabelSelectorRequirement</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">match_labels</span><span class="p">:</span> <span class="n">Dict<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.LabelSelector" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">LabelSelector</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">match_expressions</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">match_labels</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.LabelSelector" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>A label selector is a label query over a set of resources. The result of matchLabels and matchExpressions are ANDed.
 An empty label selector matches all objects. A null label selector matches no objects.</p>
@@ -518,7 +539,7 @@ The requirements are ANDed.</p></li>
 
 <dl class="py class">
 <dt id="hydrosdk.deployment_configuration.LabelSelectorRequirement">
-<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">LabelSelectorRequirement</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">operator</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">values</span><span class="p">:</span> <span class="n">List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.LabelSelectorRequirement" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">LabelSelectorRequirement</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span></em>, <em class="sig-param"><span class="n">operator</span></em>, <em class="sig-param"><span class="n">values</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.LabelSelectorRequirement" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values.</p>
 <dl class="field-list simple">
@@ -538,7 +559,7 @@ If the operator is Exists or DoesNotExist, the values array must be empty. This 
 
 <dl class="py class">
 <dt id="hydrosdk.deployment_configuration.NodeAffinity">
-<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">NodeAffinity</code><span class="sig-paren">(</span><em class="sig-param">preferred_during_scheduling_ignored_during_execution: List[hydrosdk.deployment_configuration.PreferredSchedulingTerm] = &lt;factory&gt;</em>, <em class="sig-param">required_during_scheduling_ignored_during_execution: hydrosdk.deployment_configuration.NodeSelector = None</em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.NodeAffinity" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">NodeAffinity</code><span class="sig-paren">(</span><em class="sig-param">preferred_during_scheduling_ignored_during_execution=&lt;factory&gt;</em>, <em class="sig-param">required_during_scheduling_ignored_during_execution=None</em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.NodeAffinity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Group of node affinity scheduling rules.</p>
 <dl class="field-list simple">
@@ -556,7 +577,7 @@ If the operator is Exists or DoesNotExist, the values array must be empty. This 
 
 <dl class="py class">
 <dt id="hydrosdk.deployment_configuration.NodeSelector">
-<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">NodeSelector</code><span class="sig-paren">(</span><em class="sig-param">node_selector_terms: List[hydrosdk.deployment_configuration.NodeSelectorTerm] = &lt;factory&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.NodeSelector" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">NodeSelector</code><span class="sig-paren">(</span><em class="sig-param">node_selector_terms=&lt;factory&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.NodeSelector" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <dl class="simple">
 <dt>A node selector represents the union of the results of one or more label queries over a set of nodes; that is,</dt><dd><p>it represents the OR of the selectors represented by the node selector terms.</p>
@@ -574,7 +595,7 @@ If the operator is Exists or DoesNotExist, the values array must be empty. This 
 
 <dl class="py class">
 <dt id="hydrosdk.deployment_configuration.NodeSelectorRequirement">
-<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">NodeSelectorRequirement</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">operator</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">values</span><span class="p">:</span> <span class="n">List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.NodeSelectorRequirement" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">NodeSelectorRequirement</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span></em>, <em class="sig-param"><span class="n">operator</span></em>, <em class="sig-param"><span class="n">values</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.NodeSelectorRequirement" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>A node selector requirement is a selector that contains values, a key, and an operator that relates the key and values.</p>
 <dl class="field-list simple">
@@ -596,7 +617,7 @@ This array is replaced during a strategic merge patch.</p></li>
 
 <dl class="py class">
 <dt id="hydrosdk.deployment_configuration.NodeSelectorTerm">
-<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">NodeSelectorTerm</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">match_expressions</span><span class="p">:</span> <span class="n">List<span class="p">[</span><a class="reference internal" href="#hydrosdk.deployment_configuration.NodeSelectorRequirement" title="hydrosdk.deployment_configuration.NodeSelectorRequirement">hydrosdk.deployment_configuration.NodeSelectorRequirement</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">match_fields</span><span class="p">:</span> <span class="n">List<span class="p">[</span><a class="reference internal" href="#hydrosdk.deployment_configuration.NodeSelectorRequirement" title="hydrosdk.deployment_configuration.NodeSelectorRequirement">hydrosdk.deployment_configuration.NodeSelectorRequirement</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.NodeSelectorTerm" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">NodeSelectorTerm</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">match_expressions</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">match_fields</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.NodeSelectorTerm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <dl class="simple">
 <dt>A null or empty node selector term matches no objects. The requirements of them are ANDed.</dt><dd><p>The TopologySelectorTerm type implements a subset of the NodeSelectorTerm.</p>
@@ -617,7 +638,7 @@ This array is replaced during a strategic merge patch.</p></li>
 
 <dl class="py class">
 <dt id="hydrosdk.deployment_configuration.PodAffinity">
-<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">PodAffinity</code><span class="sig-paren">(</span><em class="sig-param">preferred_during_scheduling_ignored_during_execution: List[hydrosdk.deployment_configuration.WeightedPodAffinityTerm] = &lt;factory&gt;</em>, <em class="sig-param">required_during_scheduling_ignored_during_execution: List[hydrosdk.deployment_configuration.PodAffinityTerm] = &lt;factory&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.PodAffinity" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">PodAffinity</code><span class="sig-paren">(</span><em class="sig-param">preferred_during_scheduling_ignored_during_execution=&lt;factory&gt;</em>, <em class="sig-param">required_during_scheduling_ignored_during_execution=&lt;factory&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.PodAffinity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Pod affinity is a group of inter pod affinity scheduling rules.</p>
 <dl class="field-list simple">
@@ -635,7 +656,7 @@ This array is replaced during a strategic merge patch.</p></li>
 
 <dl class="py class">
 <dt id="hydrosdk.deployment_configuration.PodAffinityTerm">
-<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">PodAffinityTerm</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">label_selector</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#hydrosdk.deployment_configuration.LabelSelector" title="hydrosdk.deployment_configuration.LabelSelector">hydrosdk.deployment_configuration.LabelSelector</a></span></em>, <em class="sig-param"><span class="n">topology_key</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">namespaces</span><span class="p">:</span> <span class="n">List<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.PodAffinityTerm" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">PodAffinityTerm</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">label_selector</span></em>, <em class="sig-param"><span class="n">topology_key</span></em>, <em class="sig-param"><span class="n">namespaces</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.PodAffinityTerm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Defines a set of pods (namely those matching the labelSelector relative to the given namespace(s)) that this pod should be co-located
 (affinity) or not co-located (anti-affinity) with, where co-located is defined as running on a node whose value of the label with key
@@ -660,7 +681,7 @@ Empty topologyKey is not allowed.</p></li>
 
 <dl class="py class">
 <dt id="hydrosdk.deployment_configuration.PodAntiAffinity">
-<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">PodAntiAffinity</code><span class="sig-paren">(</span><em class="sig-param">preferred_during_scheduling_ignored_during_execution: List[hydrosdk.deployment_configuration.WeightedPodAffinityTerm] = &lt;factory&gt;</em>, <em class="sig-param">required_during_scheduling_ignored_during_execution: List[hydrosdk.deployment_configuration.PodAffinityTerm] = &lt;factory&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.PodAntiAffinity" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">PodAntiAffinity</code><span class="sig-paren">(</span><em class="sig-param">preferred_during_scheduling_ignored_during_execution=&lt;factory&gt;</em>, <em class="sig-param">required_during_scheduling_ignored_during_execution=&lt;factory&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.PodAntiAffinity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Pod anti affinity is a group of inter pod anti affinity scheduling rules.</p>
 <dl class="field-list simple">
@@ -678,13 +699,13 @@ Empty topologyKey is not allowed.</p></li>
 
 <dl class="py class">
 <dt id="hydrosdk.deployment_configuration.PodSpec">
-<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">PodSpec</code><span class="sig-paren">(</span><em class="sig-param">node_selector: Dict[str</em>, <em class="sig-param">str] = &lt;factory&gt;</em>, <em class="sig-param">affinity: hydrosdk.deployment_configuration.Affinity = None</em>, <em class="sig-param">tolerations: List[hydrosdk.deployment_configuration.Toleration] = &lt;factory&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.PodSpec" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">PodSpec</code><span class="sig-paren">(</span><em class="sig-param">node_selector=&lt;factory&gt;</em>, <em class="sig-param">affinity=None</em>, <em class="sig-param">tolerations=&lt;factory&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.PodSpec" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>PodSpec contains all configurations related to a pod.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>str</strong><strong>] </strong><strong>node_selector</strong> (<em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>,</em>) – </p></li>
+<li><p><strong>node_selector</strong> (<em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em>) – </p></li>
 <li><p><strong>affinity</strong> (<a class="reference internal" href="#hydrosdk.deployment_configuration.Affinity" title="hydrosdk.deployment_configuration.Affinity"><em>hydrosdk.deployment_configuration.Affinity</em></a>) – </p></li>
 <li><p><strong>tolerations</strong> (<em>List</em><em>[</em><a class="reference internal" href="#hydrosdk.deployment_configuration.Toleration" title="hydrosdk.deployment_configuration.Toleration"><em>hydrosdk.deployment_configuration.Toleration</em></a><em>]</em>) – </p></li>
 </ul>
@@ -697,7 +718,7 @@ Empty topologyKey is not allowed.</p></li>
 
 <dl class="py class">
 <dt id="hydrosdk.deployment_configuration.PreferredSchedulingTerm">
-<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">PreferredSchedulingTerm</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">weight</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></span></em>, <em class="sig-param"><span class="n">preference</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#hydrosdk.deployment_configuration.NodeSelectorTerm" title="hydrosdk.deployment_configuration.NodeSelectorTerm">hydrosdk.deployment_configuration.NodeSelectorTerm</a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.PreferredSchedulingTerm" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">PreferredSchedulingTerm</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">weight</span></em>, <em class="sig-param"><span class="n">preference</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.PreferredSchedulingTerm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <dl class="simple">
 <dt>An empty preferred scheduling term matches all objects with implicit weight 0 (i.e. it’s a no-op). A null preferred scheduling</dt><dd><p>term matches no objects (i.e. is also a no-op).</p>
@@ -718,7 +739,7 @@ Empty topologyKey is not allowed.</p></li>
 
 <dl class="py class">
 <dt id="hydrosdk.deployment_configuration.ResourceRequirements">
-<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">ResourceRequirements</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">limits</span><span class="p">:</span> <span class="n">Dict<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">requests</span><span class="p">:</span> <span class="n">Dict<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.ResourceRequirements" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">ResourceRequirements</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">limits</span></em>, <em class="sig-param"><span class="n">requests</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.ResourceRequirements" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Resources required by the container.</p>
 <dl class="field-list simple">
@@ -738,7 +759,7 @@ otherwise to an implementation-defined value.</p></li>
 
 <dl class="py class">
 <dt id="hydrosdk.deployment_configuration.Toleration">
-<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">Toleration</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">operator</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span></em>, <em class="sig-param"><span class="n">toleration_seconds</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">key</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">value</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">effect</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.Toleration" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">Toleration</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">operator</span></em>, <em class="sig-param"><span class="n">toleration_seconds</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">key</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">value</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">effect</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.Toleration" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>The pod this Toleration is attached to tolerates any taint that matches the triple &lt;key,value,effect&gt; using the matching operator &lt;operator&gt;.</p>
 <dl class="field-list simple">
@@ -765,7 +786,7 @@ otherwise just a regular string.</p></li>
 
 <dl class="py class">
 <dt id="hydrosdk.deployment_configuration.WeightedPodAffinityTerm">
-<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">WeightedPodAffinityTerm</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">weight</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></span></em>, <em class="sig-param"><span class="n">pod_affinity_term</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#hydrosdk.deployment_configuration.PodAffinityTerm" title="hydrosdk.deployment_configuration.PodAffinityTerm">hydrosdk.deployment_configuration.PodAffinityTerm</a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.WeightedPodAffinityTerm" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">WeightedPodAffinityTerm</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">weight</span></em>, <em class="sig-param"><span class="n">pod_affinity_term</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.WeightedPodAffinityTerm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>The weights of all of the matched WeightedPodAffinityTerm fields are added per-node to find the most preferred node(s)</p>
 <dl class="field-list simple">
@@ -803,11 +824,19 @@ otherwise just a regular string.</p></li>
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2020, Hydrosphere.io
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -818,7 +847,6 @@ otherwise just a regular string.</p></li>
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {
