@@ -11,7 +11,7 @@ print("FOUND PKGS", pkgs)
 
 reqs = [
     'importlib_metadata~=1.7.0',
-    'hydro-serving-grpc~=2.2.1',
+    'hydro-serving-grpc~=2.4.0',
     'sseclient-py~=1.7',
     'numpy~=1.18.3',
     'pandas~=1.0.3',
