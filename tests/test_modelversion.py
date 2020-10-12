@@ -7,7 +7,8 @@ from hydro_serving_grpc import TensorShapeProto, DataType
 from hydrosdk.cluster import Cluster
 from hydrosdk.contract import ModelContract, ModelField, ModelSignature, SignatureBuilder
 from hydrosdk.image import DockerImage
-from hydrosdk.modelversion import ModelVersion, ModelVersionStatus, LocalModel, resolve_paths
+from hydrosdk.modelversion import ModelVersion, ModelVersionStatus, LocalModel, \
+    MonitoringConfiguration, resolve_paths
 from hydrosdk.monitoring import ThresholdCmpOp
 from hydrosdk.exceptions import ContractViolationException
 from tests.common_fixtures import *
@@ -41,16 +42,18 @@ def test_model_create_programmatically():
         .with_input('in1', 'double', [-1, 2], ProfilingType.NUMERICAL) \
         .with_output('out1', 'double', [-1], ProfilingType.NUMERICAL).build()
     contract = ModelContract(predict=signature)
+    monitoring_configuration = MonitoringConfiguration(batch_size=10)
     metadata = {"key": "value"}
     install_command = "pip install -r requirements.txt"
     training_data = "s3://bucket/path/to/training-data"
     local_model = LocalModel(name, runtime, path, payload, contract, metadata, 
-                             install_command, training_data)
+                             install_command, training_data, monitoring_configuration)
     assert local_model.name == name
     assert local_model.runtime == runtime
     assert local_model.path == path
     assert list(local_model.payload.values()) == payload
     assert local_model.contract == contract
+    assert local_model.monitoring_configuration == monitoring_configuration
 
 
 def test_model_create_contract_validation():
@@ -83,12 +86,16 @@ def test_local_model_upload(cluster: Cluster):
         .with_input('in1', 'double', [-1, 2], ProfilingType.NONE) \
         .with_output('out1', 'double', [-1], ProfilingType.NONE).build()
     contract = ModelContract(predict=signature)
+    batch_size = 10
+    monitoring_configuration = MonitoringConfiguration(batch_size=batch_size)
     metadata = {"key": "value"}
-    local_model = LocalModel(name, runtime, model_path, payload, contract, metadata)
+    local_model = LocalModel(name, runtime, model_path, payload, contract, 
+        metadata, monitoring_configuration=monitoring_configuration)
     mv: ModelVersion = local_model.upload(cluster)
     assert mv.status is ModelVersionStatus.Assembling
     mv.lock_till_released()
     assert mv.status is ModelVersionStatus.Released
+    assert mv.monitoring_configuration.batch_size == batch_size
 
 
 def test_modelversion_find_by_id(cluster: Cluster, local_model: LocalModel):
