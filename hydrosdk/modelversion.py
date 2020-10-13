@@ -135,6 +135,8 @@ class LocalModel:
         :param install_command: a command to run within a runtime to prepare a model_version environment
         :param training_data: path (absolute, relative or an S3 URI) to a csv file with the training 
                               data
+        :param monitoring_configuration: MonitoringConfiguration which specifies configuration to be 
+                                         applied for the model
         """
         if not isinstance(name, str):
             raise TypeError("name is not a string")
