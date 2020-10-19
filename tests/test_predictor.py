@@ -12,6 +12,7 @@ from hydrosdk.application import Application, ApplicationBuilder, ExecutionStage
 from tests.common_fixtures import *
 from tests.utils import *
 from tests.config import *
+from tests.test_dataupload import training_data
 
 # TODO: add servable Unmonitored tests
 
@@ -34,8 +35,11 @@ def app_tensor(cluster: Cluster, tensor_local_model: LocalModel):
 
 
 @pytest.fixture(scope="module")
-def app_scalar(cluster: Cluster, local_model: LocalModel):
+def app_scalar(cluster: Cluster, local_model: LocalModel, training_data: str):
     mv: ModelVersion = local_model.upload(cluster)
+    mv.training_data = training_data
+    data_upload_response = mv.upload_training_data()
+    data_upload_response.wait(sleep=5)
     mv.lock_till_released()
     stage = ExecutionStageBuilder().with_model_variant(mv, 100).build()
     app = ApplicationBuilder(cluster, f"{DEFAULT_APP_NAME}-{random.randint(0, 1e5)}") \

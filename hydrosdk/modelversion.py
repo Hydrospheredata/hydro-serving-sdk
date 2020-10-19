@@ -84,6 +84,11 @@ class MonitoringConfiguration:
     def __init__(self, batch_size: int):
         self.batch_size = batch_size
 
+    def to_dict(self):
+        return {
+            "batchSize": self.batch_size
+        }
+
 
 class LocalModel:
     """
@@ -116,7 +121,8 @@ class LocalModel:
     def __init__(self, name: str, runtime: DockerImage, path: str, payload: List[str], 
                  contract: ModelContract, metadata: Optional[Dict[str, str]] = None, 
                  install_command: Optional[str] = None,
-                 training_data: Optional[str] = None) -> 'LocalModel':
+                 training_data: Optional[str] = None,
+                 monitoring_configuration: Optional[MonitoringConfiguration] = None) -> 'LocalModel':
         """
         :param name: a name of the model
         :param runtime: a docker image used to run your code
@@ -129,6 +135,7 @@ class LocalModel:
         :param install_command: a command to run within a runtime to prepare a model_version environment
         :param training_data: path (absolute, relative or an S3 URI) to a csv file with the training 
                               data
+        :param monitoring_configuration: Specifies a configuration to be used when monitoring the model
         """
         if not isinstance(name, str):
             raise TypeError("name is not a string")
@@ -165,6 +172,10 @@ class LocalModel:
             raise TypeError("training-data should be a string")
         self.training_data = training_data
 
+        if monitoring_configuration and not isinstance(monitoring_configuration, MonitoringConfiguration):
+            raise TypeError("monitoring-configuration should be of type MonitoringConfiguration")
+        self.monitoring_configuration: MonitoringConfiguration = monitoring_configuration
+
     def __repr__(self):
         return f"LocalModel {self.name}"
 
@@ -197,6 +208,9 @@ class LocalModel:
             "installCommand": self.install_command,
             "metadata": self.metadata
         }
+        
+        if self.monitoring_configuration:
+            meta.update({"monitoringConfiguration": self.monitoring_configuration.to_dict()})
 
         encoder = MultipartEncoder(
             fields={

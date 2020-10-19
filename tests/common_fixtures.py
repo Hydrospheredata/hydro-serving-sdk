@@ -5,7 +5,7 @@ from grpc import ssl_channel_credentials
 
 from hydrosdk.contract import ModelContract, SignatureBuilder, ProfilingType
 from hydrosdk.image import DockerImage
-from hydrosdk.modelversion import LocalModel
+from hydrosdk.modelversion import LocalModel, MonitoringConfiguration
 from tests.config import *
 from tests.utils import *
 
@@ -40,23 +40,29 @@ def payload():
 def runtime():
     return DockerImage(DEFAULT_RUNTIME_IMAGE, DEFAULT_RUNTIME_TAG, None)
 
+@pytest.fixture(scope="session")
+def monitoring_configuration():
+    return MonitoringConfiguration(batch_size=10)
+
 
 @pytest.fixture(scope="session")
-def local_model(payload, contract, runtime):
+def local_model(payload, contract, runtime, monitoring_configuration):
     current_dir = os.path.dirname(os.path.abspath(__file__))
     model_path = os.path.join(current_dir, 'resources/identity_model/')
-    return LocalModel(DEFAULT_MODEL_NAME, runtime, model_path, payload, contract)
+    return LocalModel(DEFAULT_MODEL_NAME, runtime, model_path, 
+        payload, contract, monitoring_configuration=monitoring_configuration)
 
 
 @pytest.fixture(scope="session")
-def tensor_local_model(payload, runtime):
+def tensor_local_model(payload, runtime, monitoring_configuration):
     current_dir = os.path.dirname(os.path.abspath(__file__))
     model_path = os.path.join(current_dir, 'resources/identity_model/')
     signature = SignatureBuilder('infer') \
         .with_input('input', 'int64', [1], ProfilingType.NONE) \
         .with_output('output', 'int64', [1], ProfilingType.NONE).build()
     contract = ModelContract(predict=signature)
-    return LocalModel(DEFAULT_MODEL_NAME, runtime, model_path, payload, contract)
+    return LocalModel(DEFAULT_MODEL_NAME, runtime, model_path, 
+        payload, contract, monitoring_configuration=monitoring_configuration)
 
 
 @pytest.fixture(scope="session")
@@ -122,7 +128,7 @@ def modelversion_json():
             "git.branch.head.author.email": "your.email@example.com"
         },
         "modelVersion": 1,
-        "monitoringConfiguration": {"batchSize": 100},
+        "monitoringConfiguration": {"batchSize": 10},
         "runtime": {
             "name": "hydrosphere/serving-runtime-python-3.6",
             "tag": "2.3.2"
