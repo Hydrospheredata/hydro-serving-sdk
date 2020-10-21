@@ -1,6 +1,8 @@
 from collections import namedtuple
 from enum import Enum
 from typing import List, Optional, Dict
+import json
+import sseclient
 
 from hydro_serving_grpc.contract import ModelSignature
 
@@ -126,6 +128,30 @@ class Application:
         Poll a cluster for a new Application status.
         """
         self.status = self.find(self.cluster, self.name).status
+    
+    def lock_till_ready(self, timeout: int = 30) -> 'Application':
+        """ Wait for a servable to become SERVING """
+        events_stream = self.cluster.request("GET", "/api/v2/events", stream=True)
+        events_client = sseclient.SSEClient(events_stream)
+
+        self.update_status()
+        if not self.status is ApplicationStatus.ASSEMBLING and \
+                self.status is ApplicationStatus.READY: 
+            return self
+        try:
+            for event in events_client.events():
+                timeout -= 1
+                if timeout < 0:
+                    raise ValueError
+                if event.event == "ApplicationUpdate":
+                    data = json.loads(event.data)
+                    if data.get("name") == self.name:
+                        self.status = ApplicationStatus[data.get("status").upper()]
+                        if self.status is ApplicationStatus.READY:
+                            return self
+                        raise ValueError
+        finally:
+            events_client.close()
 
     def predictor(self, return_type=PredictorDT.DICT_NP_ARRAY) -> PredictServiceClient:
         """

@@ -1,11 +1,16 @@
 import random
 
-from hydrosdk.application import ExecutionStageBuilder, ApplicationBuilder
+from hydrosdk.cluster import Cluster
+from hydrosdk.application import ExecutionStageBuilder, ApplicationBuilder, Application
 from hydrosdk.deployment_configuration import DeploymentConfiguration, DeploymentConfigurationBuilder
 from hydrosdk.modelversion import ModelVersion
 from tests.common_fixtures import *
 from tests.config import *
-from tests.utils import *
+
+
+@pytest.fixture(scope="module")
+def deployment_configuration_name():
+    return f"deploy_{random.randint(0, 1e5)}"
 
 
 @pytest.fixture(scope="module")
@@ -16,10 +21,12 @@ def modelversion(cluster: Cluster, local_model: LocalModel):
 
 
 @pytest.fixture(scope="module")
-def deployment_configuration(cluster):
-    deployment_configuration = DeploymentConfigurationBuilder("app_dep_config", cluster).with_replicas(4).build()
+def deployment_configuration(cluster: Cluster, deployment_configuration_name: str):
+    deployment_configuration = DeploymentConfigurationBuilder(cluster, deployment_configuration_name) \
+        .with_replicas(2) \
+        .build()
     yield deployment_configuration
-    DeploymentConfiguration.delete(cluster, "app_dep_config")
+    DeploymentConfiguration.delete(cluster, deployment_configuration_name)
 
 
 @pytest.fixture(scope="module")
@@ -27,7 +34,7 @@ def app(cluster: Cluster, modelversion: ModelVersion, deployment_configuration: 
     stage = ExecutionStageBuilder().with_model_variant(modelversion, 100, deployment_configuration).build()
     app = ApplicationBuilder(cluster, f"{DEFAULT_APP_NAME}-{random.randint(0, 1e5)}") \
         .with_stage(stage).with_metadata("key", "value").build()
-    application_lock_till_ready(cluster, app.name)
+    app.lock_till_ready()
     yield app
     Application.delete(cluster, app.name)
 
@@ -61,10 +68,10 @@ def test_execution_graph(app: Application, modelversion: ModelVersion):
     assert ex_graph.stages[0].model_variants[0].weight == 100
 
 
-def test_deployment_config(app: Application):
+def test_deployment_config(app: Application, deployment_configuration_name: str):
     app_dep_config = app.execution_graph.stages[0].model_variants[0].deploymentConfig
     assert app_dep_config is not None
-    assert app_dep_config.name == "app_dep_config"
+    assert app_dep_config.name == deployment_configuration_name
 
 
 @pytest.mark.xfail(reason="(HYD-399) Bug in the hydro-serving-manager")

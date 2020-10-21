@@ -1,5 +1,5 @@
 kind: DeploymentConfig
-name: cool-deployment-config
+name: deploy_23432
 hpa:
   minReplicas: 2
   maxReplicas: 10
@@ -18,7 +18,7 @@ container:
     ENVIRONMENT: "1"
 pod:
   nodeSelector:
-    im: a_map
+    key: value
     foo: bar
   affinity:
     nodeAffinity:
@@ -37,23 +37,23 @@ pod:
             operator: NotIn
             values:
             - aaaa
-            - bvzv
-            - czxc
+            - bbbb
+            - cccc
           matchFields:
           - key: fields3
             operator: NotIn
             values:
-            - aaa
+            - aaaa
+            - bbbb
             - cccc
-            - zxcc
         weight: 100
     podAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
       - labelSelector:
           matchExpressions:
-          - key: kek
+          - key: exp3
             operator: Exists
-          - key: key
+          - key: exp4
             operator: NotIn
             values:
             - a
@@ -66,32 +66,32 @@ pod:
         podAffinityTerm:
           labelSelector:
             matchLabels:
-              key: a
+              key: value
             matchExpressions:
-            - key: kek
+            - key: one
               operator: In
               values:
               - a
               - b
-            - key: kek2
+            - key: two
               operator: NotIn
               values:
               - b
           namespaces:
           - namespace2
-          topologyKey: toptop
+          topologyKey: top
     podAntiAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
       - labelSelector:
           matchExpressions:
-          - key: kek
+          - key: one
             operator: Exists
-          - key: key2
+          - key: two
             operator: NotIn
             values:
             - a
             - b
-          - key: kek2
+          - key: three
             operator: DoesNotExist
         namespaces:
         - namespace1
@@ -101,26 +101,26 @@ pod:
         podAffinityTerm:
           labelSelector:
             matchLabels:
-              key: a
+              key: value
             matchExpressions:
-            - key: kek
+            - key: one
               operator: In
               values:
               - a
               - b
-            - key: kek
+            - key: two
               operator: NotIn
               values:
               - b
           namespaces:
           - namespace2
-          topologyKey: toptop
+          topologyKey: top
   tolerations:
   - effect: PreferNoSchedule
     key: equalToleration
     tolerationSeconds: 30
     operator: Equal
-    value: kek
+    value: one
   - key: equalToleration
     operator: Exists
     effect: PreferNoSchedule

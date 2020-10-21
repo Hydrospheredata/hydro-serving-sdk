@@ -1,6 +1,7 @@
 import pytest
 import grpc
 import requests_mock
+from grpc import ssl_channel_credentials
 
 from hydrosdk.cluster import Cluster
 from tests.config import *
@@ -40,7 +41,20 @@ def test_cluster_requests(req_mock):
         assert response == []
 
 
+@pytest.mark.skipif(GRPC_CLUSTER_ENDPOINT_SSL, reason="Cluster is running in secure mode")
 def test_cluster_insecure_grpc(req_mock):
     with req_mock():
         cluster = Cluster(http_address=HTTP_CLUSTER_ENDPOINT, grpc_address=GRPC_CLUSTER_ENDPOINT)
+        assert cluster.channel is not None
+
+
+@pytest.mark.skipif(not GRPC_CLUSTER_ENDPOINT_SSL, reason="Cluster is running in insecure mode")
+def test_cluster_secure_grpc(req_mock):
+    with req_mock():
+        cluster = Cluster(
+            http_address=HTTP_CLUSTER_ENDPOINT, 
+            grpc_address=GRPC_CLUSTER_ENDPOINT, 
+            ssl=True,
+            grpc_credentials=ssl_channel_credentials()
+        )
         assert cluster.channel is not None

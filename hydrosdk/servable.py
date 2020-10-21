@@ -2,7 +2,7 @@
 This module contains all the code associated with Servables and their management at Hydrosphere platform.
 You can learn more about Servables here https://hydrosphere.io/serving-docs/latest/overview/concepts.html#servable.
 """
-import re
+import re, json
 from enum import Enum
 from typing import Dict, List, Optional, Iterable
 
@@ -173,6 +173,29 @@ class Servable:
             handle_request_error(
                 resp, f"Failed to retrieve logs for {self}. {resp.status_code} {resp.text}")
         return sseclient.SSEClient(resp).events()
+
+    def lock_till_serving(self, timeout: int = 30) -> 'Servable':
+        """ Wait for a servable to become SERVING """
+        events_stream = self.cluster.request("GET", "/api/v2/events", stream=True)
+        events_client = sseclient.SSEClient(events_stream)
+        self.status = Servable.find_by_name(self.cluster, self.name).status
+        if not self.status is ServableStatus.STARTING and \
+                self.status is ServableStatus.SERVING: 
+            return self
+        try:
+            for event in events_client.events():
+                timeout -= 1
+                if timeout < 0:
+                    raise ValueError
+                if event.event == "ServableUpdate":
+                    data = json.loads(event.data)
+                    if data.get("fullName") == self.name:
+                        self.status = ServableStatus.from_camel_case(data.get("status", {}).get("status"))
+                        if self.status is ServableStatus.SERVING:
+                            return self
+                        raise ValueError
+        finally:
+            events_client.close()
 
     def __str__(self) -> str:
         return f"Servable '{self.name}' for model_version {self.model_version.name}:{self.model_version.version}"

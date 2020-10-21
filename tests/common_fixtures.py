@@ -3,11 +3,12 @@ import os
 import pytest
 from grpc import ssl_channel_credentials
 
+from hydrosdk.cluster import Cluster
+from hydrosdk.deployment_configuration import DeploymentConfigurationBuilder
 from hydrosdk.contract import ModelContract, SignatureBuilder, ProfilingType
 from hydrosdk.image import DockerImage
 from hydrosdk.modelversion import LocalModel, MonitoringConfiguration
 from tests.config import *
-from tests.utils import *
 
 
 @pytest.fixture(scope="session")
@@ -39,6 +40,7 @@ def payload():
 @pytest.fixture(scope="session")
 def runtime():
     return DockerImage(DEFAULT_RUNTIME_IMAGE, DEFAULT_RUNTIME_TAG, None)
+
 
 @pytest.fixture(scope="session")
 def monitoring_configuration():

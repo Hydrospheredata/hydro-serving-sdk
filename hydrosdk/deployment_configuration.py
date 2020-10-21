@@ -348,7 +348,7 @@ class DeploymentConfigurationBuilder:
                     build()
     """
 
-    def __init__(self, name, cluster):
+    def __init__(self, cluster: Cluster, name: str) -> "DeploymentConfigurationBuilder":
         """
         Create new Deployment Config Builder
 

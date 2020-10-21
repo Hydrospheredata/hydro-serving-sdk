@@ -1,8 +1,11 @@
+import random
+
+from hydrosdk.cluster import Cluster
+from hydrosdk.servable import Servable, ServableStatus
 from hydrosdk.deployment_configuration import DeploymentConfigurationBuilder, DeploymentConfiguration
 from hydrosdk.exceptions import BadRequest
 from hydrosdk.modelversion import ModelVersion
 from tests.common_fixtures import *
-from tests.utils import *
 
 
 @pytest.fixture(scope="module")
@@ -13,12 +16,15 @@ def mv(cluster: Cluster, local_model: LocalModel) -> ModelVersion:
 
 
 @pytest.fixture(scope="module")
-def deployment_configuration(cluster):
-    try:
-        deployment_configuration = DeploymentConfiguration.find(cluster, "servable_dep_config")
-    except BadRequest:
-        deployment_configuration = DeploymentConfigurationBuilder("servable_dep_config", cluster).with_replicas(2).build()
+def deployment_configuration_name(scope="module"):
+    return f"deploy_config_{random.randint(0, 1e5)}"
 
+
+@pytest.fixture(scope="module")
+def deployment_configuration(cluster: Cluster, deployment_configuration_name: str):
+    deployment_configuration = DeploymentConfigurationBuilder(cluster, deployment_configuration_name) \
+        .with_replicas(2) \
+        .build()
     yield deployment_configuration
     DeploymentConfiguration.delete(cluster, deployment_configuration.name)
 
@@ -26,12 +32,12 @@ def deployment_configuration(cluster):
 @pytest.fixture(scope="module")
 def servable(cluster: Cluster, mv: ModelVersion, deployment_configuration: DeploymentConfiguration):
     sv: Servable = Servable.create(cluster, mv.name, mv.version, deployment_configuration=deployment_configuration)
-    servable_lock_till_serving(cluster, sv.name)
-    yield Servable.find_by_name(cluster, sv.name)
+    sv.lock_till_serving()
+    yield sv
     Servable.delete(cluster, sv.name)
 
 
-def test_servable_create(cluster, servable: Servable):
+def test_servable_create(cluster: Cluster, servable: Servable):
     assert Servable.find_by_name(cluster, servable.name)
 
 
@@ -46,7 +52,7 @@ def test_servable_find_by_name(cluster: Cluster, servable: Servable):
 
 def test_servable_delete(cluster: Cluster, mv: ModelVersion):
     sv: Servable = Servable.create(cluster, mv.name, mv.version)
-    servable_lock_till_serving(cluster, sv.name)
+    sv.lock_till_serving()
     Servable.delete(cluster, sv.name)
     with pytest.raises(BadRequest):
         Servable.find_by_name(cluster, sv.name)
@@ -62,17 +68,19 @@ def test_servable_with_deployment_config(servable: Servable):
 
 def test_servable_logs_not_empty(cluster: Cluster, mv: ModelVersion):
     sv: Servable = Servable.create(cluster, mv.name, mv.version)
-    servable_lock_till_serving(cluster, sv.name)
+    sv.lock_till_serving()
     i = 0
     for _ in sv.logs():
         i += 1
-    assert i > 0
-    Servable.delete(cluster, sv.name)
+    try: 
+        assert i > 0
+    finally: 
+        Servable.delete(cluster, sv.name)
 
 
 def test_servable_logs_follow_not_empty(cluster: Cluster, mv):
     sv: Servable = Servable.create(cluster, mv.name, mv.version)
-    servable_lock_till_serving(cluster, sv.name)
+    sv.lock_till_serving()
     i = 0
     timeout_messages = 3
     for event in sv.logs(follow=True):
@@ -83,5 +91,7 @@ def test_servable_logs_follow_not_empty(cluster: Cluster, mv):
         else:
             i += 1
             break
-    assert i > 0
-    Servable.delete(cluster, sv.name)
+    try: 
+        assert i > 0
+    finally: 
+        Servable.delete(cluster, sv.name)
