@@ -1,33 +1,47 @@
-class BadRequest(Exception):
+class HydrosphereException(Exception):
+    """ 
+    Base exception for SDK library.
+    """
+    pass
+
+
+class BadRequestException(HydrosphereException):
     """
     Exception for client-side errors.
     """
     pass
 
 
-class BadResponse(Exception):
+class BadResponseException(HydrosphereException):
     """
-    Exception for server-side errors.
+`    Exception for server-side errors.
     """
     pass
 
 
-class UnknownException(Exception):
+class TimeoutException(HydrosphereException):
+    """
+    Exception for timeouts
+    """
     pass
 
 
-class ServableException(Exception):
+class UnknownException(HydrosphereException):
+    pass
+
+
+class ServableException(HydrosphereException):
     """
     Servable class base exception
     """
     pass
 
 
-class MetricSpecException(Exception):
+class MetricSpecException(HydrosphereException):
     pass
 
 
-class ContractViolationException(Exception):
+class ContractViolationException(HydrosphereException):
     """
     Exception raised when contract is violated
     """

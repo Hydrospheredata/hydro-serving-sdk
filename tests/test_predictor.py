@@ -27,7 +27,7 @@ def app_tensor(cluster: Cluster, tensor_local_model: LocalModel):
     stage = ExecutionStageBuilder().with_model_variant(mv, 100).build()
     app = ApplicationBuilder(cluster, f"{DEFAULT_APP_NAME}-{random.randint(0, 1e5)}") \
         .with_stage(stage).build()
-    app.lock_till_ready()
+    app.lock_till_available()
     time.sleep(5)
     yield app
     Application.delete(cluster, app.name)
@@ -43,7 +43,7 @@ def app_scalar(cluster: Cluster, local_model: LocalModel, training_data: str):
     stage = ExecutionStageBuilder().with_model_variant(mv, 100).build()
     app: Application = ApplicationBuilder(cluster, f"{DEFAULT_APP_NAME}-{random.randint(0, 1e5)}") \
         .with_stage(stage).build()
-    app.lock_till_ready()
+    app.lock_till_available()
     time.sleep(5)
     yield app
     Application.delete(cluster, app.name)

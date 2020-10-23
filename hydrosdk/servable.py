@@ -15,6 +15,7 @@ from hydrosdk.data.types import PredictorDT
 from hydrosdk.modelversion import ModelVersion
 from hydrosdk.predictor import PredictServiceClient, MonitorableImplementation, UnmonitorableImplementation
 from hydrosdk.utils import handle_request_error
+from hydrosdk.exceptions import TimeoutException
 
 
 class ServableStatus(Enum):
@@ -174,26 +175,28 @@ class Servable:
                 resp, f"Failed to retrieve logs for {self}. {resp.status_code} {resp.text}")
         return sseclient.SSEClient(resp).events()
 
-    def lock_till_serving(self, timeout: int = 30) -> 'Servable':
-        """ Wait for a servable to become SERVING """
+    def lock_till_available(self, timeout: int = 120) -> 'Servable':
+        """ Wait for a servable to become ready. """
         events_stream = self.cluster.request("GET", "/api/v2/events", stream=True)
         events_client = sseclient.SSEClient(events_stream)
+
         self.status = Servable.find_by_name(self.cluster, self.name).status
-        if not self.status is ServableStatus.STARTING and \
-                self.status is ServableStatus.SERVING: 
+        if self.status is ServableStatus.STARTING: 
             return self
+        if self.status in (ServableStatus.NOT_AVAILABLE, ServableStatus.NOT_SERVING):
+            raise ValueError('Servable initialization failed')
         try:
+            deadline_at = datetime.datetime.now().timestamp() + timeout
             for event in events_client.events():
-                timeout -= 1
-                if timeout < 0:
-                    raise ValueError
+                if datetime.datetime.now().timestamp() > deadline_at:
+                    raise TimeoutException('Time out waiting for a servable to become ready')
                 if event.event == "ServableUpdate":
                     data = json.loads(event.data)
                     if data.get("fullName") == self.name:
                         self.status = ServableStatus.from_camel_case(data.get("status", {}).get("status"))
                         if self.status is ServableStatus.SERVING:
                             return self
-                        raise ValueError
+                        raise ValueError('Servable initialization failed')
         finally:
             events_client.close()
 

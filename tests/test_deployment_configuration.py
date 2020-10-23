@@ -8,7 +8,7 @@ import yaml
 
 from tests.common_fixtures import cluster
 from hydrosdk.deployment_configuration import *
-from hydrosdk.utils import BadRequest
+from hydrosdk.utils import BadRequestException
 
 
 @pytest.fixture(scope="module")
@@ -201,7 +201,7 @@ def test_with_cluster(cluster: Cluster, deployment_configuration_name: str):
     assert deployment_config.deployment.replica_count == 2
 
     DeploymentConfiguration.delete(cluster, deployment_configuration_name)
-    with pytest.raises(BadRequest):
+    with pytest.raises(BadRequestException):
         DeploymentConfiguration.find(cluster, deployment_configuration_name)
 
 

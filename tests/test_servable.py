@@ -3,7 +3,7 @@ import random
 from hydrosdk.cluster import Cluster
 from hydrosdk.servable import Servable, ServableStatus
 from hydrosdk.deployment_configuration import DeploymentConfigurationBuilder, DeploymentConfiguration
-from hydrosdk.exceptions import BadRequest
+from hydrosdk.exceptions import BadRequestException
 from hydrosdk.modelversion import ModelVersion
 from tests.common_fixtures import *
 
@@ -32,7 +32,7 @@ def deployment_configuration(cluster: Cluster, deployment_configuration_name: st
 @pytest.fixture(scope="module")
 def servable(cluster: Cluster, mv: ModelVersion, deployment_configuration: DeploymentConfiguration):
     sv: Servable = Servable.create(cluster, mv.name, mv.version, deployment_configuration=deployment_configuration)
-    sv.lock_till_serving()
+    sv.lock_till_available()
     yield sv
     Servable.delete(cluster, sv.name)
 
@@ -52,14 +52,10 @@ def test_servable_find_by_name(cluster: Cluster, servable: Servable):
 
 def test_servable_delete(cluster: Cluster, mv: ModelVersion):
     sv: Servable = Servable.create(cluster, mv.name, mv.version)
-    sv.lock_till_serving()
+    sv.lock_till_available()
     Servable.delete(cluster, sv.name)
-    with pytest.raises(BadRequest):
+    with pytest.raises(BadRequestException):
         Servable.find_by_name(cluster, sv.name)
-
-
-def test_servable_status(servable: Servable):
-    assert servable.status == ServableStatus.SERVING
 
 
 def test_servable_with_deployment_config(servable: Servable):
@@ -68,7 +64,7 @@ def test_servable_with_deployment_config(servable: Servable):
 
 def test_servable_logs_not_empty(cluster: Cluster, mv: ModelVersion):
     sv: Servable = Servable.create(cluster, mv.name, mv.version)
-    sv.lock_till_serving()
+    sv.lock_till_available()
     i = 0
     for _ in sv.logs():
         i += 1
@@ -80,7 +76,7 @@ def test_servable_logs_not_empty(cluster: Cluster, mv: ModelVersion):
 
 def test_servable_logs_follow_not_empty(cluster: Cluster, mv):
     sv: Servable = Servable.create(cluster, mv.name, mv.version)
-    sv.lock_till_serving()
+    sv.lock_till_available()
     i = 0
     timeout_messages = 3
     for event in sv.logs(follow=True):
