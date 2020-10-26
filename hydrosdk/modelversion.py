@@ -19,7 +19,7 @@ from hydrosdk.cluster import Cluster
 from hydrosdk.contract import ModelContract_to_contract_dict, contract_dict_to_ModelContract, validate_contract
 from hydrosdk.image import DockerImage
 from hydrosdk.monitoring import MetricSpec, MetricSpecConfig, MetricModel, ThresholdCmpOp
-from hydrosdk.exceptions import BadRequest, BadResponse
+from hydrosdk.exceptions import HydrosphereException, TimeoutException
 from hydrosdk.utils import handle_request_error, read_in_chunks
 
 
@@ -430,7 +430,7 @@ class ModelVersion:
         """
         self.status = self.find_by_id(self.cluster, self.id).status
 
-    def lock_till_released(self):
+    def lock_till_released(self, timeout: int = 120):
         """
         Lock till the model completes assembling.
         
@@ -440,11 +440,15 @@ class ModelVersion:
         events_client = sseclient.SSEClient(events_stream)
 
         self.update_status()
-        if not self.status is ModelVersionStatus.Assembling and \
-                self.status is ModelVersionStatus.Released:
+        if self.status is ModelVersionStatus.Released:
             return None
+        if self.status is ModelVersionStatus.Failed:
+            raise ModelVersion.ReleaseFailed
         try:
+            deadline_at = datetime.datetime.now().timestamp() + timeout
             for event in events_client.events():
+                if datetime.datetime.now().timestamp() > deadline_at:
+                    raise TimeoutException("Time out waiting for application to build.")
                 if event.event == "ModelUpdate":
                     data = json.loads(event.data)
                     if data.get("id") == self.id:
@@ -567,9 +571,8 @@ class ModelVersion:
     def __repr__(self):
         return f"ModelVersion {self.name}:{self.version}"
 
-    class ReleaseFailed(Exception):
+    class ReleaseFailed(HydrosphereException):
         pass
-
 
 class DataProfileStatus(Enum):
     Success = "Success"
@@ -593,8 +596,8 @@ class DataUploadResponse:
     >>> data_upload_response = model_version.upload_training_data()
     >>> try: 
             data_upload_response.wait(retry=3, sleep=30) 
-        except DataUploadResponse.TimeOut:
-            print("Timed out waiting for data processing getting finished")
+        except TimeoutException as e:
+            print(e)
         except DataUploadResponse.NotRegistered:
             id = data_upload_response.modelversion_id
             print(f"Unable to find training data for modelversion_id={id}")
@@ -640,7 +643,7 @@ class DataUploadResponse:
                 can_be_polled, retry = self.__tick(retry, sleep)
                 if can_be_polled:
                     continue
-                raise DataUploadResponse.DataProcessingNotFinished
+                raise TimeoutException("Time out waiting for data processing to complete")
             elif status is DataProfileStatus.NotRegistered:
                 can_be_polled, retry = self.__tick(retry, sleep)
                 if can_be_polled:
@@ -648,11 +651,8 @@ class DataUploadResponse:
                 raise DataUploadResponse.NotRegistered
             raise DataUploadResponse.Failed
 
-    class NotRegistered(Exception):
+    class NotRegistered(HydrosphereException):
         pass
 
-    class TimeOut(Exception):
-        pass
-
-    class Failed(Exception):
+    class Failed(HydrosphereException):
         pass

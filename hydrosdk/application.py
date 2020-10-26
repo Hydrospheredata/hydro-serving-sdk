@@ -1,6 +1,9 @@
 from collections import namedtuple
 from enum import Enum
 from typing import List, Optional, Dict
+import json
+import datetime
+import sseclient
 
 from hydro_serving_grpc.contract import ModelSignature
 
@@ -11,6 +14,7 @@ from hydrosdk.deployment_configuration import DeploymentConfiguration
 from hydrosdk.modelversion import ModelVersion
 from hydrosdk.predictor import PredictServiceClient, MonitorableImplementation
 from hydrosdk.utils import handle_request_error
+from hydrosdk.exceptions import TimeoutException
 
 StreamingParams = namedtuple('StreamingParams', ['sourceTopic', 'destinationTopic'])
 ModelVariant = namedtuple("ModelVariant", ["modelVersion", "weight", "deploymentConfig"])
@@ -126,6 +130,31 @@ class Application:
         Poll a cluster for a new Application status.
         """
         self.status = self.find(self.cluster, self.name).status
+    
+    def lock_while_starting(self, timeout: int = 120) -> 'Application':
+        """ Wait for an application to become ready. """
+        events_stream = self.cluster.request("GET", "/api/v2/events", stream=True)
+        events_client = sseclient.SSEClient(events_stream)
+
+        self.update_status()
+        if self.status is ApplicationStatus.READY: 
+            return self
+        if self.status is ApplicationStatus.FAILED:
+            raise ValueError('Application initialization failed')
+        try:
+            deadline_at = datetime.datetime.now().timestamp() + timeout
+            for event in events_client.events():
+                if datetime.datetime.now().timestamp() > deadline_at:
+                    raise TimeoutException('Time out waiting for an application to become available')
+                if event.event == "ApplicationUpdate":
+                    data = json.loads(event.data)
+                    if data.get("name") == self.name:
+                        self.status = ApplicationStatus[data.get("status").upper()]
+                        if self.status is ApplicationStatus.READY:
+                            return self
+                        raise ValueError('Application initialization failed')
+        finally:
+            events_client.close()
 
     def predictor(self, return_type=PredictorDT.DICT_NP_ARRAY) -> PredictServiceClient:
         """

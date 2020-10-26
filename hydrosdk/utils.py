@@ -5,7 +5,7 @@ from typing import Generator, Dict
 import grpc
 import requests
 
-from hydrosdk.exceptions import BadRequest, BadResponse, UnknownException
+from hydrosdk.exceptions import BadRequestException, BadResponseException, UnknownException
 
 
 def grpc_server_on(channel: grpc.Channel, timeout: int) -> bool:
@@ -31,15 +31,15 @@ def handle_request_error(resp: requests.Response, error_message: str):
 
     :param resp: response from the cluster
     :param error_message: message of the error to be raised
-    :raises BadRequest: for client-side errors
-    :raises BadResponse: for server-side errors
+    :raises BadRequestException: for client-side errors
+    :raises BadResponseException: for server-side errors
     """
     if resp.ok:
         return None
     if 400 <= resp.status_code < 500:
-        raise BadRequest(error_message)
+        raise BadRequestException(error_message)
     if 500 <= resp.status_code < 600:
-        raise BadResponse(error_message)
+        raise BadResponseException(error_message)
     else:
         raise UnknownException(error_message)
 

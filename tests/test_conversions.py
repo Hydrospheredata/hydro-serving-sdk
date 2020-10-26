@@ -11,8 +11,8 @@ from hydrosdk.data.conversions import np_to_tensor_proto, tensor_proto_to_np, pr
     tensor_shape_proto_from_tuple, list_to_tensor_proto, tensor_proto_to_py, isinstance_namedtuple
 from hydrosdk.data.types import DTYPE_TO_FIELDNAME, np_to_proto_dtype, PredictorDT, find_in_list_by_name
 from hydrosdk.servable import Servable
+from hydrosdk.cluster import Cluster
 from tests.common_fixtures import * 
-from tests.utils import *
 
 int_dtypes = [DT_INT64, DT_UINT16, DT_UINT8, DT_INT8, DT_INT16, DT_INT32, DT_UINT32, DT_UINT64]
 float_types = [DT_DOUBLE, DT_FLOAT, ]
@@ -32,7 +32,7 @@ def servable_tensor(cluster: Cluster, tensor_local_model: LocalModel):
     mv: ModelVersion = tensor_local_model.upload(cluster)
     mv.lock_till_released()
     sv: Servable = Servable.create(cluster, mv.name, mv.version)
-    servable_lock_till_serving(cluster, sv.name)
+    sv.lock_while_starting()
     yield sv
     Servable.delete(cluster, sv.name)
 

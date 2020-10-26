@@ -2,7 +2,7 @@
 This module contains all the code associated with Servables and their management at Hydrosphere platform.
 You can learn more about Servables here https://hydrosphere.io/serving-docs/latest/overview/concepts.html#servable.
 """
-import re
+import re, json, datetime
 from enum import Enum
 from typing import Dict, List, Optional, Iterable
 
@@ -15,6 +15,7 @@ from hydrosdk.data.types import PredictorDT
 from hydrosdk.modelversion import ModelVersion
 from hydrosdk.predictor import PredictServiceClient, MonitorableImplementation, UnmonitorableImplementation
 from hydrosdk.utils import handle_request_error
+from hydrosdk.exceptions import TimeoutException
 
 
 class ServableStatus(Enum):
@@ -173,6 +174,31 @@ class Servable:
             handle_request_error(
                 resp, f"Failed to retrieve logs for {self}. {resp.status_code} {resp.text}")
         return sseclient.SSEClient(resp).events()
+
+    def lock_while_starting(self, timeout: int = 120) -> 'Servable':
+        """ Wait for a servable to become ready. """
+        events_stream = self.cluster.request("GET", "/api/v2/events", stream=True)
+        events_client = sseclient.SSEClient(events_stream)
+
+        self.status = Servable.find_by_name(self.cluster, self.name).status
+        if self.status is ServableStatus.STARTING: 
+            return self
+        if self.status in (ServableStatus.NOT_AVAILABLE, ServableStatus.NOT_SERVING):
+            raise ValueError('Servable initialization failed')
+        try:
+            deadline_at = datetime.datetime.now().timestamp() + timeout
+            for event in events_client.events():
+                if datetime.datetime.now().timestamp() > deadline_at:
+                    raise TimeoutException('Time out waiting for a servable to become ready')
+                if event.event == "ServableUpdate":
+                    data = json.loads(event.data)
+                    if data.get("fullName") == self.name:
+                        self.status = ServableStatus.from_camel_case(data.get("status", {}).get("status"))
+                        if self.status is ServableStatus.SERVING:
+                            return self
+                        raise ValueError('Servable initialization failed')
+        finally:
+            events_client.close()
 
     def __str__(self) -> str:
         return f"Servable '{self.name}' for model_version {self.model_version.name}:{self.model_version.version}"

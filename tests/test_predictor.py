@@ -10,7 +10,6 @@ from hydrosdk.modelversion import LocalModel, ModelVersion
 from hydrosdk.cluster import Cluster
 from hydrosdk.application import Application, ApplicationBuilder, ExecutionStageBuilder
 from tests.common_fixtures import *
-from tests.utils import *
 from tests.config import *
 from tests.test_dataupload import training_data
 
@@ -28,7 +27,7 @@ def app_tensor(cluster: Cluster, tensor_local_model: LocalModel):
     stage = ExecutionStageBuilder().with_model_variant(mv, 100).build()
     app = ApplicationBuilder(cluster, f"{DEFAULT_APP_NAME}-{random.randint(0, 1e5)}") \
         .with_stage(stage).build()
-    application_lock_till_ready(cluster, app.name)
+    app.lock_while_starting()
     time.sleep(5)
     yield app
     Application.delete(cluster, app.name)
@@ -42,9 +41,9 @@ def app_scalar(cluster: Cluster, local_model: LocalModel, training_data: str):
     data_upload_response.wait(sleep=5)
     mv.lock_till_released()
     stage = ExecutionStageBuilder().with_model_variant(mv, 100).build()
-    app = ApplicationBuilder(cluster, f"{DEFAULT_APP_NAME}-{random.randint(0, 1e5)}") \
+    app: Application = ApplicationBuilder(cluster, f"{DEFAULT_APP_NAME}-{random.randint(0, 1e5)}") \
         .with_stage(stage).build()
-    application_lock_till_ready(cluster, app.name)
+    app.lock_while_starting()
     time.sleep(5)
     yield app
     Application.delete(cluster, app.name)
