@@ -7,7 +7,8 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>hydrosdk.modelversion module &mdash; hydrosdk 2.4.0rc4 documentation</title>
+  <title>hydrosdk.modelversion module &mdash; hydrosdk 2.4.1
+ documentation</title>
   
 
   
@@ -68,7 +69,8 @@
             
             
               <div class="version">
-                2.4.0rc4
+                2.4.1
+
               </div>
             
           
@@ -95,7 +97,8 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../whats_new.html">What’s new in 2.4.0rc4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whats_new.html">What’s new in 2.4.1
+</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../quickstart.html#installation">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../quickstart.html#using-hydrosdk">Using hydrosdk</a></li>
@@ -121,9 +124,9 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../getting_help.html">Getting Help</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://github.com/Hydrospheredata/hydro-serving-sdk">hydrosdk Github</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://github.com/Hydrospheredata/hydro-serving">Hydrosphere Platform Github</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Hydrospheredata/hydro-serving-sdk">hydrosdk Github page</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://pypi.org/project/hydrosdk/">hydrosdk PyPi package</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Hydrospheredata/hydro-serving">Hydrosphere Platform Github page</a></li>
 </ul>
 
             
@@ -213,7 +216,7 @@
 <dt class="field-even">Parameters</dt>
 <dd class="field-even"><ul class="simple">
 <li><p><strong>cluster</strong> (<a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster"><em>hydrosdk.cluster.Cluster</em></a>) – </p></li>
-<li><p><strong>modelversion_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>modelversion_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – </p></li>
 </ul>
 </dd>
 <dt class="field-odd">Return type</dt>
@@ -228,8 +231,8 @@
 <span class="gp">&gt;&gt;&gt; </span><span class="n">data_upload_response</span> <span class="o">=</span> <span class="n">model_version</span><span class="o">.</span><span class="n">upload_training_data</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">try</span><span class="p">:</span>
 <span class="go">        data_upload_response.wait(retry=3, sleep=30)</span>
-<span class="go">    except DataUploadResponse.TimeOut:</span>
-<span class="go">        print(&quot;Timed out waiting for data processing getting finished&quot;)</span>
+<span class="go">    except TimeoutException as e:</span>
+<span class="go">        print(e)</span>
 <span class="go">    except DataUploadResponse.NotRegistered:</span>
 <span class="go">        id = data_upload_response.modelversion_id</span>
 <span class="go">        print(f&quot;Unable to find training data for modelversion_id={id}&quot;)</span>
@@ -245,11 +248,6 @@
 <dl class="py exception">
 <dt id="hydrosdk.modelversion.DataUploadResponse.NotRegistered">
 <em class="property">exception </em><code class="sig-name descname">NotRegistered</code><a class="headerlink" href="#hydrosdk.modelversion.DataUploadResponse.NotRegistered" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py exception">
-<dt id="hydrosdk.modelversion.DataUploadResponse.TimeOut">
-<em class="property">exception </em><code class="sig-name descname">TimeOut</code><a class="headerlink" href="#hydrosdk.modelversion.DataUploadResponse.TimeOut" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -270,7 +268,7 @@
 
 <dl class="py class">
 <dt id="hydrosdk.modelversion.LocalModel">
-<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.modelversion.</code><code class="sig-name descname">LocalModel</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">runtime</span></em>, <em class="sig-param"><span class="n">path</span></em>, <em class="sig-param"><span class="n">payload</span></em>, <em class="sig-param"><span class="n">contract</span></em>, <em class="sig-param"><span class="n">metadata</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">install_command</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">training_data</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.modelversion.LocalModel" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.modelversion.</code><code class="sig-name descname">LocalModel</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">runtime</span></em>, <em class="sig-param"><span class="n">path</span></em>, <em class="sig-param"><span class="n">payload</span></em>, <em class="sig-param"><span class="n">contract</span></em>, <em class="sig-param"><span class="n">metadata</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">install_command</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">training_data</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">monitoring_configuration</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.modelversion.LocalModel" title="Permalink to this definition">¶</a></dt>
 <dd><p>A local instance of the model yet to be uploaded to the cluster.
 (<a class="reference external" href="https://hydrosphere.io/serving-docs/latest/overview/concepts.html#models">https://hydrosphere.io/serving-docs/latest/overview/concepts.html#models</a>)</p>
 <dl class="field-list simple">
@@ -278,14 +276,15 @@
 <dd class="field-odd"><p></p></dd>
 <dt class="field-even">Parameters</dt>
 <dd class="field-even"><ul class="simple">
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p></li>
 <li><p><strong>runtime</strong> (<a class="reference internal" href="hydrosdk.image.html#hydrosdk.image.DockerImage" title="hydrosdk.image.DockerImage"><em>hydrosdk.image.DockerImage</em></a>) – </p></li>
-<li><p><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
-<li><p><strong>payload</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em>) – </p></li>
+<li><p><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p></li>
+<li><p><strong>payload</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – </p></li>
 <li><p><strong>contract</strong> (<em>hydro_serving_grpc.contract.model_contract_pb2.ModelContract</em>) – </p></li>
-<li><p><strong>metadata</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em><em>]</em>) – </p></li>
-<li><p><strong>install_command</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em>) – </p></li>
-<li><p><strong>training_data</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em>) – </p></li>
+<li><p><strong>metadata</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em><em>]</em>) – </p></li>
+<li><p><strong>install_command</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – </p></li>
+<li><p><strong>training_data</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – </p></li>
+<li><p><strong>monitoring_configuration</strong> (<em>Optional</em><em>[</em><em>hydrosdk.modelversion.MonitoringConfiguration</em><em>]</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-odd">Return type</dt>
@@ -313,17 +312,18 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – a name of the model</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – a name of the model</p></li>
 <li><p><strong>runtime</strong> (<a class="reference internal" href="hydrosdk.image.html#hydrosdk.image.DockerImage" title="hydrosdk.image.DockerImage"><em>hydrosdk.image.DockerImage</em></a>) – a docker image used to run your code</p></li>
-<li><p><strong>payload</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em>) – a list of paths to files (absolute or relative) with any additional resources
+<li><p><strong>payload</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – a list of paths to files (absolute or relative) with any additional resources
 that will be exported to the container</p></li>
-<li><p><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – a path to the root folder of the model</p></li>
+<li><p><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – a path to the root folder of the model</p></li>
 <li><p><strong>contract</strong> (<em>hydro_serving_grpc.contract.model_contract_pb2.ModelContract</em>) – ModelContract which specifies name of function called, as well as its types
 and shapes of both inputs and outputs</p></li>
-<li><p><strong>metadata</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em><em>]</em>) – a metadata dict used to describe uploaded ModelVersions</p></li>
-<li><p><strong>install_command</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em>) – a command to run within a runtime to prepare a model_version environment</p></li>
-<li><p><strong>training_data</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em>) – path (absolute, relative or an S3 URI) to a csv file with the training
+<li><p><strong>metadata</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em><em>]</em>) – a metadata dict used to describe uploaded ModelVersions</p></li>
+<li><p><strong>install_command</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – a command to run within a runtime to prepare a model_version environment</p></li>
+<li><p><strong>training_data</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – path (absolute, relative or an S3 URI) to a csv file with the training
 data</p></li>
+<li><p><strong>monitoring_configuration</strong> (<em>Optional</em><em>[</em><em>hydrosdk.modelversion.MonitoringConfiguration</em><em>]</em>) – Specifies a configuration to be used when monitoring the model</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
@@ -360,18 +360,18 @@ data</p></li>
 <dt class="field-even">Parameters</dt>
 <dd class="field-even"><ul class="simple">
 <li><p><strong>cluster</strong> (<a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster"><em>hydrosdk.cluster.Cluster</em></a>) – </p></li>
-<li><p><strong>id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
-<li><p><strong>model_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
-<li><p><strong>version</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – </p></li>
+<li><p><strong>model_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – </p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p></li>
+<li><p><strong>version</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – </p></li>
 <li><p><strong>contract</strong> (<em>hydro_serving_grpc.contract.model_contract_pb2.ModelContract</em>) – </p></li>
 <li><p><strong>status</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="#hydrosdk.modelversion.ModelVersionStatus" title="hydrosdk.modelversion.ModelVersionStatus"><em>hydrosdk.modelversion.ModelVersionStatus</em></a><em>]</em>) – </p></li>
 <li><p><strong>image</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="hydrosdk.image.html#hydrosdk.image.DockerImage" title="hydrosdk.image.DockerImage"><em>hydrosdk.image.DockerImage</em></a><em>]</em>) – </p></li>
 <li><p><strong>runtime</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="hydrosdk.image.html#hydrosdk.image.DockerImage" title="hydrosdk.image.DockerImage"><em>hydrosdk.image.DockerImage</em></a><em>]</em>) – </p></li>
-<li><p><strong>is_external</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – </p></li>
-<li><p><strong>metadata</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em><em>]</em>) – </p></li>
-<li><p><strong>install_command</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em>) – </p></li>
-<li><p><strong>training_data</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em>) – </p></li>
+<li><p><strong>is_external</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – </p></li>
+<li><p><strong>metadata</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em><em>]</em>) – </p></li>
+<li><p><strong>install_command</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – </p></li>
+<li><p><strong>training_data</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – </p></li>
 <li><p><strong>monitoring_configuration</strong> (<em>Optional</em><em>[</em><em>hydrosdk.modelversion.MonitoringConfiguration</em><em>]</em>) – </p></li>
 </ul>
 </dd>
@@ -427,21 +427,21 @@ data</p></li>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>cluster</strong> (<a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster"><em>hydrosdk.cluster.Cluster</em></a>) – active cluster</p></li>
-<li><p><strong>id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – id of the model_version assigned by the cluster</p></li>
-<li><p><strong>model_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – id of the model assigned by the cluster</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – a name of the model this ModelVersion belongs to</p></li>
-<li><p><strong>version</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – a version of the model this ModelVersion belongs to</p></li>
+<li><p><strong>id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – id of the model_version assigned by the cluster</p></li>
+<li><p><strong>model_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – id of the model assigned by the cluster</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – a name of the model this ModelVersion belongs to</p></li>
+<li><p><strong>version</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – a version of the model this ModelVersion belongs to</p></li>
 <li><p><strong>contract</strong> (<em>hydro_serving_grpc.contract.model_contract_pb2.ModelContract</em>) – a ModelContract which specifies name of function called, as well as its types
 and shapes of both inputs and outputs</p></li>
 <li><p><strong>status</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="#hydrosdk.modelversion.ModelVersionStatus" title="hydrosdk.modelversion.ModelVersionStatus"><em>hydrosdk.modelversion.ModelVersionStatus</em></a><em>]</em>) – a status of this ModelVersion, one of {Assembling, Released, Failed}</p></li>
 <li><p><strong>image</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="hydrosdk.image.html#hydrosdk.image.DockerImage" title="hydrosdk.image.DockerImage"><em>hydrosdk.image.DockerImage</em></a><em>]</em>) – DockerImage of a packed ModelVersion stored inside the cluster</p></li>
 <li><p><strong>runtime</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="hydrosdk.image.html#hydrosdk.image.DockerImage" title="hydrosdk.image.DockerImage"><em>hydrosdk.image.DockerImage</em></a><em>]</em>) – DockerImage of a runtime which was used to build an <cite>image</cite></p></li>
-<li><p><strong>is_external</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – indicates whether model is running outside the cluster</p></li>
-<li><p><strong>metadata</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em><em>]</em>) – metadata used for describing a ModelVersion</p></li>
-<li><p><strong>install_command</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em>) – a command which was run within a runtime to prepare a model_version
+<li><p><strong>is_external</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – indicates whether model is running outside the cluster</p></li>
+<li><p><strong>metadata</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em><em>]</em>) – metadata used for describing a ModelVersion</p></li>
+<li><p><strong>install_command</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – a command which was run within a runtime to prepare a model_version
 environment</p></li>
 <li><p><strong>monitoring_configuration</strong> (<em>Optional</em><em>[</em><em>hydrosdk.modelversion.MonitoringConfiguration</em><em>]</em>) – </p></li>
-<li><p><strong>training_data</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em>) – </p></li>
+<li><p><strong>training_data</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -457,7 +457,7 @@ environment</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>threshold</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
+<li><p><strong>threshold</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – </p></li>
 <li><p><strong>comparator</strong> (<a class="reference internal" href="hydrosdk.monitoring.html#hydrosdk.monitoring.ThresholdCmpOp" title="hydrosdk.monitoring.ThresholdCmpOp"><em>hydrosdk.monitoring.ThresholdCmpOp</em></a>) – </p></li>
 </ul>
 </dd>
@@ -478,7 +478,7 @@ environment</p></li>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>metrics</strong> (<em>List</em><em>[</em><a class="reference internal" href="hydrosdk.monitoring.html#hydrosdk.monitoring.MetricModel" title="hydrosdk.monitoring.MetricModel"><em>hydrosdk.monitoring.MetricModel</em></a><em>]</em>) – list of metrics</p></li>
-<li><p><strong>wait</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – </p></li>
+<li><p><strong>wait</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -509,10 +509,10 @@ environment</p></li>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>cluster</strong> (<a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster"><em>hydrosdk.cluster.Cluster</em></a>) – active cluster</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – name of model</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – name of model</p></li>
 <li><p><strong>contract</strong> (<em>hydro_serving_grpc.contract.model_contract_pb2.ModelContract</em>) – contract of the model</p></li>
-<li><p><strong>metadata</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a><em>]</em>) – metadata for the model</p></li>
-<li><p><strong>training_data</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em>) – </p></li>
+<li><p><strong>metadata</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a><em>]</em>) – metadata for the model</p></li>
+<li><p><strong>training_data</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -532,8 +532,8 @@ environment</p></li>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>cluster</strong> (<a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster"><em>hydrosdk.cluster.Cluster</em></a>) – active cluster</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – name of the model</p></li>
-<li><p><strong>version</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – version of the model</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – name of the model</p></li>
+<li><p><strong>version</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – version of the model</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -553,7 +553,7 @@ environment</p></li>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>cluster</strong> (<a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster"><em>hydrosdk.cluster.Cluster</em></a>) – active cluster</p></li>
-<li><p><strong>id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – model version id</p></li>
+<li><p><strong>id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – model version id</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -574,14 +574,14 @@ order by version.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>cluster</strong> (<a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster"><em>hydrosdk.cluster.Cluster</em></a>) – active cluster</p></li>
-<li><p><strong>model_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – a model name</p></li>
+<li><p><strong>model_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – a model name</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>list of ModelVersions with <cite>model_name</cite></p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>&lt;staticmethod object at 0x7ff1352098d0&gt;</p>
+<dd class="field-odd"><p>&lt;staticmethod object at 0x120042a50&gt;</p>
 </dd>
 </dl>
 </dd></dl>
@@ -605,11 +605,14 @@ order by version.</p>
 
 <dl class="py method">
 <dt id="hydrosdk.modelversion.ModelVersion.lock_till_released">
-<code class="sig-name descname">lock_till_released</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.modelversion.ModelVersion.lock_till_released" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">lock_till_released</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">timeout</span><span class="o">=</span><span class="default_value">120</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.modelversion.ModelVersion.lock_till_released" title="Permalink to this definition">¶</a></dt>
 <dd><p>Lock till the model completes assembling.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Raises</dt>
 <dd class="field-odd"><p><a class="reference internal" href="#hydrosdk.modelversion.ModelVersion.ReleaseFailed" title="hydrosdk.modelversion.ModelVersion.ReleaseFailed"><strong>ModelVersion.ReleaseFailed</strong></a> – if model failed to be released</p>
+</dd>
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><p><strong>timeout</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -663,15 +666,15 @@ order by version.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – absolute path</p></li>
-<li><p><strong>payload</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em>) – list of relative paths</p></li>
+<li><p><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – absolute path</p></li>
+<li><p><strong>payload</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – list of relative paths</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>dict with {resolved_path: payload_element}</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Dict[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a>]</p>
+<dd class="field-odd"><p>Dict[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a>]</p>
 </dd>
 </dl>
 </dd></dl>

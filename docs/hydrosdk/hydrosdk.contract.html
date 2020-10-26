@@ -7,7 +7,8 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>hydrosdk.contract module &mdash; hydrosdk 2.4.0rc4 documentation</title>
+  <title>hydrosdk.contract module &mdash; hydrosdk 2.4.1
+ documentation</title>
   
 
   
@@ -68,7 +69,8 @@
             
             
               <div class="version">
-                2.4.0rc4
+                2.4.1
+
               </div>
             
           
@@ -95,7 +97,8 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../whats_new.html">What’s new in 2.4.0rc4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whats_new.html">What’s new in 2.4.1
+</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../quickstart.html#installation">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../quickstart.html#using-hydrosdk">Using hydrosdk</a></li>
@@ -121,9 +124,9 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../getting_help.html">Getting Help</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://github.com/Hydrospheredata/hydro-serving-sdk">hydrosdk Github</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://github.com/Hydrospheredata/hydro-serving">Hydrosphere Platform Github</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Hydrospheredata/hydro-serving-sdk">hydrosdk Github page</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://pypi.org/project/hydrosdk/">hydrosdk PyPi package</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Hydrospheredata/hydro-serving">Hydrosphere Platform Github page</a></li>
 </ul>
 
             
@@ -196,14 +199,14 @@
 <dl class="py class">
 <dt id="hydrosdk.contract.AnyDimSize">
 <em class="property">class </em><code class="sig-prename descclassname">hydrosdk.contract.</code><code class="sig-name descname">AnyDimSize</code><a class="headerlink" href="#hydrosdk.contract.AnyDimSize" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Validation class for dimensions, used for -1 dims</p>
 </dd></dl>
 
 <dl class="py class">
 <dt id="hydrosdk.contract.ProfilingType">
 <em class="property">class </em><code class="sig-prename descclassname">hydrosdk.contract.</code><code class="sig-name descname">ProfilingType</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.contract.ProfilingType" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></a></p>
 <p>Profiling Types are used to tell monitoring services how to analyse signature fields.</p>
 </dd></dl>
 
@@ -219,7 +222,7 @@
 <dd class="field-even"><p>dict with model_name, predict</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>Optional[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a>]</p>
+<dd class="field-odd"><p>Optional[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)">dict</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -233,13 +236,13 @@
 <dd class="field-odd"><p><strong>signature</strong> (<em>hydro_serving_grpc.contract.model_signature_pb2.ModelSignature</em>) – model signature obj</p>
 </dd>
 <dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.8)"><strong>TypeError</strong></a> – If signature invalid</p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.9)"><strong>TypeError</strong></a> – If signature invalid</p>
 </dd>
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>dict with signature_name, inputs, outputs</p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -251,18 +254,18 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>result_dict</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – </p></li>
+<li><p><strong>result_dict</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – </p></li>
 <li><p><strong>field</strong> – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.8)"><strong>ValueError</strong></a> – If field invalid</p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.9)"><strong>ValueError</strong></a> – If field invalid</p>
 </dd>
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>result_dict with dtype or subfields</p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -273,7 +276,7 @@
 <dd><p>Helper method that makes a ModelContract out of contract dict</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>contract</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – </p>
+<dd class="field-odd"><p><strong>contract</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – </p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p></p>
@@ -291,12 +294,12 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>field_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
-<li><p><strong>field_dict</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – data</p></li>
+<li><p><strong>field_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p></li>
+<li><p><strong>field_dict</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – data</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.8)"><strong>ValueError</strong></a> – If data_dict is invalid</p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.9)"><strong>ValueError</strong></a> – If data_dict is invalid</p>
 </dd>
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>ModelField</p>
@@ -316,13 +319,13 @@
 <dd class="field-odd"><p><strong>field</strong> (<em>hydro_serving_grpc.contract.model_field_pb2.ModelField</em>) – model field</p>
 </dd>
 <dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.8)"><strong>TypeError</strong></a> – If field is invalid</p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.9)"><strong>TypeError</strong></a> – If field is invalid</p>
 </dd>
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>dict with name and profile</p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -348,15 +351,15 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – name of a model field</p></li>
-<li><p><strong>dtype</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em>, </em><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.dtype.html#numpy.dtype" title="(in NumPy v1.19)"><em>numpy.dtype</em></a><em>]</em>) – data type of model field, either string dtype alias (“double”, “int” .. ),
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – name of a model field</p></li>
+<li><p><strong>dtype</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>, </em><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.dtype.html#numpy.dtype" title="(in NumPy v1.19)"><em>numpy.dtype</em></a><em>]</em>) – data type of model field, either string dtype alias (“double”, “int” .. ),
 proto DataType value or name, or a Numpy data type</p></li>
-<li><p><strong>shape</strong> (<em>Iterable</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em>]</em>) – shape of a model field</p></li>
+<li><p><strong>shape</strong> (<em>Iterable</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>]</em>) – shape of a model field</p></li>
 <li><p><strong>profile</strong> (<a class="reference internal" href="#hydrosdk.contract.ProfilingType" title="hydrosdk.contract.ProfilingType"><em>hydrosdk.contract.ProfilingType</em></a>) – profile of a model field</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.8)"><strong>ValueError</strong></a> – If dtype is invalid</p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.9)"><strong>ValueError</strong></a> – If dtype is invalid</p>
 </dd>
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>ModelField proto object</p>
@@ -379,7 +382,7 @@ proto DataType value or name, or a Numpy data type</p></li>
 <dd class="field-even"><p>dict with dim and unknown rank</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -391,8 +394,8 @@ proto DataType value or name, or a Numpy data type</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
-<li><p><strong>signature</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – </p></li>
+<li><p><strong>model_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p></li>
+<li><p><strong>signature</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>

@@ -2,7 +2,7 @@
 This tutorial will show you how to use hydrosdk. You will learn how to upload your code as a model to Hydrosphere.io,
  setup your client code to make inference, and attach a monitoring metric to your model.
  
- ``` important:: This tutorials was written for hydrosdk==2.3.2
+ ``` important:: This tutorials was written for hydrosdk==2.4.1
 ```
 ```note:: If you haven't launched Hydrosphere.io platform, please do so before proceeding with this tutorial.
  You can learn how to do by checking documentation here - https://hydrosphere.io/serving-docs/latest/install/index.html. 
@@ -71,11 +71,11 @@ contract = ModelContract(predict=signature)
 
 At this point we can combine all our efforts into the LocalModel object. LocalModels are models before they get
  uploaded to the cluster. LocalModels are containers for all the information required to instantiate a ModelVersion
-  in a Hydrosphere cluster. We'll call this model `"sqrt_model"`. 
+  in a Hydrosphere cluster. We'll call this model `"sqrt_model"`.
   
 
 Moreover, we need to specify environment in which our model will run.
-Such environments are called Runtimes. You can learn more about them [here](https://hydrosphere.io/serving-docs/latest/overview/concepts.html#runtimes).
+Such environments are called Runtimes. You can learn more about them [here](https://docs.hydrosphere.io/about/concepts#runtimes).
 In this tutorial we will use default Python 3.7 runtime.
 This runtime uses `src/func_main.py` script as an entry point, that's why we organised our files as we did.
 
@@ -85,20 +85,15 @@ from hydrosdk.image import DockerImage
 
 sqrt_local_model = LocalModel(name="sqrt_model",
                               contract=contract,
-                              runtime=DockerImage("hydrosphere/serving-runtime-python-3.7", "2.3.2", None),
+                              runtime=DockerImage("hydrosphere/serving-runtime-python-3.7", "2.4.0", None),
                               payload=payload,
                               path=path)
 ```
 
 After packing all necessary information into a LocalModel, we finally can upload it.
 ```python
-upload_response = sqrt_local_model.upload(cluster, wait=True)
-```
-
-Let's check whether our model was successfully uploaded to the platform by looking for it.
-```python
-from hydrosdk.modelversion import ModelVersion
-sqrt_model = ModelVersion.find(cluster, name="sqrt_model", version=1)
+sqrt_model: ModelVersion = sqrt_local_model.upload(cluster)
+sqrt_model.lock_till_released()
 ```
 
 We are finished with uploading our model. Now we can get to the part where we develop a client code for our model. 
@@ -109,16 +104,20 @@ We have uploaded our model - it's stored and versioned, but it's not running yet
 you should create an Application - linear pipeline of ModelVersions with monitoring and other benefits. 
 You can learn more about Applications [here](https://hydrosphere.io/serving-docs/latest/overview/concepts.html#applications).
 
-For the sake of simplicity, we'll create just a Servable - a bare deployed instance of our model version without any benefits. 
+To create a simple application with one stage we'll use [ApplicationBuilder](hydrosdk/hydrosdk.application) along with [ExecutionStageBuilder](hydrosdk/hydrosdk.application).
+
 ```python
-from hydrosdk.servable import Servable
-# There are no way right now to wait Synchronously for Servable creation, so you may need to wait a few seconds before continuing further
-sqrt_servable = Servable.create(cluster, model_name="sqrt_model", version=1)
+from hydrosdk.application import ApplicationBuilder, ExecutionStageBuilder
+
+stage = ExecutionStageBuilder().with_model_variant(name=sqrt_model, weight=100).build()
+app_builder = ApplicationBuilder(cluster, "sqrt_model").with_stage(stage)
+sqrt_app = app_builder.build()
+sqrt_app.lock_while_starting()
 ```
 
-Servables provide [Predictor](hydrosdk/hydrosdk.predictor) objects, which should be used for data inference.
+Applications provide [Predictor](hydrosdk/hydrosdk.predictor) objects, which should be used for data inference.
 ```python
-predictor = sqrt_servable.predictor()
+predictor = sqrt_app.predictor()
 ```
 
 Predictors provide `predict` method which we can use to send our data to the model.
@@ -130,10 +129,11 @@ for x in range(10):
     print(result)
 ```
 
-
-Now we have finished with testing our model and can safely delete the servable:
+Now we have finished with testing our model and can safely delete the application:
 ```python
-Servable.delete(cluster, sqrt_servable.name)
+from hydrosdk.application import Application
+
+Application.delete(cluster, app_sqrt.name)
 ```
 
 In the next section we'll attach a monitoring model to this model to monitor
@@ -176,27 +176,23 @@ with a single float scalar value in the output.
  ```python
 signature = SignatureBuilder('predict') \
                 .with_input('x', 'double', "scalar") \
-                .with_intput('y', 'double', "scalar") \
+                .with_input('y', 'double', "scalar") \
                 .with_output('value', 'float', "scalar").build()
 
 contract = ModelContract(predict=signature)
 ```
 
-Similarly we create a LocalModel and upload it to the cluster
+Similarly we create a LocalModel and upload it to the cluster.
 ```python
-monitoring_model = LocalModel(name="sqrt_monitoring_model",
+monitoring_local_model = LocalModel(name="sqrt_monitoring_model",
                          contract=contract,
-                         runtime=DockerImage("hydrosphere/serving-runtime-python-3.7", "2.3.2", None),
+                         runtime=DockerImage("hydrosphere/serving-runtime-python-3.7", "2.4.0", None),
                          payload=payload,
                          path=path)
 
-monitoring_upload_response = monitoring_model.upload(cluster, wait=True)
+monitoring_model = monitoring_local_model.upload(cluster)
+monitoring_model.lock_till_released()
 ```
-
-Check that model is uploaded successfully:
-```python
-monitoring_model = ModelVersion.find(cluster, name="sqrt_monitoring_model", version=1)
-``` 
 
 Finally we attach this freshly uploaded model to our first one. To attach model as a metric to another model we need to:
 1. Create metric configuration as a MetricSpecConfig object. In a configuration we specify id of monitoring model,
@@ -205,27 +201,26 @@ Finally we attach this freshly uploaded model to our first one. To attach model 
 2. Create new metric by calling `MetricSpec.create` and providing id of monitored model with metric config.
     
 ```python
-from hydrosdk.monitoring import MetricSpec, MetricSpecConfig, TresholdCmpOp
-metric_config = MetricSpecConfig(monitoring_model.id, 1, TresholdCmpOp.NOT_EQ)
-metric_spec = MetricSpec.create(cluster, "is_greater_than_05", sqrt_model.id, metric_config)
+from hydrosdk.monitoring import ThresholdCmpOp
+
+metric = monitoring_model.as_metric(1, ThresholdCmpOp.NOT_EQ)
+sqrt_model.assign_metrics([metric])
 ```
 We have attached monitoring model to our previously uploaded model to check input data.
 All the future data we send through `sqrt_model`, together with results of inference is shadowed through all monitoring metrics.
 You can explore how metrics behave in the web interface.
 
-To simulate data we can again deploy a servable and send some data:
+To simulate data we can again deploy an application and send some data:
 ```python
-import time
-sqrt_servable = Servable.create(cluster, model_name="sqrt_model", version=1
-time.sleep(20)  # Wait for servable creation
+sqrt_app = app_builder.build()
+sqrt_app.lock_while_starting()
 
-predictor = sqrt_servable.predictor()
-
+predictor = sqrt_app.predictor()
 for x in range(100):
     result = predictor.predict({"x": np.random.rand()})
     print(result)
 
-Servable.delete(cluster, sqrt_servable.name)
+Application.delete(cluster, sqrt_app.name)
 ```
 
 You can explore changes on the UI.

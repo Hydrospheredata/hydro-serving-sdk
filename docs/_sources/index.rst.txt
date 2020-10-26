@@ -24,9 +24,9 @@ What to do next?
    getting_started_tutorial
    hydrosdk/hydrosdk
    getting_help
-   hydrosdk Github <https://github.com/Hydrospheredata/hydro-serving-sdk>
-   Hydrosphere Platform Github <https://github.com/Hydrospheredata/hydro-serving>
+   hydrosdk Github page <https://github.com/Hydrospheredata/hydro-serving-sdk>
    hydrosdk PyPi package <https://pypi.org/project/hydrosdk/>
+   Hydrosphere Platform Github page <https://github.com/Hydrospheredata/hydro-serving>
 
 
 Indices and tables

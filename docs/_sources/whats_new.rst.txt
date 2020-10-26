@@ -1,5 +1,5 @@
 What's new in |release|
 ##########################
 
-* Added support for `DeploymentConfiguration`
-* New DataUpload functionality
+* Add locks for Application/Servable entities
+* Add ability to configure monitoring configuration

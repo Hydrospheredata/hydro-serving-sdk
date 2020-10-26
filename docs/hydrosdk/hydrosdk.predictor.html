@@ -7,7 +7,8 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>hydrosdk.predictor module &mdash; hydrosdk 2.4.0rc4 documentation</title>
+  <title>hydrosdk.predictor module &mdash; hydrosdk 2.4.1
+ documentation</title>
   
 
   
@@ -68,7 +69,8 @@
             
             
               <div class="version">
-                2.4.0rc4
+                2.4.1
+
               </div>
             
           
@@ -95,7 +97,8 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../whats_new.html">What’s new in 2.4.0rc4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whats_new.html">What’s new in 2.4.1
+</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../quickstart.html#installation">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../quickstart.html#using-hydrosdk">Using hydrosdk</a></li>
@@ -121,9 +124,9 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../getting_help.html">Getting Help</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://github.com/Hydrospheredata/hydro-serving-sdk">hydrosdk Github</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://github.com/Hydrospheredata/hydro-serving">Hydrosphere Platform Github</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Hydrospheredata/hydro-serving-sdk">hydrosdk Github page</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://pypi.org/project/hydrosdk/">hydrosdk PyPi package</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Hydrospheredata/hydro-serving">Hydrosphere Platform Github page</a></li>
 </ul>
 
             
@@ -205,7 +208,7 @@
 :param target: Name of an application/servable which will receive data</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>target</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p>
+<dd class="field-odd"><p><strong>target</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -239,7 +242,7 @@
 <p>This methods hides the conversion of Python/Numpy objects into a TensorProto objects.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>inputs</strong> (<em>Union</em><em>[</em><em>pandas.core.frame.DataFrame</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a><em>, </em><em>pandas.core.series.Series</em><em>]</em>) – Input data in either Pandas DataFrame, Numpy or Python lists/scalars.</p>
+<dd class="field-odd"><p><strong>inputs</strong> (<em>Union</em><em>[</em><em>pandas.core.frame.DataFrame</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a><em>, </em><em>pandas.core.series.Series</em><em>]</em>) – Input data in either Pandas DataFrame, Numpy or Python lists/scalars.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Output data in a format specified by <cite>return_type</cite></p>
@@ -277,7 +280,7 @@
 <dd class="field-odd"><p><strong>response</strong> (<em>hydro_serving_grpc.tf.api.predict_pb2.PredictResponse</em>) – </p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p>Dict[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a>, numpy.array]</p>
+<dd class="field-even"><p>Dict[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a>, numpy.array]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -306,7 +309,7 @@
 <dd><p>This implementation sends data to a servable without shadowing it to monitoring services</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>target</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p>
+<dd class="field-odd"><p><strong>target</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p>
 </dd>
 </dl>
 </dd></dl>

@@ -7,7 +7,8 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Getting Started Tutorial &mdash; hydrosdk 2.4.0rc4 documentation</title>
+  <title>Getting Started Tutorial &mdash; hydrosdk 2.4.1
+ documentation</title>
   
 
   
@@ -68,7 +69,8 @@
             
             
               <div class="version">
-                2.4.0rc4
+                2.4.1
+
               </div>
             
           
@@ -95,7 +97,8 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="whats_new.html">What’s new in 2.4.0rc4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="whats_new.html">What’s new in 2.4.1
+</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="quickstart.html#installation">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="quickstart.html#using-hydrosdk">Using hydrosdk</a></li>
@@ -121,9 +124,9 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="getting_help.html">Getting Help</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://github.com/Hydrospheredata/hydro-serving-sdk">hydrosdk Github</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://github.com/Hydrospheredata/hydro-serving">Hydrosphere Platform Github</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Hydrospheredata/hydro-serving-sdk">hydrosdk Github page</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://pypi.org/project/hydrosdk/">hydrosdk PyPi package</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Hydrospheredata/hydro-serving">Hydrosphere Platform Github page</a></li>
 </ul>
 
             
@@ -195,7 +198,7 @@
 setup your client code to make inference, and attach a monitoring metric to your model.</p>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
-<p>This tutorials was written for hydrosdk==2.3.2</p>
+<p>This tutorials was written for hydrosdk==2.4.1</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -259,7 +262,7 @@ as well as what its inputs and outputs shapes and types are.</p>
 uploaded to the cluster. LocalModels are containers for all the information required to instantiate a ModelVersion
 in a Hydrosphere cluster. We’ll call this model <code class="docutils literal notranslate"><span class="pre">&quot;sqrt_model&quot;</span></code>.</p>
 <p>Moreover, we need to specify environment in which our model will run.
-Such environments are called Runtimes. You can learn more about them <a class="reference external" href="https://hydrosphere.io/serving-docs/latest/overview/concepts.html#runtimes">here</a>.
+Such environments are called Runtimes. You can learn more about them <a class="reference external" href="https://docs.hydrosphere.io/about/concepts#runtimes">here</a>.
 In this tutorial we will use default Python 3.7 runtime.
 This runtime uses <code class="docutils literal notranslate"><span class="pre">src/func_main.py</span></code> script as an entry point, that’s why we organised our files as we did.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">hydrosdk.modelversion</span> <span class="kn">import</span> <span class="n">LocalModel</span>
@@ -267,18 +270,14 @@ This runtime uses <code class="docutils literal notranslate"><span class="pre">s
 
 <span class="n">sqrt_local_model</span> <span class="o">=</span> <span class="n">LocalModel</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;sqrt_model&quot;</span><span class="p">,</span>
                               <span class="n">contract</span><span class="o">=</span><span class="n">contract</span><span class="p">,</span>
-                              <span class="n">runtime</span><span class="o">=</span><span class="n">DockerImage</span><span class="p">(</span><span class="s2">&quot;hydrosphere/serving-runtime-python-3.7&quot;</span><span class="p">,</span> <span class="s2">&quot;2.3.2&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+                              <span class="n">runtime</span><span class="o">=</span><span class="n">DockerImage</span><span class="p">(</span><span class="s2">&quot;hydrosphere/serving-runtime-python-3.7&quot;</span><span class="p">,</span> <span class="s2">&quot;2.4.0&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
                               <span class="n">payload</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span>
                               <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>After packing all necessary information into a LocalModel, we finally can upload it.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">upload_response</span> <span class="o">=</span> <span class="n">sqrt_local_model</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span><span class="n">cluster</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Let’s check whether our model was successfully uploaded to the platform by looking for it.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">hydrosdk.modelversion</span> <span class="kn">import</span> <span class="n">ModelVersion</span>
-<span class="n">sqrt_model</span> <span class="o">=</span> <span class="n">ModelVersion</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">cluster</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;sqrt_model&quot;</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sqrt_model</span><span class="p">:</span> <span class="n">ModelVersion</span> <span class="o">=</span> <span class="n">sqrt_local_model</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span><span class="n">cluster</span><span class="p">)</span>
+<span class="n">sqrt_model</span><span class="o">.</span><span class="n">lock_till_released</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>We are finished with uploading our model. Now we can get to the part where we develop a client code for our model.</p>
@@ -288,14 +287,17 @@ This runtime uses <code class="docutils literal notranslate"><span class="pre">s
 <p>We have uploaded our model - it’s stored and versioned, but it’s not running yet - we need to deploy it. To deploy a model
 you should create an Application - linear pipeline of ModelVersions with monitoring and other benefits.
 You can learn more about Applications <a class="reference external" href="https://hydrosphere.io/serving-docs/latest/overview/concepts.html#applications">here</a>.</p>
-<p>For the sake of simplicity, we’ll create just a Servable - a bare deployed instance of our model version without any benefits.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">hydrosdk.servable</span> <span class="kn">import</span> <span class="n">Servable</span>
-<span class="c1"># There are no way right now to wait Synchronously for Servable creation, so you may need to wait a few seconds before continuing further</span>
-<span class="n">sqrt_servable</span> <span class="o">=</span> <span class="n">Servable</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">cluster</span><span class="p">,</span> <span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;sqrt_model&quot;</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<p>To create a simple application with one stage we’ll use <a class="reference internal" href="hydrosdk/hydrosdk.application.html"><span class="doc">ApplicationBuilder</span></a> along with <a class="reference internal" href="hydrosdk/hydrosdk.application.html"><span class="doc">ExecutionStageBuilder</span></a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">hydrosdk.application</span> <span class="kn">import</span> <span class="n">ApplicationBuilder</span><span class="p">,</span> <span class="n">ExecutionStageBuilder</span>
+
+<span class="n">stage</span> <span class="o">=</span> <span class="n">ExecutionStageBuilder</span><span class="p">()</span><span class="o">.</span><span class="n">with_model_variant</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">sqrt_model</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
+<span class="n">app_builder</span> <span class="o">=</span> <span class="n">ApplicationBuilder</span><span class="p">(</span><span class="n">cluster</span><span class="p">,</span> <span class="s2">&quot;sqrt_model&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">with_stage</span><span class="p">(</span><span class="n">stage</span><span class="p">)</span>
+<span class="n">sqrt_app</span> <span class="o">=</span> <span class="n">app_builder</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
+<span class="n">sqrt_app</span><span class="o">.</span><span class="n">lock_while_starting</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>Servables provide <a class="reference internal" href="hydrosdk/hydrosdk.predictor.html"><span class="doc">Predictor</span></a> objects, which should be used for data inference.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">predictor</span> <span class="o">=</span> <span class="n">sqrt_servable</span><span class="o">.</span><span class="n">predictor</span><span class="p">()</span>
+<p>Applications provide <a class="reference internal" href="hydrosdk/hydrosdk.predictor.html"><span class="doc">Predictor</span></a> objects, which should be used for data inference.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">predictor</span> <span class="o">=</span> <span class="n">sqrt_app</span><span class="o">.</span><span class="n">predictor</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>Predictors provide <code class="docutils literal notranslate"><span class="pre">predict</span></code> method which we can use to send our data to the model.</p>
@@ -306,8 +308,10 @@ You can learn more about Applications <a class="reference external" href="https:
     <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Now we have finished with testing our model and can safely delete the servable:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Servable</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">cluster</span><span class="p">,</span> <span class="n">sqrt_servable</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+<p>Now we have finished with testing our model and can safely delete the application:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">hydrosdk.application</span> <span class="kn">import</span> <span class="n">Application</span>
+
+<span class="n">Application</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">cluster</span><span class="p">,</span> <span class="n">app_sqrt</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>In the next section we’ll attach a monitoring model to this model to monitor
@@ -344,24 +348,21 @@ Similarly, we define another <code class="docutils literal notranslate"><span cl
 with a single float scalar value in the output.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">signature</span> <span class="o">=</span> <span class="n">SignatureBuilder</span><span class="p">(</span><span class="s1">&#39;predict&#39;</span><span class="p">)</span> \
                <span class="o">.</span><span class="n">with_input</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;double&#39;</span><span class="p">,</span> <span class="s2">&quot;scalar&quot;</span><span class="p">)</span> \
-               <span class="o">.</span><span class="n">with_intput</span><span class="p">(</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;double&#39;</span><span class="p">,</span> <span class="s2">&quot;scalar&quot;</span><span class="p">)</span> \
+               <span class="o">.</span><span class="n">with_input</span><span class="p">(</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;double&#39;</span><span class="p">,</span> <span class="s2">&quot;scalar&quot;</span><span class="p">)</span> \
                <span class="o">.</span><span class="n">with_output</span><span class="p">(</span><span class="s1">&#39;value&#39;</span><span class="p">,</span> <span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s2">&quot;scalar&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
 
 <span class="n">contract</span> <span class="o">=</span> <span class="n">ModelContract</span><span class="p">(</span><span class="n">predict</span><span class="o">=</span><span class="n">signature</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Similarly we create a LocalModel and upload it to the cluster</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">monitoring_model</span> <span class="o">=</span> <span class="n">LocalModel</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;sqrt_monitoring_model&quot;</span><span class="p">,</span>
+<p>Similarly we create a LocalModel and upload it to the cluster.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">monitoring_local_model</span> <span class="o">=</span> <span class="n">LocalModel</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;sqrt_monitoring_model&quot;</span><span class="p">,</span>
                          <span class="n">contract</span><span class="o">=</span><span class="n">contract</span><span class="p">,</span>
-                         <span class="n">runtime</span><span class="o">=</span><span class="n">DockerImage</span><span class="p">(</span><span class="s2">&quot;hydrosphere/serving-runtime-python-3.7&quot;</span><span class="p">,</span> <span class="s2">&quot;2.3.2&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+                         <span class="n">runtime</span><span class="o">=</span><span class="n">DockerImage</span><span class="p">(</span><span class="s2">&quot;hydrosphere/serving-runtime-python-3.7&quot;</span><span class="p">,</span> <span class="s2">&quot;2.4.0&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
                          <span class="n">payload</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span>
                          <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">)</span>
 
-<span class="n">monitoring_upload_response</span> <span class="o">=</span> <span class="n">monitoring_model</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span><span class="n">cluster</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Check that model is uploaded successfully:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">monitoring_model</span> <span class="o">=</span> <span class="n">ModelVersion</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">cluster</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;sqrt_monitoring_model&quot;</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">monitoring_model</span> <span class="o">=</span> <span class="n">monitoring_local_model</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span><span class="n">cluster</span><span class="p">)</span>
+<span class="n">monitoring_model</span><span class="o">.</span><span class="n">lock_till_released</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>Finally we attach this freshly uploaded model to our first one. To attach model as a metric to another model we need to:</p>
@@ -371,26 +372,25 @@ threshold and comparison operator to compare output of monitoring model with thr
 is <code class="docutils literal notranslate"><span class="pre">True</span></code></p></li>
 <li><p>Create new metric by calling <code class="docutils literal notranslate"><span class="pre">MetricSpec.create</span></code> and providing id of monitored model with metric config.</p></li>
 </ol>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">hydrosdk.monitoring</span> <span class="kn">import</span> <span class="n">MetricSpec</span><span class="p">,</span> <span class="n">MetricSpecConfig</span><span class="p">,</span> <span class="n">TresholdCmpOp</span>
-<span class="n">metric_config</span> <span class="o">=</span> <span class="n">MetricSpecConfig</span><span class="p">(</span><span class="n">monitoring_model</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">TresholdCmpOp</span><span class="o">.</span><span class="n">NOT_EQ</span><span class="p">)</span>
-<span class="n">metric_spec</span> <span class="o">=</span> <span class="n">MetricSpec</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">cluster</span><span class="p">,</span> <span class="s2">&quot;is_greater_than_05&quot;</span><span class="p">,</span> <span class="n">sqrt_model</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">metric_config</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">hydrosdk.monitoring</span> <span class="kn">import</span> <span class="n">ThresholdCmpOp</span>
+
+<span class="n">metric</span> <span class="o">=</span> <span class="n">monitoring_model</span><span class="o">.</span><span class="n">as_metric</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">ThresholdCmpOp</span><span class="o">.</span><span class="n">NOT_EQ</span><span class="p">)</span>
+<span class="n">sqrt_model</span><span class="o">.</span><span class="n">assign_metrics</span><span class="p">([</span><span class="n">metric</span><span class="p">])</span>
 </pre></div>
 </div>
 <p>We have attached monitoring model to our previously uploaded model to check input data.
 All the future data we send through <code class="docutils literal notranslate"><span class="pre">sqrt_model</span></code>, together with results of inference is shadowed through all monitoring metrics.
 You can explore how metrics behave in the web interface.</p>
-<p>To simulate data we can again deploy a servable and send some data:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">time</span>
-<span class="n">sqrt_servable</span> <span class="o">=</span> <span class="n">Servable</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">cluster</span><span class="p">,</span> <span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;sqrt_model&quot;</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="mi">1</span>
-<span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>  <span class="c1"># Wait for servable creation</span>
+<p>To simulate data we can again deploy an application and send some data:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sqrt_app</span> <span class="o">=</span> <span class="n">app_builder</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
+<span class="n">sqrt_app</span><span class="o">.</span><span class="n">lock_while_starting</span><span class="p">()</span>
 
-<span class="n">predictor</span> <span class="o">=</span> <span class="n">sqrt_servable</span><span class="o">.</span><span class="n">predictor</span><span class="p">()</span>
-
+<span class="n">predictor</span> <span class="o">=</span> <span class="n">sqrt_app</span><span class="o">.</span><span class="n">predictor</span><span class="p">()</span>
 <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">):</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">predictor</span><span class="o">.</span><span class="n">predict</span><span class="p">({</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">()})</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
 
-<span class="n">Servable</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">cluster</span><span class="p">,</span> <span class="n">sqrt_servable</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+<span class="n">Application</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">cluster</span><span class="p">,</span> <span class="n">sqrt_app</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>You can explore changes on the UI.</p>

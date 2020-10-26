@@ -7,7 +7,8 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>hydrosdk.application module &mdash; hydrosdk 2.4.0rc4 documentation</title>
+  <title>hydrosdk.application module &mdash; hydrosdk 2.4.1
+ documentation</title>
   
 
   
@@ -68,7 +69,8 @@
             
             
               <div class="version">
-                2.4.0rc4
+                2.4.1
+
               </div>
             
           
@@ -95,7 +97,8 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../whats_new.html">What’s new in 2.4.0rc4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whats_new.html">What’s new in 2.4.1
+</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../quickstart.html#installation">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../quickstart.html#using-hydrosdk">Using hydrosdk</a></li>
@@ -121,9 +124,9 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../getting_help.html">Getting Help</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://github.com/Hydrospheredata/hydro-serving-sdk">hydrosdk Github</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://github.com/Hydrospheredata/hydro-serving">Hydrosphere Platform Github</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Hydrospheredata/hydro-serving-sdk">hydrosdk Github page</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://pypi.org/project/hydrosdk/">hydrosdk PyPi package</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Hydrospheredata/hydro-serving">Hydrosphere Platform Github page</a></li>
 </ul>
 
             
@@ -196,7 +199,7 @@
 <dl class="py class">
 <dt id="hydrosdk.application.Application">
 <em class="property">class </em><code class="sig-prename descclassname">hydrosdk.application.</code><code class="sig-name descname">Application</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cluster</span></em>, <em class="sig-param"><span class="n">id</span></em>, <em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">execution_graph</span></em>, <em class="sig-param"><span class="n">status</span></em>, <em class="sig-param"><span class="n">signature</span></em>, <em class="sig-param"><span class="n">kafka_streaming</span></em>, <em class="sig-param"><span class="n">metadata</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.application.Application" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Applications are used to combine your ModelVersions into a linear graph and deploy
 it into production, exposing HTTP and gRPC interfaces for consumers.</p>
 <p>Use ApplicationBuilder class to create a new Application in your Hydrosphere cluster
@@ -207,13 +210,13 @@ or an Application.find method to get the existing Application.</p>
 <dt class="field-even">Parameters</dt>
 <dd class="field-even"><ul class="simple">
 <li><p><strong>cluster</strong> (<a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster"><em>hydrosdk.cluster.Cluster</em></a>) – </p></li>
-<li><p><strong>id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
+<li><p><strong>id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – </p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p></li>
 <li><p><strong>execution_graph</strong> (<em>ExecutionGraph</em>) – </p></li>
 <li><p><strong>status</strong> (<a class="reference internal" href="#hydrosdk.application.ApplicationStatus" title="hydrosdk.application.ApplicationStatus"><em>hydrosdk.application.ApplicationStatus</em></a>) – </p></li>
 <li><p><strong>signature</strong> (<em>hydro_serving_grpc.contract.model_signature_pb2.ModelSignature</em>) – </p></li>
 <li><p><strong>kafka_streaming</strong> (<em>List</em><em>[</em><a class="reference internal" href="#hydrosdk.application.StreamingParams" title="hydrosdk.application.StreamingParams"><em>hydrosdk.application.StreamingParams</em></a><em>]</em>) – </p></li>
-<li><p><strong>metadata</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em><em>]</em>) – </p></li>
+<li><p><strong>metadata</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em><em>]</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-odd">Return type</dt>
@@ -240,13 +243,13 @@ or an Application.find method to get the existing Application.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>cluster</strong> (<a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster"><em>hydrosdk.cluster.Cluster</em></a>) – active cluster</p></li>
-<li><p><strong>id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – unique application ID</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – application Name</p></li>
+<li><p><strong>id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – unique application ID</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – application Name</p></li>
 <li><p><strong>signature</strong> (<em>hydro_serving_grpc.contract.model_signature_pb2.ModelSignature</em>) – signature, specifying input and output fields names, dtypes and shapes</p></li>
 <li><p><strong>execution_graph</strong> (<em>ExecutionGraph</em>) – linear graph which specifies ExecutionStages which sequentially transform input</p></li>
 <li><p><strong>status</strong> (<a class="reference internal" href="#hydrosdk.application.ApplicationStatus" title="hydrosdk.application.ApplicationStatus"><em>hydrosdk.application.ApplicationStatus</em></a>) – Application Status</p></li>
 <li><p><strong>kafka_streaming</strong> (<em>List</em><em>[</em><a class="reference internal" href="#hydrosdk.application.StreamingParams" title="hydrosdk.application.StreamingParams"><em>hydrosdk.application.StreamingParams</em></a><em>]</em>) – list of Kafka parameters with input and output Kafka topics specified</p></li>
-<li><p><strong>metadata</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em><em>]</em>) – metadata with string keys and string values.</p></li>
+<li><p><strong>metadata</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em><em>]</em>) – metadata with string keys and string values.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
@@ -261,14 +264,14 @@ or an Application.find method to get the existing Application.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>cluster</strong> (<a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster"><em>hydrosdk.cluster.Cluster</em></a>) – active cluster</p></li>
-<li><p><strong>application_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – application name</p></li>
+<li><p><strong>application_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – application name</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>response from the cluster</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -281,7 +284,7 @@ or an Application.find method to get the existing Application.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>cluster</strong> (<a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster"><em>hydrosdk.cluster.Cluster</em></a>) – active cluster</p></li>
-<li><p><strong>application_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – application name</p></li>
+<li><p><strong>application_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – application name</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -306,6 +309,20 @@ or an Application.find method to get the existing Application.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>List[<a class="reference internal" href="#hydrosdk.application.Application" title="hydrosdk.application.Application">hydrosdk.application.Application</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="hydrosdk.application.Application.lock_while_starting">
+<code class="sig-name descname">lock_while_starting</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">timeout</span><span class="o">=</span><span class="default_value">120</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.application.Application.lock_while_starting" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wait for an application to become ready.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>timeout</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#hydrosdk.application.Application" title="hydrosdk.application.Application">hydrosdk.application.Application</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -341,7 +358,7 @@ Numpy dtypes, Python dtypes or pd.DataFrame are supported.</p>
 <dl class="py class">
 <dt id="hydrosdk.application.ApplicationBuilder">
 <em class="property">class </em><code class="sig-prename descclassname">hydrosdk.application.</code><code class="sig-name descname">ApplicationBuilder</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cluster</span></em>, <em class="sig-param"><span class="n">name</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.application.ApplicationBuilder" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>ApplicationBuilder is used to create new Applications in your cluster.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Example</dt>
@@ -349,7 +366,7 @@ Numpy dtypes, Python dtypes or pd.DataFrame are supported.</p>
 <dt class="field-even">Parameters</dt>
 <dd class="field-even"><ul class="simple">
 <li><p><strong>cluster</strong> (<a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster"><em>hydrosdk.cluster.Cluster</em></a>) – </p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p></li>
 </ul>
 </dd>
 <dt class="field-odd">Return type</dt>
@@ -370,7 +387,7 @@ Numpy dtypes, Python dtypes or pd.DataFrame are supported.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>cluster</strong> (<a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster"><em>hydrosdk.cluster.Cluster</em></a>) – Hydrosphere cluster where you want to create an Application</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Future Application name</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Future Application name</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
@@ -398,8 +415,8 @@ Numpy dtypes, Python dtypes or pd.DataFrame are supported.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>source_topic</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – source Kafka topic</p></li>
-<li><p><strong>dest_topic</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – destination Kafka topic</p></li>
+<li><p><strong>source_topic</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – source Kafka topic</p></li>
+<li><p><strong>dest_topic</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – destination Kafka topic</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -418,8 +435,8 @@ Numpy dtypes, Python dtypes or pd.DataFrame are supported.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – string key under which <cite>value</cite> will be stored</p></li>
-<li><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – string value</p></li>
+<li><p><strong>key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – string key under which <cite>value</cite> will be stored</p></li>
+<li><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – string value</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -437,7 +454,7 @@ Numpy dtypes, Python dtypes or pd.DataFrame are supported.</p>
 <dd><p>Add a metadata to your future Application.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>metadata</strong> (<em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em>) – a dict containing metadata for your application</p>
+<dd class="field-odd"><p><strong>metadata</strong> (<em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – a dict containing metadata for your application</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p></p>
@@ -470,14 +487,14 @@ Numpy dtypes, Python dtypes or pd.DataFrame are supported.</p>
 <dl class="py class">
 <dt id="hydrosdk.application.ApplicationStatus">
 <em class="property">class </em><code class="sig-prename descclassname">hydrosdk.application.</code><code class="sig-name descname">ApplicationStatus</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.application.ApplicationStatus" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></a></p>
 <p>An enumeration.</p>
 </dd></dl>
 
 <dl class="py class">
 <dt id="hydrosdk.application.ModelVariant">
 <em class="property">class </em><code class="sig-prename descclassname">hydrosdk.application.</code><code class="sig-name descname">ModelVariant</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">modelVersion</span></em>, <em class="sig-param"><span class="n">weight</span></em>, <em class="sig-param"><span class="n">deploymentConfig</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.application.ModelVariant" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a></p>
 <p>Create new instance of ModelVariant(modelVersion, weight, deploymentConfig)</p>
 <dl class="py method">
 <dt id="hydrosdk.application.ModelVariant.deploymentConfig">
@@ -502,7 +519,7 @@ Numpy dtypes, Python dtypes or pd.DataFrame are supported.</p>
 <dl class="py class">
 <dt id="hydrosdk.application.StreamingParams">
 <em class="property">class </em><code class="sig-prename descclassname">hydrosdk.application.</code><code class="sig-name descname">StreamingParams</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sourceTopic</span></em>, <em class="sig-param"><span class="n">destinationTopic</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.application.StreamingParams" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a></p>
 <p>Create new instance of StreamingParams(sourceTopic, destinationTopic)</p>
 <dl class="py method">
 <dt id="hydrosdk.application.StreamingParams.destinationTopic">

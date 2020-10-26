@@ -7,7 +7,8 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>hydrosdk.deployment_configuration module &mdash; hydrosdk 2.4.0rc4 documentation</title>
+  <title>hydrosdk.deployment_configuration module &mdash; hydrosdk 2.4.1
+ documentation</title>
   
 
   
@@ -68,7 +69,8 @@
             
             
               <div class="version">
-                2.4.0rc4
+                2.4.1
+
               </div>
             
           
@@ -95,7 +97,8 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../whats_new.html">What’s new in 2.4.0rc4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whats_new.html">What’s new in 2.4.1
+</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../quickstart.html#installation">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../quickstart.html#using-hydrosdk">Using hydrosdk</a></li>
@@ -121,9 +124,9 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../getting_help.html">Getting Help</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://github.com/Hydrospheredata/hydro-serving-sdk">hydrosdk Github</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://github.com/Hydrospheredata/hydro-serving">Hydrosphere Platform Github</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Hydrospheredata/hydro-serving-sdk">hydrosdk Github page</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://pypi.org/project/hydrosdk/">hydrosdk PyPi package</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Hydrospheredata/hydro-serving">Hydrosphere Platform Github page</a></li>
 </ul>
 
             
@@ -196,7 +199,7 @@
 <dl class="py class">
 <dt id="hydrosdk.deployment_configuration.Affinity">
 <em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">Affinity</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node_affinity</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">pod_affinity</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">pod_anti_affinity</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.Affinity" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Group of affinity scheduling rules.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -208,7 +211,7 @@
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -216,17 +219,17 @@
 <dl class="py class">
 <dt id="hydrosdk.deployment_configuration.ContainerSpec">
 <em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">ContainerSpec</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">resources</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">env</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.ContainerSpec" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>ContainerSpec contains all configurations related to a container.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>resources</strong> (<a class="reference internal" href="#hydrosdk.deployment_configuration.ResourceRequirements" title="hydrosdk.deployment_configuration.ResourceRequirements"><em>hydrosdk.deployment_configuration.ResourceRequirements</em></a>) – </p></li>
-<li><p><strong>env</strong> (<em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em>) – </p></li>
+<li><p><strong>env</strong> (<em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -234,21 +237,21 @@
 <dl class="py class">
 <dt id="hydrosdk.deployment_configuration.DeploymentConfiguration">
 <em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">DeploymentConfiguration</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">hpa</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">pod</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">container</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">deployment</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">_BASE_URL</span><span class="o">=</span><span class="default_value">'/api/v2/deployment_configuration'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.DeploymentConfiguration" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>DeploymentConfiguration encapsulates k8s configs about how your Servables and ModelVariants should run.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Unique Name of a Deployment Configuration</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Unique Name of a Deployment Configuration</p></li>
 <li><p><strong>hpa</strong> (<a class="reference internal" href="#hydrosdk.deployment_configuration.HorizontalPodAutoScalerSpec" title="hydrosdk.deployment_configuration.HorizontalPodAutoScalerSpec"><em>hydrosdk.deployment_configuration.HorizontalPodAutoScalerSpec</em></a>) – HorizontalPodAutoScaler specification</p></li>
 <li><p><strong>pod</strong> (<a class="reference internal" href="#hydrosdk.deployment_configuration.PodSpec" title="hydrosdk.deployment_configuration.PodSpec"><em>hydrosdk.deployment_configuration.PodSpec</em></a>) – Pod specification</p></li>
 <li><p><strong>container</strong> (<a class="reference internal" href="#hydrosdk.deployment_configuration.ContainerSpec" title="hydrosdk.deployment_configuration.ContainerSpec"><em>hydrosdk.deployment_configuration.ContainerSpec</em></a>) – Container specification</p></li>
 <li><p><strong>deployment</strong> (<a class="reference internal" href="#hydrosdk.deployment_configuration.DeploymentSpec" title="hydrosdk.deployment_configuration.DeploymentSpec"><em>hydrosdk.deployment_configuration.DeploymentSpec</em></a>) – Deployment specification</p></li>
-<li><p><strong>_BASE_URL</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – </p></li>
+<li><p><strong>_BASE_URL</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a></p>
 </dd>
 </dl>
 <dl class="py method">
@@ -300,12 +303,21 @@
 
 <dl class="py class">
 <dt id="hydrosdk.deployment_configuration.DeploymentConfigurationBuilder">
-<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">DeploymentConfigurationBuilder</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">cluster</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.DeploymentConfigurationBuilder" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">DeploymentConfigurationBuilder</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cluster</span></em>, <em class="sig-param"><span class="n">name</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.DeploymentConfigurationBuilder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>DeploymentConfigBuilder is used to create a new DeploymentConfiguration.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Example</dt>
 <dd class="field-odd"><p></p></dd>
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>cluster</strong> (<a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster"><em>hydrosdk.cluster.Cluster</em></a>) – </p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#hydrosdk.deployment_configuration.DeploymentConfigurationBuilder" title="hydrosdk.deployment_configuration.DeploymentConfigurationBuilder">DeploymentConfigurationBuilder</a></p>
+</dd>
 </dl>
 <p>Create a new deployment configuration.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">hydrosdk</span> <span class="kn">import</span> <span class="n">Cluster</span><span class="p">,</span> <span class="n">DeploymentConfigurationBuilder</span>
@@ -319,9 +331,12 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> – Name of created deployment  configuration</p></li>
-<li><p><strong>cluster</strong> – Cluster where new deployment configuration should be created</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Name of created deployment  configuration</p></li>
+<li><p><strong>cluster</strong> (<a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster"><em>hydrosdk.cluster.Cluster</em></a>) – Cluster where new deployment configuration should be created</p></li>
 </ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#hydrosdk.deployment_configuration.DeploymentConfigurationBuilder" title="hydrosdk.deployment_configuration.DeploymentConfigurationBuilder">DeploymentConfigurationBuilder</a></p>
 </dd>
 </dl>
 <dl class="py method">
@@ -361,7 +376,7 @@
 <dd><p>Specify env for the container.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>env</strong> (<em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em>) – dictionary with the required environment variables.</p>
+<dd class="field-odd"><p><strong>env</strong> (<em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – dictionary with the required environment variables.</p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p><a class="reference internal" href="#hydrosdk.deployment_configuration.DeploymentConfiguration" title="hydrosdk.deployment_configuration.DeploymentConfiguration">hydrosdk.deployment_configuration.DeploymentConfiguration</a></p>
@@ -397,7 +412,7 @@ over all the pods; if not specified the default autoscaling policy will be used.
 <dd><p>Adds selector which must be true for the pod to fit on a node.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>node_selector</strong> (<em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em>) – Selector which must match a node’s labels for the pod to be scheduled on that node</p>
+<dd class="field-odd"><p><strong>node_selector</strong> (<em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – Selector which must match a node’s labels for the pod to be scheduled on that node</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p></p>
@@ -433,8 +448,8 @@ Defaults to 1.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>limits</strong> (<em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em>) – the maximum amount of compute resources allowed</p></li>
-<li><p><strong>requests</strong> (<em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em>) – Requests describes the minimum amount of compute resources required.
+<li><p><strong>limits</strong> (<em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – the maximum amount of compute resources allowed</p></li>
+<li><p><strong>requests</strong> (<em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – Requests describes the minimum amount of compute resources required.
 If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
 otherwise to an implementation-defined value.</p></li>
 </ul>
@@ -458,16 +473,16 @@ otherwise to an implementation-defined value.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>effect</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Effect indicates the taint effect to match.
+<li><p><strong>effect</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Effect indicates the taint effect to match.
 Empty means match all taint effects. When specified, allowed values are NoSchedule, PreferNoSchedule and NoExecute.</p></li>
-<li><p><strong>key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Key is the taint key that the toleration applies to. Empty means match all taint keys.
+<li><p><strong>key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Key is the taint key that the toleration applies to. Empty means match all taint keys.
 If the key is empty, operator must be Exists; this combination means to match all values and all keys.</p></li>
-<li><p><strong>operator</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Operator represents a key’s relationship to the value. Valid operators are Exists and Equal. Defaults to Equal.
+<li><p><strong>operator</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Operator represents a key’s relationship to the value. Valid operators are Exists and Equal. Defaults to Equal.
 Exists is equivalent to wildcard for value, so that a pod can tolerate all taints of a particular category.</p></li>
-<li><p><strong>toleration_seconds</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – TolerationSeconds represents the period of time the toleration (which must be of effect NoExecute,
+<li><p><strong>toleration_seconds</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – TolerationSeconds represents the period of time the toleration (which must be of effect NoExecute,
 otherwise this field is ignored) tolerates the taint. By default, it is not set, which means tolerate the taint forever (do not evict).
 Zero and negative values will be treated as 0 (evict immediately) by the system.</p></li>
-<li><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Value is the taint value the toleration matches to. If the operator is Exists, the value should be empty,
+<li><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Value is the taint value the toleration matches to. If the operator is Exists, the value should be empty,
 otherwise just a regular string.</p></li>
 </ul>
 </dd>
@@ -482,14 +497,14 @@ otherwise just a regular string.</p></li>
 <dl class="py class">
 <dt id="hydrosdk.deployment_configuration.DeploymentSpec">
 <em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">DeploymentSpec</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">replica_count</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.DeploymentSpec" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>DeploymentSpec contains all configurations related to a deployment.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>replica_count</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – </p>
+<dd class="field-odd"><p><strong>replica_count</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – </p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -497,21 +512,21 @@ otherwise just a regular string.</p></li>
 <dl class="py class">
 <dt id="hydrosdk.deployment_configuration.HorizontalPodAutoScalerSpec">
 <em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">HorizontalPodAutoScalerSpec</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">min_replicas</span></em>, <em class="sig-param"><span class="n">max_replicas</span></em>, <em class="sig-param"><span class="n">cpu_utilization</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.HorizontalPodAutoScalerSpec" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>HPA Specification</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>max_replicas</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – upper limit for the number of replicas to which the autoscaler can scale up. It cannot be less that minReplicas.</p></li>
-<li><p><strong>min_replicas</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – lower limit for the number of replicas to which the autoscaler can scale down.
+<li><p><strong>max_replicas</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – upper limit for the number of replicas to which the autoscaler can scale up. It cannot be less that minReplicas.</p></li>
+<li><p><strong>min_replicas</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – lower limit for the number of replicas to which the autoscaler can scale down.
 It defaults to 1 pod. minReplicas is allowed to be 0 if the alpha feature gate HPAScaleToZero is enabled and at least
 one Object or External metric is configured. Scaling is active as long as at least one metric value is available.</p></li>
-<li><p><strong>cpu_utilization</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – target average CPU utilization (represented as a percentage of requested CPU)
+<li><p><strong>cpu_utilization</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – target average CPU utilization (represented as a percentage of requested CPU)
 over all the pods; if not specified the default autoscaling policy will be used.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -519,20 +534,20 @@ over all the pods; if not specified the default autoscaling policy will be used.
 <dl class="py class">
 <dt id="hydrosdk.deployment_configuration.LabelSelector">
 <em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">LabelSelector</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">match_expressions</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">match_labels</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.LabelSelector" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>A label selector is a label query over a set of resources. The result of matchLabels and matchExpressions are ANDed.
 An empty label selector matches all objects. A null label selector matches no objects.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>match_labels</strong> (<em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em>) – map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent
+<li><p><strong>match_labels</strong> (<em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent
 to an element of matchExpressions, whose key field is “key”, the operator is “In”, and the values array contains only “value”.
 The requirements are ANDed.</p></li>
 <li><p><strong>match_expressions</strong> (<em>List</em><em>[</em><a class="reference internal" href="#hydrosdk.deployment_configuration.LabelSelectorRequirement" title="hydrosdk.deployment_configuration.LabelSelectorRequirement"><em>hydrosdk.deployment_configuration.LabelSelectorRequirement</em></a><em>]</em>) – matchExpressions is a list of label selector requirements. The requirements are ANDed.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -540,19 +555,19 @@ The requirements are ANDed.</p></li>
 <dl class="py class">
 <dt id="hydrosdk.deployment_configuration.LabelSelectorRequirement">
 <em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">LabelSelectorRequirement</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span></em>, <em class="sig-param"><span class="n">operator</span></em>, <em class="sig-param"><span class="n">values</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.LabelSelectorRequirement" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – key is the label key that the selector applies to.</p></li>
-<li><p><strong>operator</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – operator represents a key’s relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist.</p></li>
-<li><p><strong>values</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em>) – values is an array of string values. If the operator is In or NotIn, the values array must be non-empty.
+<li><p><strong>key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – key is the label key that the selector applies to.</p></li>
+<li><p><strong>operator</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – operator represents a key’s relationship to a set of values. Valid operators are In, NotIn, Exists and DoesNotExist.</p></li>
+<li><p><strong>values</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – values is an array of string values. If the operator is In or NotIn, the values array must be non-empty.
 If the operator is Exists or DoesNotExist, the values array must be empty. This array is replaced during a strategic merge patch.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -560,7 +575,7 @@ If the operator is Exists or DoesNotExist, the values array must be empty. This 
 <dl class="py class">
 <dt id="hydrosdk.deployment_configuration.NodeAffinity">
 <em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">NodeAffinity</code><span class="sig-paren">(</span><em class="sig-param">preferred_during_scheduling_ignored_during_execution=&lt;factory&gt;</em>, <em class="sig-param">required_during_scheduling_ignored_during_execution=None</em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.NodeAffinity" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Group of node affinity scheduling rules.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -570,7 +585,7 @@ If the operator is Exists or DoesNotExist, the values array must be empty. This 
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -578,7 +593,7 @@ If the operator is Exists or DoesNotExist, the values array must be empty. This 
 <dl class="py class">
 <dt id="hydrosdk.deployment_configuration.NodeSelector">
 <em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">NodeSelector</code><span class="sig-paren">(</span><em class="sig-param">node_selector_terms=&lt;factory&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.NodeSelector" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <dl class="simple">
 <dt>A node selector represents the union of the results of one or more label queries over a set of nodes; that is,</dt><dd><p>it represents the OR of the selectors represented by the node selector terms.</p>
 </dd>
@@ -588,7 +603,7 @@ If the operator is Exists or DoesNotExist, the values array must be empty. This 
 <dd class="field-odd"><p><strong>node_selector_terms</strong> (<em>List</em><em>[</em><a class="reference internal" href="#hydrosdk.deployment_configuration.NodeSelectorTerm" title="hydrosdk.deployment_configuration.NodeSelectorTerm"><em>hydrosdk.deployment_configuration.NodeSelectorTerm</em></a><em>]</em>) – </p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -596,21 +611,21 @@ If the operator is Exists or DoesNotExist, the values array must be empty. This 
 <dl class="py class">
 <dt id="hydrosdk.deployment_configuration.NodeSelectorRequirement">
 <em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">NodeSelectorRequirement</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span></em>, <em class="sig-param"><span class="n">operator</span></em>, <em class="sig-param"><span class="n">values</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.NodeSelectorRequirement" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>A node selector requirement is a selector that contains values, a key, and an operator that relates the key and values.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>operator</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Represents a key’s relationship to a set of values. Valid operators are In, NotIn, Exists, DoesNotExist. Gt, and Lt.</p></li>
-<li><p><strong>key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – The label key that the selector applies to.</p></li>
-<li><p><strong>values</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em>) – An array of string values. If the operator is In or NotIn, the values array must be non-empty.
+<li><p><strong>operator</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Represents a key’s relationship to a set of values. Valid operators are In, NotIn, Exists, DoesNotExist. Gt, and Lt.</p></li>
+<li><p><strong>key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The label key that the selector applies to.</p></li>
+<li><p><strong>values</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – An array of string values. If the operator is In or NotIn, the values array must be non-empty.
 If the operator is Exists or DoesNotExist, the values array must be empty.
 If the operator is Gt or Lt, the values array must have a single element, which will be interpreted as an integer.
 This array is replaced during a strategic merge patch.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -618,7 +633,7 @@ This array is replaced during a strategic merge patch.</p></li>
 <dl class="py class">
 <dt id="hydrosdk.deployment_configuration.NodeSelectorTerm">
 <em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">NodeSelectorTerm</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">match_expressions</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">match_fields</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.NodeSelectorTerm" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <dl class="simple">
 <dt>A null or empty node selector term matches no objects. The requirements of them are ANDed.</dt><dd><p>The TopologySelectorTerm type implements a subset of the NodeSelectorTerm.</p>
 </dd>
@@ -631,7 +646,7 @@ This array is replaced during a strategic merge patch.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -639,7 +654,7 @@ This array is replaced during a strategic merge patch.</p></li>
 <dl class="py class">
 <dt id="hydrosdk.deployment_configuration.PodAffinity">
 <em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">PodAffinity</code><span class="sig-paren">(</span><em class="sig-param">preferred_during_scheduling_ignored_during_execution=&lt;factory&gt;</em>, <em class="sig-param">required_during_scheduling_ignored_during_execution=&lt;factory&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.PodAffinity" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Pod affinity is a group of inter pod affinity scheduling rules.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -649,7 +664,7 @@ This array is replaced during a strategic merge patch.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -657,7 +672,7 @@ This array is replaced during a strategic merge patch.</p></li>
 <dl class="py class">
 <dt id="hydrosdk.deployment_configuration.PodAffinityTerm">
 <em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">PodAffinityTerm</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">label_selector</span></em>, <em class="sig-param"><span class="n">topology_key</span></em>, <em class="sig-param"><span class="n">namespaces</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.PodAffinityTerm" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Defines a set of pods (namely those matching the labelSelector relative to the given namespace(s)) that this pod should be co-located
 (affinity) or not co-located (anti-affinity) with, where co-located is defined as running on a node whose value of the label with key
 &lt;topologyKey&gt; matches that of any node on which a pod of the set of pods is running</p>
@@ -665,16 +680,16 @@ This array is replaced during a strategic merge patch.</p></li>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>label_selector</strong> (<a class="reference internal" href="#hydrosdk.deployment_configuration.LabelSelector" title="hydrosdk.deployment_configuration.LabelSelector"><em>hydrosdk.deployment_configuration.LabelSelector</em></a>) – A label query over a set of resources, in this case pods.</p></li>
-<li><p><strong>namespaces</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em>) – namespaces specifies which namespaces the labelSelector applies to (matches against);
+<li><p><strong>namespaces</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – namespaces specifies which namespaces the labelSelector applies to (matches against);
 null or empty list means “this pod’s namespace”</p></li>
-<li><p><strong>topology_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods
+<li><p><strong>topology_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – This pod should be co-located (affinity) or not co-located (anti-affinity) with the pods
 matching the labelSelector in the specified namespaces, where co-located is defined as running on a node whose
 value of the label with key topologyKey matches that of any node on which any of the selected pods is running.
 Empty topologyKey is not allowed.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -682,7 +697,7 @@ Empty topologyKey is not allowed.</p></li>
 <dl class="py class">
 <dt id="hydrosdk.deployment_configuration.PodAntiAffinity">
 <em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">PodAntiAffinity</code><span class="sig-paren">(</span><em class="sig-param">preferred_during_scheduling_ignored_during_execution=&lt;factory&gt;</em>, <em class="sig-param">required_during_scheduling_ignored_during_execution=&lt;factory&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.PodAntiAffinity" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Pod anti affinity is a group of inter pod anti affinity scheduling rules.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -692,7 +707,7 @@ Empty topologyKey is not allowed.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -700,18 +715,18 @@ Empty topologyKey is not allowed.</p></li>
 <dl class="py class">
 <dt id="hydrosdk.deployment_configuration.PodSpec">
 <em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">PodSpec</code><span class="sig-paren">(</span><em class="sig-param">node_selector=&lt;factory&gt;</em>, <em class="sig-param">affinity=None</em>, <em class="sig-param">tolerations=&lt;factory&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.PodSpec" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>PodSpec contains all configurations related to a pod.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>node_selector</strong> (<em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em>) – </p></li>
+<li><p><strong>node_selector</strong> (<em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – </p></li>
 <li><p><strong>affinity</strong> (<a class="reference internal" href="#hydrosdk.deployment_configuration.Affinity" title="hydrosdk.deployment_configuration.Affinity"><em>hydrosdk.deployment_configuration.Affinity</em></a>) – </p></li>
 <li><p><strong>tolerations</strong> (<em>List</em><em>[</em><a class="reference internal" href="#hydrosdk.deployment_configuration.Toleration" title="hydrosdk.deployment_configuration.Toleration"><em>hydrosdk.deployment_configuration.Toleration</em></a><em>]</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -719,7 +734,7 @@ Empty topologyKey is not allowed.</p></li>
 <dl class="py class">
 <dt id="hydrosdk.deployment_configuration.PreferredSchedulingTerm">
 <em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">PreferredSchedulingTerm</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">weight</span></em>, <em class="sig-param"><span class="n">preference</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.PreferredSchedulingTerm" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <dl class="simple">
 <dt>An empty preferred scheduling term matches all objects with implicit weight 0 (i.e. it’s a no-op). A null preferred scheduling</dt><dd><p>term matches no objects (i.e. is also a no-op).</p>
 </dd>
@@ -728,11 +743,11 @@ Empty topologyKey is not allowed.</p></li>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>preference</strong> (<a class="reference internal" href="#hydrosdk.deployment_configuration.NodeSelectorTerm" title="hydrosdk.deployment_configuration.NodeSelectorTerm"><em>hydrosdk.deployment_configuration.NodeSelectorTerm</em></a>) – A node selector term, associated with the corresponding weight.</p></li>
-<li><p><strong>weight</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – Weight associated with matching the corresponding nodeSelectorTerm, in the range 1-100.</p></li>
+<li><p><strong>weight</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Weight associated with matching the corresponding nodeSelectorTerm, in the range 1-100.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -740,19 +755,19 @@ Empty topologyKey is not allowed.</p></li>
 <dl class="py class">
 <dt id="hydrosdk.deployment_configuration.ResourceRequirements">
 <em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">ResourceRequirements</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">limits</span></em>, <em class="sig-param"><span class="n">requests</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.ResourceRequirements" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Resources required by the container.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>limits</strong> (<em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em>) – the maximum amount of compute resources allowed</p></li>
-<li><p><strong>requests</strong> (<em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>]</em>) – Requests describes the minimum amount of compute resources required.
+<li><p><strong>limits</strong> (<em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – the maximum amount of compute resources allowed</p></li>
+<li><p><strong>requests</strong> (<em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – Requests describes the minimum amount of compute resources required.
 If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
 otherwise to an implementation-defined value.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -760,26 +775,26 @@ otherwise to an implementation-defined value.</p></li>
 <dl class="py class">
 <dt id="hydrosdk.deployment_configuration.Toleration">
 <em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">Toleration</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">operator</span></em>, <em class="sig-param"><span class="n">toleration_seconds</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">key</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">value</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">effect</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.Toleration" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>The pod this Toleration is attached to tolerates any taint that matches the triple &lt;key,value,effect&gt; using the matching operator &lt;operator&gt;.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>effect</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Effect indicates the taint effect to match.
+<li><p><strong>effect</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Effect indicates the taint effect to match.
 Empty means match all taint effects. When specified, allowed values are NoSchedule, PreferNoSchedule and NoExecute.</p></li>
-<li><p><strong>key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Key is the taint key that the toleration applies to. Empty means match all taint keys.
+<li><p><strong>key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Key is the taint key that the toleration applies to. Empty means match all taint keys.
 If the key is empty, operator must be Exists; this combination means to match all values and all keys.</p></li>
-<li><p><strong>operator</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Operator represents a key’s relationship to the value. Valid operators are Exists and Equal. Defaults to Equal.
+<li><p><strong>operator</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Operator represents a key’s relationship to the value. Valid operators are Exists and Equal. Defaults to Equal.
 Exists is equivalent to wildcard for value, so that a pod can tolerate all taints of a particular category.</p></li>
-<li><p><strong>toleration_seconds</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – TolerationSeconds represents the period of time the toleration (which must be of effect NoExecute,
+<li><p><strong>toleration_seconds</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – TolerationSeconds represents the period of time the toleration (which must be of effect NoExecute,
 otherwise this field is ignored) tolerates the taint. By default, it is not set, which means tolerate the taint forever (do not evict).
 Zero and negative values will be treated as 0 (evict immediately) by the system.</p></li>
-<li><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Value is the taint value the toleration matches to. If the operator is Exists, the value should be empty,
+<li><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Value is the taint value the toleration matches to. If the operator is Exists, the value should be empty,
 otherwise just a regular string.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -787,17 +802,17 @@ otherwise just a regular string.</p></li>
 <dl class="py class">
 <dt id="hydrosdk.deployment_configuration.WeightedPodAffinityTerm">
 <em class="property">class </em><code class="sig-prename descclassname">hydrosdk.deployment_configuration.</code><code class="sig-name descname">WeightedPodAffinityTerm</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">weight</span></em>, <em class="sig-param"><span class="n">pod_affinity_term</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.deployment_configuration.WeightedPodAffinityTerm" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>The weights of all of the matched WeightedPodAffinityTerm fields are added per-node to find the most preferred node(s)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pod_affinity_term</strong> (<a class="reference internal" href="#hydrosdk.deployment_configuration.PodAffinityTerm" title="hydrosdk.deployment_configuration.PodAffinityTerm"><em>hydrosdk.deployment_configuration.PodAffinityTerm</em></a>) – Required. A pod affinity term, associated with the corresponding weight.</p></li>
-<li><p><strong>weight</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – weight associated with matching the corresponding podAffinityTerm, in the range 1-100.</p></li>
+<li><p><strong>weight</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – weight associated with matching the corresponding podAffinityTerm, in the range 1-100.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)">None</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)">None</a></p>
 </dd>
 </dl>
 </dd></dl>

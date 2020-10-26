@@ -7,7 +7,8 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>hydrosdk.exceptions module &mdash; hydrosdk 2.4.0rc4 documentation</title>
+  <title>hydrosdk.exceptions module &mdash; hydrosdk 2.4.1
+ documentation</title>
   
 
   
@@ -68,7 +69,8 @@
             
             
               <div class="version">
-                2.4.0rc4
+                2.4.1
+
               </div>
             
           
@@ -95,7 +97,8 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../whats_new.html">What’s new in 2.4.0rc4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whats_new.html">What’s new in 2.4.1
+</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../quickstart.html#installation">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../quickstart.html#using-hydrosdk">Using hydrosdk</a></li>
@@ -121,9 +124,9 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../getting_help.html">Getting Help</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://github.com/Hydrospheredata/hydro-serving-sdk">hydrosdk Github</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://github.com/Hydrospheredata/hydro-serving">Hydrosphere Platform Github</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Hydrospheredata/hydro-serving-sdk">hydrosdk Github page</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://pypi.org/project/hydrosdk/">hydrosdk PyPi package</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/Hydrospheredata/hydro-serving">Hydrosphere Platform Github page</a></li>
 </ul>
 
             
@@ -198,21 +201,27 @@
 <dd class="field-odd"><p></p></dd>
 </dl>
 <dl class="py exception">
-<dt id="hydrosdk.exceptions.BadRequest">
-<em class="property">exception </em><code class="sig-prename descclassname">hydrosdk.exceptions.</code><code class="sig-name descname">BadRequest</code><a class="headerlink" href="#hydrosdk.exceptions.BadRequest" title="Permalink to this definition">¶</a></dt>
+<dt id="hydrosdk.exceptions.BadRequestException">
+<em class="property">exception </em><code class="sig-prename descclassname">hydrosdk.exceptions.</code><code class="sig-name descname">BadRequestException</code><a class="headerlink" href="#hydrosdk.exceptions.BadRequestException" title="Permalink to this definition">¶</a></dt>
 <dd><p>Exception for client-side errors.</p>
 </dd></dl>
 
 <dl class="py exception">
-<dt id="hydrosdk.exceptions.BadResponse">
-<em class="property">exception </em><code class="sig-prename descclassname">hydrosdk.exceptions.</code><code class="sig-name descname">BadResponse</code><a class="headerlink" href="#hydrosdk.exceptions.BadResponse" title="Permalink to this definition">¶</a></dt>
-<dd><p>Exception for server-side errors.</p>
+<dt id="hydrosdk.exceptions.BadResponseException">
+<em class="property">exception </em><code class="sig-prename descclassname">hydrosdk.exceptions.</code><code class="sig-name descname">BadResponseException</code><a class="headerlink" href="#hydrosdk.exceptions.BadResponseException" title="Permalink to this definition">¶</a></dt>
+<dd><p>`    Exception for server-side errors.</p>
 </dd></dl>
 
 <dl class="py exception">
 <dt id="hydrosdk.exceptions.ContractViolationException">
 <em class="property">exception </em><code class="sig-prename descclassname">hydrosdk.exceptions.</code><code class="sig-name descname">ContractViolationException</code><a class="headerlink" href="#hydrosdk.exceptions.ContractViolationException" title="Permalink to this definition">¶</a></dt>
 <dd><p>Exception raised when contract is violated</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt id="hydrosdk.exceptions.HydrosphereException">
+<em class="property">exception </em><code class="sig-prename descclassname">hydrosdk.exceptions.</code><code class="sig-name descname">HydrosphereException</code><a class="headerlink" href="#hydrosdk.exceptions.HydrosphereException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base exception for SDK library.</p>
 </dd></dl>
 
 <dl class="py exception">
@@ -224,6 +233,12 @@
 <dt id="hydrosdk.exceptions.ServableException">
 <em class="property">exception </em><code class="sig-prename descclassname">hydrosdk.exceptions.</code><code class="sig-name descname">ServableException</code><a class="headerlink" href="#hydrosdk.exceptions.ServableException" title="Permalink to this definition">¶</a></dt>
 <dd><p>Servable class base exception</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt id="hydrosdk.exceptions.TimeoutException">
+<em class="property">exception </em><code class="sig-prename descclassname">hydrosdk.exceptions.</code><code class="sig-name descname">TimeoutException</code><a class="headerlink" href="#hydrosdk.exceptions.TimeoutException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception for timeouts</p>
 </dd></dl>
 
 <dl class="py exception">
