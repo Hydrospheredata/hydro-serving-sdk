@@ -131,7 +131,7 @@ class Application:
         """
         self.status = self.find(self.cluster, self.name).status
     
-    def lock_till_available(self, timeout: int = 120) -> 'Application':
+    def lock_while_starting(self, timeout: int = 120) -> 'Application':
         """ Wait for an application to become ready. """
         events_stream = self.cluster.request("GET", "/api/v2/events", stream=True)
         events_client = sseclient.SSEClient(events_stream)

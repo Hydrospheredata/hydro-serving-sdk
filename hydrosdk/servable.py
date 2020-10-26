@@ -2,7 +2,7 @@
 This module contains all the code associated with Servables and their management at Hydrosphere platform.
 You can learn more about Servables here https://hydrosphere.io/serving-docs/latest/overview/concepts.html#servable.
 """
-import re, json
+import re, json, datetime
 from enum import Enum
 from typing import Dict, List, Optional, Iterable
 
@@ -175,7 +175,7 @@ class Servable:
                 resp, f"Failed to retrieve logs for {self}. {resp.status_code} {resp.text}")
         return sseclient.SSEClient(resp).events()
 
-    def lock_till_available(self, timeout: int = 120) -> 'Servable':
+    def lock_while_starting(self, timeout: int = 120) -> 'Servable':
         """ Wait for a servable to become ready. """
         events_stream = self.cluster.request("GET", "/api/v2/events", stream=True)
         events_client = sseclient.SSEClient(events_stream)

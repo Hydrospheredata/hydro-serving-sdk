@@ -34,7 +34,7 @@ def app(cluster: Cluster, modelversion: ModelVersion, deployment_configuration: 
     stage = ExecutionStageBuilder().with_model_variant(modelversion, 100, deployment_configuration).build()
     app = ApplicationBuilder(cluster, f"{DEFAULT_APP_NAME}-{random.randint(0, 1e5)}") \
         .with_stage(stage).with_metadata("key", "value").build()
-    app.lock_till_available()
+    app.lock_while_starting()
     yield app
     Application.delete(cluster, app.name)
 

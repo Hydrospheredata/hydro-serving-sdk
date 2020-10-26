@@ -32,7 +32,7 @@ def servable_tensor(cluster: Cluster, tensor_local_model: LocalModel):
     mv: ModelVersion = tensor_local_model.upload(cluster)
     mv.lock_till_released()
     sv: Servable = Servable.create(cluster, mv.name, mv.version)
-    sv.lock_till_available()
+    sv.lock_while_starting()
     yield sv
     Servable.delete(cluster, sv.name)
 
