@@ -228,6 +228,7 @@ def releaseService(String xVersion, String yVersion){
 }
 
 node('hydrocentral') {
+  try{
     stage('SCM'){
       //Set commit author
       sh script: "git config --global user.name \"HydroRobot\"", label: "Set username"
@@ -238,7 +239,6 @@ node('hydrocentral') {
           //Set grpcVersion
           grpcVersion = sh(script: "curl -Ls https://pypi.org/pypi/hydro-serving-grpc/json | jq -r .info.version", returnStdout: true, label: "get grpc version").trim()
         }
-      }
     }
 
     stage('Test'){
