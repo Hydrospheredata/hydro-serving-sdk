@@ -254,6 +254,8 @@ node('hydrocentral') {
           if (params.release == 'global'){
               oldVersion = sh(script: "curl -Ls https://pypi.org/pypi/hydrosdk/json | jq -r .info.version", returnStdout: true, label: "get grpc version").trim()
               sh script: "echo oldVersion > version", label: "change version"
+          } else {
+              oldVersion = getVersion()
           }
               bumpVersion(getVersion(),params.newVersion,params.patchVersion,'version')
               newVersion = getVersion()
