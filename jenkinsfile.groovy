@@ -3,7 +3,8 @@ properties([
     choice(choices: ['patch','minor','major','tag','addon'], name: 'patchVersion', description: 'What needs to be bump?'),
     string(defaultValue:'', description: 'Force set newVersion or leave empty', name: 'newVersion', trim: false),
     string(defaultValue:'', description: 'Set grpcVersion or leave empty', name: 'grpcVersion', trim: false),
-    choice(choices: ['local', 'global'], name: 'release', description: 'It\'s local release or global?'),
+    choice(choices: ['false', 'true'], name: 'release', description: 'Release python package?'),
+    choice(choices: ['local', 'global'], name: 'releaseType', description: 'It\'s local release or global?'),
    ])
 ])
 
@@ -218,10 +219,10 @@ def releaseService(String xVersion, String yVersion){
   withCredentials([usernamePassword(credentialsId: 'HydroRobot_AccessToken', passwordVariable: 'password', usernameVariable: 'username')]) {
       //Set global git
       sh script: "git diff", label: "show diff"
-      sh script: "git commit -a -m 'Bump to $yVersion'", label: "commit to git"
-      sh script: "git push --set-upstream origin master", label: "push all file to git"
+      sh script: "git commit --allow-empty -a -m 'Bump to $yVersion'", label: "commit to git"
+      sh script: "git push https://$username:$password@github.com/Hydrospheredata/${SERVICENAME}.git --set-upstream master", label: "push all file to git"
       sh script: "git tag -a $yVersion -m 'Bump $xVersion to $yVersion version'",label: "set git tag"
-      sh script: "git push --set-upstream origin master --tags",label: "push tag and create release"
+      sh script: "git push https://$username:$password@github.com/Hydrospheredata/${SERVICENAME}.git --set-upstream master --tags",label: "push tag and create release"
       //Create release from tag
       sh script: "curl -X POST -H \"Accept: application/vnd.github.v3+json\" -H \"Authorization: token ${password}\" https://api.github.com/repos/Hydrospheredata/${SERVICENAME}/releases -d '{\"tag_name\":\"${yVersion}\",\"name\": \"${yVersion}\",\"body\": \"Bump to ${yVersion}\",\"draft\": false,\"prerelease\": false}'"
   }
@@ -250,10 +251,13 @@ node('hydrocentral') {
     }
 
     stage('Release'){
-      if (BRANCH_NAME == 'master' && env.CHANGE_ID == null || BRANCH_NAME == 'main' && env.CHANGE_ID == null ){ //Not run if PR, only manual from master
-          if (params.release == 'global'){
+      echo "Change target: ${env.CHANGE_TARGET}"
+      if (BRANCH_NAME == 'master' && params.release == 'true' || BRANCH_NAME == 'main' && params.release == 'true'  ){ //Not run if PR, only manual from master
+          if (params.releaseType == 'global'){
               oldVersion = sh(script: "curl -Ls https://pypi.org/pypi/hydrosdk/json | jq -r .info.version", returnStdout: true, label: "get grpc version").trim()
               sh script: "echo oldVersion > version", label: "change version"
+          } else {
+              oldVersion = getVersion()
           }
               bumpVersion(getVersion(),params.newVersion,params.patchVersion,'version')
               newVersion = getVersion()
@@ -264,13 +268,13 @@ node('hydrocentral') {
         }
       }
     //post if success
-    if (params.release == 'local' && BRANCH_NAME == 'master' && env.CHANGE_ID == null){
+    if (params.releaseType == 'local' && BRANCH_NAME == 'master' && env.CHANGE_TARGET == null ){
         slackMessage()
     }
   } catch (e) {
   //post if failure
     currentBuild.result = 'FAILURE'
-    if (params.release == 'local' && BRANCH_NAME == 'master' && env.CHANGE_ID == null){
+    if (params.releaseType == 'local' && BRANCH_NAME == 'master' && env.CHANGE_TARGET == null ){
         slackMessage()
     }
       throw e
