@@ -11,15 +11,17 @@ from typing import Optional, Dict, List, Tuple, Iterator, Generator
 import sseclient
 import requests
 from sseclient import Event
-from hydro_serving_grpc.contract import ModelContract
-from hydro_serving_grpc.manager import ModelVersion as ModelVersionProto, DockerImage as DockerImageProto
+from hydro_serving_grpc.serving.contract.signature_pb2 import ModelSignature
+from hydro_serving_grpc.serving.manager.entities_pb2 import (
+    ModelVersion as ModelVersionProto, DockerImage as DockerImageProto,
+)
 from requests_toolbelt.multipart.encoder import MultipartEncoder
 
 from hydrosdk.cluster import Cluster
-from hydrosdk.contract import ModelContract_to_contract_dict, contract_dict_to_ModelContract, validate_contract
+from hydrosdk.contract import ModelSignature_to_signature_dict, validate_signature, contract_dict_to_ModelContract
 from hydrosdk.image import DockerImage
 from hydrosdk.monitoring import MetricSpec, MetricSpecConfig, MetricModel, ThresholdCmpOp
-from hydrosdk.exceptions import HydrosphereException, TimeoutException
+from hydrosdk.exceptions import HydrosphereException, TimeoutException, BadResponseException
 from hydrosdk.utils import handle_request_error, read_in_chunks
 
 
@@ -30,7 +32,7 @@ def _upload_training_data(cluster: Cluster, modelversion_id: int, path: str) -> 
     :param cluster: Cluster instance
     :param modelversion_id: Id of the model version, for which to upload training data
     :param path: Path to the training data
-    :raises BadResponse: if request failed to process by Hydrosphere
+    :raises BadResponseException: if request failed to process by Hydrosphere
     :return: DataUploadResponse obj
     """
     if path.startswith('s3://'):
@@ -39,7 +41,7 @@ def _upload_training_data(cluster: Cluster, modelversion_id: int, path: str) -> 
         resp = _upload_local_file(cluster, modelversion_id, path)
     if resp.ok:
         return DataUploadResponse(cluster, modelversion_id)
-    raise BadResponse('Failed to upload training data')
+    raise BadResponseException(f'Failed to upload training data: {resp.text}')
 
 
 def _upload_local_file(cluster: Cluster, modelversion_id: int, path: str, 
@@ -101,7 +103,7 @@ class LocalModel:
 
     >>> from hydrosdk.cluster import Cluster
     >>> from hydrosdk.image import DockerImage
-    >>> from hydrosdk.contract import SignatureBuilder, ProfilingType, ModelContract
+    >>> from hydrosdk.signature import SignatureBuilder, ProfilingType
     >>> cluster = Cluster("http-cluster-endpoint")
     >>> runtime = DockerImage("hydrosphere/serving-runtime-python-3.7", "latest", None)
     >>> payload = ["src/func_main.py", "requirements.txt"]
@@ -111,15 +113,14 @@ class LocalModel:
             .build()
     >>> install_command = "pip install -r requirements.txt"
     >>> training_data = "training-data.csv"
-    >>> contract = ModelContract(predict=signature)
-    >>> localmodel = LocalModel(name="my-model", runtime=runtime, payload=payload, contract=contract
+    >>> localmodel = LocalModel(name="my-model", runtime=runtime, payload=payload, signature=signature,
                                 install_command=install_command, training_data=training_data)
     >>> model_version = localmodel.upload(cluster)
     >>> model_version.lock_till_released()
     >>> data_upload_response = model_version.upload_training_data()
     """
     def __init__(self, name: str, runtime: DockerImage, path: str, payload: List[str], 
-                 contract: ModelContract, metadata: Optional[Dict[str, str]] = None, 
+                 signature: ModelSignature, metadata: Optional[Dict[str, str]] = None, 
                  install_command: Optional[str] = None,
                  training_data: Optional[str] = None,
                  monitoring_configuration: Optional[MonitoringConfiguration] = None) -> 'LocalModel':
@@ -129,7 +130,7 @@ class LocalModel:
         :param payload: a list of paths to files (absolute or relative) with any additional resources 
                         that will be exported to the container
         :param path: a path to the root folder of the model
-        :param contract: ModelContract which specifies name of function called, as well as its types 
+        :param signature: ModelSignature, which specifies the name of the inference function, its types 
                          and shapes of both inputs and outputs
         :param metadata: a metadata dict used to describe uploaded ModelVersions
         :param install_command: a command to run within a runtime to prepare a model_version environment
@@ -144,10 +145,10 @@ class LocalModel:
             raise TypeError("runtime is not a DockerImage")
         self.runtime = runtime
 
-        if not isinstance(contract, ModelContract):
-            raise TypeError("contract is not a ModelContract")
-        validate_contract(contract)
-        self.contract = contract
+        if not isinstance(signature, ModelSignature):
+            raise TypeError("signature is not of type ModelSignature")
+        validate_signature(signature)
+        self.signature = signature
         
         self.path = path
         self.payload = resolve_paths(path=path, payload=payload)
@@ -204,7 +205,7 @@ class LocalModel:
                 "tag": self.runtime.tag,
                 "sha256": self.runtime.sha256
             },
-            "contract": ModelContract_to_contract_dict(self.contract),
+            "signature": ModelSignature_to_signature_dict(self.signature),
             "installCommand": self.install_command,
             "metadata": self.metadata
         }
@@ -273,16 +274,15 @@ class ModelVersion:
     Create an external model.
 
     >>> from hydrosdk.cluster import Cluster
-    >>> from hydrosdk.contract import SignatureBuilder, ProfilingType, ModelContract
+    >>> from hydrosdk.contract import SignatureBuilder, ProfilingType
     >>> cluster = Cluster("http-cluster-endpoint")
     >>> signature = SignatureBuilder("predict") \
             .with_input("x", int, "scalar", ProfilingType.NUMERICAL) \
             .with_output("y", float, "scalar", ProfilingType.NUMERICAL) \
             .build()
     >>> training_data = "training-data.csv"
-    >>> contract = ModelContract(predict=signature)
     >>> model_version = ModelVersion.create_externalmodel(
-            cluster=cluster, name="my-external-model", contract=contract, training_data=training_data
+            cluster=cluster, name="my-external-model", signature=signature, training_data=training_data
         )
     >>> data_upload_response = model_version.upload_training_data()
 

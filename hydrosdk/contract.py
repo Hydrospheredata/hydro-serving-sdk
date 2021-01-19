@@ -112,25 +112,6 @@ def ModelSignature_to_signature_dict(signature: ModelSignature) -> dict:
     return result_dict
 
 
-def ModelContract_to_contract_dict(contract: ModelContract) -> Optional[dict]:
-    """
-    Serializes ModelContract into contract dict
-
-    :param contract: model contract
-    :return: dict with model_name, predict
-    """
-    if contract is None:
-        return None
-    if not isinstance(contract, ModelContract):
-        raise TypeError("contract is not ModelContract")
-    signature = ModelSignature_to_signature_dict(contract.predict)
-    result_dict = {
-        "modelName": contract.model_name,
-        "predict": signature
-    }
-    return result_dict
-
-
 def field_to_dict(field: ModelField) -> dict:
     """
     Serializes model field into name, profile and optional shape
@@ -425,21 +406,19 @@ class AnyDimSize(object):
             raise TypeError(f"Unexpected other argument {other}")
 
 
-def validate_contract(contract: ModelContract):
-    if not contract.HasField("predict"):
-        raise ContractViolationException("Creating model without contract.predict is not allowed")
-    if not contract.predict.signature_name:
-        raise ContractViolationException("Creating model without contract.predict.signature_name is not allowed")
-    if len(contract.predict.inputs) == 0:
+def validate_signature(signature: ModelSignature):
+    if not signature.signature_name:
+        raise ContractViolationException("Creating model without signature_name is not allowed")
+    if len(signature.inputs) == 0:
         raise ContractViolationException("Creating model without inputs is not allowed")
-    if len(contract.predict.outputs) == 0:
+    if len(signature.outputs) == 0:
         raise ContractViolationException("Creating model without outputs is not allowed")
-    for model_field in contract.predict.inputs:
+    for model_field in signature.inputs:
         if model_field.dtype == 0:
-            raise ContractViolationException("Creating model with invalid dtype in contract-input is not allowed")
-    for model_field in contract.predict.outputs:
+            raise ContractViolationException("Creating model with invalid dtype in the signature inputs is not allowed")
+    for model_field in signature.outputs:
         if model_field.dtype == 0:
-            raise ContractViolationException("Creating model with invalid dtype in contract-output is not allowed")
+            raise ContractViolationException("Creating model with invalid dtype in the signature outputs is not allowed")
 
 
 def mock_input_data(signature: ModelSignature):
