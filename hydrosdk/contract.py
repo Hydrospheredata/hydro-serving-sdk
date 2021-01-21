@@ -16,7 +16,7 @@ from hydro_serving_grpc.serving.contract.types_pb2 import (
 from hydrosdk.data.types import (
     alias_to_proto_dtype, shape_to_proto, PY_TO_DTYPE, np_to_proto_dtype, proto_to_np_dtype,
 )
-from hydrosdk.exceptions import ContractViolationException
+from hydrosdk.exceptions import SignatureViolationException
 
 class ProfilingType(Enum):
     """
@@ -389,17 +389,17 @@ class AnyDimSize(object):
 
 def validate_signature(signature: ModelSignature):
     if not signature.signature_name:
-        raise ContractViolationException("Creating model without signature_name is not allowed")
+        raise SignatureViolationException("Creating model without signature_name is not allowed")
     if len(signature.inputs) == 0:
-        raise ContractViolationException("Creating model without inputs is not allowed")
+        raise SignatureViolationException("Creating model without inputs is not allowed")
     if len(signature.outputs) == 0:
-        raise ContractViolationException("Creating model without outputs is not allowed")
+        raise SignatureViolationException("Creating model without outputs is not allowed")
     for model_field in signature.inputs:
         if model_field.dtype == 0:
-            raise ContractViolationException("Creating model with invalid dtype in the signature inputs is not allowed")
+            raise SignatureViolationException("Creating model with invalid dtype in the signature inputs is not allowed")
     for model_field in signature.outputs:
         if model_field.dtype == 0:
-            raise ContractViolationException("Creating model with invalid dtype in the signature outputs is not allowed")
+            raise SignatureViolationException("Creating model with invalid dtype in the signature outputs is not allowed")
 
 
 def mock_input_data(signature: ModelSignature):

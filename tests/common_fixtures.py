@@ -5,7 +5,7 @@ from grpc import ssl_channel_credentials
 
 from hydrosdk.cluster import Cluster
 from hydrosdk.deployment_configuration import DeploymentConfigurationBuilder
-from hydrosdk.contract import ModelContract, SignatureBuilder, ProfilingType
+from hydrosdk.contract import SignatureBuilder, ProfilingType
 from hydrosdk.image import DockerImage
 from hydrosdk.modelversion import LocalModel, MonitoringConfiguration
 from tests.config import *
@@ -15,7 +15,7 @@ from tests.config import *
 def cluster():
     if GRPC_CLUSTER_ENDPOINT_SSL:
         credentials = ssl_channel_credentials()
-        return Cluster(HTTP_CLUSTER_ENDPOINT, GRPC_CLUSTER_ENDPOINT, ssl=True, grpc_credentials=ssl_channel_credentials())
+        return Cluster(HTTP_CLUSTER_ENDPOINT, GRPC_CLUSTER_ENDPOINT, ssl=True, grpc_credentials=credentials)
     else:
         return Cluster(HTTP_CLUSTER_ENDPOINT, GRPC_CLUSTER_ENDPOINT)
 
@@ -25,11 +25,6 @@ def signature():
     return SignatureBuilder('infer') \
         .with_input('input', 'int64', 'scalar', ProfilingType.NUMERICAL) \
         .with_output('output', 'int64', 'scalar', ProfilingType.NUMERICAL).build()
-
-
-@pytest.fixture(scope="session")
-def contract(signature):
-    return ModelContract(predict=signature)
 
 
 @pytest.fixture(scope="session")
@@ -62,9 +57,8 @@ def tensor_local_model(payload, runtime, monitoring_configuration):
     signature = SignatureBuilder('infer') \
         .with_input('input', 'int64', [1], ProfilingType.NONE) \
         .with_output('output', 'int64', [1], ProfilingType.NONE).build()
-    contract = ModelContract(predict=signature)
     return LocalModel(DEFAULT_MODEL_NAME, runtime, model_path, 
-        payload, contract, monitoring_configuration=monitoring_configuration)
+        payload, signature, monitoring_configuration=monitoring_configuration)
 
 
 @pytest.fixture(scope="session")

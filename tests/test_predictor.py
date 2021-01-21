@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 
 from hydrosdk.data.types import PredictorDT
-from hydrosdk.modelversion import LocalModel, ModelVersion
+from hydrosdk.modelversion import LocalModel, ModelVersion, MonitoringConfiguration
 from hydrosdk.cluster import Cluster
 from hydrosdk.application import Application, ApplicationBuilder, ExecutionStageBuilder
 from tests.common_fixtures import *
@@ -35,6 +35,7 @@ def app_tensor(cluster: Cluster, tensor_local_model: LocalModel):
 
 @pytest.fixture(scope="module")
 def app_scalar(cluster: Cluster, local_model: LocalModel, training_data: str):
+    local_model.monitoring_configuration = MonitoringConfiguration(batch_size=10)
     mv: ModelVersion = local_model.upload(cluster)
     mv.training_data = training_data
     data_upload_response = mv.upload_training_data()

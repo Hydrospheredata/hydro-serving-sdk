@@ -41,7 +41,7 @@ class MetricSpecException(HydrosphereException):
     pass
 
 
-class ContractViolationException(HydrosphereException):
+class SignatureViolationException(HydrosphereException):
     """
     Exception raised when contract is violated
     """

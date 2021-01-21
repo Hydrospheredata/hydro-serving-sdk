@@ -16,7 +16,7 @@ def deployment_configuration_name():
 @pytest.fixture(scope="module")
 def modelversion(cluster: Cluster, local_model: LocalModel):
     mv: ModelVersion = local_model.upload(cluster)
-    mv.lock_till_released()
+    mv.lock_till_released(timeout=240)
     return mv
 
 
@@ -34,7 +34,7 @@ def app(cluster: Cluster, modelversion: ModelVersion, deployment_configuration: 
     stage = ExecutionStageBuilder().with_model_variant(modelversion, 100, deployment_configuration).build()
     app = ApplicationBuilder(cluster, f"{DEFAULT_APP_NAME}-{random.randint(0, 1e5)}") \
         .with_stage(stage).with_metadata("key", "value").build()
-    app.lock_while_starting()
+    app.lock_while_starting(timeout=240)
     yield app
     Application.delete(cluster, app.name)
 
