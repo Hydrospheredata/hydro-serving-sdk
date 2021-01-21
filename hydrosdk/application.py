@@ -5,14 +5,14 @@ import json
 import datetime
 import sseclient
 
-from hydro_serving_grpc.contract import ModelSignature
+from hydro_serving_grpc.serving.contract.signature_pb2 import ModelSignature
 
 from hydrosdk.cluster import Cluster
-from hydrosdk.contract import _signature_dict_to_ModelSignature
+from hydrosdk.contract import signature_dict_to_ModelSignature
 from hydrosdk.data.types import PredictorDT
 from hydrosdk.deployment_configuration import DeploymentConfiguration
 from hydrosdk.modelversion import ModelVersion
-from hydrosdk.predictor import PredictServiceClient, MonitorableImplementation
+from hydrosdk.predictor import PredictServiceClient, MonitorableApplicationPredictionService
 from hydrosdk.utils import handle_request_error
 from hydrosdk.exceptions import TimeoutException
 
@@ -112,7 +112,7 @@ class Application:
         app_kafka_streaming = [StreamingParams(kafka_param["in-topic"], kafka_param["out-topic"])
                                for kafka_param in application_json.get("kafkaStreaming")]
         app_metadata = application_json.get("metadata")
-        app_signature = _signature_dict_to_ModelSignature(data=application_json.get("signature"))
+        app_signature = signature_dict_to_ModelSignature(data=application_json.get("signature"))
         app_status = ApplicationStatus[application_json.get("status").upper()]
 
         app = Application(cluster=cluster,
@@ -166,7 +166,7 @@ class Application:
                             Numpy dtypes, Python dtypes or pd.DataFrame are supported.
         :return: PredictServiceClient with .predict() method which accepts your data
         """
-        impl = MonitorableImplementation(channel=self.cluster.channel, target=self.name)
+        impl = MonitorableApplicationPredictionService(channel=self.cluster.channel, target=self.name)
         return PredictServiceClient(impl=impl, signature=self.signature, return_type=return_type)
 
     def __init__(self, cluster: Cluster, id: int, name: str, execution_graph: 'ExecutionGraph',
@@ -340,7 +340,7 @@ class ExecutionStage:
 
     @staticmethod
     def _from_json(cluster: Cluster, execution_stage_dict: Dict) -> 'ExecutionStage':
-        execution_stage_signature = _signature_dict_to_ModelSignature(execution_stage_dict['signature'])
+        execution_stage_signature = signature_dict_to_ModelSignature(execution_stage_dict['signature'])
         model_variants = [ModelVariant(ModelVersion._from_json(cluster, mv['modelVersion']),
                                        mv['weight'],
                                        DeploymentConfiguration.from_camel_case_dict(mv.get('deploymentConfiguration')))

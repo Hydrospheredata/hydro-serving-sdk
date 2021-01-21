@@ -5,10 +5,17 @@ from functools import reduce
 from typing import Optional, Union, Iterable, List
 
 import numpy as np
-from hydro_serving_grpc.contract import ModelContract, ModelSignature, ModelField, DataProfileType
-from hydro_serving_grpc.tf.types_pb2 import *
+from hydro_serving_grpc.serving.contract.signature_pb2 import ModelSignature
+from hydro_serving_grpc.serving.contract.field_pb2 import ModelField
+from hydro_serving_grpc.serving.contract.types_pb2 import (
+    DT_INVALID, DT_BOOL, DT_FLOAT, DT_HALF, DT_DOUBLE, DT_COMPLEX64, DT_COMPLEX128,
+    DT_INT8, DT_INT16, DT_INT32, DT_INT64, DT_UINT8, DT_UINT16, DT_UINT32, DT_UINT64,
+    DT_STRING, DataProfileType, DataType,
+)
 
-from hydrosdk.data.types import alias_to_proto_dtype, shape_to_proto, PY_TO_DTYPE, np_to_proto_dtype, proto_to_np_dtype
+from hydrosdk.data.types import (
+    alias_to_proto_dtype, shape_to_proto, PY_TO_DTYPE, np_to_proto_dtype, proto_to_np_dtype,
+)
 from hydrosdk.exceptions import ContractViolationException
 
 class ProfilingType(Enum):
@@ -188,7 +195,7 @@ def _contract_dict_to_signature_dict(contract: dict) -> tuple:
     return name, dict_signature
 
 
-def _signature_dict_to_ModelSignature(data: dict) -> ModelSignature:
+def signature_dict_to_ModelSignature(data: dict) -> ModelSignature:
     """
     Internal method.
     A method that makes ModelSignature out of signature dict
@@ -232,32 +239,6 @@ def _signature_dict_to_ModelSignature(data: dict) -> ModelSignature:
     )
 
     return signature
-
-
-def contract_dict_to_ModelContract(contract: dict) -> ModelContract:
-    """
-    Helper method that makes a ModelContract out of contract dict
-
-    :param contract:
-    :return:
-    """
-    model_name, signature_dict = _contract_dict_to_signature_dict(contract=contract)
-    modelSignature = _signature_dict_to_ModelSignature(data=signature_dict)
-    modelContract = ModelContract(model_name=model_name, predict=modelSignature)
-    return modelContract
-
-
-def signature_dict_to_ModelContract(model_name: str, signature: dict) -> ModelContract:
-    """
-    Helper method that makes a ModelContract out of signature dict
-
-    :param model_name:
-    :param signature:
-    :return:
-    """
-    modelSignature = _signature_dict_to_ModelSignature(data=signature)
-    modelContract = ModelContract(model_name=model_name, predict=modelSignature)
-    return modelContract
 
 
 def parse_field(name: str, dtype: Union[str, int, np.dtype],

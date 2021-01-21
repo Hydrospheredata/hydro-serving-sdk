@@ -13,7 +13,7 @@ from hydrosdk import DeploymentConfiguration
 from hydrosdk.cluster import Cluster
 from hydrosdk.data.types import PredictorDT
 from hydrosdk.modelversion import ModelVersion
-from hydrosdk.predictor import PredictServiceClient, MonitorableImplementation, UnmonitorableImplementation
+from hydrosdk.predictor import PredictServiceClient, MonitorableServablePredictionService, UnmonitorableServablePredictionService
 from hydrosdk.utils import handle_request_error
 from hydrosdk.exceptions import TimeoutException
 
@@ -215,9 +215,9 @@ class Servable:
         :return:
         """
         if monitorable:
-            impl = MonitorableImplementation(channel=self.cluster.channel, target=self.name)
+            impl = MonitorableServablePredictionService(channel=self.cluster.channel, target=self.name)
         else:
-            impl = UnmonitorableImplementation(channel=self.cluster.channel, target=self.name)
+            impl = UnmonitorableServablePredictionService(channel=self.cluster.channel, target=self.name)
 
         return PredictServiceClient(impl=impl, signature=self.model_version.contract.predict,
                                     return_type=return_type)

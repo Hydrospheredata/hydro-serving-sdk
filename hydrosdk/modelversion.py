@@ -18,7 +18,7 @@ from hydro_serving_grpc.serving.manager.entities_pb2 import (
 from requests_toolbelt.multipart.encoder import MultipartEncoder
 
 from hydrosdk.cluster import Cluster
-from hydrosdk.contract import ModelSignature_to_signature_dict, validate_signature, contract_dict_to_ModelContract
+from hydrosdk.contract import ModelSignature_to_signature_dict, validate_signature, signature_dict_to_ModelSignature
 from hydrosdk.image import DockerImage
 from hydrosdk.monitoring import MetricSpec, MetricSpecConfig, MetricModel, ThresholdCmpOp
 from hydrosdk.exceptions import HydrosphereException, TimeoutException, BadResponseException
@@ -131,7 +131,7 @@ class LocalModel:
                         that will be exported to the container
         :param path: a path to the root folder of the model
         :param signature: ModelSignature, which specifies the name of the inference function, its types 
-                         and shapes of both inputs and outputs
+                          and shapes of both inputs and outputs
         :param metadata: a metadata dict used to describe uploaded ModelVersions
         :param install_command: a command to run within a runtime to prepare a model_version environment
         :param training_data: path (absolute, relative or an S3 URI) to a csv file with the training 
@@ -370,7 +370,7 @@ class ModelVersion:
         name = modelversion_json["model"]["name"]
         model_id = modelversion_json["model"]["id"]
         version = modelversion_json["modelVersion"]
-        model_contract = contract_dict_to_ModelContract(modelversion_json["modelContract"])
+        signature = signature_dict_to_ModelSignature(modelversion_json["signature"])
         monitoring_configuration = MonitoringConfiguration(batch_size=modelversion_json["monitoringConfiguration"]["batchSize"])
 
         # external model deserialization handling
@@ -393,7 +393,7 @@ class ModelVersion:
             is_external=is_external,
             name=name,
             version=version,
-            contract=model_contract,
+            signature=signature,
             runtime=model_runtime,
             image=model_image,
             cluster=cluster,
@@ -403,20 +403,21 @@ class ModelVersion:
         )
 
     @staticmethod
-    def create_externalmodel(cluster: Cluster, name: str, contract: ModelContract, 
+    def create_externalmodel(cluster: Cluster, name: str, signature: ModelSignature, 
                metadata: Optional[dict] = None, training_data: Optional[str] = None) -> 'ModelVersion':
         """
         Create an external ModelVersion on the cluster. 
 
         :param cluster: active cluster
         :param name: name of model
-        :param contract: contract of the model
+        :param signature: ModelSignature, which specifies the name of the inference function, its types 
+                          and shapes of both inputs and outputs
         :param metadata: metadata for the model
         :return: ModelVersion object
         """
         model = {
             "name": name,
-            "contract": ModelContract_to_contract_dict(contract),
+            "signature": ModelSignature_to_signature_dict(signature),
             "metadata": metadata
         }
         resp = cluster.request("POST", "/api/v2/externalmodel", json=model)
@@ -515,7 +516,7 @@ class ModelVersion:
             _id=self.id,
             name=self.name,
             version=self.version,
-            contract=self.contract,
+            signature=self.signature,
             runtime=self.runtime,
             image=DockerImageProto(name=self.image.name, tag=self.image.tag),
             image_sha=self.image.sha256
@@ -532,7 +533,7 @@ class ModelVersion:
         return MetricModel(modelversion=self, threshold=threshold, comparator=comparator)
 
     def __init__(self, cluster: Cluster, id: int, model_id: int, name: str, version: int, 
-                 contract: ModelContract, status: Optional[ModelVersionStatus], image: Optional[DockerImage], 
+                 signature: ModelSignature, status: Optional[ModelVersionStatus], image: Optional[DockerImage], 
                  runtime: Optional[DockerImage], is_external: bool, 
                  metadata: Optional[Dict[str, str]] = None, install_command: Optional[str] = None, 
                  training_data: Optional[str] = None, monitoring_configuration: Optional[MonitoringConfiguration] = None):
@@ -542,8 +543,8 @@ class ModelVersion:
         :param model_id: id of the model assigned by the cluster
         :param name: a name of the model this ModelVersion belongs to
         :param version: a version of the model this ModelVersion belongs to
-        :param contract: a ModelContract which specifies name of function called, as well as its types 
-                         and shapes of both inputs and outputs
+        :param signature: a ModelSignature which specifies the name of the inference function, 
+                          as well as its types and shapes for both inputs and outputs
         :param status: a status of this ModelVersion, one of {Assembling, Released, Failed}
         :param image: DockerImage of a packed ModelVersion stored inside the cluster
         :param runtime: DockerImage of a runtime which was used to build an `image`
@@ -558,7 +559,7 @@ class ModelVersion:
         self.name = name
         self.runtime = runtime
         self.is_external = is_external
-        self.contract = contract
+        self.signature = signature
         self.cluster = cluster
         self.version = version
         self.image = image
