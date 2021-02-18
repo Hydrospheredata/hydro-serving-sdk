@@ -256,12 +256,12 @@ node('hydrocentral') {
           if (params.releaseType == 'global'){
               oldVersion = sh(script: "curl -Ls https://pypi.org/pypi/hydrosdk/json | jq -r .info.version", returnStdout: true, label: "get grpc version").trim()
               sh script: "echo oldVersion > version", label: "change version"
+              bumpGrpc(grpcVersion,SEARCHGRPC, params.patchVersion,SEARCHPATH)
           } else {
               oldVersion = getVersion()
           }
               bumpVersion(getVersion(),params.newVersion,params.patchVersion,'version')
               newVersion = getVersion()
-              bumpGrpc(grpcVersion,SEARCHGRPC, params.patchVersion,SEARCHPATH)
               buildPython("build", newVersion)
               releaseService(oldVersion, newVersion)
               buildPython("release", newVersion)
