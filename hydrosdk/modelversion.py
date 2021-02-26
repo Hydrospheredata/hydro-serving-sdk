@@ -18,7 +18,7 @@ from hydro_serving_grpc.serving.manager.entities_pb2 import (
 from requests_toolbelt.multipart.encoder import MultipartEncoder
 
 from hydrosdk.cluster import Cluster
-from hydrosdk.contract import ModelSignature_to_signature_dict, validate_signature, signature_dict_to_ModelSignature
+from hydrosdk.signature import ModelSignature_to_signature_dict, validate_signature, signature_dict_to_ModelSignature
 from hydrosdk.image import DockerImage
 from hydrosdk.monitoring import MetricSpec, MetricSpecConfig, MetricModel, ThresholdCmpOp
 from hydrosdk.exceptions import HydrosphereException, TimeoutException, BadResponseException
@@ -274,7 +274,7 @@ class ModelVersion:
     Create an external model.
 
     >>> from hydrosdk.cluster import Cluster
-    >>> from hydrosdk.contract import SignatureBuilder, ProfilingType
+    >>> from hydrosdk.signature import SignatureBuilder, ProfilingType
     >>> cluster = Cluster("http-cluster-endpoint")
     >>> signature = SignatureBuilder("predict") \
             .with_input("x", int, "scalar", ProfilingType.NUMERICAL) \

@@ -8,7 +8,7 @@ import sseclient
 from hydro_serving_grpc.serving.contract.signature_pb2 import ModelSignature
 
 from hydrosdk.cluster import Cluster
-from hydrosdk.contract import signature_dict_to_ModelSignature
+from hydrosdk.signature import signature_dict_to_ModelSignature
 from hydrosdk.data.types import PredictorDT
 from hydrosdk.deployment_configuration import DeploymentConfiguration
 from hydrosdk.modelversion import ModelVersion
@@ -357,7 +357,7 @@ class ExecutionStageBuilder:
 
     @property
     def __common_signature(self):
-        return self.model_variants[0].modelVersion.contract.predict
+        return self.model_variants[0].modelVersion.signature
 
     def __validate(self):
         """
@@ -366,7 +366,7 @@ class ExecutionStageBuilder:
         if len(self.model_variants) == 0:
             raise ValueError("At least one model variant should be specified.")
 
-        model_variant_signatures = [mv.modelVersion.contract.predict for mv in self.model_variants]
+        model_variant_signatures = [mv.modelVersion.signature for mv in self.model_variants]
         if not all(self.__common_signature == mv_signature for mv_signature in model_variant_signatures):
             raise ValueError("All model variants inside the same stage must have the same signature")
 

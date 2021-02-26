@@ -6,7 +6,7 @@ from hydro_serving_grpc.serving.contract.tensor_pb2 import TensorShape
 from hydro_serving_grpc.serving.contract.types_pb2 import DataType
 
 from hydrosdk.cluster import Cluster
-from hydrosdk.contract import ModelField, ModelSignature, SignatureBuilder
+from hydrosdk.signature import ModelField, ModelSignature, SignatureBuilder
 from hydrosdk.image import DockerImage
 from hydrosdk.modelversion import ModelVersion, ModelVersionStatus, LocalModel, \
     MonitoringConfiguration, resolve_paths
@@ -56,7 +56,7 @@ def test_model_create_programmatically():
     assert local_model.monitoring_configuration == monitoring_configuration
 
 
-def test_model_create_contract_validation():
+def test_model_create_signature_validation():
     name = DEFAULT_MODEL_NAME
     runtime = DockerImage(DEFAULT_RUNTIME_IMAGE, DEFAULT_RUNTIME_TAG, None)
     path = "/home/user/folder/model/cool/"
@@ -140,7 +140,7 @@ def test_ModelField_dt_invalid_input():
     payload = []
     signature = ModelSignature(signature_name="test", inputs=[ModelField(name="test", shape=TensorShape())],
                                outputs=[ModelField(name="test", dtype=DataType.Name(2), shape=TensorShape())])
-    with pytest.raises(SignatureViolationException, match=r"Creating model with the invalid dtype in contract-input.*"):
+    with pytest.raises(SignatureViolationException, match=r"Creating model with the invalid dtype in signature input.*"):
         LocalModel(name, runtime, path, payload, signature)
 
 
@@ -152,7 +152,7 @@ def test_ModelField_dt_invalid_output():
     signature = ModelSignature(signature_name="test",
                                inputs=[ModelField(name="test", dtype=DataType.Name(2), shape=TensorShape())],
                                outputs=[ModelField(name="test", shape=TensorShape())])
-    with pytest.raises(SignatureViolationException, match=r"Creating model with the invalid dtype in contract-output.*"):
+    with pytest.raises(SignatureViolationException, match=r"Creating model with the invalid dtype in signature output.*"):
         LocalModel(name, runtime, path, payload, signature)
 
 

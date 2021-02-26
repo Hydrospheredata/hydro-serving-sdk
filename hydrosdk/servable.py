@@ -219,5 +219,5 @@ class Servable:
         else:
             impl = UnmonitorableServablePredictionService(channel=self.cluster.channel, target=self.name)
 
-        return PredictServiceClient(impl=impl, signature=self.model_version.contract.predict,
+        return PredictServiceClient(impl=impl, signature=self.model_version.signature,
                                     return_type=return_type)

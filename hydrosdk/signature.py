@@ -131,10 +131,9 @@ def field_to_dict(field: ModelField) -> dict:
         raise TypeError("field is not ModelField")
     result_dict = {
         "name": field.name,
-        "profile": DataProfileType.Name(field.profile)
+        "profile": DataProfileType.Name(field.profile),
+        "shape": shape_to_dict(field.shape)
     }
-    if field.shape is not None:
-        result_dict["shape"] = shape_to_dict(field.shape)
 
     attach_ds(result_dict, field)
     return result_dict
@@ -161,38 +160,14 @@ def attach_ds(result_dict: dict, field) -> dict:
     return result_dict
 
 
-def shape_to_dict(shape) -> dict:
+def shape_to_dict(shape: Optional['TensorShape']=None) -> dict:
     """
     Serializes model field's shape to dict
 
-    :param shape: TensorShapeProto
-    :return: dict with dim and unknown rank
+    :param shape: TensorShape
+    :return: dict with dim
     """
-    dims = []
-    for d in shape.dim:
-        dims.append({"size": d.size, "name": d.name})
-    result_dict = {
-        "dim": dims,
-        "unknownRank": shape.unknown_rank
-    }
-    return result_dict
-
-
-def _contract_dict_to_signature_dict(contract: dict) -> tuple:
-    """
-    Internal method.
-    Makes a signature dict out of contract dict
-
-    :param contract:
-    :return:
-    """
-
-    name = contract.get("modelName")
-    if not name:
-        name = contract.get("name", "Predict")
-    dict_signature = contract.get("predict")
-
-    return name, dict_signature
+    return None if shape is None else {"dims": list(shape.dims)}
 
 
 def signature_dict_to_ModelSignature(data: dict) -> ModelSignature:

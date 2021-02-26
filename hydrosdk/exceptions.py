@@ -43,6 +43,6 @@ class MetricSpecException(HydrosphereException):
 
 class SignatureViolationException(HydrosphereException):
     """
-    Exception raised when contract is violated
+    Exception raised when signature is violated
     """
     pass

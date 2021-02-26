@@ -4,7 +4,7 @@ from hydrosdk.modelversion import LocalModel, ModelVersion
 from hydrosdk.image import DockerImage
 from hydrosdk.application import Application
 from hydrosdk.cluster import Cluster
-from hydrosdk.contract import SignatureBuilder
+from hydrosdk.signature import SignatureBuilder
 from hydrosdk.monitoring import MetricSpec, MetricSpecConfig, ThresholdCmpOp
 from hydrosdk.deployment_configuration import DeploymentConfiguration, DeploymentConfigurationBuilder
 

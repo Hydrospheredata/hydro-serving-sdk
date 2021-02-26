@@ -5,7 +5,7 @@ from grpc import ssl_channel_credentials
 
 from hydrosdk.cluster import Cluster
 from hydrosdk.deployment_configuration import DeploymentConfigurationBuilder
-from hydrosdk.contract import SignatureBuilder, ProfilingType
+from hydrosdk.signature import SignatureBuilder, ProfilingType
 from hydrosdk.image import DockerImage
 from hydrosdk.modelversion import LocalModel, MonitoringConfiguration
 from tests.config import *
@@ -43,11 +43,11 @@ def monitoring_configuration():
 
 
 @pytest.fixture(scope="session")
-def local_model(payload, contract, runtime, monitoring_configuration):
+def local_model(payload, signature, runtime, monitoring_configuration):
     current_dir = os.path.dirname(os.path.abspath(__file__))
     model_path = os.path.join(current_dir, 'resources/identity_model/')
     return LocalModel(DEFAULT_MODEL_NAME, runtime, model_path, 
-        payload, contract, monitoring_configuration=monitoring_configuration)
+        payload, signature, monitoring_configuration=monitoring_configuration)
 
 
 @pytest.fixture(scope="session")
@@ -75,7 +75,7 @@ def modelversion_json():
             "sha256": "7e28dfe693edaee29c57124e9cf01da80089f4e0408eb072c5222e1d2c3a8e7b"
         },
         "finished": "2020-02-20T12:19:23.240Z",
-        "modelContract": {
+        "signature": {
             "modelName": "model",
             "predict": {
                 "signatureName": "infer",
@@ -142,7 +142,7 @@ def external_modelversion_json():
             "name": "my-external-model"
         },
         "finished": "2020-05-22T12:38:05.021Z",
-        "modelContract": {
+        "signature": {
             "modelName": "my-external-model",
             "predict": {
                 "signatureName": "predict",

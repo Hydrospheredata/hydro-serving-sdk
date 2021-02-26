@@ -291,7 +291,7 @@ class DeploymentConfiguration:
         return f"Deployment Configuration (name={self.name})"
 
     @staticmethod
-    def list(cluster: Cluster):
+    def list(cluster: Cluster) -> List['DeploymentConfiguration']:
         """
         List all deployment configurations
 
@@ -303,7 +303,7 @@ class DeploymentConfiguration:
         return [DeploymentConfiguration.from_camel_case_dict(app_json) for app_json in resp.json()]
 
     @staticmethod
-    def find(cluster, name):
+    def find(cluster: Cluster, name: str) -> 'DeploymentConfiguration':
         """
         Search a deployment configuration by name
 
@@ -316,15 +316,17 @@ class DeploymentConfiguration:
         return DeploymentConfiguration.from_camel_case_dict(resp.json())
 
     @staticmethod
-    def delete(cluster, name):
+    def delete(cluster: Cluster, name: str) -> dict:
         """
         Delete deployment configuration from Hydrosphere cluster
 
         :param cluster: Active Cluster
         :param name: Deployment configuration name
+        :return: json response from the server
         """
         resp = cluster.request("DELETE", f"{DeploymentConfiguration._BASE_URL}/{name}")
         handle_request_error(resp, f"Failed to delete Deployment Configuration named {name}: {resp.status_code} {resp.text}")
+        return resp
 
 
 class DeploymentConfigurationBuilder:
