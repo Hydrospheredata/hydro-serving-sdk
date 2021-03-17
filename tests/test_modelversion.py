@@ -91,7 +91,7 @@ def test_local_model_upload(cluster: Cluster):
         metadata, monitoring_configuration=monitoring_configuration)
     mv: ModelVersion = local_model.upload(cluster)
     assert mv.status is ModelVersionStatus.Assembling
-    mv.lock_till_released()
+    mv.lock_till_released(timeout=LOCK_TIMEOUT)
     assert mv.status is ModelVersionStatus.Released
     assert mv.monitoring_configuration.batch_size == batch_size
 
@@ -116,12 +116,12 @@ def test_lock_till_released_failed(cluster: Cluster, runtime: DockerImage,
         DEFAULT_MODEL_NAME, runtime, model_path, payload, signature, install_command="exit 1")
     mv: ModelVersion = local_model.upload(cluster)
     with pytest.raises(ModelVersion.ReleaseFailed):
-        mv.lock_till_released()
+        mv.lock_till_released(timeout=LOCK_TIMEOUT)
         
 
 def test_build_logs_not_empty(cluster: Cluster, local_model: LocalModel):
     mv: ModelVersion = local_model.upload(cluster)
-    mv.lock_till_released()
+    mv.lock_till_released(timeout=LOCK_TIMEOUT)
     i = 0
     for _ in mv.build_logs():
         i += 1
@@ -138,9 +138,12 @@ def test_ModelField_dt_invalid_input():
     runtime = DockerImage(DEFAULT_RUNTIME_IMAGE, DEFAULT_RUNTIME_TAG, None)
     path = "/home/user/folder/model/cool/"
     payload = []
-    signature = ModelSignature(signature_name="test", inputs=[ModelField(name="test", shape=TensorShape())],
-                               outputs=[ModelField(name="test", dtype=DataType.Name(2), shape=TensorShape())])
-    with pytest.raises(SignatureViolationException, match=r"Creating model with the invalid dtype in signature input.*"):
+    signature = ModelSignature(
+        signature_name="test", 
+        inputs=[ModelField(name="input", shape=TensorShape())],
+        outputs=[ModelField(name="output", shape=TensorShape(), dtype=DataType.Name(2))]
+    )
+    with pytest.raises(SignatureViolationException, match=r"Creating model with invalid dtype in the signature input.*"):
         LocalModel(name, runtime, path, payload, signature)
 
 
@@ -149,10 +152,12 @@ def test_ModelField_dt_invalid_output():
     runtime = DockerImage(DEFAULT_RUNTIME_IMAGE, DEFAULT_RUNTIME_TAG, None)
     path = "/home/user/folder/model/cool/"
     payload = []
-    signature = ModelSignature(signature_name="test",
-                               inputs=[ModelField(name="test", dtype=DataType.Name(2), shape=TensorShape())],
-                               outputs=[ModelField(name="test", shape=TensorShape())])
-    with pytest.raises(SignatureViolationException, match=r"Creating model with the invalid dtype in signature output.*"):
+    signature = ModelSignature(
+        signature_name="test",
+        inputs=[ModelField(name="test", dtype=DataType.Name(2), shape=TensorShape())],
+        outputs=[ModelField(name="test", shape=TensorShape())]
+    )
+    with pytest.raises(SignatureViolationException, match=r"Creating model with invalid dtype in the signature output.*"):
         LocalModel(name, runtime, path, payload, signature)
 
 
@@ -161,9 +166,11 @@ def test_ModelField_contact_signature_name_none():
     runtime = DockerImage(DEFAULT_RUNTIME_IMAGE, DEFAULT_RUNTIME_TAG, None)
     path = "/home/user/folder/model/cool/"
     payload = []
-    signature = ModelSignature(inputs=[ModelField(name="test", dtype=DataType.Name(2), shape=TensorShape())],
-                               outputs=[ModelField(name="test", dtype=DataType.Name(2), shape=TensorShape())])
-    with pytest.raises(SignatureViolationException, match=r"Creating model without signature.signature_name is not allowed.*"):
+    signature = ModelSignature(
+        inputs=[ModelField(name="test", dtype=DataType.Name(2), shape=TensorShape())],
+        outputs=[ModelField(name="test", dtype=DataType.Name(2), shape=TensorShape())]
+    )
+    with pytest.raises(SignatureViolationException, match=r"Creating model without signature_name is not allowed.*"):
         LocalModel(name, runtime, path, payload, signature)
 
 

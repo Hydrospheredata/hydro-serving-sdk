@@ -64,128 +64,98 @@ def tensor_local_model(payload, runtime, monitoring_configuration):
 @pytest.fixture(scope="session")
 def modelversion_json():
     return {
-        "applications": [],
+        "id": 1,
+        "created": "2021-03-17T13:12:20.680Z",
+        "finished": "2021-03-17T13:12:24.318Z",
+        "modelVersion": 1,
+        "modelSignature": {
+            "signatureName": "infer",
+            "inputs": [{
+                "name": "input",
+                "dtype": "DT_INT64",
+                "shape": {
+                    "dims": []
+                },
+                "profile": "NUMERICAL"
+            }],
+            "outputs": [{
+                "name": "output",
+                "dtype": "DT_INT64",
+                "shape": {
+                    "dims": []
+                },
+                "profile": "NUMERICAL"
+            }]
+        },
         "model": {
             "id": 1,
             "name": "my-model"
         },
-        "image": {
-            "name": "registry/my-model",
-            "tag": "1",
-            "sha256": "7e28dfe693edaee29c57124e9cf01da80089f4e0408eb072c5222e1d2c3a8e7b"
-        },
-        "finished": "2020-02-20T12:19:23.240Z",
-        "signature": {
-            "modelName": "model",
-            "predict": {
-                "signatureName": "infer",
-                "inputs": [
-                    {
-                        "profile": "NUMERICAL",
-                        "dtype": "DT_INT32",
-                        "name": "input_1",
-                        "shape": {
-                            "dim": [],
-                            "unknownRank": False
-                        }
-                    },
-                    {
-                        "profile": "NUMERICAL",
-                        "dtype": "DT_INT32",
-                        "name": "input_2",
-                        "shape": {
-                            "dim": [],
-                            "unknownRank": False
-                        }
-                    }
-                ],
-                "outputs": [
-                    {
-                        "profile": "NUMERICAL",
-                        "dtype": "DT_DOUBLE",
-                        "name": "output",
-                        "shape": {
-                            "dim": [],
-                            "unknownRank": False
-                        }
-                    }
-                ]
-            }
-        },
-        "isExternal": False,
-        "id": 1,
         "status": "Released",
-        "metadata": {
-            "git.branch.head.date": "Mon Nov 25 13:16:13 2019",
-            "git.branch.head.sha": "4a9e1ef5e32b5d76b0cd3659090de08c1d8308d0",
-            "git.branch": "master",
-            "git.branch.head.author.name": "Your Name",
-            "git.is-dirty": "False",
-            "git.branch.head.author.email": "your.email@example.com"
+        "metadata": {},
+        "applications": [],
+        "image": {
+            "name": "my-model",
+            "tag": "1",
+            "sha256": "1c714d62b9450b2c3467d67855e443c2fe61c6718733ead3d4af89c7ed4515c4"
         },
-        "modelVersion": 1,
-        "monitoringConfiguration": {"batchSize": 10},
         "runtime": {
             "name": "hydrosphere/serving-runtime-python-3.6",
-            "tag": "2.3.2"
+            "tag": "2.4.0",
+            "sha256": None,
         },
-        "created": "2020-02-20T12:18:56.115Z"
+        "monitoringConfiguration": {
+            "batchSize": 10
+        },
+        "isExternal": False,
     }
 
 
 @pytest.fixture(scope="session")
 def external_modelversion_json():
     return {
-        "applications": [],
+        "id": 2,
+        "created": "2021-03-17T13:12:20.680Z",
+        "finished": "2021-03-17T13:12:24.318Z",
+        "modelVersion": 1,
+        "modelSignature": {
+            "signatureName": "infer",
+            "inputs": [{
+                "name": "input",
+                "dtype": "DT_INT64",
+                "shape": {
+                    "dims": []
+                },
+                "profile": "NUMERICAL"
+            }],
+            "outputs": [{
+                "name": "output",
+                "dtype": "DT_INT64",
+                "shape": {
+                    "dims": []
+                },
+                "profile": "NUMERICAL"
+            }]
+        },
         "model": {
-            "id": 2,
+            "id": 1,
             "name": "my-external-model"
         },
-        "finished": "2020-05-22T12:38:05.021Z",
-        "signature": {
-            "modelName": "my-external-model",
-            "predict": {
-                "signatureName": "predict",
-                "inputs": [
-                    {
-                        "profile": "NUMERICAL",
-                        "dtype": "DT_INT64",
-                        "name": "input_1",
-                        "shape": {
-                            "dim": [],
-                            "unknownRank": False
-                        }
-                    },
-                    {
-                        "profile": "NUMERICAL",
-                        "dtype": "DT_INT64",
-                        "name": "input_2",
-                        "shape": {
-                            "dim": [],
-                            "unknownRank": False
-                        }
-                    },
-                ],
-                "outputs": [
-                    {
-                        "profile": "NUMERICAL",
-                        "dtype": "DT_DOUBLE",
-                        "name": "output",
-                        "shape": {
-                            "dim": [],
-                            "unknownRank": False
-                        }
-                    }
-                ]
-            }
+        "status": "Released",
+        "metadata": {},
+        "applications": [],
+        "image": {
+            "name": "my-external-model",
+            "tag": "1",
+            "sha256": "1c714d62b9450b2c3467d67855e443c2fe61c6718733ead3d4af89c7ed4515c4"
+        },
+        "runtime": {
+            "name": "hydrosphere/serving-runtime-python-3.6",
+            "tag": "2.4.0",
+            "sha256": None,
+        },
+        "monitoringConfiguration": {
+            "batchSize": 10
         },
         "isExternal": True,
-        "id": 2,
-        "status": "Released",
-        "metadata": {
-            "key": "value"
-        },
-        "modelVersion": 1,
-        "monitoringConfiguration": {"batchSize": 100},
-        "created": "2020-05-22T12:38:05.021Z"
     }

@@ -386,12 +386,7 @@ def mock_input_data(signature: ModelSignature):
     """
     input_tensors = []
     for field in signature.inputs:
-        simple_shape = []
-        if field.shape:
-            simple_shape = [x.size if x.size > 0 else 1 for x in
-                            field.shape.dim]  # TODO change -1 to random N, where N <=5
-        if len(simple_shape) == 0:
-            simple_shape = [1]
+        simple_shape = field.shape.dims or [1]
         field_shape = tuple(np.abs(simple_shape))
         size = reduce(operator.mul, field_shape)
         npdtype = proto_to_np_dtype(field.dtype)

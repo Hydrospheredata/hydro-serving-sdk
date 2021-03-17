@@ -52,7 +52,7 @@ def tensor_proto_to_np(t: Tensor):
     :param t:
     :return:
     """
-    array_shape = [dim.size for dim in t.tensor_shape.dim]
+    array_shape = list(t.tensor_shape.dims)
     np_dtype = proto_to_np_dtype(t.dtype)
     proto_values = getattr(t, DTYPE_TO_FIELDNAME[t.dtype])
 
@@ -100,7 +100,7 @@ def nparray_to_tensor_proto(x: np.array) -> Tensor:
                          f" Dtypes not compiled into numpy are not supported, except for np.str.")
 
     proto_dtype = np_to_proto_dtype(x.dtype.type)
-    proto_shape = tensor_shape_proto_from_tuple(x.shape)
+    proto_shape = tensor_shape_proto_from_list(x.shape)
 
     if proto_dtype == DT_HALF:
         proto_values = x.view(np.uint16).flatten()
@@ -146,7 +146,7 @@ def scalar_to_tensor_proto(x: np.ScalarType) -> Tensor:
     return Tensor(**kwargs)
 
 
-def tensor_shape_proto_from_tuple(shape: Iterable[int]) -> TensorShape:
+def tensor_shape_proto_from_list(shape: Iterable[int]) -> TensorShape:
     """
     Helper function to transform shape in the form of a tuple (Numpy shape representation) into a TensorProtoShape
     :param shape: Shape in a tuple form

@@ -205,7 +205,7 @@ class LocalModel:
                 "tag": self.runtime.tag,
                 "sha256": self.runtime.sha256
             },
-            "signature": ModelSignature_to_signature_dict(self.signature),
+            "modelSignature": ModelSignature_to_signature_dict(self.signature),
             "installCommand": self.install_command,
             "metadata": self.metadata
         }
@@ -370,7 +370,7 @@ class ModelVersion:
         name = modelversion_json["model"]["name"]
         model_id = modelversion_json["model"]["id"]
         version = modelversion_json["modelVersion"]
-        signature = signature_dict_to_ModelSignature(modelversion_json["signature"])
+        signature = signature_dict_to_ModelSignature(modelversion_json["modelSignature"])
         monitoring_configuration = MonitoringConfiguration(batch_size=modelversion_json["monitoringConfiguration"]["batchSize"])
 
         # external model deserialization handling

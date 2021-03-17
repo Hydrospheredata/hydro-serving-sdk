@@ -12,12 +12,13 @@ from hydro_serving_grpc.serving.contract.types_pb2 import (
 from hydro_serving_grpc.serving.contract.tensor_pb2 import Tensor, TensorShape
 
 from hydrosdk.data.conversions import np_to_tensor_proto, tensor_proto_to_np, proto_to_np_dtype, \
-    tensor_shape_proto_from_tuple, list_to_tensor_proto, tensor_proto_to_py, isinstance_namedtuple
+    tensor_shape_proto_from_list, list_to_tensor_proto, tensor_proto_to_py, isinstance_namedtuple
 from hydrosdk.data.types import DTYPE_TO_FIELDNAME, np_to_proto_dtype, PredictorDT, find_in_list_by_name
 from hydrosdk.servable import Servable
 from hydrosdk.cluster import Cluster
 from hydrosdk.modelversion import ModelVersion
 from tests.common_fixtures import * 
+from tests.config import LOCK_TIMEOUT
 
 int_dtypes = [DT_INT64, DT_UINT16, DT_UINT8, DT_INT8, DT_INT16, DT_INT32, DT_UINT32, DT_UINT64]
 float_types = [DT_DOUBLE, DT_FLOAT, ]
@@ -35,9 +36,9 @@ unsupported_np_types = [np.float128, np.complex256, np.object, np.void,
 @pytest.fixture(scope="module")
 def servable_tensor(cluster: Cluster, tensor_local_model: LocalModel):
     mv: ModelVersion = tensor_local_model.upload(cluster)
-    mv.lock_till_released()
+    mv.lock_till_released(timeout=LOCK_TIMEOUT)
     sv: Servable = Servable.create(cluster, mv.name, mv.version)
-    sv.lock_while_starting()
+    sv.lock_while_starting(timeout=LOCK_TIMEOUT)
     yield sv
     Servable.delete(cluster, sv.name)
 
@@ -49,9 +50,9 @@ class TestConversion:
         restored_dtype = np_to_proto_dtype(np_type)
         assert dtype == restored_dtype
 
-    @pytest.mark.parametrize("np_shape", [(100, 1), (-1, 100), (-1, 1), (1,), (10, 10, 10, 10,)])
+    @pytest.mark.parametrize("np_shape", [[100, 1], [-1, 100], [-1, 1], [1,], [10, 10, 10, 10,]])
     def test_np_shape_to_proto_and_back(self, np_shape):
-        proto_shape = tensor_shape_proto_from_tuple(np_shape)
+        proto_shape = tensor_shape_proto_from_list(np_shape)
         assert np_shape == proto_shape.dims
 
     @pytest.mark.parametrize("dtype", int_dtypes + float_types)
