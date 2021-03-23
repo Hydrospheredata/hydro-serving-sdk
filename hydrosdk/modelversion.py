@@ -21,7 +21,7 @@ from hydrosdk.cluster import Cluster
 from hydrosdk.signature import ModelSignature_to_signature_dict, validate_signature, signature_dict_to_ModelSignature
 from hydrosdk.image import DockerImage
 from hydrosdk.monitoring import MetricSpec, MetricSpecConfig, MetricModel, ThresholdCmpOp
-from hydrosdk.exceptions import HydrosphereException, TimeoutException, BadResponseException
+from hydrosdk.exceptions import HydrosphereException, TimeoutException, BadResponseException, BadRequestException
 from hydrosdk.utils import handle_request_error, read_in_chunks
 
 
@@ -90,6 +90,9 @@ class MonitoringConfiguration:
         return {
             "batchSize": self.batch_size
         }
+    
+    def __repr__(self):
+        return f"MonitoringConfiguration(batch_size={self.batch_size})" 
 
 
 class LocalModel:
@@ -105,7 +108,7 @@ class LocalModel:
     >>> from hydrosdk.image import DockerImage
     >>> from hydrosdk.signature import SignatureBuilder, ProfilingType
     >>> cluster = Cluster("http-cluster-endpoint")
-    >>> runtime = DockerImage("hydrosphere/serving-runtime-python-3.7", "latest", None)
+    >>> runtime = DockerImage("hydrosphere/serving-runtime-python-3.7", tag="latest")
     >>> payload = ["src/func_main.py", "requirements.txt"]
     >>> signature = SignatureBuilder("predict") \
             .with_input("x", int, "scalar", ProfilingType.NUMERICAL) \
@@ -201,9 +204,9 @@ class LocalModel:
         meta = {
             "name": self.name,
             "runtime": {
-                "name": self.runtime.name,
+                "name": self.runtime.full,
                 "tag": self.runtime.tag,
-                "sha256": self.runtime.sha256
+                "sha256": self.runtime.digest
             },
             "modelSignature": ModelSignature_to_signature_dict(self.signature),
             "installCommand": self.install_command,
@@ -229,7 +232,7 @@ class LocalModel:
         return modelversion
 
 
-class ModelVersionStatus(Enum):
+class ModelVersionStatus(str, Enum):
     """
     Model building statuses.
     """
@@ -337,11 +340,12 @@ class ModelVersion:
         """
         resp = cluster.request("GET", f"{ModelVersion._BASE_URL}/version")
         handle_request_error(
-            resp, f"Failed to find model_version by id={id}. {resp.status_code} {resp.text}")
+            resp, f"Failed to retrieve model_version by id={id}. {resp.status_code} {resp.text}")
         for modelversion_json in resp.json():
             if modelversion_json['id'] == id:
                 return ModelVersion._from_json(cluster, modelversion_json)
-
+        raise BadRequestException(f"Failed to retrieve model_version by id={id}.")
+    
     @staticmethod
     def find_by_model_name(cluster: Cluster, model_name: str) -> list:
         """
@@ -378,9 +382,11 @@ class ModelVersion:
         if is_external:
             model_runtime = None
         else:
-            model_runtime = DockerImage(modelversion_json["runtime"]["name"], modelversion_json["runtime"]["tag"],
-                                        modelversion_json["runtime"].get("sha256"))
+            model_runtime = DockerImage.from_custom(modelversion_json["runtime"])
+        
         model_image = modelversion_json.get("image")
+        if model_image is not None:
+            model_image = DockerImage.from_custom(model_image)
 
         status = modelversion_json.get('status')
         if status:
@@ -399,7 +405,10 @@ class ModelVersion:
             cluster=cluster,
             status=status,
             metadata=metadata,
-            monitoring_configuration=monitoring_configuration
+            monitoring_configuration=monitoring_configuration,
+            created=modelversion_json.get("created"),
+            finished=modelversion_json.get("finished"),
+            applications=modelversion_json.get("applications"),
         )
 
     @staticmethod
@@ -518,9 +527,26 @@ class ModelVersion:
             version=self.version,
             signature=self.signature,
             runtime=self.runtime,
-            image=DockerImageProto(name=self.image.name, tag=self.image.tag),
+            image=DockerImageProto(name=self.image.full, tag=self.image.tag),
             image_sha=self.image.sha256
         )
+    
+    def to_dict(self) -> dict:
+        return {
+            "id": self.id,
+            "name": self.name,
+            "modelVersion": self.version,
+            "modelSignature": ModelSignature_to_signature_dict(self.signature),
+            "runtime": self.runtime._asdict(),
+            "image": self.image._asdict(),
+            "status": self.status,
+            "metadata": self.metadata,
+            "monitoringConfiguration": self.monitoring_configuration.to_dict(),
+            "isExternal": self.is_external,
+            "created": self.created,
+            "finished": self.finished,
+            "applications": self.applications,
+        }
     
     def as_metric(self, threshold: int, comparator: ThresholdCmpOp) -> MetricModel:
         """
@@ -536,7 +562,8 @@ class ModelVersion:
                  signature: ModelSignature, status: Optional[ModelVersionStatus], image: Optional[DockerImage], 
                  runtime: Optional[DockerImage], is_external: bool, 
                  metadata: Optional[Dict[str, str]] = None, install_command: Optional[str] = None, 
-                 training_data: Optional[str] = None, monitoring_configuration: Optional[MonitoringConfiguration] = None):
+                 training_data: Optional[str] = None, monitoring_configuration: Optional[MonitoringConfiguration] = None, 
+                 created: Optional[str] = None, finished: Optional[str] = None, applications: Optional[List[str]] = None):
         """
         :param cluster: active cluster
         :param id: id of the model_version assigned by the cluster
@@ -552,7 +579,10 @@ class ModelVersion:
         :param metadata: metadata used for describing a ModelVersion
         :param install_command: a command which was run within a runtime to prepare a model_version
                                 environment
-        :param monitoring_configuration:
+        :param monitoring_configuration: specified monitoring configuration for the model
+        :param created: specifies, when the model version was created
+        :param finished: specified, when the model has finished building
+        :param applications: specifies, which applications are using this model version
         """
         self.id = id
         self.model_id = model_id
@@ -568,6 +598,9 @@ class ModelVersion:
         self.install_command = install_command
         self.training_data = training_data
         self.monitoring_configuration = monitoring_configuration
+        self.created = created
+        self.finished = finished
+        self.applications = applications or []
 
     def __repr__(self):
         return f"ModelVersion {self.name}:{self.version}"
@@ -615,14 +648,6 @@ class DataUploadResponse:
             self.__url = f'/monitoring/profiles/batch/{self.modelversion_id}/status'
         return self.__url
     
-    @staticmethod
-    def __tick(retry: int, sleep: int) -> Tuple[bool, int]:
-        if retry == 0:
-            return False, retry
-        retry -= 1
-        time.sleep(sleep)
-        return True, retry
-
     def get_status(self) -> DataProfileStatus:
         resp = self.cluster.request('GET', self.url)
         handle_request_error(
@@ -636,17 +661,24 @@ class DataUploadResponse:
         :param retry: Number of retries before giving up waiting.
         :param sleep: Sleep interval between retries.
         """
+        def tick(retry: int, sleep: int) -> Tuple[bool, int]:
+            if retry == 0:
+                return False, retry
+            retry -= 1
+            time.sleep(sleep)
+            return True, retry
+            
         while True:
             status = self.get_status()
             if status is DataProfileStatus.Success:
                 break
             elif status is DataProfileStatus.Processing:
-                can_be_polled, retry = self.__tick(retry, sleep)
+                can_be_polled, retry = tick(retry, sleep)
                 if can_be_polled:
                     continue
                 raise TimeoutException("Time out waiting for data processing to complete")
             elif status is DataProfileStatus.NotRegistered:
-                can_be_polled, retry = self.__tick(retry, sleep)
+                can_be_polled, retry = tick(retry, sleep)
                 if can_be_polled:
                     continue
                 raise DataUploadResponse.NotRegistered

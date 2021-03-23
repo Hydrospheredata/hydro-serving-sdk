@@ -173,12 +173,7 @@ def shape_to_dict(shape: Optional['TensorShape']=None) -> dict:
 def signature_dict_to_ModelSignature(data: dict) -> ModelSignature:
     """
     Internal method.
-    A method that makes ModelSignature out of signature dict
-    :param data:
-    :return:
-    """
-    """
-    dict to ModelSignature
+    A method that creates ModelSignature out of a signature dict.
     :param data:
     :return:
     """
@@ -207,13 +202,11 @@ def signature_dict_to_ModelSignature(data: dict) -> ModelSignature:
 
         frmt_outputs.append(field_from_dict(field_name=field_name, field_dict=field_dict))
 
-    signature = ModelSignature(
+    return ModelSignature(
         signature_name=signature_name,
         inputs=frmt_inputs,
         outputs=frmt_outputs
     )
-
-    return signature
 
 
 def parse_field(name: str, dtype: Union[str, int, np.dtype],
