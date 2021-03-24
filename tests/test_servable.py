@@ -10,8 +10,8 @@ from tests.config import LOCK_TIMEOUT
 
 
 @pytest.fixture(scope="module")
-def mv(cluster: Cluster, local_model: LocalModel) -> ModelVersion:
-    mv: ModelVersion = local_model.upload(cluster)
+def mv(cluster: Cluster, model_version_builder: ModelVersionBuilder) -> ModelVersion:
+    mv: ModelVersion = model_version_builder.build(cluster)
     mv.lock_till_released(timeout=LOCK_TIMEOUT)
     return mv
 

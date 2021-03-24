@@ -91,11 +91,8 @@ class MonitoringConfiguration:
             "batchSize": self.batch_size
         }
     
-    def __repr__(self):
-        return f"MonitoringConfiguration(batch_size={self.batch_size})" 
 
-
-class LocalModel:
+class ModelVersionBuilder:
     """
     A local instance of the model yet to be uploaded to the cluster.
     (https://hydrosphere.io/serving-docs/latest/overview/concepts.html#models)
@@ -108,88 +105,125 @@ class LocalModel:
     >>> from hydrosdk.image import DockerImage
     >>> from hydrosdk.signature import SignatureBuilder, ProfilingType
     >>> cluster = Cluster("http-cluster-endpoint")
-    >>> runtime = DockerImage("hydrosphere/serving-runtime-python-3.7", tag="latest")
-    >>> payload = ["src/func_main.py", "requirements.txt"]
+    >>> builder = ModelVersionBuilder("my-model", "/path/to/my-model")
+    >>> builder.with_runtime(DockerImage("hydrosphere/serving-runtime-python-3.7", tag="latest"))
+    >>> builder.with_payload(["src/func_main.py", "requirements.txt"])
     >>> signature = SignatureBuilder("predict") \
             .with_input("x", int, "scalar", ProfilingType.NUMERICAL) \
             .with_output("y", float, "scalar", ProfilingType.NUMERICAL) \
             .build()
-    >>> install_command = "pip install -r requirements.txt"
-    >>> training_data = "training-data.csv"
-    >>> localmodel = LocalModel(name="my-model", runtime=runtime, payload=payload, signature=signature,
-                                install_command=install_command, training_data=training_data)
-    >>> model_version = localmodel.upload(cluster)
-    >>> model_version.lock_till_released()
+    >>> builder.with_signature(signature)
+    >>> builder.with_install_command("pip install -r requirements.txt")
+    >>> builder.with_training_data("training-data.csv")
+    >>> model_version = builder.build(cluster)
+    >>> model_version.lock_till_released(timeout=120)
     >>> data_upload_response = model_version.upload_training_data()
     """
-    def __init__(self, name: str, runtime: DockerImage, path: str, payload: List[str], 
-                 signature: ModelSignature, metadata: Optional[Dict[str, str]] = None, 
-                 install_command: Optional[str] = None,
-                 training_data: Optional[str] = None,
-                 monitoring_configuration: Optional[MonitoringConfiguration] = None) -> 'LocalModel':
+    def __init__(self, name: str, path: str) -> 'ModelVersionBuilder':
         """
         :param name: a name of the model
-        :param runtime: a docker image used to run your code
-        :param payload: a list of paths to files (absolute or relative) with any additional resources 
-                        that will be exported to the container
         :param path: a path to the root folder of the model
-        :param signature: ModelSignature, which specifies the name of the inference function, its types 
-                          and shapes of both inputs and outputs
-        :param metadata: a metadata dict used to describe uploaded ModelVersions
-        :param install_command: a command to run within a runtime to prepare a model_version environment
-        :param training_data: path (absolute, relative or an S3 URI) to a csv file with the training 
-                              data
-        :param monitoring_configuration: Specifies a configuration to be used when monitoring the model
         """
-        if not isinstance(name, str):
-            raise TypeError("name is not a string")
         self.name = name
-        if not isinstance(runtime, DockerImage):
-            raise TypeError("runtime is not a DockerImage")
-        self.runtime = runtime
+        self.path = path
+        self.runtime = None
+        self.signature = None
+        self.payload = {}
+        self.metadata = {}
+        self.install_command = None
+        self.training_data = None
+        self.monitoring_configuration = None
 
+    def with_runtime(self, runtime: DockerImage) -> 'ModelVersionBuilder':
+        """
+        Specify runtime for the model version. 
+
+        :param runtime: a docker image used to run model version's code.
+        """
+        if not isinstance(runtime, DockerImage):
+            raise TypeError("runtime is not of type DockerImage")
+        self.runtime = runtime
+        return self
+    
+    def with_signature(self, signature: ModelSignature) -> 'ModelVersionBuilder':
+        """
+        Specify signature for the model version.
+
+        :param signature: ModelSignature, which specifies the name of the inference function, 
+                          its types and shapes of both inputs and outputs.
+        """
         if not isinstance(signature, ModelSignature):
             raise TypeError("signature is not of type ModelSignature")
         validate_signature(signature)
         self.signature = signature
-        
-        self.path = path
-        self.payload = resolve_paths(path=path, payload=payload)
+        return self
+    
+    def with_payload(self, payload: List[str]) -> 'ModelVersionBuilder':
+        """
+        Specify payload for the model version.
 
-        if metadata:
-            if not isinstance(metadata, dict):
-                raise TypeError("metadata is not a dict")
+        :param payload: a list of paths to files (absolute or relative) with any 
+                        additional resources that will be exported to the container.
+        """
+        self.payload = resolve_paths(path=self.path, payload=payload)
+        return self
+    
+    def with_metadata(self, metadata: Dict[str, str]) -> 'ModelVersionBuilder':
+        """
+        Specify metadata for the model version.
 
-            for key, value in metadata.items():
-                if not isinstance(key, str):
-                    raise TypeError(str(key) + " key from metadata is not a string")
-                if not isinstance(value, str):
-                    raise TypeError(str(value) + " value from metadata is not a string")
-
+        :param metadata: a metadata to describe the model version.
+        """
+        if not isinstance(metadata, dict):
+            raise TypeError("metadata is not a dict")
+        for key, value in metadata.items():
+            if not isinstance(key, str):
+                raise TypeError(str(key) + " key from metadata is not a string")
+            if not isinstance(value, str):
+                raise TypeError(str(value) + " value from metadata is not a string")
         self.metadata = metadata
+        return self
+    
+    def with_install_command(self, install_command: str) -> 'ModelVersionBuilder':
+        """
+        Specify install command for the model.
 
+        :param install_command: a command to run within a runtime to prepare a model 
+                                version environment.
+        """
         if install_command and not isinstance(install_command, str):
-            raise TypeError("install-command should be a string")
+            raise TypeError("install_command should be a string")
         self.install_command = install_command
-
+        return self
+    
+    def with_training_data(self, training_data: str) -> 'ModelVersionBuilder':
+        """
+        Specify training data for the model version.
+        
+        :param training_data: path (absolute, relative or an S3 URI) to a csv file with 
+                              the training data 
+        """
         if training_data and not isinstance(training_data, str):
-            raise TypeError("training-data should be a string")
+            raise TypeError("training_data should be a string")
         self.training_data = training_data
+        return self
 
+    def with_monitoring_configuration(self, monitoring_configuration: MonitoringConfiguration) -> 'ModelVersionBuilder':
+        """
+        Specify monitoring configuration for the model version.
+
+        :param monitoring_configuration: Specifies a configuration to be used when monitoring 
+                                         the model version.
+        """
         if monitoring_configuration and not isinstance(monitoring_configuration, MonitoringConfiguration):
-            raise TypeError("monitoring-configuration should be of type MonitoringConfiguration")
+            raise TypeError("monitoring_configuration should be of type MonitoringConfiguration")
         self.monitoring_configuration: MonitoringConfiguration = monitoring_configuration
-
+        return self
+    
     def __repr__(self):
-        return f"LocalModel {self.name}"
+        return f"ModelVersionBuilder(name={self.name})"
 
-    def upload(self, cluster: Cluster) -> 'ModelVersion':
-        """
-        Upload local model instance to the cluster.
-
-        :param cluster: active cluster
-        :return: ModelVersion object
-        """
+    def __create_tarball(self) -> str:
         logger = logging.getLogger("ModelDeploy")
         hs_folder = ".hs"
         os.makedirs(hs_folder, exist_ok=True)
@@ -200,11 +234,24 @@ class LocalModel:
             for source, target in self.payload.items():
                 logger.debug("Archiving %s as %s", source, target)
                 tar.add(source, arcname=target)
+        return tarpath
+                
+    def build(self, cluster: Cluster) -> 'ModelVersion':
+        """
+        Upload local model instance to the cluster.
+
+        :param cluster: active cluster
+        :return: ModelVersion object
+        """
+        if self.runtime is None:
+            raise ValueError("runtime is not specified for the model")
+        if self.signature is None:
+            raise ValueError("signature is not specified for the model")
 
         meta = {
             "name": self.name,
             "runtime": {
-                "name": self.runtime.full,
+                "name": self.runtime.full_name,
                 "tag": self.runtime.tag,
                 "sha256": self.runtime.digest
             },
@@ -216,6 +263,7 @@ class LocalModel:
         if self.monitoring_configuration:
             meta.update({"monitoringConfiguration": self.monitoring_configuration.to_dict()})
 
+        tarpath = self.__create_tarball()
         encoder = MultipartEncoder(
             fields={
                 "payload": ("filename", open(tarpath, "rb")),
@@ -223,13 +271,31 @@ class LocalModel:
             }
         )
         
-        resp = cluster.request("POST", "/api/v2/model/upload", data=encoder, headers={'Content-Type': encoder.content_type})
+        resp = cluster.request("POST", "/api/v2/model/upload", 
+            data=encoder, headers={'Content-Type': encoder.content_type})
         handle_request_error(
             resp, f"Failed to upload local model. {resp.status_code} {resp.text}")
 
         modelversion = ModelVersion._from_json(cluster, resp.json())
         modelversion.training_data = self.training_data
         return modelversion
+
+    def build_external(self, cluster: Cluster) -> 'ModelVersion':
+        """
+        Create an external ModelVersion on the cluster. 
+
+        :param cluster: active cluster
+        :return: ModelVersion object
+        """
+        model = {
+            "name": self.name,
+            "signature": ModelSignature_to_signature_dict(self.signature),
+            "metadata": self.metadata
+        }
+        resp = cluster.request("POST", "/api/v2/externalmodel", json=model)
+        handle_request_error(
+            resp, f"Failed to create an external model. {resp.status_code} {resp.text}")
+        return ModelVersion._from_json(cluster, resp.json())
 
 
 class ModelVersionStatus(str, Enum):
@@ -273,21 +339,6 @@ class ModelVersion:
     >>> modelversion_metric = ModelVersion.find(cluster, "my-model-metric", 1)
     >>> modelversion_metric = modmodelversion_metric.as_metric(1.4, ThresholdCmpOp.LESS_EQ)
     >>> model_version.assign_metrics([modelversion_metric])
-
-    Create an external model.
-
-    >>> from hydrosdk.cluster import Cluster
-    >>> from hydrosdk.signature import SignatureBuilder, ProfilingType
-    >>> cluster = Cluster("http-cluster-endpoint")
-    >>> signature = SignatureBuilder("predict") \
-            .with_input("x", int, "scalar", ProfilingType.NUMERICAL) \
-            .with_output("y", float, "scalar", ProfilingType.NUMERICAL) \
-            .build()
-    >>> training_data = "training-data.csv"
-    >>> model_version = ModelVersion.create_externalmodel(
-            cluster=cluster, name="my-external-model", signature=signature, training_data=training_data
-        )
-    >>> data_upload_response = model_version.upload_training_data()
 
     Check logs from a ModelVersion.
 
@@ -411,61 +462,34 @@ class ModelVersion:
             applications=modelversion_json.get("applications"),
         )
 
-    @staticmethod
-    def create_externalmodel(cluster: Cluster, name: str, signature: ModelSignature, 
-               metadata: Optional[dict] = None, training_data: Optional[str] = None) -> 'ModelVersion':
-        """
-        Create an external ModelVersion on the cluster. 
-
-        :param cluster: active cluster
-        :param name: name of model
-        :param signature: ModelSignature, which specifies the name of the inference function, its types 
-                          and shapes of both inputs and outputs
-        :param metadata: metadata for the model
-        :return: ModelVersion object
-        """
-        model = {
-            "name": name,
-            "signature": ModelSignature_to_signature_dict(signature),
-            "metadata": metadata
-        }
-        resp = cluster.request("POST", "/api/v2/externalmodel", json=model)
-        handle_request_error(
-            resp, f"Failed to create an external model. {resp.status_code} {resp.text}")
-        return ModelVersion._from_json(cluster, resp.json())
-
-    def update_status(self):
-        """
-        Poll the cluster for a new ModelVersion status.
-        """
-        self.status = self.find_by_id(self.cluster, self.id).status
-
     def lock_till_released(self, timeout: int = 120):
         """
         Lock till the model completes assembling.
         
+        :param timeout: approximate value when to raise TimeoutException
         :raises ModelVersion.ReleaseFailed: if model failed to be released
+        :raises TimeoutException: if timed out waiting for the model to be released
         """
         events_stream = self.cluster.request("GET", "/api/v2/events", stream=True)
         events_client = sseclient.SSEClient(events_stream)
 
-        self.update_status()
+        self.status = self.find_by_id(self.cluster, self.id).status
         if self.status is ModelVersionStatus.Released:
             return None
         if self.status is ModelVersionStatus.Failed:
-            raise ModelVersion.ReleaseFailed
+            raise ModelVersion.ReleaseFailed("Model version build failed.")
         try:
             deadline_at = datetime.datetime.now().timestamp() + timeout
             for event in events_client.events():
                 if datetime.datetime.now().timestamp() > deadline_at:
-                    raise TimeoutException("Time out waiting for application to build.")
+                    raise TimeoutException("Timed out waiting for the model version to build.")
                 if event.event == "ModelUpdate":
                     data = json.loads(event.data)
                     if data.get("id") == self.id:
                         self.status = ModelVersionStatus[data.get('status')]
                         if self.status is ModelVersionStatus.Released:
                             return None
-                        raise ModelVersion.ReleaseFailed()
+                        raise ModelVersion.ReleaseFailed("Model version build failed.")
         finally:
             events_client.close()
     
@@ -607,6 +631,7 @@ class ModelVersion:
 
     class ReleaseFailed(HydrosphereException):
         pass
+
 
 class DataProfileStatus(Enum):
     Success = "Success"

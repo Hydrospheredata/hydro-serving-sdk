@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 
 from hydrosdk.data.types import PredictorDT
-from hydrosdk.modelversion import LocalModel, ModelVersion, MonitoringConfiguration
+from hydrosdk.modelversion import ModelVersionBuilder, ModelVersion, MonitoringConfiguration
 from hydrosdk.cluster import Cluster
 from hydrosdk.application import Application, ApplicationBuilder, ExecutionStageBuilder
 from tests.common_fixtures import *
@@ -21,8 +21,8 @@ def value():
 
 
 @pytest.fixture(scope="module")
-def app_tensor(cluster: Cluster, tensor_local_model: LocalModel):
-    mv: ModelVersion = tensor_local_model.upload(cluster)
+def app_tensor(cluster: Cluster, tensor_model_version_builder: ModelVersionBuilder):
+    mv: ModelVersion = tensor_model_version_builder.build(cluster)
     mv.lock_till_released(timeout=LOCK_TIMEOUT)
     stage = ExecutionStageBuilder().with_model_variant(mv, 100).build()
     app = ApplicationBuilder(cluster, f"{DEFAULT_APP_NAME}-{random.randint(0, 1e5)}") \
@@ -34,9 +34,9 @@ def app_tensor(cluster: Cluster, tensor_local_model: LocalModel):
 
 
 @pytest.fixture(scope="module")
-def app_scalar(cluster: Cluster, local_model: LocalModel, training_data: str):
-    local_model.monitoring_configuration = MonitoringConfiguration(batch_size=10)
-    mv: ModelVersion = local_model.upload(cluster)
+def app_scalar(cluster: Cluster, model_version_builder: ModelVersionBuilder, training_data: str):
+    model_version_builder.with_monitoring_configuration(MonitoringConfiguration(batch_size=10))
+    mv: ModelVersion = model_version_builder.build(cluster)
     mv.training_data = training_data
     data_upload_response = mv.upload_training_data()
     data_upload_response.wait(sleep=5)

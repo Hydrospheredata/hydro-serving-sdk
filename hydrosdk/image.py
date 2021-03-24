@@ -4,7 +4,7 @@ from collections import namedtuple
 from typing import List, Optional
 
 
-DockerImagePrototype = namedtuple('DockerImage', ['full', 'name', 'domain', 'tag', 'digest'])
+DockerImagePrototype = namedtuple('DockerImage', ['full_name', 'name', 'domain', 'tag', 'digest'])
 
 
 def _literal(s: str) -> re.Pattern: 
@@ -120,7 +120,7 @@ class DockerImage(DockerImagePrototype):
     # is anchored and has capturing groups for name, tag, and digest
     # components.
     reference_regex = _expression(
-        _capture("full", anchored_name_regex),
+        _capture("full_name", anchored_name_regex),
         _optional(_literal(":"), _capture("tag", tag_regex)),
         _optional(_literal("@"), _capture("digest", digest_regex))
     )
@@ -131,7 +131,6 @@ class DockerImage(DockerImagePrototype):
         if matched is None:
             raise ValueError(f"Couldn't create a DockerImage from the provided image reference: {string}")
         return cls(**matched.groupdict())
-
     
     @classmethod
     def from_custom(cls, in_dict):
@@ -141,3 +140,10 @@ class DockerImage(DockerImagePrototype):
             reference = f'{reference}@sha256:{digest}'
         return cls.from_string(reference)
     
+    def to_string(self):
+        string = self.full_name
+        if self.tag:
+            string = f"{string}:{self.tag}"
+        if self.digest:
+            string = f"{string}@{self.digest}"
+        return string

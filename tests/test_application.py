@@ -3,7 +3,7 @@ import random
 from hydrosdk.cluster import Cluster
 from hydrosdk.application import ExecutionStageBuilder, ApplicationBuilder, Application
 from hydrosdk.deployment_configuration import DeploymentConfiguration, DeploymentConfigurationBuilder
-from hydrosdk.modelversion import ModelVersion
+from hydrosdk.modelversion import ModelVersion, ModelVersionBuilder
 from tests.common_fixtures import *
 from tests.config import *
 
@@ -14,8 +14,8 @@ def deployment_configuration_name():
 
 
 @pytest.fixture(scope="module")
-def modelversion(cluster: Cluster, local_model: LocalModel):
-    mv: ModelVersion = local_model.upload(cluster)
+def modelversion(cluster: Cluster, model_version_builder: ModelVersionBuilder):
+    mv: ModelVersion = model_version_builder.build(cluster)
     mv.lock_till_released(timeout=LOCK_TIMEOUT)
     return mv
 

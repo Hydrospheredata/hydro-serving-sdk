@@ -106,37 +106,31 @@ class Application:
         :param application_json: input json with application object fields
         :return: application object
         """
-        app_id = application_json.get("id")
-        app_name = application_json.get("name")
-        app_execution_graph = ExecutionGraph._from_json(cluster, application_json.get("executionGraph"))
-        app_kafka_streaming = [StreamingParams(kafka_param["in-topic"], kafka_param["out-topic"])
+        id_ = application_json.get("id")
+        name = application_json.get("name")
+        execution_graph = ExecutionGraph._from_json(cluster, application_json.get("executionGraph"))
+        kafka_streaming = [StreamingParams(kafka_param["in-topic"], kafka_param["out-topic"])
                                for kafka_param in application_json.get("kafkaStreaming")]
-        app_metadata = application_json.get("metadata")
-        app_signature = signature_dict_to_ModelSignature(data=application_json.get("signature"))
-        app_status = ApplicationStatus[application_json.get("status").upper()]
+        metadata = application_json.get("metadata")
+        signature = signature_dict_to_ModelSignature(data=application_json.get("signature"))
+        status = ApplicationStatus[application_json.get("status").upper()]
 
         app = Application(cluster=cluster,
-                          id=app_id,
-                          name=app_name,
-                          execution_graph=app_execution_graph,
-                          status=app_status,
-                          signature=app_signature,
-                          kafka_streaming=app_kafka_streaming,
-                          metadata=app_metadata)
+                          id=id_,
+                          name=name,
+                          execution_graph=execution_graph,
+                          status=status,
+                          signature=signature,
+                          kafka_streaming=kafka_streaming,
+                          metadata=metadata)
         return app
 
-    def update_status(self):
-        """
-        Poll a cluster for a new Application status.
-        """
-        self.status = self.find(self.cluster, self.name).status
-    
     def lock_while_starting(self, timeout: int = 120) -> 'Application':
         """ Wait for an application to become ready. """
         events_stream = self.cluster.request("GET", "/api/v2/events", stream=True)
         events_client = sseclient.SSEClient(events_stream)
 
-        self.update_status()
+        self.status = self.find(self.cluster, self.name).status
         if self.status is ApplicationStatus.READY: 
             return self
         if self.status is ApplicationStatus.FAILED:

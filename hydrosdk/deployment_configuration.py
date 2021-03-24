@@ -327,6 +327,9 @@ class DeploymentConfiguration:
         resp = cluster.request("DELETE", f"{DeploymentConfiguration._BASE_URL}/{name}")
         handle_request_error(resp, f"Failed to delete Deployment Configuration named {name}: {resp.status_code} {resp.text}")
         return resp
+    
+    def to_dict(self):
+        return self.to_camel_case_dict()
 
 
 class DeploymentConfigurationBuilder:
@@ -435,7 +438,7 @@ class DeploymentConfigurationBuilder:
             self.container_spec.resources = new_resource_requirements
         return self
 
-    def with_env(self, env: Dict[str, str]) -> 'DeploymentConfiguration':
+    def with_env(self, env: Dict[str, str]) -> 'DeploymentConfigurationBuilder':
         """
         Specify env for the container.
 

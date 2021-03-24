@@ -16,7 +16,7 @@ from hydrosdk.data.conversions import np_to_tensor_proto, tensor_proto_to_np, pr
 from hydrosdk.data.types import DTYPE_TO_FIELDNAME, np_to_proto_dtype, PredictorDT, find_in_list_by_name
 from hydrosdk.servable import Servable
 from hydrosdk.cluster import Cluster
-from hydrosdk.modelversion import ModelVersion
+from hydrosdk.modelversion import ModelVersion, ModelVersionBuilder
 from tests.common_fixtures import * 
 from tests.config import LOCK_TIMEOUT
 
@@ -34,8 +34,8 @@ unsupported_np_types = [np.float128, np.complex256, np.object, np.void,
 
 
 @pytest.fixture(scope="module")
-def servable_tensor(cluster: Cluster, tensor_local_model: LocalModel):
-    mv: ModelVersion = tensor_local_model.upload(cluster)
+def servable_tensor(cluster: Cluster, tensor_model_version_builder: ModelVersionBuilder):
+    mv: ModelVersion = tensor_model_version_builder.build(cluster)
     mv.lock_till_released(timeout=LOCK_TIMEOUT)
     sv: Servable = Servable.create(cluster, mv.name, mv.version)
     sv.lock_while_starting(timeout=LOCK_TIMEOUT)
