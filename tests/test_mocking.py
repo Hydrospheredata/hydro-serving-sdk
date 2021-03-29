@@ -1,7 +1,7 @@
 import pytest
 import numpy as np
 
-from hydrosdk.contract import SignatureBuilder, mock_input_data
+from hydrosdk.signature import SignatureBuilder, mock_input_data
 
 SUPPORTED_NP_TYPES = [np.int, np.int64, np.int32, np.int16, np.int8, np.int0,
                       np.float, np.float64, np.float32, np.float16,

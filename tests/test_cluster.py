@@ -33,14 +33,6 @@ def test_cluster_init(req_mock):
         assert cluster.http_address == HTTP_CLUSTER_ENDPOINT
 
 
-def test_cluster_requests(req_mock):
-    with req_mock() as mock:
-        mock.get(HTTP_CLUSTER_ENDPOINT + "/" + config["api_endpoint"] + config["endpoint"]["model"]["list"], json=[])
-        cluster = Cluster(HTTP_CLUSTER_ENDPOINT)
-        response = cluster.request("GET", config["api_endpoint"] + config["endpoint"]["model"]["list"]).json()
-        assert response == []
-
-
 @pytest.mark.skipif(GRPC_CLUSTER_ENDPOINT_SSL, reason="Cluster is running in secure mode")
 def test_cluster_insecure_grpc(req_mock):
     with req_mock():

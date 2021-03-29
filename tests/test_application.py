@@ -3,7 +3,7 @@ import random
 from hydrosdk.cluster import Cluster
 from hydrosdk.application import ExecutionStageBuilder, ApplicationBuilder, Application
 from hydrosdk.deployment_configuration import DeploymentConfiguration, DeploymentConfigurationBuilder
-from hydrosdk.modelversion import ModelVersion
+from hydrosdk.modelversion import ModelVersion, ModelVersionBuilder
 from tests.common_fixtures import *
 from tests.config import *
 
@@ -14,9 +14,9 @@ def deployment_configuration_name():
 
 
 @pytest.fixture(scope="module")
-def modelversion(cluster: Cluster, local_model: LocalModel):
-    mv: ModelVersion = local_model.upload(cluster)
-    mv.lock_till_released()
+def modelversion(cluster: Cluster, model_version_builder: ModelVersionBuilder):
+    mv: ModelVersion = model_version_builder.build(cluster)
+    mv.lock_till_released(timeout=LOCK_TIMEOUT)
     return mv
 
 
@@ -34,7 +34,7 @@ def app(cluster: Cluster, modelversion: ModelVersion, deployment_configuration: 
     stage = ExecutionStageBuilder().with_model_variant(modelversion, 100, deployment_configuration).build()
     app = ApplicationBuilder(cluster, f"{DEFAULT_APP_NAME}-{random.randint(0, 1e5)}") \
         .with_stage(stage).with_metadata("key", "value").build()
-    app.lock_while_starting()
+    app.lock_while_starting(timeout=LOCK_TIMEOUT)
     yield app
     Application.delete(cluster, app.name)
 

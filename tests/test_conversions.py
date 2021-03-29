@@ -4,20 +4,26 @@ from random import random
 import numpy as np
 import pandas as pd
 import pytest
-from hydro_serving_grpc.tf import *
-from hydro_serving_grpc.tf import TensorProto, TensorShapeProto
+from hydro_serving_grpc.serving.contract.types_pb2 import (
+    DT_HALF, DT_FLOAT, DT_DOUBLE, DT_INT8, DT_INT16, DT_INT32, DT_INT64, DT_UINT8,
+    DT_UINT16, DT_UINT32, DT_UINT64, DT_COMPLEX64, DT_COMPLEX128, DT_BOOL, DT_STRING, 
+    DT_QINT8, DT_QINT16, DT_QINT32, DT_QUINT8, DT_QUINT16, DT_INVALID, DataType
+)
+from hydro_serving_grpc.serving.contract.tensor_pb2 import Tensor, TensorShape
 
 from hydrosdk.data.conversions import np_to_tensor_proto, tensor_proto_to_np, proto_to_np_dtype, \
-    tensor_shape_proto_from_tuple, list_to_tensor_proto, tensor_proto_to_py, isinstance_namedtuple
+    tensor_shape_proto_from_list, list_to_tensor_proto, tensor_proto_to_py, isinstance_namedtuple
 from hydrosdk.data.types import DTYPE_TO_FIELDNAME, np_to_proto_dtype, PredictorDT, find_in_list_by_name
 from hydrosdk.servable import Servable
 from hydrosdk.cluster import Cluster
+from hydrosdk.modelversion import ModelVersion, ModelVersionBuilder
 from tests.common_fixtures import * 
+from tests.config import LOCK_TIMEOUT
 
 int_dtypes = [DT_INT64, DT_UINT16, DT_UINT8, DT_INT8, DT_INT16, DT_INT32, DT_UINT32, DT_UINT64]
 float_types = [DT_DOUBLE, DT_FLOAT, ]
 quantized_int_types = [DT_QINT8, DT_QINT16, DT_QINT32, DT_QUINT8, DT_QUINT16]
-unsupported_dtypes = [DT_BFLOAT16, DT_INVALID, DT_MAP, DT_RESOURCE, DT_VARIANT]
+unsupported_dtypes = [DT_INVALID, ]
 complex_dtypes = [DT_COMPLEX64, DT_COMPLEX128, ]
 
 supported_float_np_types = [np.single, np.double, np.float, np.float32, np.float64, np.float_]
@@ -28,11 +34,11 @@ unsupported_np_types = [np.float128, np.complex256, np.object, np.void,
 
 
 @pytest.fixture(scope="module")
-def servable_tensor(cluster: Cluster, tensor_local_model: LocalModel):
-    mv: ModelVersion = tensor_local_model.upload(cluster)
-    mv.lock_till_released()
+def servable_tensor(cluster: Cluster, tensor_model_version_builder: ModelVersionBuilder):
+    mv: ModelVersion = tensor_model_version_builder.build(cluster)
+    mv.lock_till_released(timeout=LOCK_TIMEOUT)
     sv: Servable = Servable.create(cluster, mv.name, mv.version)
-    sv.lock_while_starting()
+    sv.lock_while_starting(timeout=LOCK_TIMEOUT)
     yield sv
     Servable.delete(cluster, sv.name)
 
@@ -44,67 +50,66 @@ class TestConversion:
         restored_dtype = np_to_proto_dtype(np_type)
         assert dtype == restored_dtype
 
-    @pytest.mark.parametrize("np_shape", [(100, 1), (-1, 100), (-1, 1), (1,), (10, 10, 10, 10,)])
+    @pytest.mark.parametrize("np_shape", [[100, 1], [-1, 100], [-1, 1], [1,], [10, 10, 10, 10,]])
     def test_np_shape_to_proto_and_back(self, np_shape):
-        proto_shape = tensor_shape_proto_from_tuple(np_shape)
-        restored_shape = tuple([dim.size for dim in proto_shape.dim])
-        assert np_shape == restored_shape
+        proto_shape = tensor_shape_proto_from_list(np_shape)
+        assert np_shape == proto_shape.dims
 
     @pytest.mark.parametrize("dtype", int_dtypes + float_types)
-    def test_tensor_to_np_array_to_tensor(self, dtype):
-        tensor_shape = TensorShapeProto(dim=[TensorShapeProto.Dim(size=3), TensorShapeProto.Dim(size=1)])
+    def test_tensor_to_np_array_to_tensor_int_and_float(self, dtype):
+        tensor_shape = TensorShape(dims=[3, 1])
 
         tp_kwargs = {DTYPE_TO_FIELDNAME[dtype]: [1, 2, 3],
                      "dtype": dtype,
                      "tensor_shape": tensor_shape}
 
-        original_tensor_proto = TensorProto(**tp_kwargs)
+        original_tensor_proto = Tensor(**tp_kwargs)
         np_representation = tensor_proto_to_np(original_tensor_proto)
         restored_tensor_proto = np_to_tensor_proto(np_representation)
         assert restored_tensor_proto == original_tensor_proto
 
     @pytest.mark.parametrize("dtype", float_types)
-    def test_tensor_to_np_array_to_tensor(self, dtype):
-        tensor_shape = TensorShapeProto(dim=[TensorShapeProto.Dim(size=3), TensorShapeProto.Dim(size=1)])
+    def test_tensor_to_np_array_to_tensor_float(self, dtype):
+        tensor_shape = TensorShape(dims=[3, 1])
 
         tp_kwargs = {DTYPE_TO_FIELDNAME[dtype]: [1.10, 2.20, 3.30],
                      "dtype": dtype,
                      "tensor_shape": tensor_shape}
 
-        original_tensor_proto = TensorProto(**tp_kwargs)
+        original_tensor_proto = Tensor(**tp_kwargs)
         np_representation = tensor_proto_to_np(original_tensor_proto)
         restored_tensor_proto = np_to_tensor_proto(np_representation)
         assert restored_tensor_proto == original_tensor_proto
 
     @pytest.mark.parametrize("dtype", [DT_HALF])
     def test_half_dtype_conversion(self, dtype):
-        tensor_shape = TensorShapeProto(dim=[TensorShapeProto.Dim(size=3), TensorShapeProto.Dim(size=1)])
+        tensor_shape = TensorShape(dims=[3,1])
         tp_kwargs = {DTYPE_TO_FIELDNAME[dtype]: np.array([1.10, 2.20, 3.30], dtype=np.float16).view(np.uint16),
                      "dtype": dtype,
                      "tensor_shape": tensor_shape}
 
-        original_tensor_proto = TensorProto(**tp_kwargs)
+        original_tensor_proto = Tensor(**tp_kwargs)
         np_representation = tensor_proto_to_np(original_tensor_proto)
         restored_tensor_proto = np_to_tensor_proto(np_representation)
         assert restored_tensor_proto == original_tensor_proto
 
     @pytest.mark.parametrize("dtype", [DT_HALF])
     def test_half_dtype_scalar_conversion(self, dtype):
-        tensor_shape = TensorShapeProto()
+        tensor_shape = TensorShape()
         tp_kwargs = {DTYPE_TO_FIELDNAME[dtype]: np.array([1.1], dtype=np.float16).view(np.uint16),
                      "dtype": dtype,
                      "tensor_shape": tensor_shape}
 
-        original_tensor_proto = TensorProto(**tp_kwargs)
+        original_tensor_proto = Tensor(**tp_kwargs)
         np_representation = tensor_proto_to_np(original_tensor_proto)
         print(type(np_representation))
         restored_tensor_proto = np_to_tensor_proto(np_representation)
         assert restored_tensor_proto == original_tensor_proto
 
-    @pytest.mark.parametrize("shape", [TensorShapeProto(), ])
+    @pytest.mark.parametrize("shape", [TensorShape(), ])
     def test_int_scalar_tensor_to_np_scalar_back_to_tensor(self, shape):
         tp_kwargs = {"int64_val": [1], "dtype": DT_INT64, "tensor_shape": shape}
-        original_tensor_proto = TensorProto(**tp_kwargs)
+        original_tensor_proto = Tensor(**tp_kwargs)
         np_representation = tensor_proto_to_np(original_tensor_proto)
         restored_tensor_proto = np_to_tensor_proto(np_representation)
 

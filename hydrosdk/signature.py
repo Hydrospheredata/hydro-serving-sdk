@@ -5,11 +5,18 @@ from functools import reduce
 from typing import Optional, Union, Iterable, List
 
 import numpy as np
-from hydro_serving_grpc.contract import ModelContract, ModelSignature, ModelField, DataProfileType
-from hydro_serving_grpc.tf.types_pb2 import *
+from hydro_serving_grpc.serving.contract.signature_pb2 import ModelSignature
+from hydro_serving_grpc.serving.contract.field_pb2 import ModelField
+from hydro_serving_grpc.serving.contract.types_pb2 import (
+    DT_INVALID, DT_BOOL, DT_FLOAT, DT_HALF, DT_DOUBLE, DT_COMPLEX64, DT_COMPLEX128,
+    DT_INT8, DT_INT16, DT_INT32, DT_INT64, DT_UINT8, DT_UINT16, DT_UINT32, DT_UINT64,
+    DT_STRING, DataProfileType, DataType,
+)
 
-from hydrosdk.data.types import alias_to_proto_dtype, shape_to_proto, PY_TO_DTYPE, np_to_proto_dtype, proto_to_np_dtype
-from hydrosdk.exceptions import ContractViolationException
+from hydrosdk.data.types import (
+    alias_to_proto_dtype, shape_to_proto, PY_TO_DTYPE, np_to_proto_dtype, proto_to_np_dtype,
+)
+from hydrosdk.exceptions import SignatureViolationException
 
 class ProfilingType(Enum):
     """
@@ -112,25 +119,6 @@ def ModelSignature_to_signature_dict(signature: ModelSignature) -> dict:
     return result_dict
 
 
-def ModelContract_to_contract_dict(contract: ModelContract) -> Optional[dict]:
-    """
-    Serializes ModelContract into contract dict
-
-    :param contract: model contract
-    :return: dict with model_name, predict
-    """
-    if contract is None:
-        return None
-    if not isinstance(contract, ModelContract):
-        raise TypeError("contract is not ModelContract")
-    signature = ModelSignature_to_signature_dict(contract.predict)
-    result_dict = {
-        "modelName": contract.model_name,
-        "predict": signature
-    }
-    return result_dict
-
-
 def field_to_dict(field: ModelField) -> dict:
     """
     Serializes model field into name, profile and optional shape
@@ -143,10 +131,9 @@ def field_to_dict(field: ModelField) -> dict:
         raise TypeError("field is not ModelField")
     result_dict = {
         "name": field.name,
-        "profile": DataProfileType.Name(field.profile)
+        "profile": DataProfileType.Name(field.profile),
+        "shape": shape_to_dict(field.shape)
     }
-    if field.shape is not None:
-        result_dict["shape"] = shape_to_dict(field.shape)
 
     attach_ds(result_dict, field)
     return result_dict
@@ -173,49 +160,20 @@ def attach_ds(result_dict: dict, field) -> dict:
     return result_dict
 
 
-def shape_to_dict(shape) -> dict:
+def shape_to_dict(shape: Optional['TensorShape']=None) -> dict:
     """
     Serializes model field's shape to dict
 
-    :param shape: TensorShapeProto
-    :return: dict with dim and unknown rank
+    :param shape: TensorShape
+    :return: dict with dim
     """
-    dims = []
-    for d in shape.dim:
-        dims.append({"size": d.size, "name": d.name})
-    result_dict = {
-        "dim": dims,
-        "unknownRank": shape.unknown_rank
-    }
-    return result_dict
+    return None if shape is None else {"dims": list(shape.dims)}
 
 
-def _contract_dict_to_signature_dict(contract: dict) -> tuple:
+def signature_dict_to_ModelSignature(data: dict) -> ModelSignature:
     """
     Internal method.
-    Makes a signature dict out of contract dict
-
-    :param contract:
-    :return:
-    """
-
-    name = contract.get("modelName")
-    if not name:
-        name = contract.get("name", "Predict")
-    dict_signature = contract.get("predict")
-
-    return name, dict_signature
-
-
-def _signature_dict_to_ModelSignature(data: dict) -> ModelSignature:
-    """
-    Internal method.
-    A method that makes ModelSignature out of signature dict
-    :param data:
-    :return:
-    """
-    """
-    dict to ModelSignature
+    A method that creates ModelSignature out of a signature dict.
     :param data:
     :return:
     """
@@ -244,39 +202,11 @@ def _signature_dict_to_ModelSignature(data: dict) -> ModelSignature:
 
         frmt_outputs.append(field_from_dict(field_name=field_name, field_dict=field_dict))
 
-    signature = ModelSignature(
+    return ModelSignature(
         signature_name=signature_name,
         inputs=frmt_inputs,
         outputs=frmt_outputs
     )
-
-    return signature
-
-
-def contract_dict_to_ModelContract(contract: dict) -> ModelContract:
-    """
-    Helper method that makes a ModelContract out of contract dict
-
-    :param contract:
-    :return:
-    """
-    model_name, signature_dict = _contract_dict_to_signature_dict(contract=contract)
-    modelSignature = _signature_dict_to_ModelSignature(data=signature_dict)
-    modelContract = ModelContract(model_name=model_name, predict=modelSignature)
-    return modelContract
-
-
-def signature_dict_to_ModelContract(model_name: str, signature: dict) -> ModelContract:
-    """
-    Helper method that makes a ModelContract out of signature dict
-
-    :param model_name:
-    :param signature:
-    :return:
-    """
-    modelSignature = _signature_dict_to_ModelSignature(data=signature)
-    modelContract = ModelContract(model_name=model_name, predict=modelSignature)
-    return modelContract
 
 
 def parse_field(name: str, dtype: Union[str, int, np.dtype],
@@ -425,21 +355,19 @@ class AnyDimSize(object):
             raise TypeError(f"Unexpected other argument {other}")
 
 
-def validate_contract(contract: ModelContract):
-    if not contract.HasField("predict"):
-        raise ContractViolationException("Creating model without contract.predict is not allowed")
-    if not contract.predict.signature_name:
-        raise ContractViolationException("Creating model without contract.predict.signature_name is not allowed")
-    if len(contract.predict.inputs) == 0:
-        raise ContractViolationException("Creating model without inputs is not allowed")
-    if len(contract.predict.outputs) == 0:
-        raise ContractViolationException("Creating model without outputs is not allowed")
-    for model_field in contract.predict.inputs:
+def validate_signature(signature: ModelSignature):
+    if not signature.signature_name:
+        raise SignatureViolationException("Creating model without signature_name is not allowed")
+    if len(signature.inputs) == 0:
+        raise SignatureViolationException("Creating model without inputs is not allowed")
+    if len(signature.outputs) == 0:
+        raise SignatureViolationException("Creating model without outputs is not allowed")
+    for model_field in signature.inputs:
         if model_field.dtype == 0:
-            raise ContractViolationException("Creating model with invalid dtype in contract-input is not allowed")
-    for model_field in contract.predict.outputs:
+            raise SignatureViolationException("Creating model with invalid dtype in the signature inputs is not allowed")
+    for model_field in signature.outputs:
         if model_field.dtype == 0:
-            raise ContractViolationException("Creating model with invalid dtype in contract-output is not allowed")
+            raise SignatureViolationException("Creating model with invalid dtype in the signature outputs is not allowed")
 
 
 def mock_input_data(signature: ModelSignature):
@@ -451,12 +379,7 @@ def mock_input_data(signature: ModelSignature):
     """
     input_tensors = []
     for field in signature.inputs:
-        simple_shape = []
-        if field.shape:
-            simple_shape = [x.size if x.size > 0 else 1 for x in
-                            field.shape.dim]  # TODO change -1 to random N, where N <=5
-        if len(simple_shape) == 0:
-            simple_shape = [1]
+        simple_shape = field.shape.dims or [1]
         field_shape = tuple(np.abs(simple_shape))
         size = reduce(operator.mul, field_shape)
         npdtype = proto_to_np_dtype(field.dtype)

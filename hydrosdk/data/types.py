@@ -2,7 +2,12 @@ import numbers
 from enum import Enum
 
 import numpy as np
-from hydro_serving_grpc.tf import *
+from hydro_serving_grpc.serving.contract.types_pb2 import (
+    DT_HALF, DT_FLOAT, DT_DOUBLE, DT_INT8, DT_INT16, DT_INT32, DT_INT64, DT_UINT8,
+    DT_UINT16, DT_UINT32, DT_UINT64, DT_COMPLEX64, DT_COMPLEX128, DT_BOOL, DT_STRING, 
+    DT_QINT8, DT_QINT16, DT_QINT32, DT_QUINT8, DT_QUINT16, DT_INVALID, DataType
+)
+from hydro_serving_grpc.serving.contract.tensor_pb2 import TensorShape
 
 DTYPE_TO_FIELDNAME = {
     DT_HALF: "half_val",
@@ -37,7 +42,6 @@ ALIAS_TO_DTYPE = {
     "string": DT_STRING,
     "str": DT_STRING,
     "bool": DT_BOOL,
-    "variant": DT_VARIANT,
 
     "float16": DT_HALF,
     "half": DT_HALF,
@@ -93,20 +97,13 @@ def shape_to_proto(user_shape):
         user_shape = user_shape.get("dim")
 
     if user_shape == "scalar":
-        shape = TensorShapeProto()
+        shape = TensorShape()
     elif user_shape is None:
         shape = None
     elif isinstance(user_shape, list) or isinstance(user_shape, tuple):
-        dims = []
-        for dim in user_shape:
-            if not isinstance(dim, numbers.Number):
-                if isinstance(dim, dict):
-                    dim = dim.get("size")
-                else:
-                    raise TypeError("shape_list contains incorrect dim", user_shape, dim)
-            converted = TensorShapeProto.Dim(size=dim)
-            dims.append(converted)
-        shape = TensorShapeProto(dim=dims)
+        if not all(isinstance(dim, numbers.Number) for dim in user_shape):
+            raise TypeError("shape_list contains incorrect dim", user_shape)
+        shape = TensorShape(dims=user_shape)
     else:
         raise ValueError("Invalid shape value", user_shape)
     return shape
@@ -139,7 +136,6 @@ NP_TO_HS_DTYPE = {
 }
 
 HS_TO_NP_DTYPE = dict([(v, k) for k, v in NP_TO_HS_DTYPE.items()])
-HS_TO_NP_DTYPE[DT_BFLOAT16] = None
 
 
 def proto_to_np_dtype(dt):

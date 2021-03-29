@@ -3,9 +3,11 @@ from typing import Union, Dict
 
 import numpy as np
 import pandas as pd
-from hydro_serving_grpc import PredictionServiceStub, ModelSpec, predict_pb2, PredictResponse, TensorProto
-from hydro_serving_grpc.contract import ModelSignature
-from hydro_serving_grpc.gateway import GatewayServiceStub, api_pb2
+from hydro_serving_grpc.serving.runtime.api_pb2 import PredictRequest, PredictResponse
+from hydro_serving_grpc.serving.contract.tensor_pb2 import Tensor
+from hydro_serving_grpc.serving.gateway.api_pb2 import GatewayPredictRequest
+from hydro_serving_grpc.serving.gateway.api_pb2_grpc import GatewayServiceStub
+from hydro_serving_grpc.serving.contract.signature_pb2 import ModelSignature
 
 from hydrosdk.data.conversions import convert_inputs_to_tensor_proto, tensor_proto_to_np, tensor_proto_to_py
 from hydrosdk.data.types import PredictorDT
@@ -16,44 +18,50 @@ class PredictImplementation(ABC):
     def send_data(self, inputs: dict):
         pass
 
-    @abstractmethod
-    def get_monitoring_spec_params(self, target: str):
-        pass
 
-
-class MonitorableImplementation(PredictImplementation):
+class MonitorableApplicationPredictionService(PredictImplementation):
+    """Sends data to an application and shadows it to the monitoring services."""
     def __init__(self, channel, target: str):
         """
-        Sends data to an application/servable and shadows it to monitoring services
         :param channel:
-        :param target: Name of an application/servable which will receive data
+        :param target: Name of an application, which will receive data.
         """
-        self.stub = PredictionServiceStub(channel)
-        self.send_params = self.get_monitoring_spec_params(target=target)
-
-    def send_data(self, inputs: dict):
-        model_spec = self.send_params
-        request = predict_pb2.PredictRequest(model_spec=model_spec, inputs=inputs)
-        return self.stub.Predict(request)
-
-    def get_monitoring_spec_params(self, target: str) -> ModelSpec:
-        return ModelSpec(name=target)
-
-
-class UnmonitorableImplementation(PredictImplementation):
-    """ This implementation sends data to a servable without shadowing it to monitoring services"""
-
-    def __init__(self, channel, target: str):
         self.stub = GatewayServiceStub(channel)
-        self.send_params = self.get_monitoring_spec_params(target=target)
+        self.target = target
 
-    def send_data(self, inputs: Dict[str, TensorProto]):
-        servable_name = self.send_params
-        request = api_pb2.ServablePredictRequest(servable_name=servable_name, data=inputs)
+    def send_data(self, inputs: Dict[str, Tensor]) -> PredictResponse:
+        request = GatewayPredictRequest(name=self.target, data=inputs)
+        return self.stub.PredictApplication(request)
+
+
+class MonitorableServablePredictionService(PredictImplementation):
+    """Sends data to a servable and shadows it to the monitoring services."""
+    def __init__(self, channel, target: str):
+        """
+        :param channel:
+        :param target: Name of a servable, which will receive the data.
+        """
+        self.stub = GatewayServiceStub(channel)
+        self.target = target
+
+    def send_data(self, inputs: Dict[str, Tensor]) -> PredictResponse:
+        request = GatewayPredictRequest(name=self.target, data=inputs)
+        return self.stub.PredictServable(request)
+
+
+class UnmonitorableServablePredictionService(PredictImplementation):
+    """Sends data to a servable without shadowing it to the monitoring services."""
+    def __init__(self, channel, target: str):
+        """
+        :param channel:
+        :param target: Name of a servable, which will receive the data.
+        """
+        self.stub = GatewayServiceStub(channel)
+        self.target = target
+
+    def send_data(self, inputs: Dict[str, Tensor]) -> PredictResponse:
+        request = GatewayPredictRequest(name=self.target, data=inputs)
         return self.stub.ShadowlessPredictServable(request)
-
-    def get_monitoring_spec_params(self, target: str) -> str:
-        return target
 
 
 class PredictServiceClient:

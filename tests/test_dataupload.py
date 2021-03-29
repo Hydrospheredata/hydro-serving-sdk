@@ -4,7 +4,7 @@ from io import BytesIO
 import pytest
 
 from hydrosdk.cluster import Cluster
-from hydrosdk.modelversion import ModelVersion, LocalModel
+from hydrosdk.modelversion import ModelVersion, ModelVersionBuilder
 from hydrosdk.utils import read_in_chunks
 from tests.common_fixtures import *
 from tests.config import *
@@ -29,9 +29,9 @@ def test_read_in_chunks(training_data: str):
     assert origin_content == destination_content
 
 
-def test_training_data_upload(cluster: Cluster, local_model: LocalModel, 
+def test_training_data_upload(cluster: Cluster, model_version_builder: ModelVersionBuilder, 
                               training_data: str):
-    mv: ModelVersion = local_model.upload(cluster)
+    mv: ModelVersion = model_version_builder.build(cluster)
     mv.training_data = training_data
     data_upload_response = mv.upload_training_data()
     data_upload_response.wait(sleep=5)

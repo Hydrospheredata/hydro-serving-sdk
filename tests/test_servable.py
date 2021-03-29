@@ -6,12 +6,13 @@ from hydrosdk.deployment_configuration import DeploymentConfigurationBuilder, De
 from hydrosdk.exceptions import BadRequestException
 from hydrosdk.modelversion import ModelVersion
 from tests.common_fixtures import *
+from tests.config import LOCK_TIMEOUT
 
 
 @pytest.fixture(scope="module")
-def mv(cluster: Cluster, local_model: LocalModel) -> ModelVersion:
-    mv: ModelVersion = local_model.upload(cluster)
-    mv.lock_till_released()
+def mv(cluster: Cluster, model_version_builder: ModelVersionBuilder) -> ModelVersion:
+    mv: ModelVersion = model_version_builder.build(cluster)
+    mv.lock_till_released(timeout=LOCK_TIMEOUT)
     return mv
 
 
@@ -32,7 +33,7 @@ def deployment_configuration(cluster: Cluster, deployment_configuration_name: st
 @pytest.fixture(scope="module")
 def servable(cluster: Cluster, mv: ModelVersion, deployment_configuration: DeploymentConfiguration):
     sv: Servable = Servable.create(cluster, mv.name, mv.version, deployment_configuration=deployment_configuration)
-    sv.lock_while_starting()
+    sv.lock_while_starting(timeout=LOCK_TIMEOUT)
     yield sv
     Servable.delete(cluster, sv.name)
 
@@ -52,7 +53,7 @@ def test_servable_find_by_name(cluster: Cluster, servable: Servable):
 
 def test_servable_delete(cluster: Cluster, mv: ModelVersion):
     sv: Servable = Servable.create(cluster, mv.name, mv.version)
-    sv.lock_while_starting()
+    sv.lock_while_starting(timeout=LOCK_TIMEOUT)
     Servable.delete(cluster, sv.name)
     with pytest.raises(BadRequestException):
         Servable.find_by_name(cluster, sv.name)
@@ -64,7 +65,7 @@ def test_servable_with_deployment_config(servable: Servable):
 
 def test_servable_logs_not_empty(cluster: Cluster, mv: ModelVersion):
     sv: Servable = Servable.create(cluster, mv.name, mv.version)
-    sv.lock_while_starting()
+    sv.lock_while_starting(timeout=LOCK_TIMEOUT)
     i = 0
     for _ in sv.logs():
         i += 1
@@ -76,7 +77,7 @@ def test_servable_logs_not_empty(cluster: Cluster, mv: ModelVersion):
 
 def test_servable_logs_follow_not_empty(cluster: Cluster, mv):
     sv: Servable = Servable.create(cluster, mv.name, mv.version)
-    sv.lock_while_starting()
+    sv.lock_while_starting(timeout=LOCK_TIMEOUT)
     i = 0
     timeout_messages = 3
     for event in sv.logs(follow=True):

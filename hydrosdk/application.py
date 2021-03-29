@@ -5,14 +5,14 @@ import json
 import datetime
 import sseclient
 
-from hydro_serving_grpc.contract import ModelSignature
+from hydro_serving_grpc.serving.contract.signature_pb2 import ModelSignature
 
 from hydrosdk.cluster import Cluster
-from hydrosdk.contract import _signature_dict_to_ModelSignature
+from hydrosdk.signature import signature_dict_to_ModelSignature
 from hydrosdk.data.types import PredictorDT
 from hydrosdk.deployment_configuration import DeploymentConfiguration
 from hydrosdk.modelversion import ModelVersion
-from hydrosdk.predictor import PredictServiceClient, MonitorableImplementation
+from hydrosdk.predictor import PredictServiceClient, MonitorableApplicationPredictionService
 from hydrosdk.utils import handle_request_error
 from hydrosdk.exceptions import TimeoutException
 
@@ -106,37 +106,31 @@ class Application:
         :param application_json: input json with application object fields
         :return: application object
         """
-        app_id = application_json.get("id")
-        app_name = application_json.get("name")
-        app_execution_graph = ExecutionGraph._from_json(cluster, application_json.get("executionGraph"))
-        app_kafka_streaming = [StreamingParams(kafka_param["in-topic"], kafka_param["out-topic"])
+        id_ = application_json.get("id")
+        name = application_json.get("name")
+        execution_graph = ExecutionGraph._from_json(cluster, application_json.get("executionGraph"))
+        kafka_streaming = [StreamingParams(kafka_param["in-topic"], kafka_param["out-topic"])
                                for kafka_param in application_json.get("kafkaStreaming")]
-        app_metadata = application_json.get("metadata")
-        app_signature = _signature_dict_to_ModelSignature(data=application_json.get("signature"))
-        app_status = ApplicationStatus[application_json.get("status").upper()]
+        metadata = application_json.get("metadata")
+        signature = signature_dict_to_ModelSignature(data=application_json.get("signature"))
+        status = ApplicationStatus[application_json.get("status").upper()]
 
         app = Application(cluster=cluster,
-                          id=app_id,
-                          name=app_name,
-                          execution_graph=app_execution_graph,
-                          status=app_status,
-                          signature=app_signature,
-                          kafka_streaming=app_kafka_streaming,
-                          metadata=app_metadata)
+                          id=id_,
+                          name=name,
+                          execution_graph=execution_graph,
+                          status=status,
+                          signature=signature,
+                          kafka_streaming=kafka_streaming,
+                          metadata=metadata)
         return app
 
-    def update_status(self):
-        """
-        Poll a cluster for a new Application status.
-        """
-        self.status = self.find(self.cluster, self.name).status
-    
     def lock_while_starting(self, timeout: int = 120) -> 'Application':
         """ Wait for an application to become ready. """
         events_stream = self.cluster.request("GET", "/api/v2/events", stream=True)
         events_client = sseclient.SSEClient(events_stream)
 
-        self.update_status()
+        self.status = self.find(self.cluster, self.name).status
         if self.status is ApplicationStatus.READY: 
             return self
         if self.status is ApplicationStatus.FAILED:
@@ -166,7 +160,7 @@ class Application:
                             Numpy dtypes, Python dtypes or pd.DataFrame are supported.
         :return: PredictServiceClient with .predict() method which accepts your data
         """
-        impl = MonitorableImplementation(channel=self.cluster.channel, target=self.name)
+        impl = MonitorableApplicationPredictionService(channel=self.cluster.channel, target=self.name)
         return PredictServiceClient(impl=impl, signature=self.signature, return_type=return_type)
 
     def to_dict(self):
@@ -346,7 +340,7 @@ class ExecutionStage:
 
     @staticmethod
     def _from_json(cluster: Cluster, execution_stage_dict: Dict) -> 'ExecutionStage':
-        execution_stage_signature = _signature_dict_to_ModelSignature(execution_stage_dict['signature'])
+        execution_stage_signature = signature_dict_to_ModelSignature(execution_stage_dict['signature'])
         model_variants = [ModelVariant(ModelVersion._from_json(cluster, mv['modelVersion']),
                                        mv['weight'],
                                        DeploymentConfiguration.from_camel_case_dict(mv.get('deploymentConfiguration')))
@@ -363,7 +357,7 @@ class ExecutionStageBuilder:
 
     @property
     def __common_signature(self):
-        return self.model_variants[0].modelVersion.contract.predict
+        return self.model_variants[0].modelVersion.signature
 
     def __validate(self):
         """
@@ -372,7 +366,7 @@ class ExecutionStageBuilder:
         if len(self.model_variants) == 0:
             raise ValueError("At least one model variant should be specified.")
 
-        model_variant_signatures = [mv.modelVersion.contract.predict for mv in self.model_variants]
+        model_variant_signatures = [mv.modelVersion.signature for mv in self.model_variants]
         if not all(self.__common_signature == mv_signature for mv_signature in model_variant_signatures):
             raise ValueError("All model variants inside the same stage must have the same signature")
 

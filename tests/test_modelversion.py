@@ -2,15 +2,16 @@ import os
 import random
 
 import pytest
-from hydro_serving_grpc import TensorShapeProto, DataType
+from hydro_serving_grpc.serving.contract.tensor_pb2 import TensorShape
+from hydro_serving_grpc.serving.contract.types_pb2 import DataType
 
 from hydrosdk.cluster import Cluster
-from hydrosdk.contract import ModelContract, ModelField, ModelSignature, SignatureBuilder
+from hydrosdk.signature import ModelField, ModelSignature, SignatureBuilder
 from hydrosdk.image import DockerImage
-from hydrosdk.modelversion import ModelVersion, ModelVersionStatus, LocalModel, \
+from hydrosdk.modelversion import ModelVersion, ModelVersionStatus, ModelVersionBuilder, \
     MonitoringConfiguration, resolve_paths
 from hydrosdk.monitoring import ThresholdCmpOp
-from hydrosdk.exceptions import ContractViolationException
+from hydrosdk.exceptions import SignatureViolationException
 from tests.common_fixtures import *
 from tests.config import *
 
@@ -30,7 +31,7 @@ def test_resolve_paths():
 
 def test_model_create_programmatically():
     name = DEFAULT_MODEL_NAME
-    runtime = DockerImage(DEFAULT_RUNTIME_IMAGE, DEFAULT_RUNTIME_TAG, None)
+    runtime = DockerImage.from_string(DEFAULT_RUNTIME_REFERENCE)
     path = "/home/user/folder/model/cool/"
     payload = [
         './src/func_main.py',
@@ -41,145 +42,128 @@ def test_model_create_programmatically():
     signature = SignatureBuilder('infer') \
         .with_input('in1', 'double', [-1, 2], ProfilingType.NUMERICAL) \
         .with_output('out1', 'double', [-1], ProfilingType.NUMERICAL).build()
-    contract = ModelContract(predict=signature)
     monitoring_configuration = MonitoringConfiguration(batch_size=10)
     metadata = {"key": "value"}
     install_command = "pip install -r requirements.txt"
     training_data = "s3://bucket/path/to/training-data"
-    local_model = LocalModel(name, runtime, path, payload, contract, metadata, 
-                             install_command, training_data, monitoring_configuration)
-    assert local_model.name == name
-    assert local_model.runtime == runtime
-    assert local_model.path == path
-    assert list(local_model.payload.values()) == payload
-    assert local_model.contract == contract
-    assert local_model.monitoring_configuration == monitoring_configuration
+    model_version_builder = ModelVersionBuilder(name, path) \
+        .with_runtime(runtime) \
+        .with_payload(payload) \
+        .with_signature(signature) \
+        .with_metadata(metadata) \
+        .with_install_command(install_command) \
+        .with_training_data(training_data) \
+        .with_monitoring_configuration(monitoring_configuration)
+    assert model_version_builder.name == name
+    assert model_version_builder.runtime == runtime
+    assert model_version_builder.path == path
+    assert list(model_version_builder.payload.values()) == payload
+    assert model_version_builder.signature == signature
+    assert model_version_builder.monitoring_configuration == monitoring_configuration
 
 
-def test_model_create_contract_validation():
+def test_model_create_signature_validation():
     name = DEFAULT_MODEL_NAME
-    runtime = DockerImage(DEFAULT_RUNTIME_IMAGE, DEFAULT_RUNTIME_TAG, None)
     path = "/home/user/folder/model/cool/"
-    payload = [
-        './src/func_main.py',
-        './requirements.txt',
-        './data/*',
-        './model/snapshot.proto'
-    ]
     signature = SignatureBuilder('infer').build()
-    contract = ModelContract(predict=signature)
-    metadata = {"key": "value"}
-    install_command = "pip install -r requirements.txt"
-    training_data = "s3://bucket/path/to/training-data"
-    with pytest.raises(ContractViolationException):
-        local_model = LocalModel(name, runtime, path, payload, contract, metadata, 
-                                install_command, training_data)
+    with pytest.raises(SignatureViolationException):
+        _ = ModelVersionBuilder(name, path).with_signature(signature)
 
 
-def test_local_model_upload(cluster: Cluster):
+def test_model_version_builder_build(cluster: Cluster):
     name = DEFAULT_MODEL_NAME
-    payload = ['./src/func_main.py']
     current_dir = os.path.dirname(os.path.abspath(__file__))
     model_path = os.path.join(current_dir, 'resources/identity_model/')
-    runtime = DockerImage(DEFAULT_RUNTIME_IMAGE, DEFAULT_RUNTIME_TAG, None)
     signature = SignatureBuilder('infer') \
         .with_input('in1', 'double', [-1, 2], ProfilingType.NONE) \
         .with_output('out1', 'double', [-1], ProfilingType.NONE).build()
-    contract = ModelContract(predict=signature)
     batch_size = 10
-    monitoring_configuration = MonitoringConfiguration(batch_size=batch_size)
-    metadata = {"key": "value"}
-    local_model = LocalModel(name, runtime, model_path, payload, contract, 
-        metadata, monitoring_configuration=monitoring_configuration)
-    mv: ModelVersion = local_model.upload(cluster)
+    model_version_builder = ModelVersionBuilder(name, model_path) \
+        .with_runtime(DockerImage.from_string(DEFAULT_RUNTIME_REFERENCE)) \
+        .with_payload(['./src/func_main.py']) \
+        .with_signature(signature) \
+        .with_metadata({"key": "value"}) \
+        .with_monitoring_configuration(MonitoringConfiguration(batch_size=batch_size))
+    mv: ModelVersion = model_version_builder.build(cluster)
     assert mv.status is ModelVersionStatus.Assembling
-    mv.lock_till_released()
+    mv.lock_till_released(timeout=LOCK_TIMEOUT)
     assert mv.status is ModelVersionStatus.Released
     assert mv.monitoring_configuration.batch_size == batch_size
 
 
-def test_modelversion_find_by_id(cluster: Cluster, local_model: LocalModel):
-    mv: ModelVersion = local_model.upload(cluster)
+def test_modelversion_find_by_id(cluster: Cluster, model_version_builder: ModelVersionBuilder):
+    mv: ModelVersion = model_version_builder.build(cluster)
     mv_found: ModelVersion = ModelVersion.find_by_id(cluster, mv.id)
     assert mv.id == mv_found.id
 
 
-def test_modelversion_find(cluster: Cluster, local_model: LocalModel):
-    mv: ModelVersion = local_model.upload(cluster)
+def test_modelversion_find(cluster: Cluster, model_version_builder: ModelVersionBuilder):
+    mv: ModelVersion = model_version_builder.build(cluster)
     mv_found: ModelVersion = ModelVersion.find(cluster, mv.name, mv.version)
     assert mv.id == mv_found.id
 
 
 def test_lock_till_released_failed(cluster: Cluster, runtime: DockerImage, 
-                                   payload: list, contract: ModelContract):
+                                   payload: list, signature: ModelSignature):
     current_dir = os.path.dirname(os.path.abspath(__file__))
     model_path = os.path.join(current_dir, 'resources/identity_model/')
-    local_model = LocalModel(
-        DEFAULT_MODEL_NAME, runtime, model_path, payload, contract, install_command="exit 1")
-    mv: ModelVersion = local_model.upload(cluster)
+    model_version_builder = ModelVersionBuilder(DEFAULT_MODEL_NAME, model_path) \
+        .with_runtime(runtime) \
+        .with_payload(payload) \
+        .with_signature(signature) \
+        .with_install_command("exit 1")
+    mv: ModelVersion = model_version_builder.build(cluster)
     with pytest.raises(ModelVersion.ReleaseFailed):
-        mv.lock_till_released()
+        mv.lock_till_released(timeout=LOCK_TIMEOUT)
         
 
-def test_build_logs_not_empty(cluster: Cluster, local_model: LocalModel):
-    mv: ModelVersion = local_model.upload(cluster)
-    mv.lock_till_released()
+def test_build_logs_not_empty(cluster: Cluster, model_version_builder: ModelVersionBuilder):
+    mv: ModelVersion = model_version_builder.build(cluster)
+    mv.lock_till_released(timeout=LOCK_TIMEOUT)
     i = 0
     for _ in mv.build_logs():
         i += 1
     assert i > 0
 
 
-def test_modelversion_list(cluster: Cluster, local_model: LocalModel):
-    mv: ModelVersion = local_model.upload(cluster)
+def test_modelversion_list(cluster: Cluster, model_version_builder: ModelVersionBuilder):
+    mv: ModelVersion = model_version_builder.build(cluster)
     assert mv.id in [modelversion.id for modelversion in ModelVersion.list(cluster)]
 
     
 def test_ModelField_dt_invalid_input():
     name = DEFAULT_MODEL_NAME
-    runtime = DockerImage(DEFAULT_RUNTIME_IMAGE, DEFAULT_RUNTIME_TAG, None)
     path = "/home/user/folder/model/cool/"
-    payload = []
-    signature = ModelSignature(signature_name="test", inputs=[ModelField(name="test", shape=TensorShapeProto())],
-                               outputs=[ModelField(name="test", dtype=DataType.Name(2), shape=TensorShapeProto())])
-    contract = ModelContract(predict=signature)
-    with pytest.raises(ContractViolationException, match=r"Creating model with invalid dtype in contract-input.*"):
-        LocalModel(name, runtime, path, payload, contract)
+    signature = ModelSignature(
+        signature_name="test", 
+        inputs=[ModelField(name="input", shape=TensorShape())],
+        outputs=[ModelField(name="output", shape=TensorShape(), dtype=DataType.Name(2))]
+    )
+    with pytest.raises(SignatureViolationException, match=r"Creating model with invalid dtype in the signature input.*"):
+        _ = ModelVersionBuilder(name, path).with_signature(signature)
 
 
 def test_ModelField_dt_invalid_output():
     name = DEFAULT_MODEL_NAME
-    runtime = DockerImage(DEFAULT_RUNTIME_IMAGE, DEFAULT_RUNTIME_TAG, None)
     path = "/home/user/folder/model/cool/"
-    payload = []
-    signature = ModelSignature(signature_name="test",
-                               inputs=[ModelField(name="test", dtype=DataType.Name(2), shape=TensorShapeProto())],
-                               outputs=[ModelField(name="test", shape=TensorShapeProto())])
-    contract = ModelContract(predict=signature)
-    with pytest.raises(ContractViolationException, match=r"Creating model with invalid dtype in contract-output.*"):
-        LocalModel(name, runtime, path, payload, contract)
-
-
-def test_ModelField_contract_predict_None():
-    name = DEFAULT_MODEL_NAME
-    runtime = DockerImage(DEFAULT_RUNTIME_IMAGE, DEFAULT_RUNTIME_TAG, None)
-    path = "/home/user/folder/model/cool/"
-    payload = []
-    contract = ModelContract(predict=None)
-    with pytest.raises(ContractViolationException, match=r"Creating model without contract.predict is not allowed.*"):
-        LocalModel(name, runtime, path, payload, contract)
+    signature = ModelSignature(
+        signature_name="test",
+        inputs=[ModelField(name="test", dtype=DataType.Name(2), shape=TensorShape())],
+        outputs=[ModelField(name="test", shape=TensorShape())]
+    )
+    with pytest.raises(SignatureViolationException, match=r"Creating model with invalid dtype in the signature output.*"):
+        _ = ModelVersionBuilder(name, path).with_signature(signature)
 
 
 def test_ModelField_contact_signature_name_none():
     name = DEFAULT_MODEL_NAME
-    runtime = DockerImage(DEFAULT_RUNTIME_IMAGE, DEFAULT_RUNTIME_TAG, None)
     path = "/home/user/folder/model/cool/"
-    payload = []
-    signature = ModelSignature(inputs=[ModelField(name="test", dtype=DataType.Name(2), shape=TensorShapeProto())],
-                               outputs=[ModelField(name="test", dtype=DataType.Name(2), shape=TensorShapeProto())])
-    contract = ModelContract(predict=signature)
-    with pytest.raises(ContractViolationException, match=r"Creating model without contract.predict.signature_name is not allowed.*"):
-        LocalModel(name, runtime, path, payload, contract)
+    signature = ModelSignature(
+        inputs=[ModelField(name="test", dtype=DataType.Name(2), shape=TensorShape())],
+        outputs=[ModelField(name="test", dtype=DataType.Name(2), shape=TensorShape())]
+    )
+    with pytest.raises(SignatureViolationException, match=r"Creating model without signature_name is not allowed.*"):
+        _ = ModelVersionBuilder(name, path).with_signature(signature)
 
 
 def test_model_json_parser_for_internal_models(cluster: Cluster, modelversion_json: dict):
@@ -195,17 +179,20 @@ def test_model_json_parser_for_external_models(cluster: Cluster, external_modelv
 
 
 def test_list_models_by_model_name(cluster: Cluster, runtime: DockerImage, 
-                                   payload: list, contract: ModelContract):
-    def create_local_model(name: str):
+                                   payload: list, signature: ModelSignature):
+    def create_model_version_builder(name: str):
         current_dir = os.path.dirname(os.path.abspath(__file__))
         model_path = os.path.join(current_dir, 'resources/identity_model/')
-        return LocalModel(name, runtime, model_path, payload, contract)
+        return ModelVersionBuilder(name, model_path) \
+            .with_runtime(runtime) \
+            .with_payload(payload) \
+            .with_signature(signature)
 
     name1 = f"{DEFAULT_MODEL_NAME}-one-{random.randint(0, 1e5)}"
     name2 = f"{DEFAULT_MODEL_NAME}-two-{random.randint(0, 1e5)}"
-    mv1: ModelVersion = create_local_model(name1).upload(cluster)
-    mv2: ModelVersion = create_local_model(name1).upload(cluster)
-    mv3: ModelVersion = create_local_model(name2).upload(cluster)
+    mv1: ModelVersion = create_model_version_builder(name1).build(cluster)
+    mv2: ModelVersion = create_model_version_builder(name1).build(cluster)
+    _ = create_model_version_builder(name2).build(cluster)
     
     mvs = ModelVersion.find_by_model_name(cluster, name1)
     assert len(mvs) == 2

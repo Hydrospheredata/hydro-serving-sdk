@@ -1,22 +1,23 @@
 import pytest
 
 from hydrosdk.cluster import Cluster
-from hydrosdk.modelversion import ModelVersion, LocalModel
+from hydrosdk.modelversion import ModelVersion, ModelVersionBuilder
 from hydrosdk.monitoring import MetricSpec, MetricSpecConfig, ThresholdCmpOp
 from tests.common_fixtures import *
+from tests.config import LOCK_TIMEOUT
 
 
 @pytest.fixture(scope="module")
-def root_mv(cluster: Cluster, local_model: LocalModel):
-    mv: ModelVersion = local_model.upload(cluster)
-    mv.lock_till_released()
+def root_mv(cluster: Cluster, model_version_builder: ModelVersionBuilder):
+    mv: ModelVersion = model_version_builder.build(cluster)
+    mv.lock_till_released(timeout=LOCK_TIMEOUT)
     return mv
 
 
 @pytest.fixture(scope="module")
-def monitoring_mv(cluster: Cluster, local_model: LocalModel):
-    mv: ModelVersion = local_model.upload(cluster)
-    mv.lock_till_released()
+def monitoring_mv(cluster: Cluster, model_version_builder: ModelVersionBuilder):
+    mv: ModelVersion = model_version_builder.build(cluster)
+    mv.lock_till_released(timeout=LOCK_TIMEOUT)
     return mv
 
 
@@ -31,9 +32,9 @@ def test_create_low_level(cluster: Cluster, root_mv: ModelVersion, monitoring_mv
         MetricSpec.delete(cluster, ms.id)
 
 
-def test_create_high_level(cluster: Cluster, local_model: LocalModel, monitoring_mv: ModelVersion):
-    root_mv: ModelVersion = local_model.upload(cluster)
-    root_mv.lock_till_released()
+def test_create_high_level(cluster: Cluster, model_version_builder: ModelVersionBuilder, monitoring_mv: ModelVersion):
+    root_mv: ModelVersion = model_version_builder.build(cluster)
+    root_mv.lock_till_released(timeout=LOCK_TIMEOUT)
     
     metric = monitoring_mv.as_metric(10, ThresholdCmpOp.NOT_EQ)
     root_mv.assign_metrics([metric])
@@ -52,8 +53,8 @@ def test_list(cluster: Cluster, root_mv: ModelVersion, monitoring_mv: ModelVersi
         MetricSpec.delete(cluster, ms.id)
 
 
-def test_list_for_modelversion(cluster: Cluster, local_model: LocalModel, monitoring_mv: ModelVersion):
-    new_root_mv: ModelVersion = local_model.upload(cluster)
+def test_list_for_modelversion(cluster: Cluster, model_version_builder: ModelVersionBuilder, monitoring_mv: ModelVersion):
+    new_root_mv: ModelVersion = model_version_builder.build(cluster)
     ms_config = MetricSpecConfig(monitoring_mv.id, 10, ThresholdCmpOp.NOT_EQ)
     ms1 = MetricSpec.create(cluster, "test_list_for_modelversion", new_root_mv.id, ms_config)
     ms2 = MetricSpec.create(cluster, "test_list_for_modelversion", new_root_mv.id, ms_config)
@@ -67,8 +68,8 @@ def test_list_for_modelversion(cluster: Cluster, local_model: LocalModel, monito
         MetricSpec.delete(cluster, ms2.id)
     
 
-def test_delete(cluster: Cluster, local_model: LocalModel, monitoring_mv: ModelVersion):
-    new_root_mv: ModelVersion = local_model.upload(cluster)
+def test_delete(cluster: Cluster, model_version_builder: ModelVersionBuilder, monitoring_mv: ModelVersion):
+    new_root_mv: ModelVersion = model_version_builder.build(cluster)
     ms_config = MetricSpecConfig(monitoring_mv.id, 10, ThresholdCmpOp.NOT_EQ)
     ms1 = MetricSpec.create(cluster, "test_list_for_modelversion", new_root_mv.id, ms_config)
     ms2 = MetricSpec.create(cluster, "test_list_for_modelversion", new_root_mv.id, ms_config)

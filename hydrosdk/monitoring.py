@@ -37,7 +37,7 @@ class MetricSpecConfig:
     def __init__(self, modelversion_id: int, threshold: Union[int, float],
                  threshold_op: ThresholdCmpOp, servable=None) -> 'MetricSpecConfig':
         """
-        Create MetricSpecConfig for specified ModelVersion.
+        Create a MetricSpecConfig for the specified ModelVersion.
 
         :param modelversion_id: an id of the ModelVersion, which will be used as a monitoring metric
         :param threshold: a threshold for the metric
@@ -114,7 +114,7 @@ class MetricSpec:
         :param cluster: active cluster
         :param name: name of the metric
         :param modelversion_id: ModelVersion for which to create a MetricSpec
-        :param config: config, describing MetricSpec
+        :param config: MetricSpecConfig, describing MetricSpec
         :return: metricSpec
         """
         metric_spec_json = {

@@ -4,6 +4,7 @@ from typing import List, Dict
 
 from hydrosdk.cluster import Cluster
 from hydrosdk.utils import handle_request_error, enable_camel_case
+from hydrosdk.builder import AbstractBuilder
 
 
 @enable_camel_case
@@ -291,7 +292,7 @@ class DeploymentConfiguration:
         return f"Deployment Configuration (name={self.name})"
 
     @staticmethod
-    def list(cluster: Cluster):
+    def list(cluster: Cluster) -> List['DeploymentConfiguration']:
         """
         List all deployment configurations
 
@@ -303,7 +304,7 @@ class DeploymentConfiguration:
         return [DeploymentConfiguration.from_camel_case_dict(app_json) for app_json in resp.json()]
 
     @staticmethod
-    def find(cluster, name):
+    def find(cluster: Cluster, name: str) -> 'DeploymentConfiguration':
         """
         Search a deployment configuration by name
 
@@ -316,18 +317,23 @@ class DeploymentConfiguration:
         return DeploymentConfiguration.from_camel_case_dict(resp.json())
 
     @staticmethod
-    def delete(cluster, name):
+    def delete(cluster: Cluster, name: str) -> dict:
         """
         Delete deployment configuration from Hydrosphere cluster
 
         :param cluster: Active Cluster
         :param name: Deployment configuration name
+        :return: json response from the server
         """
         resp = cluster.request("DELETE", f"{DeploymentConfiguration._BASE_URL}/{name}")
         handle_request_error(resp, f"Failed to delete Deployment Configuration named {name}: {resp.status_code} {resp.text}")
+        return resp
+    
+    def to_dict(self):
+        return self.to_camel_case_dict()
 
 
-class DeploymentConfigurationBuilder:
+class DeploymentConfigurationBuilder(AbstractBuilder):
     """
     DeploymentConfigBuilder is used to create a new DeploymentConfiguration.
 
@@ -348,16 +354,13 @@ class DeploymentConfigurationBuilder:
                     build(cluster)
     """
 
-    def __init__(self, cluster: Cluster, name: str) -> "DeploymentConfigurationBuilder":
+    def __init__(self, name: str) -> "DeploymentConfigurationBuilder":
         """
         Create new Deployment Config Builder
 
         :param name: Name of created deployment  configuration
-        :param cluster: Cluster where new deployment configuration should be created
         """
         self.name = name
-        self.cluster = cluster
-
         self.hpa = None
         self.pod_spec = None
         self.container_spec = None
@@ -365,7 +368,7 @@ class DeploymentConfigurationBuilder:
 
     def with_hpa(self, max_replicas, min_replicas=1, target_cpu_utilization_percentage=None) -> 'DeploymentConfigurationBuilder':
         """
-        Adds a HorizontalPodAutoScaler specs to a DeploymentConfiguration
+        Adds a HorizontalPodAutoScaler specs to a DeploymentConfiguration.
 
         :param min_replicas: min_replicas is the lower limit for the number of replicas to which the autoscaler can scale down.
                              It defaults to 1 pod. minReplicas is allowed to be 0 if the alpha feature gate HPAScaleToZero
@@ -376,7 +379,7 @@ class DeploymentConfigurationBuilder:
          over all the pods; if not specified the default autoscaling policy will be used.
         """
         if self.hpa is not None:
-            raise ValueError("HPA already set")
+            raise ValueError("HorizontalPodAutoScalerSpec is already set")
         if max_replicas < min_replicas:
             raise ValueError(f"max_replicas ({max_replicas}) cannot be smaller than min_replicas ({min_replicas}).")
         self.hpa = HorizontalPodAutoScalerSpec(min_replicas, max_replicas, target_cpu_utilization_percentage)
@@ -433,7 +436,7 @@ class DeploymentConfigurationBuilder:
             self.container_spec.resources = new_resource_requirements
         return self
 
-    def with_env(self, env: Dict[str, str]) -> 'DeploymentConfiguration':
+    def with_env(self, env: Dict[str, str]) -> 'DeploymentConfigurationBuilder':
         """
         Specify env for the container.
 
@@ -493,19 +496,64 @@ class DeploymentConfigurationBuilder:
         else:
             self.deployment_spec.replica_count = replica_count
         return self
+    
+    def _with_hpa_spec(self, hpa: HorizontalPodAutoScalerSpec) -> 'DeploymentConfigurationBuilder':
+        """
+        Add a HorizontalPodAutoScalerSpec.
+        """
+        if not isinstance(hpa, HorizontalPodAutoScalerSpec):
+            raise ValueError("hpa should be of type HorizontalPodAutoScalerSpec")
+        if self.hpa is not None:
+            raise ValueError("HorizontalPodAutoScalerSpec is already set")
+        self.hpa = hpa
+        return self
+    
+    def _with_deployment_spec(self, deployment: DeploymentSpec) -> 'DeploymentConfigurationBuilder':
+        """
+        Add a DeploymentSpec.
+        """
+        if not isinstance(deployment, DeploymentSpec):
+            raise ValueError("deployment should be of type HorizontalPodAutoScalerSpec")
+        if self.deployment_spec is not None:
+            raise ValueError("DeploymentSpec is already set")
+        self.deployment_spec = deployment
+        return self
 
-    def build(self) -> DeploymentConfiguration:
+    def _with_container_spec(self, container: ContainerSpec) -> 'DeploymentConfigurationBuilder':
+        """
+        Add a ContainerSpec.
+        """
+        if not isinstance(container, ContainerSpec):
+            raise ValueError("container should be of type ContainerSpec")
+        if self.container_spec is not None:
+            raise ValueError("ContainerSpec is already set")
+        self.container_spec = container
+        return self
+    
+    def _with_pod_spec(self, pod: PodSpec) -> 'DeploymentConfigurationBuilder':
+        """
+        Add a PodSpec.
+        """
+        if not isinstance(pod, PodSpec):
+            raise ValueError("pod should be of type PodSpec")
+        if self.pod_spec is not None:
+            raise ValueError("PodSpec is already set")
+        self.pod_spec = pod
+        return self
+    
+    def build(self, cluster: Cluster) -> DeploymentConfiguration:
         """
         Create the Deployment Configuration in your Hydrosphere cluster.
 
         :return: Deployment Configuration object from the Hydrosphere cluster
         """
-        new_deployment_config = DeploymentConfiguration(name=self.name,
-                                                        hpa=self.hpa,
-                                                        pod=self.pod_spec,
-                                                        container=self.container_spec,
-                                                        deployment=self.deployment_spec)
-
-        resp = self.cluster.request("POST", DeploymentConfiguration._BASE_URL, json=new_deployment_config.to_camel_case_dict())
+        config = DeploymentConfiguration(
+            name=self.name,
+            hpa=self.hpa,
+            pod=self.pod_spec,
+            container=self.container_spec,
+            deployment=self.deployment_spec
+        )
+        resp = cluster.request("POST", DeploymentConfiguration._BASE_URL, json=config.to_camel_case_dict())
         handle_request_error(resp, f"Failed to upload new Deployment Configuration. {resp.status_code} {resp.text}")
         return DeploymentConfiguration.from_camel_case_dict(resp.json())
