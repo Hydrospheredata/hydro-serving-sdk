@@ -23,6 +23,7 @@ from hydrosdk.image import DockerImage
 from hydrosdk.monitoring import MetricSpec, MetricSpecConfig, MetricModel, ThresholdCmpOp
 from hydrosdk.exceptions import HydrosphereException, TimeoutException, BadResponseException, BadRequestException
 from hydrosdk.utils import handle_request_error, read_in_chunks
+from hydrosdk.builder import AbstractBuilder
 
 
 def _upload_training_data(cluster: Cluster, modelversion_id: int, path: str) -> 'DataUploadResponse':
@@ -92,7 +93,7 @@ class MonitoringConfiguration:
         }
     
 
-class ModelVersionBuilder:
+class ModelVersionBuilder(AbstractBuilder):
     """
     A local instance of the model yet to be uploaded to the cluster.
     (https://hydrosphere.io/serving-docs/latest/overview/concepts.html#models)
@@ -287,6 +288,8 @@ class ModelVersionBuilder:
         :param cluster: active cluster
         :return: ModelVersion object
         """
+        if self.signature is None:
+            raise ValueError("signature is not specified for the model")
         model = {
             "name": self.name,
             "signature": ModelSignature_to_signature_dict(self.signature),
