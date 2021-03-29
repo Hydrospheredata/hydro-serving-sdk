@@ -1,17 +1,17 @@
 config = {
     "runtime": 
         {
-            "image": "hydrosphere/serving-runtime-python-3.6",
+            "image": "hydrosphere/serving-runtime-python-3.7",
             "tag": "2.4.0"
         },
     "http_cluster":
         {  
-            "url": "http://localhost:80"
+            "url": "https://hydro-serving.dev.hydrosphere.io:443"
         },
     "grpc_cluster":
         {
-            "url": "localhost:9090",
-            "ssl": False
+            "url": "hydro-grpc.dev.hydrosphere.io:443",
+            "ssl": True
         },
     "test_model":
         {
