@@ -213,9 +213,9 @@ class ApplicationBuilder:
                     .with_model_variant(mv1, 50) \
                     .with_model_variant(mv2, 50) \ 
                     .build()
-    >>> app = ApplicationBuilder(cluster, "my-application-ab-test") \
+    >>> app = ApplicationBuilder("my-application-ab-test") \
                 .with_stage(stage) \
-                .build()
+                .build(cluster)
     """
 
     def __init__(self, name: str) -> 'ApplicationBuilder':

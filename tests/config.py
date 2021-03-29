@@ -6,12 +6,12 @@ config = {
         },
     "http_cluster":
         {  
-            "url": "https://hydro-serving.dev.hydrosphere.io:443"
+            "url": "http://localhost",
         },
     "grpc_cluster":
         {
-            "url": "hydro-grpc.dev.hydrosphere.io:443",
-            "ssl": True
+            "url": "localhost:9090",
+            "ssl": False
         },
     "lock_timeout": 120,
     "default_application_name": "infer",

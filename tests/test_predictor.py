@@ -25,8 +25,8 @@ def app_tensor(cluster: Cluster, tensor_model_version_builder: ModelVersionBuild
     mv: ModelVersion = tensor_model_version_builder.build(cluster)
     mv.lock_till_released(timeout=LOCK_TIMEOUT)
     stage = ExecutionStageBuilder().with_model_variant(mv, 100).build()
-    app = ApplicationBuilder(cluster, f"{DEFAULT_APP_NAME}-{random.randint(0, 1e5)}") \
-        .with_stage(stage).build()
+    app = ApplicationBuilder(f"{DEFAULT_APP_NAME}-{random.randint(0, 1e5)}") \
+        .with_stage(stage).build(cluster)
     app.lock_while_starting(timeout=LOCK_TIMEOUT)
     time.sleep(5)
     yield app
@@ -42,8 +42,8 @@ def app_scalar(cluster: Cluster, model_version_builder: ModelVersionBuilder, tra
     data_upload_response.wait(sleep=5)
     mv.lock_till_released(timeout=LOCK_TIMEOUT)
     stage = ExecutionStageBuilder().with_model_variant(mv, 100).build()
-    app: Application = ApplicationBuilder(cluster, f"{DEFAULT_APP_NAME}-{random.randint(0, 1e5)}") \
-        .with_stage(stage).build()
+    app: Application = ApplicationBuilder(f"{DEFAULT_APP_NAME}-{random.randint(0, 1e5)}") \
+        .with_stage(stage).build(cluster)
     app.lock_while_starting(timeout=LOCK_TIMEOUT)
     time.sleep(5)
     yield app
