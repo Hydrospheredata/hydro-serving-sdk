@@ -170,7 +170,7 @@ def test_deployment_configuration_builder(cluster: Cluster, deployment_config_js
         node_affinity=node_affinity
     )
 
-    builder = DeploymentConfigurationBuilder(cluster, deployment_configuration_name)
+    builder = DeploymentConfigurationBuilder(deployment_configuration_name)
     builder \
         .with_hpa(max_replicas=10, min_replicas=2, target_cpu_utilization_percentage=80) \
         .with_pod_node_selector({"key": "value", "foo": "bar"}) \
@@ -181,7 +181,7 @@ def test_deployment_configuration_builder(cluster: Cluster, deployment_config_js
         .with_toleration(effect="PreferNoSchedule", key="equalToleration", toleration_seconds=30, operator="Exists") \
         .with_affinity(affinity)
 
-    new_config = builder.build()
+    new_config = builder.build(cluster)
     camel_case_config = new_config.to_camel_case_dict()
     deployment_config_json["name"] = deployment_configuration_name
 
@@ -192,8 +192,8 @@ def test_deployment_configuration_builder(cluster: Cluster, deployment_config_js
 
 def test_with_cluster(cluster: Cluster, deployment_configuration_name: str):
 
-    builder = DeploymentConfigurationBuilder(cluster, deployment_configuration_name)
-    deployment_config = builder.with_hpa(max_replicas=4).with_replicas(replica_count=2).build()
+    builder = DeploymentConfigurationBuilder(deployment_configuration_name)
+    deployment_config = builder.with_hpa(max_replicas=4).with_replicas(replica_count=2).build(cluster)
 
     assert deployment_config.name == deployment_configuration_name
     assert deployment_config.hpa.max_replicas == 4

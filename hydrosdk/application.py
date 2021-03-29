@@ -169,6 +169,13 @@ class Application:
         impl = MonitorableImplementation(channel=self.cluster.channel, target=self.name)
         return PredictServiceClient(impl=impl, signature=self.signature, return_type=return_type)
 
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "metadata": self.metadata,
+        }
+    
     def __init__(self, cluster: Cluster, id: int, name: str, execution_graph: 'ExecutionGraph',
                  status: ApplicationStatus, signature: ModelSignature,
                  kafka_streaming: List[StreamingParams],
@@ -217,12 +224,11 @@ class ApplicationBuilder:
                 .build()
     """
 
-    def __init__(self, cluster: Cluster, name: str) -> 'ApplicationBuilder':
+    def __init__(self, name: str) -> 'ApplicationBuilder':
         """
         :param cluster: Hydrosphere cluster where you want to create an Application
         :param name: Future Application name
         """
-        self.cluster = cluster
         self.name = name
         self.stages = []
         self.metadata = {}
@@ -271,7 +277,7 @@ class ApplicationBuilder:
         self.streaming_parameters.append(params)
         return self
 
-    def build(self) -> Application:
+    def build(self, cluster: Cluster) -> Application:
         """
         Create an Application in your Hydrosphere cluster.
 
@@ -286,10 +292,10 @@ class ApplicationBuilder:
                             "executionGraph": execution_graph._asdict(),
                             "metadata": self.metadata}
 
-        resp = self.cluster.request("POST", Application._BASE_URL, json=application_json)
+        resp = cluster.request("POST", Application._BASE_URL, json=application_json)
         handle_request_error(
             resp, f"Failed to create an application {self.name}. {resp.status_code} {resp.text}")
-        return Application._from_json(self.cluster, resp.json())
+        return Application._from_json(cluster, resp.json())
 
 
 class ExecutionGraph:

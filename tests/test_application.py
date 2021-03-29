@@ -22,9 +22,9 @@ def modelversion(cluster: Cluster, local_model: LocalModel):
 
 @pytest.fixture(scope="module")
 def deployment_configuration(cluster: Cluster, deployment_configuration_name: str):
-    deployment_configuration = DeploymentConfigurationBuilder(cluster, deployment_configuration_name) \
+    deployment_configuration = DeploymentConfigurationBuilder(deployment_configuration_name) \
         .with_replicas(2) \
-        .build()
+        .build(cluster)
     yield deployment_configuration
     DeploymentConfiguration.delete(cluster, deployment_configuration_name)
 

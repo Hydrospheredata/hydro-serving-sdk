@@ -337,7 +337,7 @@ class DeploymentConfigurationBuilder:
 
     >>> from hydrosdk import Cluster, DeploymentConfigurationBuilder
     >>> cluster = Cluster('http-cluster-endpoint')
-    >>> config_builder = DeploymentConfigurationBuilder(name="new_config", cluster=cluster)
+    >>> config_builder = DeploymentConfigurationBuilder(name="new_config")
     >>> config = config_builder.with_hpa(max_replicas=10, min_replicas=2, target_cpu_utilization_percentage=80). \
                     with_pod_node_selector({"label1": "key1", "foo": "bar"}). \
                     with_resource_requirements(limits={"cpu": "4", "memory": "4G"}, \
@@ -345,7 +345,7 @@ class DeploymentConfigurationBuilder:
                     with_env({"ENVIRONMENT": "1"}).
                     with_replicas(replica_count=4). \
                     with_toleration(effect="PreferNoSchedule", key="equalToleration", toleration_seconds=30, operator="Exists").\
-                    build()
+                    build(cluster)
     """
 
     def __init__(self, cluster: Cluster, name: str) -> "DeploymentConfigurationBuilder":
