@@ -1,6 +1,6 @@
 import re
 from dataclasses import dataclass, field
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 from hydrosdk.cluster import Cluster
 from hydrosdk.utils import handle_request_error, enable_camel_case
@@ -497,10 +497,12 @@ class DeploymentConfigurationBuilder(AbstractBuilder):
             self.deployment_spec.replica_count = replica_count
         return self
     
-    def _with_hpa_spec(self, hpa: HorizontalPodAutoScalerSpec) -> 'DeploymentConfigurationBuilder':
+    def _with_hpa_spec(self, hpa: Optional[HorizontalPodAutoScalerSpec] = None) -> 'DeploymentConfigurationBuilder':
         """
         Add a HorizontalPodAutoScalerSpec.
         """
+        if hpa is None:
+            return self
         if not isinstance(hpa, HorizontalPodAutoScalerSpec):
             raise ValueError("hpa should be of type HorizontalPodAutoScalerSpec")
         if self.hpa is not None:
@@ -508,10 +510,12 @@ class DeploymentConfigurationBuilder(AbstractBuilder):
         self.hpa = hpa
         return self
     
-    def _with_deployment_spec(self, deployment: DeploymentSpec) -> 'DeploymentConfigurationBuilder':
+    def _with_deployment_spec(self, deployment: Optional[DeploymentSpec] = None) -> 'DeploymentConfigurationBuilder':
         """
         Add a DeploymentSpec.
         """
+        if deployment is None:
+            return self
         if not isinstance(deployment, DeploymentSpec):
             raise ValueError("deployment should be of type HorizontalPodAutoScalerSpec")
         if self.deployment_spec is not None:
@@ -519,10 +523,12 @@ class DeploymentConfigurationBuilder(AbstractBuilder):
         self.deployment_spec = deployment
         return self
 
-    def _with_container_spec(self, container: ContainerSpec) -> 'DeploymentConfigurationBuilder':
+    def _with_container_spec(self, container: Optional[ContainerSpec]) -> 'DeploymentConfigurationBuilder':
         """
         Add a ContainerSpec.
         """
+        if container is None:
+            return self
         if not isinstance(container, ContainerSpec):
             raise ValueError("container should be of type ContainerSpec")
         if self.container_spec is not None:
@@ -530,10 +536,12 @@ class DeploymentConfigurationBuilder(AbstractBuilder):
         self.container_spec = container
         return self
     
-    def _with_pod_spec(self, pod: PodSpec) -> 'DeploymentConfigurationBuilder':
+    def _with_pod_spec(self, pod: Optional[PodSpec]) -> 'DeploymentConfigurationBuilder':
         """
         Add a PodSpec.
         """
+        if pod is None:
+            return self
         if not isinstance(pod, PodSpec):
             raise ValueError("pod should be of type PodSpec")
         if self.pod_spec is not None:

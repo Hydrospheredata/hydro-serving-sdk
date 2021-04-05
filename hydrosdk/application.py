@@ -3,7 +3,9 @@ from enum import Enum
 from typing import List, Optional, Dict
 import json
 import datetime
+
 import sseclient
+from google.protobuf.json_format import MessageToDict
 
 from hydro_serving_grpc.serving.contract.signature_pb2 import ModelSignature
 
@@ -112,6 +114,7 @@ class Application:
         kafka_streaming = [StreamingParams(kafka_param["in-topic"], kafka_param["out-topic"])
                                for kafka_param in application_json.get("kafkaStreaming")]
         metadata = application_json.get("metadata")
+        message = application_json.get("message")
         signature = signature_dict_to_ModelSignature(data=application_json.get("signature"))
         status = ApplicationStatus[application_json.get("status").upper()]
 
@@ -122,7 +125,8 @@ class Application:
                           status=status,
                           signature=signature,
                           kafka_streaming=kafka_streaming,
-                          metadata=metadata)
+                          metadata=metadata,
+                          message=message)
         return app
 
     def lock_while_starting(self, timeout: int = 120) -> 'Application':
@@ -167,13 +171,18 @@ class Application:
         return {
             "id": self.id,
             "name": self.name,
+            "signature": MessageToDict(self.signature),
+            "execution_graph": self.execution_graph.to_dict(),
             "metadata": self.metadata,
+            "message": self.message,
+            "status": self.status.name,
         }
     
     def __init__(self, cluster: Cluster, id: int, name: str, execution_graph: 'ExecutionGraph',
                  status: ApplicationStatus, signature: ModelSignature,
                  kafka_streaming: List[StreamingParams],
-                 metadata: Optional[Dict[str, str]] = None) -> 'Application':
+                 metadata: Optional[Dict[str, str]] = None,
+                 message: Optional[str] = None) -> 'Application':
         """
         :param cluster: active cluster
         :param id: unique application ID
@@ -183,6 +192,7 @@ class Application:
         :param status: Application Status
         :param kafka_streaming: list of Kafka parameters with input and output Kafka topics specified
         :param metadata: metadata with string keys and string values.
+        :param message: possible error message from the cluster
         """
         self.id = id
         self.name = name
@@ -192,6 +202,7 @@ class Application:
         self.status = status
         self.signature = signature
         self.cluster = cluster
+        self.message = message
 
     def __str__(self):
         return f"Application {self.id} {self.name}"
@@ -282,8 +293,8 @@ class ApplicationBuilder:
 
         execution_graph = ExecutionGraph(stages=self.stages)
         application_json = {"name": self.name,
-                            "kafkaStreaming": [sp._asdict() for sp in self.streaming_parameters],
-                            "executionGraph": execution_graph._asdict(),
+                            "kafkaStreaming": [sp.to_dict() for sp in self.streaming_parameters],
+                            "executionGraph": execution_graph.to_dict(),
                             "metadata": self.metadata}
 
         resp = cluster.request("POST", Application._BASE_URL, json=application_json)
@@ -303,8 +314,8 @@ class ExecutionGraph:
         """
         self.stages = stages
 
-    def _asdict(self) -> Dict[str, List]:
-        return {"stages": [s._asdict() for s in self.stages]}
+    def to_dict(self) -> Dict[str, List]:
+        return {"stages": [s.to_dict() for s in self.stages]}
 
     @staticmethod
     def _from_json(cluster: Cluster, ex_graph_dict: Dict) -> 'ExecutionGraph':
@@ -327,7 +338,7 @@ class ExecutionStage:
         self.signature = signature
         self.model_variants = model_variants
 
-    def _asdict(self) -> Dict[str, List[Dict[str, int]]]:
+    def to_dict(self) -> Dict[str, List[Dict[str, int]]]:
         model_variants = []
         for model_variant in self.model_variants:
             dict_repr = {"modelVersionId": model_variant.modelVersion.id,

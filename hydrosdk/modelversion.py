@@ -641,7 +641,11 @@ class DataProfileStatus(Enum):
     Failure = "Failure"
     Processing = "Processing"
     NotRegistered = "NotRegistered"
+    Unknown = "Unknown"
 
+
+# TODO: This should be rewritten to SSE, similar to lock_* methods from other entities, 
+# like ModelVersion.lock_till_released or Application.lock_while_starting
 
 class DataUploadResponse:
     """
@@ -680,7 +684,7 @@ class DataUploadResponse:
         resp = self.cluster.request('GET', self.url)
         handle_request_error(
             resp, f"Failed to get status for modelversion_id={self.modelversion_id}. {resp.status_code} {resp.text}")
-        return DataProfileStatus[resp.json()['kind']]
+        return DataProfileStatus[resp.json().get('kind', "Unknown")]
 
     def wait(self, retry=12, sleep=30):
         """
@@ -706,14 +710,16 @@ class DataUploadResponse:
                     continue
                 raise TimeoutException("Time out waiting for data processing to complete")
             elif status is DataProfileStatus.NotRegistered:
-                can_be_polled, retry = tick(retry, sleep)
-                if can_be_polled:
-                    continue
-                raise DataUploadResponse.NotRegistered
-            raise DataUploadResponse.Failed
+                raise DataUploadResponse.NotRegistered(f"Data profiling for modelversion_id={self.modelversion_id} has not been registered.")
+            elif status is DataProfileStatus.Unknown:
+                raise DataUploadResponse.Unknown(f"Data profiling for modelversion_id={self.modelversion_id} is unknown.")
+            raise DataUploadResponse.Failed(f"Data profiling for modelversion_id={self.modelversion_id} failed.")
 
     class NotRegistered(HydrosphereException):
         pass
 
     class Failed(HydrosphereException):
+        pass
+
+    class Unknown(HydrosphereException):
         pass

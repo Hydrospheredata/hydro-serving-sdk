@@ -26,6 +26,7 @@ class ServableStatus(Enum):
     SERVING = 3
     NOT_SERVING = 0
     NOT_AVAILABLE = 1
+    UNKNOWN = 4
 
     @staticmethod
     def from_camel_case(camel_case_servable_status: str) -> 'ServableStatus':
@@ -143,12 +144,12 @@ class Servable:
 
         return Servable(cluster=cluster,
                         model_version=model_version,
-                        servable_name=servable_json['fullName'],
-                        status=ServableStatus.from_camel_case(servable_json['status']['status']),
-                        status_message=servable_json['status']['msg'],
-                        metadata=servable_json['metadata'],
+                        servable_name=servable_json.get('fullName', 'unknown'),
+                        status=ServableStatus.from_camel_case(servable_json.get('status', "Unknown")),
+                        status_message=None,  # TODO: set appropriate status message
+                        metadata=servable_json.get('metadata'),
                         deployment_configuration=deployment_configuration)
-
+    
     def __init__(self, cluster: Cluster,
                  model_version: ModelVersion,
                  servable_name: str,
@@ -205,6 +206,16 @@ class Servable:
 
     def __repr__(self) -> str:
         return f"Servable {self.name}"
+
+    def to_dict(self) -> dict:
+        return {
+            "name": self.name,
+            "status": self.status.name,
+            "status_message": self.status_message,
+            "meta": self.meta,
+            "model_version": self.model_version.to_dict(),
+            "deployment_configuration": self.deployment_configuration.to_dict(),
+        }
 
     def predictor(self, monitorable=True, return_type=PredictorDT.DICT_NP_ARRAY) -> PredictServiceClient:
         """
