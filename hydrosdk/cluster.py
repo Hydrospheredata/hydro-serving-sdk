@@ -8,6 +8,7 @@ import grpc
 import requests
 
 from hydrosdk.utils import grpc_server_on, handle_request_error
+from hydrosdk.exceptions import BadResponseException
 
 
 class Cluster:
@@ -92,18 +93,27 @@ class Cluster:
         """
         manager_bl = self.safe_buildinfo("/api/buildinfo")
         gateway_bl = self.safe_buildinfo("/gateway/buildinfo")
-        sonar_bl = self.safe_buildinfo("/monitoring/buildinfo")
+        monitoring_bl = self.safe_buildinfo("/monitoring/buildinfo")
+        rootcause_bl = self.safe_buildinfo("/rootcause/buildinfo")
+        visualization_bl = self.safe_buildinfo("/visualization/buildinfo")
+        stat_bl = self.safe_buildinfo("/stat/buildinfo")
         return {
             "manager": manager_bl,
             "gateway": gateway_bl,
-            "sonar": sonar_bl
+            "monitoring": monitoring_bl,
+            "rootcase": rootcause_bl,
+            "visualization": visualization_bl,
+            "stat": stat_bl,
         }
 
     def safe_buildinfo(self, url: str) -> Dict[str, str]:
         try:
             resp = self.request("GET", url)
-            handle_request_error(
-                resp, f"Can't fetch buildinfo for {url}. {resp.status_code} {resp.text}")
+            try:
+                handle_request_error(
+                    resp, f"Can't fetch buildinfo for {url}. {resp.status_code} {resp.text}")
+            except BadResponseException as e:
+                return {"status": "Unavailable", "reason": str(e)}
             resp_json = resp.json()
             if 'status' not in resp_json:
                 resp_json['status'] = "Ok"

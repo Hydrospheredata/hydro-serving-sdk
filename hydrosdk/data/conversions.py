@@ -16,7 +16,7 @@ def tensor_proto_to_py(t: Tensor):
     :param t:
     :return:
     """
-    dims = [dim.size for dim in t.tensor_shape.dim]
+    dims = list(t.tensor_shape.dims)
     value = getattr(t, DTYPE_TO_FIELDNAME[t.dtype])
 
     # If no dims specified in TensorShape, then it is scalar
@@ -203,6 +203,9 @@ def convert_inputs_to_tensor_proto(inputs: Union[pd.DataFrame, dict, pd.Series],
     elif isinstance(inputs, pd.DataFrame):
         for key, value in dict(inputs).items():
             tensors[key] = nparray_to_tensor_proto(value.ravel())
+    elif isinstance(inputs, pd.Series):
+        for key, value in inputs.items():
+            tensors[key] = scalar_to_tensor_proto(value)
     else:
         raise ValueError(f"Conversion failed. Expected [pandas.DataFrame, dict[str, numpy.ndarray],\
                            dict[str, list], dict[str, np.ScalarType]], got {type(inputs)}")

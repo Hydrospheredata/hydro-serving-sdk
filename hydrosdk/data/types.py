@@ -94,7 +94,7 @@ def alias_to_proto_dtype(name):
 
 def shape_to_proto(user_shape):
     if isinstance(user_shape, dict):
-        user_shape = user_shape.get("dim")
+        user_shape = user_shape.get("dims")
 
     if user_shape == "scalar":
         shape = TensorShape()

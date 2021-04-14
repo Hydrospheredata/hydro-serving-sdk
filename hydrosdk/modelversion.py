@@ -72,7 +72,7 @@ def _upload_s3_file(cluster: Cluster, modelversion_id: int, path: str) -> reques
     return cluster.request("POST", url, json={"path": path})
     
 
-def resolve_paths(path: str, payload: List[str]) -> Dict[str, str]:
+def resolve_paths(path: str, payload: List[str], source_path: Optional[str] = None) -> Dict[str, str]:
     """
     Appends each element of payload to the path and makes {resolved_path: payload_element} dict
 
@@ -80,7 +80,8 @@ def resolve_paths(path: str, payload: List[str]) -> Dict[str, str]:
     :param payload: list of relative paths
     :return: dict with {resolved_path: payload_element}
     """
-    return {os.path.normpath(os.path.join(path, v)): v for v in payload}
+    source_path = source_path or "./"
+    return {os.path.normpath(os.path.join(path, source_path, v)): v for v in payload}
 
 
 class MonitoringConfiguration:
@@ -120,13 +121,14 @@ class ModelVersionBuilder(AbstractBuilder):
     >>> model_version.lock_till_released(timeout=120)
     >>> data_upload_response = model_version.upload_training_data()
     """
-    def __init__(self, name: str, path: str) -> 'ModelVersionBuilder':
+    def __init__(self, name: str, path: str, source_path: Optional[str] = None) -> 'ModelVersionBuilder':
         """
         :param name: a name of the model
         :param path: a path to the root folder of the model
         """
         self.name = name
         self.path = path
+        self.source_path = source_path or "./"
         self.runtime = None
         self.signature = None
         self.payload = {}
@@ -166,7 +168,7 @@ class ModelVersionBuilder(AbstractBuilder):
         :param payload: a list of paths to files (absolute or relative) with any 
                         additional resources that will be exported to the container.
         """
-        self.payload = resolve_paths(path=self.path, payload=payload)
+        self.payload = resolve_paths(path=self.path, source_path=self.source_path, payload=payload)
         return self
     
     def with_metadata(self, metadata: Dict[str, str]) -> 'ModelVersionBuilder':
@@ -206,6 +208,9 @@ class ModelVersionBuilder(AbstractBuilder):
         """
         if training_data and not isinstance(training_data, str):
             raise TypeError("training_data should be a string")
+        if not training_data.startswith("s3://"):
+            if os.path.exists(training_data) and not os.path.isabs(training_data):
+                training_data = os.path.join(self.source_path, training_data)
         self.training_data = training_data
         return self
 
@@ -630,7 +635,7 @@ class ModelVersion:
         self.applications = applications or []
 
     def __repr__(self):
-        return f"ModelVersion {self.name}:{self.version}"
+        return f"{self.name}:{self.version}"
 
     class ReleaseFailed(HydrosphereException):
         pass
