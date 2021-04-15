@@ -490,6 +490,10 @@ class ModelVersion:
             deadline_at = datetime.datetime.now().timestamp() + timeout
             for event in events_client.events():
                 if datetime.datetime.now().timestamp() > deadline_at:
+                    # last chance
+                    self.status = self.find_by_id(self.cluster, self.id).status
+                    if self.status is ModelVersionStatus.Released:
+                        return None
                     raise TimeoutException("Timed out waiting for the model version to build.")
                 if event.event == "ModelUpdate":
                     data = json.loads(event.data)
