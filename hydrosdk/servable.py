@@ -193,8 +193,9 @@ class Servable:
                     raise TimeoutException('Time out waiting for a servable to become ready')
                 if event.event == "ServableUpdate":
                     data = json.loads(event.data)
+                    print(data)
                     if data.get("fullName") == self.name:
-                        self.status = ServableStatus.from_camel_case(data.get("status", {}).get("status"))
+                        self.status = ServableStatus.from_camel_case(data.get("status"))
                         if self.status is ServableStatus.SERVING:
                             return self
                         raise ValueError('Servable initialization failed')

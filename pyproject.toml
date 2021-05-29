@@ -1,0 +1,50 @@
+[tool.poetry]
+authors = ["Hydrospheredata"]
+classifiers = [
+  "License :: OSI Approved :: Apache Software License",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Information Technology",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+]
+description = """
+This package's purpose is to provide a simple and convenient way
+of integrating user's workflow scripts with Serving API."
+"""
+maintainers = ["Bulat Lutfullin <blutfullin@provectus.com>"]
+name = "hydrosdk"
+readme = "README.md"
+version = "3.0.0-dev2"
+
+[tool.poetry.urls]
+homepage = "https://hydrosphere.io/"
+
+[tool.poetry.dependencies]
+hydro-serving-grpc = "^3.0.0-dev3"
+importlib_metadata = "^1.7.0"
+numpy = "1.18.3"
+python = "^3.6.2"
+pyyaml = "5.3.1"
+requests = "2.23.0"
+requests_toolbelt = "^0.9.1"
+sseclient-py = "^1.7"
+
+dataclasses = {version = "0.7", python = "<3.7"}
+pandas = ">=1.1.5"
+pydantic = "^1.8.2"
+docker-image-py = "^0.1.10"
+
+[tool.poetry.dev-dependencies]
+black = "^21.5b1"
+flake8 = "^3.9.2"
+flake8-black = "^0.2.1"
+flake8-bugbear = "^21.4.3"
+flake8-import-order = "^0.18.1"
+pytest = "^5.4.1"
+requests_mock = "^1.7.0"
+autoflake = "^1.4"
+isort = "^5.8.0"
+devtools = "^0.6.1"
+
+[build-system]
+build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core>=1.0.0"]

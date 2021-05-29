@@ -138,7 +138,7 @@ class Application:
         if self.status is ApplicationStatus.READY: 
             return self
         if self.status is ApplicationStatus.FAILED:
-            raise ValueError('Application initialization failed')
+            raise ValueError(f'Application initialization failed {self.message}')
         try:
             deadline_at = datetime.datetime.now().timestamp() + timeout
             for event in events_client.events():
@@ -146,11 +146,13 @@ class Application:
                     raise TimeoutException('Time out waiting for an application to become available')
                 if event.event == "ApplicationUpdate":
                     data = json.loads(event.data)
+                    print(data)
                     if data.get("name") == self.name:
                         self.status = ApplicationStatus[data.get("status").upper()]
                         if self.status is ApplicationStatus.READY:
                             return self
-                        raise ValueError('Application initialization failed')
+                        elif self.status is ApplicationStatus.FAILED:
+                            raise ValueError('Application initialization failed')
         finally:
             events_client.close()
 

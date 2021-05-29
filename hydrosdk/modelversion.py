@@ -256,11 +256,7 @@ class ModelVersionBuilder(AbstractBuilder):
 
         meta = {
             "name": self.name,
-            "runtime": {
-                "name": self.runtime.full_name,
-                "tag": self.runtime.tag,
-                "sha256": self.runtime.digest
-            },
+            "runtime": self.runtime.dict(),
             "modelSignature": ModelSignature_to_signature_dict(self.signature),
             "installCommand": self.install_command,
             "metadata": self.metadata
@@ -441,11 +437,11 @@ class ModelVersion:
         if is_external:
             model_runtime = None
         else:
-            model_runtime = DockerImage.from_custom(modelversion_json["runtime"])
+            model_runtime = DockerImage(**modelversion_json["runtime"])
         
         model_image = modelversion_json.get("image")
         if model_image is not None:
-            model_image = DockerImage.from_custom(model_image)
+            model_image = DockerImage(**model_image)
 
         status = modelversion_json.get('status')
         if status:
