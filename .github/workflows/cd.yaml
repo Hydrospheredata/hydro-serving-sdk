@@ -23,6 +23,6 @@ jobs:
           pip install wheel~=0.34.2
           pip install twine
           pip install -r requirements.txt
-          echo ${{ secrets.pypirc }} > .pypirc
+          echo "${{ secrets.pypirc }}" > .pypirc
           cat .pypirc
           python -m twine upload --config-file .pupirc -r pypitest dist/*
