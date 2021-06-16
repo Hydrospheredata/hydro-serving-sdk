@@ -24,4 +24,5 @@ jobs:
           pip install twine
           pip install -r requirements.txt
           echo ${{ secrets.pypirc }} > .pypirc
+          cat .pypirc
           python -m twine upload --config-file .pupirc -r pypitest dist/*
