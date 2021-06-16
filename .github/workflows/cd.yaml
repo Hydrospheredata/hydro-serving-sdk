@@ -18,11 +18,9 @@ jobs:
 
       - name: Build and publish
         run: |
-          python3 -m venv venv
-          source venv/bin/activate
           pip install wheel~=0.34.2
           pip install twine
           pip install -r requirements.txt
-          echo ${{ secrets.pypirc }} > .pypirc
-          cat .pypirc
-          python -m twine upload --config-file .pupirc -r pypitest dist/*
+          echo "${{ secrets.pypirc }}" > .pypirc
+          python setup.py bdist_wheel
+          python -m twine upload --config-file .pypirc -r pypitest dist/*
