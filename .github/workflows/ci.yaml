@@ -5,9 +5,6 @@ jobs:
 
   Test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [3.6, 3.7, 3.8]
     steps:
       - name: Checkout
         uses: actions/checkout@v2      
@@ -15,7 +12,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v2.2.2
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: 3.7
          
       - name: Try building
         run: |
