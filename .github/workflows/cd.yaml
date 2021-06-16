@@ -25,4 +25,4 @@ jobs:
           echo "${{ secrets.pypirc }}" > .pypirc
           cat .pypirc
           python setup.py bdist_wheel
-          python -m twine upload --config-file .pypirc -r pypitest dist/*
+          python -m twine upload --config-file .pypirc -r pypitest dist/* --verbose
