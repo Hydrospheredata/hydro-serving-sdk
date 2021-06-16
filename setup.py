@@ -24,7 +24,7 @@ reqs = [
 test_reqs = ['pytest~=5.4.1', 'requests_mock>=1.7.0']
 
 setup(
-    name='hydrosdk',
+    name='bulbawarrior-hydrosdk',
     version=version,
     description="Hydro-serving SDK",
     long_description=long_description,
