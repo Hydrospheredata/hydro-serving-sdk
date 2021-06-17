@@ -4,6 +4,9 @@ on:
       - master
       - main
       
+# Secrets:
+#   PYPIRC - pypi configuration file
+      
 jobs:
   Release:
     runs-on: ubuntu-latest
@@ -14,13 +17,19 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v2.2.2
         with:
-          python-version: 3.8
-
-      - name: Build and publish
+          python-version: 3.7
+          
+      - name: Install dependecies
         run: |
           pip install wheel~=0.34.2
           pip install twine
           pip install -r requirements.txt
+          
+      - name: Build
+        run: python setup.py bdist_wheel
+          
+      - name: Publish
+        run: |
           echo "${{ secrets.pypirc }}" > .pypirc
-          python setup.py bdist_wheel
           python -m twine upload --config-file .pypirc -r pypitest dist/*
+          
