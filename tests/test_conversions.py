@@ -18,7 +18,6 @@ from hydrosdk.servable import Servable
 from hydrosdk.cluster import Cluster
 from hydrosdk.modelversion import ModelVersion, ModelVersionBuilder
 from tests.common_fixtures import * 
-from tests.config import LOCK_TIMEOUT
 
 int_dtypes = [DT_INT64, DT_UINT16, DT_UINT8, DT_INT8, DT_INT16, DT_INT32, DT_UINT32, DT_UINT64]
 float_types = [DT_DOUBLE, DT_FLOAT, ]
@@ -36,9 +35,9 @@ unsupported_np_types = [np.float128, np.complex256, np.object, np.void,
 @pytest.yield_fixture(scope="module")
 def servable_tensor(cluster: Cluster, tensor_model_version_builder: ModelVersionBuilder):
     mv: ModelVersion = tensor_model_version_builder.build(cluster)
-    mv.lock_till_released(timeout=LOCK_TIMEOUT)
+    mv.lock_till_released(timeout=config.lock_timeout)
     sv: Servable = Servable.create(cluster, mv.name, mv.version)
-    sv.lock_while_starting(timeout=LOCK_TIMEOUT)
+    sv.lock_while_starting(timeout=config.lock_timeout)
     yield sv
     Servable.delete(cluster, sv.name)
 

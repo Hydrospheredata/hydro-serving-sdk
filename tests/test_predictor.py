@@ -15,7 +15,7 @@ from tests.test_dataupload import training_data
 
 # TODO: add servable Unmonitored tests
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def value(): 
     return random.randint(0, 1e5)
 
@@ -23,12 +23,12 @@ def value():
 @pytest.yield_fixture(scope="module")
 def app_tensor(cluster: Cluster, tensor_model_version_builder: ModelVersionBuilder):
     mv: ModelVersion = tensor_model_version_builder.build(cluster)
-    mv.lock_till_released(timeout=LOCK_TIMEOUT)
+    mv.lock_till_released(timeout=config.lock_timeout)
     stage = ExecutionStageBuilder().with_model_variant(mv, 100).build()
-    app = ApplicationBuilder(f"{DEFAULT_APP_NAME}-{random.randint(0, 1e5)}") \
+    app = ApplicationBuilder(f"{config.default_application_name}-{random.randint(0, 1e5)}") \
         .with_stage(stage).build(cluster)
-    app.lock_while_starting(timeout=LOCK_TIMEOUT)
-    time.sleep(5)
+    app.lock_while_starting(timeout=config.lock_timeout)
+    time.sleep(10)
     yield app
     Application.delete(cluster, app.name)
 
@@ -40,12 +40,12 @@ def app_scalar(cluster: Cluster, model_version_builder: ModelVersionBuilder, tra
     mv.training_data = training_data
     data_upload_response = mv.upload_training_data()
     data_upload_response.wait(sleep=5)
-    mv.lock_till_released(timeout=LOCK_TIMEOUT)
+    mv.lock_till_released(timeout=config.lock_timeout)
     stage = ExecutionStageBuilder().with_model_variant(mv, 100).build()
-    app: Application = ApplicationBuilder(f"{DEFAULT_APP_NAME}-{random.randint(0, 1e5)}") \
+    app: Application = ApplicationBuilder(f"{config.default_application_name}-{random.randint(0, 1e5)}") \
         .with_stage(stage).build(cluster)
-    app.lock_while_starting(timeout=LOCK_TIMEOUT)
-    time.sleep(5)
+    app.lock_while_starting(timeout=config.lock_timeout)
+    time.sleep(10)
     yield app
     Application.delete(cluster, app.name)
 

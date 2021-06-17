@@ -30,8 +30,8 @@ def test_resolve_paths():
 
 
 def test_model_create_programmatically():
-    name = DEFAULT_MODEL_NAME
-    runtime = DockerImage.from_string(DEFAULT_RUNTIME_REFERENCE)
+    name = config.default_model_name
+    runtime = config.runtime
     path = "/home/user/folder/model/cool/"
     payload = [
         './src/func_main.py',
@@ -63,7 +63,7 @@ def test_model_create_programmatically():
 
 
 def test_model_create_signature_validation():
-    name = DEFAULT_MODEL_NAME
+    name = config.default_model_name
     path = "/home/user/folder/model/cool/"
     signature = SignatureBuilder('infer').build()
     with pytest.raises(SignatureViolationException):
@@ -71,7 +71,7 @@ def test_model_create_signature_validation():
 
 
 def test_model_version_builder_build(cluster: Cluster):
-    name = DEFAULT_MODEL_NAME
+    name = config.default_model_name
     current_dir = os.path.dirname(os.path.abspath(__file__))
     model_path = os.path.join(current_dir, 'resources/identity_model/')
     signature = SignatureBuilder('infer') \
@@ -79,14 +79,14 @@ def test_model_version_builder_build(cluster: Cluster):
         .with_output('out1', 'double', [-1], ProfilingType.NONE).build()
     batch_size = 10
     model_version_builder = ModelVersionBuilder(name, model_path) \
-        .with_runtime(DockerImage.from_string(DEFAULT_RUNTIME_REFERENCE)) \
+        .with_runtime(config.runtime) \
         .with_payload(['./src/func_main.py']) \
         .with_signature(signature) \
         .with_metadata({"key": "value"}) \
         .with_monitoring_configuration(MonitoringConfiguration(batch_size=batch_size))
     mv: ModelVersion = model_version_builder.build(cluster)
     assert mv.status is ModelVersionStatus.Assembling
-    mv.lock_till_released(timeout=LOCK_TIMEOUT)
+    mv.lock_till_released(timeout=config.lock_timeout)
     assert mv.status is ModelVersionStatus.Released
     assert mv.monitoring_configuration.batch_size == batch_size
 
@@ -107,19 +107,19 @@ def test_lock_till_released_failed(cluster: Cluster, runtime: DockerImage,
                                    payload: list, signature: ModelSignature):
     current_dir = os.path.dirname(os.path.abspath(__file__))
     model_path = os.path.join(current_dir, 'resources/identity_model/')
-    model_version_builder = ModelVersionBuilder(DEFAULT_MODEL_NAME, model_path) \
+    model_version_builder = ModelVersionBuilder(config.default_model_name, model_path) \
         .with_runtime(runtime) \
         .with_payload(payload) \
         .with_signature(signature) \
         .with_install_command("exit 1")
     mv: ModelVersion = model_version_builder.build(cluster)
     with pytest.raises(ModelVersion.ReleaseFailed):
-        mv.lock_till_released(timeout=LOCK_TIMEOUT)
+        mv.lock_till_released(timeout=config.lock_timeout)
         
 
 def test_build_logs_not_empty(cluster: Cluster, model_version_builder: ModelVersionBuilder):
     mv: ModelVersion = model_version_builder.build(cluster)
-    mv.lock_till_released(timeout=LOCK_TIMEOUT)
+    mv.lock_till_released(timeout=config.lock_timeout)
     i = 0
     for _ in mv.build_logs():
         i += 1
@@ -132,7 +132,7 @@ def test_modelversion_list(cluster: Cluster, model_version_builder: ModelVersion
 
     
 def test_ModelField_dt_invalid_input():
-    name = DEFAULT_MODEL_NAME
+    name = config.default_model_name
     path = "/home/user/folder/model/cool/"
     signature = ModelSignature(
         signature_name="test", 
@@ -144,7 +144,7 @@ def test_ModelField_dt_invalid_input():
 
 
 def test_ModelField_dt_invalid_output():
-    name = DEFAULT_MODEL_NAME
+    name = config.default_model_name
     path = "/home/user/folder/model/cool/"
     signature = ModelSignature(
         signature_name="test",
@@ -156,7 +156,7 @@ def test_ModelField_dt_invalid_output():
 
 
 def test_ModelField_contact_signature_name_none():
-    name = DEFAULT_MODEL_NAME
+    name = config.default_model_name
     path = "/home/user/folder/model/cool/"
     signature = ModelSignature(
         inputs=[ModelField(name="test", dtype=DataType.Name(2), shape=TensorShape())],
@@ -188,8 +188,8 @@ def test_list_models_by_model_name(cluster: Cluster, runtime: DockerImage,
             .with_payload(payload) \
             .with_signature(signature)
 
-    name1 = f"{DEFAULT_MODEL_NAME}-one-{random.randint(0, 1e5)}"
-    name2 = f"{DEFAULT_MODEL_NAME}-two-{random.randint(0, 1e5)}"
+    name1 = f"{config.default_model_name}-one-{random.randint(0, 1e5)}"
+    name2 = f"{config.default_model_name}-two-{random.randint(0, 1e5)}"
     mv1: ModelVersion = create_model_version_builder(name1).build(cluster)
     mv2: ModelVersion = create_model_version_builder(name1).build(cluster)
     _ = create_model_version_builder(name2).build(cluster)

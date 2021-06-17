@@ -16,7 +16,7 @@ def deployment_configuration_name():
 @pytest.fixture(scope="module")
 def modelversion(cluster: Cluster, model_version_builder: ModelVersionBuilder):
     mv: ModelVersion = model_version_builder.build(cluster)
-    mv.lock_till_released(timeout=LOCK_TIMEOUT)
+    mv.lock_till_released(timeout=config.lock_timeout)
     return mv
 
 
@@ -32,9 +32,9 @@ def deployment_configuration(cluster: Cluster, deployment_configuration_name: st
 @pytest.yield_fixture(scope="module")
 def app(cluster: Cluster, modelversion: ModelVersion, deployment_configuration: DeploymentConfiguration):
     stage = ExecutionStageBuilder().with_model_variant(modelversion, 100, deployment_configuration).build()
-    app = ApplicationBuilder(f"{DEFAULT_APP_NAME}-{random.randint(0, 1e5)}") \
+    app = ApplicationBuilder(f"{config.default_application_name}-{random.randint(0, 1e5)}") \
         .with_stage(stage).with_metadata("key", "value").build(cluster)
-    app.lock_while_starting(timeout=LOCK_TIMEOUT)
+    app.lock_while_starting(timeout=config.lock_timeout)
     yield app
     Application.delete(cluster, app.name)
 
@@ -64,14 +64,13 @@ def test_execution_graph(app: Application, modelversion: ModelVersion):
     ex_graph = app.execution_graph
     assert len(ex_graph.stages) == 1
     assert len(ex_graph.stages[0].model_variants) == 1
-    assert ex_graph.stages[0].model_variants[0].modelVersion.id == modelversion.id
+    assert ex_graph.stages[0].model_variants[0].modelVersionId == modelversion.id
     assert ex_graph.stages[0].model_variants[0].weight == 100
 
 
 def test_deployment_config(app: Application, deployment_configuration_name: str):
-    app_dep_config = app.execution_graph.stages[0].model_variants[0].deploymentConfig
-    assert app_dep_config is not None
-    assert app_dep_config.name == deployment_configuration_name
+    app_dep_config = app.execution_graph.stages[0].model_variants[0].deploymentConfigurationName
+    assert app_dep_config == deployment_configuration_name
 
 
 @pytest.mark.xfail(reason="(HYD-399) Bug in the hydro-serving-manager")
