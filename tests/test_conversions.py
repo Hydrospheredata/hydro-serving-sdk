@@ -33,7 +33,7 @@ unsupported_np_types = [np.float128, np.complex256, np.object, np.void,
                         np.longlong, np.ulonglong, np.clongdouble]
 
 
-@pytest.fixture(scope="module")
+@pytest.yield_fixture(scope="module")
 def servable_tensor(cluster: Cluster, tensor_model_version_builder: ModelVersionBuilder):
     mv: ModelVersion = tensor_model_version_builder.build(cluster)
     mv.lock_till_released(timeout=LOCK_TIMEOUT)

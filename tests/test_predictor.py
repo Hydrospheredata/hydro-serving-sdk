@@ -20,7 +20,7 @@ def value():
     return random.randint(0, 1e5)
 
 
-@pytest.fixture(scope="module")
+@pytest.yield_fixture(scope="module")
 def app_tensor(cluster: Cluster, tensor_model_version_builder: ModelVersionBuilder):
     mv: ModelVersion = tensor_model_version_builder.build(cluster)
     mv.lock_till_released(timeout=LOCK_TIMEOUT)
@@ -33,7 +33,7 @@ def app_tensor(cluster: Cluster, tensor_model_version_builder: ModelVersionBuild
     Application.delete(cluster, app.name)
 
 
-@pytest.fixture(scope="module")
+@pytest.yield_fixture(scope="module")
 def app_scalar(cluster: Cluster, model_version_builder: ModelVersionBuilder, training_data: str):
     model_version_builder.with_monitoring_configuration(MonitoringConfiguration(batch_size=10))
     mv: ModelVersion = model_version_builder.build(cluster)

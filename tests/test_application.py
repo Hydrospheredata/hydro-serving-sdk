@@ -20,7 +20,7 @@ def modelversion(cluster: Cluster, model_version_builder: ModelVersionBuilder):
     return mv
 
 
-@pytest.fixture(scope="module")
+@pytest.yield_fixture(scope="module")
 def deployment_configuration(cluster: Cluster, deployment_configuration_name: str):
     deployment_configuration = DeploymentConfigurationBuilder(deployment_configuration_name) \
         .with_replicas(2) \
@@ -29,7 +29,7 @@ def deployment_configuration(cluster: Cluster, deployment_configuration_name: st
     DeploymentConfiguration.delete(cluster, deployment_configuration_name)
 
 
-@pytest.fixture(scope="module")
+@pytest.yield_fixture(scope="module")
 def app(cluster: Cluster, modelversion: ModelVersion, deployment_configuration: DeploymentConfiguration):
     stage = ExecutionStageBuilder().with_model_variant(modelversion, 100, deployment_configuration).build()
     app = ApplicationBuilder(f"{DEFAULT_APP_NAME}-{random.randint(0, 1e5)}") \

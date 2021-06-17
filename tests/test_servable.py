@@ -21,7 +21,7 @@ def deployment_configuration_name(scope="module"):
     return f"deploy_config_{random.randint(0, 1e5)}"
 
 
-@pytest.fixture(scope="module")
+@pytest.yield_fixture(scope="module")
 def deployment_configuration(cluster: Cluster, deployment_configuration_name: str):
     deployment_configuration = DeploymentConfigurationBuilder(deployment_configuration_name) \
         .with_replicas(2) \
@@ -30,7 +30,7 @@ def deployment_configuration(cluster: Cluster, deployment_configuration_name: st
     DeploymentConfiguration.delete(cluster, deployment_configuration.name)
 
 
-@pytest.fixture(scope="module")
+@pytest.yield_fixture(scope="module")
 def servable(cluster: Cluster, mv: ModelVersion, deployment_configuration: DeploymentConfiguration):
     sv: Servable = Servable.create(cluster, mv.name, mv.version, deployment_configuration=deployment_configuration)
     sv.lock_while_starting(timeout=LOCK_TIMEOUT)
