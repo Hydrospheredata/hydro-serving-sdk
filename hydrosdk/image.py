@@ -12,10 +12,6 @@ class DockerImage(BaseModel):
             return DockerImage(name = ref['name'], tag = ref['tag'])
         else:
             raise ValueError(f"Couldn't create a DockerImage from the provided image reference: {string}")
-    
-<<<<<<< HEAD
-    def to_string(self):
-=======
+
     def __str__(self):
->>>>>>> 62e41637cb25e4e8dd00671e1b9c42c70eff1cb6
         return f"{self.name}:{self.tag}"

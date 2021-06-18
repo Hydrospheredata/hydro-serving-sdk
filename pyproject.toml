@@ -23,7 +23,7 @@ hydro-serving-grpc = "^3.0.0-dev3"
 importlib_metadata = "^1.7.0"
 numpy = "1.18.3"
 python = "^3.6.2"
-pyyaml = "5.3.1"
+pyyaml = "^5.4.1"
 requests = "2.23.0"
 requests_toolbelt = "^0.9.1"
 sseclient-py = "^1.7"
@@ -32,6 +32,7 @@ dataclasses = {version = "0.7", python = "<3.7"}
 pandas = ">=1.1.5"
 pydantic = "^1.8.2"
 docker-image-py = "^0.1.10"
+tox = "^3.23.1"
 
 [tool.poetry.dev-dependencies]
 black = "^21.5b1"
