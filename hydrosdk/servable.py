@@ -135,35 +135,33 @@ class Servable:
         :param servable_json: Servable description in json format
         :return: Servable object
         """
-        model_version = ModelVersion._from_json(cluster, servable_json['modelVersion'])
-
-        if 'deploymentConfiguration' in servable_json:
-            deployment_configuration = DeploymentConfiguration.from_camel_case_dict(servable_json['deploymentConfiguration'])
-        else:
-            deployment_configuration = None
+        model_version_id = servable_json['modelVersionId']
+        deployment_configuration_name = servable_json.get("deploymentConfigurationName", None)
+        status_message = servable_json.get('statusMessage', None)
 
         return Servable(cluster=cluster,
-                        model_version=model_version,
+                        model_version_id=model_version_id,
                         servable_name=servable_json.get('fullName', 'unknown'),
                         status=ServableStatus.from_camel_case(servable_json.get('status', "Unknown")),
-                        status_message=None,  # TODO: set appropriate status message
+                        status_message=status_message,
                         metadata=servable_json.get('metadata'),
-                        deployment_configuration=deployment_configuration)
+                        deployment_configuration_name=deployment_configuration_name)
     
     def __init__(self, cluster: Cluster,
-                 model_version: ModelVersion,
+                 model_version_id: int,
                  servable_name: str,
                  status: ServableStatus,
-                 status_message: str,
-                 deployment_configuration: Optional[DeploymentConfiguration],
+                 status_message: Optional[str],
+                 deployment_configuration_name: Optional[str],
                  metadata: Optional[dict] = None) -> 'Servable':
-        self.model_version = model_version
+        self.model_version_id = model_version_id
         self.name = servable_name
         self.meta = metadata or {}
         self.cluster = cluster
         self.status = status
         self.status_message = status_message
-        self.deployment_configuration = deployment_configuration
+        self.deployment_configuration_name = deployment_configuration_name
+        self.model_version = ModelVersion.find_by_id(cluster, self.model_version_id)
 
     def logs(self, follow=False) -> Iterable[Event]:
         if follow:
@@ -193,8 +191,9 @@ class Servable:
                     raise TimeoutException('Time out waiting for a servable to become ready')
                 if event.event == "ServableUpdate":
                     data = json.loads(event.data)
+                    print(data)
                     if data.get("fullName") == self.name:
-                        self.status = ServableStatus.from_camel_case(data.get("status", {}).get("status"))
+                        self.status = ServableStatus.from_camel_case(data.get("status"))
                         if self.status is ServableStatus.SERVING:
                             return self
                         raise ValueError('Servable initialization failed')
@@ -202,7 +201,7 @@ class Servable:
             events_client.close()
 
     def __str__(self) -> str:
-        return f"Servable '{self.name}' for model_version {self.model_version.name}:{self.model_version.version}"
+        return f"Servable '{self.name}' for model_version_id {self.model_version_id}"
 
     def __repr__(self) -> str:
         return f"Servable {self.name}"

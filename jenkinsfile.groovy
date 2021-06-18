@@ -23,91 +23,15 @@ def checkoutRepo(String repo){
 def getVersion(){
     try{
         //remove only quotes
-        version = sh(script: "cat \"version\" | sed 's/\\\"/\\\\\"/g'", returnStdout: true ,label: "get version").trim()
+        version = sh(script: "poetry version -s", returnStdout: true ,label: "get version").trim()
         return version
     }catch(e){
         return "file version not found" 
     }
 }
 
-def bumpVersion(String currentVersion,String newVersion, String patch, String path){
-    if (currentVersion =~ /\w*rc/ || newVersion =~ /\w*rc/){
-      sh script: """cat <<EOF> ${WORKSPACE}/bumpversion.cfg
-[bumpversion]
-current_version = 0.0.0
-commit = False
-tag = False
-parse = (?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)-?(?P<tag>\\w*rc)?(?P<addon>\\d+)?
-serialize =
-    {major}.{minor}.{patch}-{tag}{addon}
-    {major}.{minor}.{patch}
-
-[bumpversion:part:addon]
-
-[bumpversion:part:tag]
-optional_value = release
-values =
-  rc
-  release
-
-EOF""", label: "Set bumpversion configfile"
-  }else if (currentVersion =~ /\w*post/ || newVersion =~ /\w*post/){
-    sh script: """cat <<EOF> ${WORKSPACE}/bumpversion.cfg
-[bumpversion]
-current_version = 0.0.0
-commit = False
-tag = False
-parse = (?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+).?(?P<tag>\\w*post)?(?P<addon>\\d+)?
-serialize =
-    {major}.{minor}.{patch}.{tag}{addon}
-    {major}.{minor}.{patch}
-
-[bumpversion:part:addon]
-
-[bumpversion:part:tag]
-optional_value = release
-values =
-  post
-  release
-
-EOF""", label: "Set bumpversion configfile"
-  }else if (currentVersion =~ /\w*dev/ || newVersion =~ /\w*dev/){
-    sh script: """cat <<EOF> ${WORKSPACE}/bumpversion.cfg
-[bumpversion]
-current_version = 0.0.0
-commit = False
-tag = False
-parse = (?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+).?(?P<tag>\\w*dev)?(?P<addon>\\d+)?
-serialize =
-    {major}.{minor}.{patch}.{tag}{addon}
-    {major}.{minor}.{patch}
-
-[bumpversion:part:addon]
-
-[bumpversion:part:tag]
-optional_value = release
-values =
-  dev
-  release
-
-EOF""", label: "Set bumpversion configfile"
-  }else{
-    sh script: """cat <<EOF> ${WORKSPACE}/bumpversion.cfg
-[bumpversion]
-current_version = 0.0.0
-commit = False
-tag = False
-parse = (?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)
-serialize =
-    {major}.{minor}.{patch}
-
-EOF""", label: "Set bumpversion configfile"    
-    }
-    if (newVersion != null && newVersion != ''){
-        sh("echo $newVersion > version") 
-    }else{
-        sh("bumpversion $patch $path --config-file '${WORKSPACE}/bumpversion.cfg' --allow-dirty --verbose --current-version '$currentVersion'")   
-    }
+def bumpVersion(String currentVersion, String newVersion, String patch, String path){
+  sh("poetry version prerelease")
 }
 
 def slackMessage(){
@@ -172,49 +96,26 @@ def bumpGrpc(String newVersion, String search, String patch, String path){
     sh script: "rm -rf tmp", label: "Remove temp file"
 }
 
-//Собираем питонячие проекты, тестируем
 def buildPython(String command, String version){
-    configFileProvider([configFile(fileId: 'PYPIDeployConfiguration', targetLocation: ".pypirc", variable: 'PYPI_SETTINGS')]) {
-      if(command == "build"){
-        sh script:"""#!/bin/bash
-        
-            python3 -m venv venv
-            source venv/bin/activate
-            pip install wheel~=0.34.2
-            pip install twine
-            pip install -r \"$WORKSPACE/requirements.txt\" &&
-            python setup.py bdist_wheel
-        """, label: "Build python package"
-      }else if(command == "release"){
-        try{
-        sh script: """#!/bin/bash
-            python3 -m venv venv
-            source venv/bin/activate
-            pip install wheel~=0.34.2
-            pip install twine
-            pip install -r \"$WORKSPACE/requirements.txt\" &&
-            python -m twine upload --config-file \"${env.WORKSPACE}/.pypirc\" -r pypi \"${env.WORKSPACE}/dist/*\"
-        """,label: "Release python package"
-        }catch(err){
-          echo "$err"
+    if(command == "build"){
+      sh script:"""#!/bin/bash
+          poetry install &&
+          poetry build
+      """, label: "Build python package"
+    }else if(command == "release"){
+      try{
+        withCredentials([usernamePassword(credentialsId: 'Hydrosphere_pypi', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+          sh script: """#!/bin/bash
+              poetry install &&
+              poetry build &&
+              poetry publish -u ${USERNAME} -p ${PASSWORD}
+          """,label: "Release python package"
         }
-        withCredentials([file(credentialsId: 'SonatypeSigningKey', variable: 'SONATYPE_KEY_PATH')]) {
-          sh script: "gpg --import ${SONATYPE_KEY_PATH}", label: "Sign package"
-          sh script: "mkdir -p ~/.sbt/gpg/ && chmod -R 777 ~/.sbt/gpg/"
-          sh script: "cp ${SONATYPE_KEY_PATH} ~/.sbt/gpg/secring.asc"
-          dir("scala-package"){
-            try{
-              // sh script: "sbt -DappVersion=$version 'set pgpPassphrase := Some(Array())'  +publishLocal", label: "publish local"
-              sh script: "sbt -DappVersion=$version 'set pgpPassphrase := Some(Array())'  +publishSigned", label: "publish signed"
-              sh script: "sbt -DappVersion=$version 'sonatypeReleaseAll'", label: "Release all"
-            }catch(err){
-              echo "$err"
-            }
-          }
-        }
-      }else{
-        echo "command $command not found! Use build or release"
+      }catch(err){
+        echo "$err"
       }
+    }else{
+      echo "command $command not found! Use build or release"
     }
 }
 
