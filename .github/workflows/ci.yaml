@@ -1,0 +1,43 @@
+name: ci
+on: pull_request
+
+jobs:
+
+  Test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2      
+      
+      - name: Setup Python
+        uses: actions/setup-python@v2.2.2
+        with:
+          python-version: 3.7
+         
+      - name: Try building
+        run: |
+          python3 -m venv venv
+          source venv/bin/activate
+          pip install wheel~=0.34.2
+          pip install twine
+          pip install -r requirements.txt
+          python setup.py bdist_wheel
+          
+  Static_analysis:
+    runs-on: ubuntu-latest
+    steps: 
+      - uses: actions/checkout@v2
+        with:
+        # Disabling shallow clone is recommended for improving relevancy of reporting
+          fetch-depth: 0
+          
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v1.6
+        with:
+          args: >
+            -Dsonar.verbose=true
+            -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
+            -Dsonar.projectKey=${{ secrets.SONAR_PROJECTKEY }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
