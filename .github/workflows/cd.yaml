@@ -1,0 +1,28 @@
+on:
+  push:
+    branches:
+      - master
+      - main
+      
+jobs:
+  Release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v2.2.2
+        with:
+          python-version: 3.7
+
+      - name: Build and publish
+        run: |
+          pip install --upgrade pip
+          pip install wheel~=0.34.2
+          pip install twine
+          pip install -r requirements.txt
+          echo "${{ secrets.pypirc }}" > .pypirc
+          cat .pypirc
+          python setup.py bdist_wheel
+          python -m twine upload --config-file .pypirc -r pypitest dist/* --verbose
