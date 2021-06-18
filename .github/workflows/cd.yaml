@@ -7,8 +7,8 @@ on:
   workflow_dispatch:
     inputs:
       bump:
-        description: bump rule (major|minor|patch|tag|addon)
-        default: tag
+        description: bump rule (major|minor|patch|premajor|preminor|prepatch|[prerelease])
+        default: prerelease
         required: false
         
       version:
@@ -17,7 +17,7 @@ on:
         required: false
         
       release:
-        description: release type (local|global)
+        description: release type ([local]|global)
         default: local
         required: false
         
@@ -27,14 +27,14 @@ on:
 jobs:
   Release:
     runs-on: ubuntu-latest
+    env:
+      BUMP: prerelease # default values for push-triggered run
+      RELEASE: local
     steps:
       - name: Validate inputs  #TODO create an action for this
-        if: github.event_name == workflow_dispatch
-        env:
-          BUMP: ${{ github.event.inputs.bump }}
-          RELEASE: ${{ github.event.inputs.release }}
+        if: github.event_name == 'workflow_dispatch'
         run: |
-          case $BUMP in
+          case ${{ github.event.inputs.bump}} in
             major)
               ;;
             minor)
@@ -51,15 +51,19 @@ jobs:
               ;;
           esac
           
-          case $RELEASE in 
+          case ${{ github.event.inputs.release}} in 
             local)
               ;;
             global)
               ;;
             *)
-              echo invalid release type: $RELEASE
+              echo invalid release type: ${{ github.event.inputs.release }}
               exit 1
               ;;
+          esac
+          
+          echo BUMP=${{ github.event.inputs.bump }} >> $GITHUB_ENV
+          echo RELEASE=${{ github.event.inputs.release }} >> $GITHUB_ENV
               
       - name: Checkout
         uses: actions/checkout@v2
@@ -83,11 +87,11 @@ jobs:
         
       - name: bump version
         if: github.events.inputs.version == ''
-        run: poetry version ${{ github.events.inputs.bump }}
+        run: poetry version ${{ env.bump }}
         
       - name: force bump version
         if: github.events.inputs.version != ''
-        run: poetry version 
+        run: poetry version ${{ github.events.inputs.version }}
         
       - name: Build
         run: poetry build
@@ -96,4 +100,13 @@ jobs:
         run: |
           poetry config repositories.testpypi https://test.pypi.org/legacy/
           poetry pulish -u __token__ -p ${{ secrets.pypi_token }} -r testpypi
+          
+      - name: Tag and push changes
+        run: |
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git commit -a --allow-empty -m "release version $(poetry version -s)"
+          git tag $(poetry version -s)
+          git push
+          git push --tags
           
