@@ -1,4 +1,3 @@
-from collections import namedtuple
 from enum import Enum
 from typing import List, Optional, Dict
 import json
@@ -17,9 +16,17 @@ from hydrosdk.modelversion import ModelVersion
 from hydrosdk.predictor import PredictServiceClient, MonitorableApplicationPredictionService
 from hydrosdk.utils import handle_request_error
 from hydrosdk.exceptions import TimeoutException
+from pydantic import BaseModel
 
-StreamingParams = namedtuple('StreamingParams', ['sourceTopic', 'destinationTopic'])
-ModelVariant = namedtuple("ModelVariant", ["modelVersion", "weight", "deploymentConfig"])
+class StreamingParams(BaseModel):
+    sourceTopic: str
+    destinationTopic: str
+
+class ModelVariant(BaseModel):
+    modelVersionId: int
+    weight: int
+    deploymentConfigurationName: Optional[str]
+    servableName: Optional[str]
 
 
 class ApplicationStatus(Enum):
@@ -111,7 +118,7 @@ class Application:
         id_ = application_json.get("id")
         name = application_json.get("name")
         execution_graph = ExecutionGraph._from_json(cluster, application_json.get("executionGraph"))
-        kafka_streaming = [StreamingParams(kafka_param["in-topic"], kafka_param["out-topic"])
+        kafka_streaming = [StreamingParams(sourceTopic=kafka_param["in-topic"], destinationTopic=kafka_param["out-topic"])
                                for kafka_param in application_json.get("kafkaStreaming")]
         metadata = application_json.get("metadata")
         message = application_json.get("message")
@@ -138,7 +145,7 @@ class Application:
         if self.status is ApplicationStatus.READY: 
             return self
         if self.status is ApplicationStatus.FAILED:
-            raise ValueError('Application initialization failed')
+            raise ValueError(f'Application initialization failed {self.message}')
         try:
             deadline_at = datetime.datetime.now().timestamp() + timeout
             for event in events_client.events():
@@ -146,11 +153,13 @@ class Application:
                     raise TimeoutException('Time out waiting for an application to become available')
                 if event.event == "ApplicationUpdate":
                     data = json.loads(event.data)
+                    print(data)
                     if data.get("name") == self.name:
                         self.status = ApplicationStatus[data.get("status").upper()]
                         if self.status is ApplicationStatus.READY:
                             return self
-                        raise ValueError('Application initialization failed')
+                        elif self.status is ApplicationStatus.FAILED:
+                            raise ValueError('Application initialization failed')
         finally:
             events_client.close()
 
@@ -324,7 +333,7 @@ class ExecutionGraph:
 
 
 class ExecutionStage:
-    def __init__(self, model_variants: List[ModelVariant], signature: ModelSignature) -> 'ExecutionStage':
+    def __init__(self, model_variants: List[ModelVariant], signature: Optional[ModelSignature]) -> 'ExecutionStage':
         """
         ExecutionStage is a single stage in a linear graph of ExecutionGraph. Each stage
         may contain from 1 to many different ModelVersions with the same signature. Every input
@@ -341,21 +350,18 @@ class ExecutionStage:
     def to_dict(self) -> Dict[str, List[Dict[str, int]]]:
         model_variants = []
         for model_variant in self.model_variants:
-            dict_repr = {"modelVersionId": model_variant.modelVersion.id,
-                         "weight": model_variant.weight}
-            if model_variant.deploymentConfig is not None:
-                dict_repr['deploymentConfigName'] = model_variant.deploymentConfig.name
-
+            dict_repr = {
+                'modelVersionId': model_variant.modelVersionId,
+                'weight': model_variant.weight,
+                'deploymentConfigName': model_variant.deploymentConfigurationName,
+            }
             model_variants.append(dict_repr)
         return {"modelVariants": model_variants}
 
     @staticmethod
     def _from_json(cluster: Cluster, execution_stage_dict: Dict) -> 'ExecutionStage':
         execution_stage_signature = signature_dict_to_ModelSignature(execution_stage_dict['signature'])
-        model_variants = [ModelVariant(ModelVersion._from_json(cluster, mv['modelVersion']),
-                                       mv['weight'],
-                                       DeploymentConfiguration.from_camel_case_dict(mv.get('deploymentConfiguration')))
-                          for mv in execution_stage_dict['modelVariants']]
+        model_variants = [ModelVariant.parse_obj(mv) for mv in execution_stage_dict['modelVariants']]
         return ExecutionStage(model_variants=model_variants, signature=execution_stage_signature)
 
 
@@ -366,20 +372,12 @@ class ExecutionStageBuilder:
         """
         self.model_variants = []
 
-    @property
-    def __common_signature(self):
-        return self.model_variants[0].modelVersion.signature
-
     def __validate(self):
         """
         Validate the stage for correctness.
         """
         if len(self.model_variants) == 0:
             raise ValueError("At least one model variant should be specified.")
-
-        model_variant_signatures = [mv.modelVersion.signature for mv in self.model_variants]
-        if not all(self.__common_signature == mv_signature for mv_signature in model_variant_signatures):
-            raise ValueError("All model variants inside the same stage must have the same signature")
 
         if sum(variant.weight for variant in self.model_variants) != 100:
             raise ValueError("All model variants' weights inside the same stage must sum up to 100")
@@ -396,7 +394,16 @@ class ExecutionStageBuilder:
         :param deployment_configuration: K8s Deployment Configuration of this Model Variant
         :return:
         """
-        self.model_variants.append(ModelVariant(model_version, weight, deployment_configuration))
+        dc_name = None
+        if deployment_configuration is not None:
+            dc_name = deployment_configuration.name
+        mv = ModelVariant(
+            modelVersionId=model_version.id,
+            weight=weight,
+            deploymentConfigurationName=dc_name,
+            servableName=None
+        )
+        self.model_variants.append(mv)
         return self
 
     def build(self) -> 'ExecutionStage':
@@ -407,4 +414,4 @@ class ExecutionStageBuilder:
         :return:
         """
         self.__validate()
-        return ExecutionStage(model_variants=self.model_variants, signature=self.__common_signature)
+        return ExecutionStage(model_variants=self.model_variants, signature=None)

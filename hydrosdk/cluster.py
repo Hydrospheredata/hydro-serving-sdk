@@ -30,17 +30,16 @@ class Cluster:
     >>> print(cluster.build_info())
     """
 
-    def __init__(self, http_address: str, grpc_address: Optional[str] = None, ssl: bool = False,
+    def __init__(self, http_address: str, grpc_address: Optional[str] = None,
                  grpc_credentials: Optional[grpc.ChannelCredentials] = None,
                  grpc_options: Optional[list] = None, grpc_compression: Optional[grpc.Compression] = None,
-                 timeout: int = 5) -> 'Cluster':
+                 timeout: int = 5, **kwarg) -> 'Cluster':
         """
         A cluster object which hides networking details and provides a connection to a 
         deployed Hydrosphere cluster.
 
         :param http_address: HTTP endpoint of the cluster
         :param grpc_address: gRPC endpoint of the cluster
-        :param ssl: whether to use SSL connection for gRPC endpoint
         :param grpc_credentials: an optional instance of ChannelCredentials to use for gRPC endpoint
         :param grpc_options: an optional list of key-value pairs to configure the channel
         :param grpc_compression: an optional value indicating the compression method to be
@@ -57,9 +56,7 @@ class Cluster:
             parse.urlsplit(grpc_address)
             self.grpc_address = grpc_address
 
-            if ssl:
-                if not grpc_credentials:
-                    raise ValueError("Missing grpc credentials")
+            if grpc_credentials is not None:
                 self.channel = grpc.secure_channel(target=self.grpc_address, credentials=grpc_credentials,
                                                    options=grpc_options,
                                                    compression=grpc_compression)
