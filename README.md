@@ -1,4 +1,4 @@
-# Hydrosphere Serving SDK
+ # Hydrosphere Serving SDK
 
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://opensource.org/licenses/Apache-2.0)
@@ -20,4 +20,6 @@ pip install hydrosdk
 Tested on python 3.6, 3.7, 3.8.
 
 1. `poetry install`
+
 2. `poetry run tox`
+
