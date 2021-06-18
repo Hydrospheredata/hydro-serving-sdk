@@ -6,10 +6,7 @@ classifiers = [
   "Intended Audience :: Information Technology",
   "Topic :: Software Development :: Libraries :: Python Modules",
 ]
-description = """
-This package's purpose is to provide a simple and convenient way
-of integrating user's workflow scripts with Serving API."
-"""
+description = " This package's purpose is to provide a simple and convenient way of integrating user's workflow scripts with Serving API."
 maintainers = ["Bulat Lutfullin <blutfullin@provectus.com>"]
 name = "hydrosdk"
 readme = "README.md"
