@@ -29,6 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Validate inputs  #TODO create an action for this
+        if: github.event_name == workflow_dispatch
         env:
           BUMP: ${{ github.event.inputs.bump }}
           RELEASE: ${{ github.event.inputs.release }}
