@@ -4,10 +4,62 @@ on:
       - master
       - main
       
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: bump rule (major|minor|patch|tag|addon)
+        default: tag
+        required: false
+        
+      version:
+        description: manual version
+        default: ''
+        required: false
+        
+      release:
+        description: release type (local|global)
+        default: local
+        required: false
+        
+# Secrets:
+#   PYPIRC - pypi configuration file
+      
 jobs:
   Release:
     runs-on: ubuntu-latest
     steps:
+      - name: Validate inputs  #TODO create an action for this
+        env:
+          BUMP: ${{ github.event.inputs.bump }}
+          RELEASE: ${{ github.event.inputs.release }}
+        run: |
+          case $BUMP in
+            major)
+              ;;
+            minor)
+              ;;
+            patch)
+              ;;
+            tag)
+              ;;
+            addon)
+              ;;
+            *)
+              echo "invalid bump rule: $BUMP"
+              exit 1
+              ;;
+          esac
+          
+          case $RELEASE in 
+            local)
+              ;;
+            global)
+              ;;
+            *)
+              echo invalid release type: $RELEASE
+              exit 1
+              ;;
+              
       - name: Checkout
         uses: actions/checkout@v2
 
@@ -15,14 +67,32 @@ jobs:
         uses: actions/setup-python@v2.2.2
         with:
           python-version: 3.7
-
-      - name: Build and publish
+          
+      - name: Setup poetry
+        uses: abatilo/actions-poetry@v2.1.0
+        
+      - name: Bump grpc
+        if: github.event_name == 'workflow_dispatch'
         run: |
-          pip install --upgrade pip
-          pip install wheel~=0.34.2
-          pip install twine
-          pip install -r requirements.txt
-          echo "${{ secrets.pypirc }}" > .pypirc
-          cat .pypirc
-          python setup.py bdist_wheel
-          python -m twine upload --config-file .pypirc -r pypitest dist/* --verbose
+          GRPC_VERSION=$(curl -Ls https://pypi.org/pypi/hydrosdk/json | jq -r .info.version)
+          poetry add hydro-serving-grpc=$GRPC_VERSION
+          
+      - name: Install dependecies
+        run: poetry install
+        
+      - name: bump version
+        if: github.events.inputs.version == ''
+        run: poetry version ${{ github.events.inputs.bump }}
+        
+      - name: force bump version
+        if: github.events.inputs.version != ''
+        run: poetry version 
+        
+      - name: Build
+        run: poetry build
+          
+      - name: Publish
+        run: |
+          poetry config repositories.testpypi https://test.pypi.org/legacy/
+          poetry pulish -u __token__ -p ${{ secrets.pypi_token }} -r testpypi
+          

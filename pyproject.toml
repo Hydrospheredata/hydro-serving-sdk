@@ -11,7 +11,7 @@ This package's purpose is to provide a simple and convenient way
 of integrating user's workflow scripts with Serving API."
 """
 maintainers = ["Bulat Lutfullin <blutfullin@provectus.com>"]
-name = "bulbawarrior-hydrosdk"
+name = "hydrosdk"
 readme = "README.md"
 version = "3.0.0-dev2"
 
