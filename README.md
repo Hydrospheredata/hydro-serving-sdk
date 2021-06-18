@@ -19,7 +19,5 @@ pip install hydrosdk
 ## Testing
 Tested on python 3.6, 3.7, 3.8.
 
-1. Install [tox](https://tox.readthedocs.io/en/latest/index.html)
-2. Run `tox`
-
-If there are changes in your environment, e.g. new dependencies, use `tox --recreate`
+1. `poetry install`
+2. `poetry run tox`
