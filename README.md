@@ -21,3 +21,5 @@ Tested on python 3.6, 3.7, 3.8.
 
 1. `poetry install`
 2. `poetry run tox`
+
+
