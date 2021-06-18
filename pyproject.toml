@@ -13,7 +13,7 @@ of integrating user's workflow scripts with Serving API."
 maintainers = ["Bulat Lutfullin <blutfullin@provectus.com>"]
 name = "hydrosdk"
 readme = "README.md"
-version = "3.0.0-dev2"
+version = "3.0.0-alpha.3"
 
 [tool.poetry.urls]
 homepage = "https://hydrosphere.io/"
