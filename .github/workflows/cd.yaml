@@ -4,6 +4,23 @@ on:
       - master
       - main
       
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: bump rule (major|minor|patch|tag|addon)
+        default: tag
+        required: false
+        
+      version:
+        description: manual version
+        default: ''
+        required: false
+        
+      release:
+        description: release type (local|global)
+        default: local
+        required: false
+        
 # Secrets:
 #   PYPIRC - pypi configuration file
       
@@ -11,6 +28,38 @@ jobs:
   Release:
     runs-on: ubuntu-latest
     steps:
+      - name: Validate inputs  #TODO create an action for this
+        env:
+          BUMP: ${{ event.inputs.bump }}
+          RELEASE: ${{ event.inputs.release }}
+        run: |
+          case $BUMP in
+            major)
+              ;;
+            minor)
+              ;;
+            patch)
+              ;;
+            tag)
+              ;;
+            addon)
+              ;;
+            *)
+              echo "invalid bump rule: $BUMP"
+              exit 1
+              ;;
+          esac
+          
+          case $RELEASE in 
+            local)
+              ;;
+            global)
+              ;;
+            *)
+              echo invalid release type: $RELEASE
+              exit 1
+              ;;
+              
       - name: Checkout
         uses: actions/checkout@v2
 
