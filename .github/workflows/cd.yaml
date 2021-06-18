@@ -30,8 +30,8 @@ jobs:
     steps:
       - name: Validate inputs  #TODO create an action for this
         env:
-          BUMP: ${{ event.inputs.bump }}
-          RELEASE: ${{ event.inputs.release }}
+          BUMP: ${{ github.event.inputs.bump }}
+          RELEASE: ${{ github.event.inputs.release }}
         run: |
           case $BUMP in
             major)
@@ -68,17 +68,31 @@ jobs:
         with:
           python-version: 3.7
           
-      - name: Install dependecies
+      - name: Setup poetry
+        uses: abatilo/actions-poetry@v2.1.0
+        
+      - name: Bump grpc
+        if: github.event_name == 'workflow_dispatch'
         run: |
-          pip install wheel~=0.34.2
-          pip install twine
-          pip install -r requirements.txt
+          GRPC_VERSION=$(curl -Ls https://pypi.org/pypi/hydrosdk/json | jq -r .info.version)
+          poetry add hydro-serving-grpc=$GRPC_VERSION
           
+      - name: Install dependecies
+        run: poetry install
+        
+      - name: bump version
+        if: github.events.inputs.version == ''
+        run: poetry version ${{ github.events.inputs.bump }}
+        
+      - name: force bump version
+        if: github.events.inputs.version != ''
+        run: poetry version 
+        
       - name: Build
-        run: python setup.py bdist_wheel
+        run: poetry build
           
       - name: Publish
         run: |
-          echo "${{ secrets.pypirc }}" > .pypirc
-          python -m twine upload --config-file .pypirc -r pypitest dist/*
+          poetry config repositories.testpypi https://test.pypi.org/legacy/
+          poetry pulish -u __token__ -p ${{ secrets.pypi_token }} -r testpypi
           
