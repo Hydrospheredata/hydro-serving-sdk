@@ -1,8 +1,25 @@
-config = {
+from pydantic import BaseModel
+from hydrosdk.image import DockerImage
+
+class Configuration(BaseModel):
+    class HttpConfig(BaseModel):
+        url: str
+    class GrpcConfig(BaseModel):
+        url: str
+        ssl: bool
+    
+    runtime: DockerImage
+    http_cluster: HttpConfig
+    grpc_cluster: GrpcConfig
+    lock_timeout: int
+    default_application_name: str
+    default_model_name: str
+
+config = Configuration.parse_obj({
     "runtime": 
         {
-            "image": "hydrosphere/serving-runtime-python-3.7",
-            "tag": "2.4.0"
+            "name": "hydrosphere/serving-runtime-python-3.7",
+            "tag": "dev"
         },
     "http_cluster":
         {  
@@ -16,15 +33,4 @@ config = {
     "lock_timeout": 120,
     "default_application_name": "infer",
     "default_model_name": "infer"
-}
-
-HTTP_CLUSTER_ENDPOINT = config["http_cluster"]["url"]
-GRPC_CLUSTER_ENDPOINT = config["grpc_cluster"]["url"]
-GRPC_CLUSTER_ENDPOINT_SSL = config["grpc_cluster"]["ssl"]
-
-DEFAULT_APP_NAME = config["default_application_name"]
-DEFAULT_MODEL_NAME = config["default_model_name"]
-DEFAULT_RUNTIME_IMAGE = config["runtime"]["image"]
-DEFAULT_RUNTIME_TAG = config["runtime"]["tag"]
-DEFAULT_RUNTIME_REFERENCE = f"{DEFAULT_RUNTIME_IMAGE}:{DEFAULT_RUNTIME_TAG}"
-LOCK_TIMEOUT = config["lock_timeout"]
+})

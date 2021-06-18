@@ -4,20 +4,19 @@ from hydrosdk.cluster import Cluster
 from hydrosdk.modelversion import ModelVersion, ModelVersionBuilder
 from hydrosdk.monitoring import MetricSpec, MetricSpecConfig, ThresholdCmpOp
 from tests.common_fixtures import *
-from tests.config import LOCK_TIMEOUT
 
 
 @pytest.fixture(scope="module")
 def root_mv(cluster: Cluster, model_version_builder: ModelVersionBuilder):
     mv: ModelVersion = model_version_builder.build(cluster)
-    mv.lock_till_released(timeout=LOCK_TIMEOUT)
+    mv.lock_till_released(timeout=config.lock_timeout)
     return mv
 
 
 @pytest.fixture(scope="module")
 def monitoring_mv(cluster: Cluster, model_version_builder: ModelVersionBuilder):
     mv: ModelVersion = model_version_builder.build(cluster)
-    mv.lock_till_released(timeout=LOCK_TIMEOUT)
+    mv.lock_till_released(timeout=config.lock_timeout)
     return mv
 
 
@@ -34,7 +33,7 @@ def test_create_low_level(cluster: Cluster, root_mv: ModelVersion, monitoring_mv
 
 def test_create_high_level(cluster: Cluster, model_version_builder: ModelVersionBuilder, monitoring_mv: ModelVersion):
     root_mv: ModelVersion = model_version_builder.build(cluster)
-    root_mv.lock_till_released(timeout=LOCK_TIMEOUT)
+    root_mv.lock_till_released(timeout=config.lock_timeout)
     
     metric = monitoring_mv.as_metric(10, ThresholdCmpOp.NOT_EQ)
     root_mv.assign_metrics([metric])

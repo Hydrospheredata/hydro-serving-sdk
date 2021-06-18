@@ -14,11 +14,11 @@ from tests.config import *
 
 @pytest.fixture(scope="session")
 def cluster() -> Cluster:
-    if GRPC_CLUSTER_ENDPOINT_SSL:
+    if config.grpc_cluster.ssl:
         credentials = ssl_channel_credentials()
-        return Cluster(HTTP_CLUSTER_ENDPOINT, GRPC_CLUSTER_ENDPOINT, ssl=True, grpc_credentials=credentials)
+        return Cluster(config.http_cluster.url, config.grpc_cluster.url, ssl=True, grpc_credentials=credentials)
     else:
-        return Cluster(HTTP_CLUSTER_ENDPOINT, GRPC_CLUSTER_ENDPOINT)
+        return Cluster(config.http_cluster.url, config.grpc_cluster.url)
 
 
 @pytest.fixture(scope="session")
@@ -35,7 +35,7 @@ def payload() -> List[str]:
 
 @pytest.fixture(scope="session")
 def runtime() -> DockerImage:
-    return DockerImage.from_string(DEFAULT_RUNTIME_REFERENCE)
+    return config.runtime
 
 
 @pytest.fixture(scope="session")
@@ -47,7 +47,7 @@ def monitoring_configuration() -> MonitoringConfiguration:
 def model_version_builder(payload, signature, runtime, monitoring_configuration) -> ModelVersionBuilder:
     current_dir = os.path.dirname(os.path.abspath(__file__))
     model_path = os.path.join(current_dir, 'resources/identity_model/')
-    return ModelVersionBuilder(DEFAULT_MODEL_NAME, model_path) \
+    return ModelVersionBuilder(config.default_model_name, model_path) \
         .with_runtime(runtime) \
         .with_signature(signature) \
         .with_payload(payload) \
@@ -61,7 +61,7 @@ def tensor_model_version_builder(payload, runtime, monitoring_configuration) -> 
     signature = SignatureBuilder('infer') \
         .with_input('input', 'int64', [1], ProfilingType.NONE) \
         .with_output('output', 'int64', [1], ProfilingType.NONE).build()
-    return ModelVersionBuilder(DEFAULT_MODEL_NAME, model_path) \
+    return ModelVersionBuilder(config.default_model_name, model_path) \
         .with_runtime(runtime) \
         .with_signature(signature) \
         .with_payload(payload) \
