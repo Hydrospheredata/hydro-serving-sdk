@@ -31,7 +31,7 @@ def getVersion(){
 }
 
 def bumpVersion(String currentVersion, String newVersion, String patch, String path){
-  sh("poetry version prerelease")
+  sh("export PATH=\"$HOME/.poetry/bin:$PATH\" && poetry version prerelease")
 }
 
 def slackMessage(){
@@ -99,7 +99,7 @@ def bumpGrpc(String newVersion, String search, String patch, String path){
 def buildPython(String command, String version){
     if(command == "build"){
       sh script:"""#!/bin/bash
-          export PATH="$HOME/.poetry/bin:$PATH"
+          export PATH="$HOME/.poetry/bin:$PATH" &&
           poetry install &&
           poetry build
       """, label: "Build python package"
@@ -107,7 +107,7 @@ def buildPython(String command, String version){
       try{
         withCredentials([usernamePassword(credentialsId: 'Hydrosphere_pypi', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
           sh script: """#!/bin/bash
-              export PATH="$HOME/.poetry/bin:$PATH"
+              export PATH="$HOME/.poetry/bin:$PATH" &&
               poetry install &&
               poetry build &&
               poetry publish -u ${USERNAME} -p ${PASSWORD}
