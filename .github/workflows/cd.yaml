@@ -46,7 +46,7 @@ jobs:
             addon)
               ;;
             *)
-              echo "invalid bump rule: $BUMP"
+              echo "invalid bump rule: ${{ github.event.inputs.bump }}"
               exit 1
               ;;
           esac
@@ -82,7 +82,7 @@ jobs:
           GRPC_VERSION=$(curl -Ls https://pypi.org/pypi/hydrosdk/json | jq -r .info.version)
           poetry add hydro-serving-grpc=$GRPC_VERSION
           
-      - name: Install dependecies
+      - name: Install dependencies
         run: poetry install
         
       - name: bump version
@@ -99,7 +99,16 @@ jobs:
       - name: Publish
         run: |
           poetry config repositories.testpypi https://test.pypi.org/legacy/
-          poetry pulish -u __token__ -p ${{ secrets.pypi_token }} -r testpypi
+          poetry publish -u __token__ -p ${{ secrets.pypi_token }} -r testpypi
+          
+      - name: Tag and push changes
+        run: |
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git commit -a --allow-empty -m "release version $(poetry version -s)"
+          git tag $(poetry version -s)
+          git push
+          git push --tags
           
       - name: Tag and push changes
         run: |
