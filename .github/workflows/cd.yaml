@@ -1,3 +1,5 @@
+name: cd
+
 on:
   push:
     branches:
@@ -91,7 +93,7 @@ jobs:
         
       - name: bump version
         if: github.events.inputs.version == ''
-        run: poetry version ${{ env.bump }}
+        run: poetry version ${{ env.BUMP }}
         
       - name: force bump version
         if: github.events.inputs.version != ''
@@ -104,15 +106,6 @@ jobs:
         run: |
           poetry config repositories.testpypi https://test.pypi.org/legacy/
           poetry publish -u __token__ -p ${{ secrets.pypi_token }} -r testpypi
-          
-      - name: Tag and push changes
-        run: |
-          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git commit -a --allow-empty -m "release version $(poetry version -s)"
-          git tag $(poetry version -s)
-          git push
-          git push --tags
           
       - name: Tag and push changes
         run: |
