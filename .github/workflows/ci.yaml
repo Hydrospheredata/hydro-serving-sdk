@@ -17,7 +17,7 @@ jobs:
       - name: Setup poetry
         uses: abatilo/actions-poetry@v2.1.0
         
-      - name: Install dependecies
+      - name: Install dependencies
         run: poetry install
          
       - name: Build package
