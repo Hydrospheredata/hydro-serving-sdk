@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       bump:
-        description: bump rule (major|minor|patch|premajor|preminor|prepatch|[prerelease])
+        description: bump rule (major|minor|patch|premajor|preminor|prepatch|prerelease)
         default: prerelease
         required: false
         
@@ -17,7 +17,7 @@ on:
         required: false
         
       release:
-        description: release type ([local]|global)
+        description: release type (local|global)
         default: local
         required: false
         
@@ -37,13 +37,17 @@ jobs:
           case ${{ github.event.inputs.bump}} in
             major)
               ;;
+            premajor)
+              ;;
             minor)
+              ;;
+            preminor)
               ;;
             patch)
               ;;
-            tag)
+            prepatch)
               ;;
-            addon)
+            prerelease)
               ;;
             *)
               echo "invalid bump rule: ${{ github.event.inputs.bump }}"
