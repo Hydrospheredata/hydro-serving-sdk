@@ -18,13 +18,18 @@ on:
         default: ''
         required: false
         
+      grpc_version:
+        description: manual grpc version
+        default: ''
+        required: false
+        
       release:
         description: release type (local|global)
         default: local
         required: false
         
 # Secrets:
-#   PYPIRC - pypi configuration file
+#   pypi_token - pypi API token
       
 jobs:
   Release:
@@ -83,10 +88,14 @@ jobs:
         uses: abatilo/actions-poetry@v2.1.0
         
       - name: Bump grpc
-        if: github.event_name == 'workflow_dispatch'
+        if: github.event.inputs.grpc_version == ''
         run: |
           GRPC_VERSION=$(curl -Ls https://pypi.org/pypi/hydro-serving-grpc/json | jq -r .info.version)
-          poetry add hydro-serving-grpc=$GRPC_VERSION
+          poetry add hydro-serving-grpc=${{ env.GRPC_VERSION }}
+          
+      - name: Set manual grpc version
+        if: github.event.inputs.grpc_version != ''
+        run: poetry add hydro-serving-grpc=${{ github.event.inputs.grpc_version }}
           
       - name: Install dependencies
         run: poetry install
