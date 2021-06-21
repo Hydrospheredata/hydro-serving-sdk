@@ -99,7 +99,7 @@ jobs:
       - name: Publish
         run: |
           poetry config repositories.testpypi https://test.pypi.org/legacy/
-          poetry pulish -u __token__ -p ${{ secrets.pypi_token }} -r testpypi
+          poetry publish -u __token__ -p ${{ secrets.pypi_token }} -r testpypi
           
       - name: Tag and push changes
         run: |
