@@ -83,7 +83,7 @@ jobs:
       - name: Bump grpc
         if: github.event_name == 'workflow_dispatch'
         run: |
-          GRPC_VERSION=$(curl -Ls https://pypi.org/pypi/hydrosdk/json | jq -r .info.version)
+          GRPC_VERSION=$(curl -Ls https://pypi.org/pypi/hydro-serving-grpc/json | jq -r .info.version)
           poetry add hydro-serving-grpc=$GRPC_VERSION
           
       - name: Install dependencies
