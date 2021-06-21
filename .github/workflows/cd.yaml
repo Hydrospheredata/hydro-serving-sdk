@@ -91,7 +91,7 @@ jobs:
         
       - name: bump version
         if: github.events.inputs.version == ''
-        run: poetry version ${{ env.bump }}
+        run: poetry version ${{ env.BUMP }}
         
       - name: force bump version
         if: github.events.inputs.version != ''
