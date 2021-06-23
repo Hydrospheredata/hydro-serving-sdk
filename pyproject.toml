@@ -7,18 +7,19 @@ classifiers = [
   "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 description = """
-This package's purpose is to provide a simple and convenient way of integrating user's workflow scripts with Serving API.
+This package's purpose is to provide a simple and convenient way
+of integrating user's workflow scripts with Serving API."
 """
 maintainers = ["Bulat Lutfullin <blutfullin@provectus.com>"]
-name = "testhydrosdk"
+name = "hydrosdk"
 readme = "README.md"
-version = "3.0.0-alpha.1"
+version = "3.0.0-dev2"
 
 [tool.poetry.urls]
 homepage = "https://hydrosphere.io/"
 
 [tool.poetry.dependencies]
-hydro-serving-grpc = "2.4.0"
+hydro-serving-grpc = "^3.0.0-dev3"
 importlib_metadata = "^1.7.0"
 numpy = "1.18.3"
 python = "^3.6.2"

@@ -214,7 +214,7 @@ protobuf = ["grpcio-tools (>=1.38.0)"]
 
 [[package]]
 name = "hydro-serving-grpc"
-version = "2.4.0"
+version = "3.0.0.dev3"
 description = "hydro-serving-protos"
 category = "main"
 optional = false
@@ -637,7 +637,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=1.2.3)", "pytest-flake8", "pyt
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.6.2"
-content-hash = "24f5cb9f28c73fcace547b515b7733033e30bbcf89a5e04dbd6b8d24b31e33fa"
+content-hash = "edf727dfa12da6eb91ac96544110f903825e123fafaef441ca38d6ddd09bc0ad"
 
 [metadata.files]
 appdirs = [
@@ -764,7 +764,7 @@ grpcio = [
     {file = "grpcio-1.38.0.tar.gz", hash = "sha256:abbf9c8c3df4d5233d5888c6cfa85c1bb68a6923749bd4dd1abc6e1e93986f17"},
 ]
 hydro-serving-grpc = [
-    {file = "hydro_serving_grpc-2.4.0-py3-none-any.whl", hash = "sha256:17389e0f8225ed9bbce6b120494aee8e7f27de5c30c5da5320e83e7c2e6e9c13"},
+    {file = "hydro_serving_grpc-3.0.0.dev3-py3-none-any.whl", hash = "sha256:5f68c7c3b859608c21bf857ca59bea60d29390c5dfba2ec7c76a6644717b2b23"},
 ]
 idna = [
     {file = "idna-2.10-py2.py3-none-any.whl", hash = "sha256:b97d804b1e9b523befed77c48dacec60e6dcb0b5391d57af6a65a312a90648c0"},
