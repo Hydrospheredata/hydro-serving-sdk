@@ -121,7 +121,7 @@ jobs:
           
       - name: Publish
         run: |
-          poetry publish -u __token__ -p ${{ secrets.pypi_token }} -r testpypi
+          poetry publish -u __token__ -p ${{ secrets.pypi_token }} -r pypi
           
       - name: Tag and push changes
         run: |
