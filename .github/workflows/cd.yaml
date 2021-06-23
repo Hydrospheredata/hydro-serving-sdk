@@ -41,7 +41,7 @@ jobs:
       - name: Validate inputs  #TODO create an action for this
         if: github.event_name == 'workflow_dispatch'
         run: |
-          case ${{ github.event.inputs.bump}} in
+          case ${{ github.event.inputs.bump }} in
             major)
               ;;
             premajor)
@@ -62,7 +62,7 @@ jobs:
               ;;
           esac
           
-          case ${{ github.event.inputs.release}} in 
+          case ${{ github.event.inputs.release }} in 
             local)
               ;;
             global)
@@ -121,7 +121,6 @@ jobs:
           
       - name: Publish
         run: |
-          poetry config repositories.testpypi https://test.pypi.org/legacy/
           poetry publish -u __token__ -p ${{ secrets.pypi_token }} -r testpypi
           
       - name: Tag and push changes
