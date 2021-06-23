@@ -1,0 +1,134 @@
+name: cd
+
+on:
+  push:
+    branches:
+      - master
+      - main
+      
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: bump rule (major|minor|patch|premajor|preminor|prepatch|prerelease)
+        default: prerelease
+        required: false
+        
+      version:
+        description: manual version
+        default: ''
+        required: false
+        
+      grpc_version:
+        description: manual grpc version
+        default: ''
+        required: false
+        
+      release:
+        description: release type (local|global)
+        default: local
+        required: false
+        
+# Secrets:
+#   pypi_token - pypi API token
+      
+jobs:
+  Release:
+    runs-on: ubuntu-latest
+    env:
+      BUMP: prerelease # default values for push-triggered run
+      RELEASE: local
+    steps:
+      - name: Validate inputs  #TODO create an action for this
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          case ${{ github.event.inputs.bump }} in
+            major)
+              ;;
+            premajor)
+              ;;
+            minor)
+              ;;
+            preminor)
+              ;;
+            patch)
+              ;;
+            prepatch)
+              ;;
+            prerelease)
+              ;;
+            *)
+              echo "invalid bump rule: ${{ github.event.inputs.bump }}"
+              exit 1
+              ;;
+          esac
+          
+          case ${{ github.event.inputs.release }} in 
+            local)
+              ;;
+            global)
+              ;;
+            *)
+              echo invalid release type: ${{ github.event.inputs.release }}
+              exit 1
+              ;;
+          esac
+          
+          echo BUMP=${{ github.event.inputs.bump }} >> $GITHUB_ENV
+          echo RELEASE=${{ github.event.inputs.release }} >> $GITHUB_ENV
+              
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v2.2.2
+        with:
+          python-version: 3.7
+          
+      - name: Setup poetry
+        uses: abatilo/actions-poetry@v2.1.0
+        
+      - name: Bump grpc
+        if: github.event.inputs.grpc_version == '' && env.RELEASE == 'local'
+        run: |
+          GRPC_VERSION=$(curl -Ls https://pypi.org/pypi/hydro-serving-grpc/json | jq -r '.releases | keys[-1]')
+          echo $GRPC_VERSION
+          poetry add hydro-serving-grpc=$GRPC_VERSION
+          
+      - name: Bump grpc to latest stable version
+        if: github.event.inputs.grpc_version == '' && env.RELEASE == 'global'
+        run: |
+          GRPC_VERSION=$(curl -Ls https://pypi.org/pypi/hydro-serving-grpc/json | jq -r .info.version)
+          echo $GRPC_VERSION
+          poetry add hydro-serving-grpc=$GRPC_VERSION
+          
+      - name: Set manual grpc version
+        if: github.event.inputs.grpc_version != ''
+        run: poetry add hydro-serving-grpc=${{ github.event.inputs.grpc_version }}
+          
+      - name: Install dependencies
+        run: poetry install
+        
+      - name: bump version
+        if: github.events.inputs.version == ''
+        run: poetry version ${{ env.BUMP }}
+        
+      - name: force bump version
+        if: github.events.inputs.version != ''
+        run: poetry version ${{ github.events.inputs.version }}
+        
+      - name: Build
+        run: poetry build
+          
+      - name: Publish
+        run: |
+          poetry publish -u __token__ -p ${{ secrets.pypi_token }} -r testpypi
+          
+      - name: Tag and push changes
+        run: |
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git commit -a --allow-empty -m "release version $(poetry version -s)"
+          git tag $(poetry version -s)
+          git push
+          git push --tags
+          
