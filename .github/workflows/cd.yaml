@@ -88,7 +88,13 @@ jobs:
         uses: abatilo/actions-poetry@v2.1.0
         
       - name: Bump grpc
-        if: github.event.inputs.grpc_version == ''
+        if: github.event.inputs.grpc_version == '' && github.events.inputs.release == 'local' 
+        run: |
+          GRPC_VERSION=$(curl -Ls https://pypi.org/pypi/hydro-serving-grpc/json | jq -r '.releases | keys[-1]')
+          poetry add hydro-serving-grpc=${{ env.GRPC_VERSION }}
+          
+      - name: Bump grpc to latest stable version
+        if: github.event.inputs.grpc_version == '' && github.events.inputs.release == 'global'
         run: |
           GRPC_VERSION=$(curl -Ls https://pypi.org/pypi/hydro-serving-grpc/json | jq -r .info.version)
           poetry add hydro-serving-grpc=${{ env.GRPC_VERSION }}
