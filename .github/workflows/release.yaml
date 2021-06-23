@@ -1,4 +1,4 @@
-name: cd
+name: Release
 
 on:
   push:
@@ -121,9 +121,10 @@ jobs:
           
       - name: Publish
         run: |
-          poetry publish -u __token__ -p ${{ secrets.pypi_token }} -r pypi
+          poetry publish -u __token__ -p ${{ secrets.pypi_token }}
           
       - name: Tag and push changes
+        id: tag
         run: |
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
@@ -131,4 +132,41 @@ jobs:
           git tag $(poetry version -s)
           git push
           git push --tags
+
+      - name: Reports
+        id: generate-output
+        run: echo "::set-output name=tag-output::$(poetry version -s)"
+
+    outputs:
+      tag: ${{ steps.generate-output.outputs.tag-output }}
           
+  slackNotification:
+    name: Slack Notification
+    needs: Release
+    runs-on: ubuntu-latest
+    steps:
+    - name: Slack Notification success
+      if: ${{ success() }}
+      uses: rtCamp/action-slack-notify@v2
+      env:
+        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        SLACK_CHANNEL: hydrosphere
+        SLACK_USERNAME: HydroRobot
+        SLACK_ICON: https://avatars.githubusercontent.com/u/17550625?s=200&v=4
+        SLACK_COLOR: ${{ job.status }}
+        SLACK_TITLE: Build status - success
+        SLACK_MESSAGE: "Releasing hydrosdk ${{ needs.Release.outputs.tag }} :rocket:"
+        MSG_MINIMAL: true
+
+    - name: Slack Notification failure
+      if: ${{ failure() }}
+      uses: rtCamp/action-slack-notify@v2
+      env:
+        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        SLACK_CHANNEL: hydrosphere
+        SLACK_USERNAME: HydroRobot
+        SLACK_ICON: https://avatars.githubusercontent.com/u/17550625?s=200&v=4
+        SLACK_COLOR: ${{ job.status }}
+        SLACK_TITLE: Build status - failure
+        SLACK_MESSAGE: "Check build $GITHUB_RUN_ID status"
+        MSG_MINIMAL: true
