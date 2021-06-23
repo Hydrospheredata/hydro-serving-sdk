@@ -23,7 +23,7 @@ def checkoutRepo(String repo){
 def getVersion(){
     try{
         //remove only quotes
-        version = sh(script: "poetry version -s", returnStdout: true ,label: "get version").trim()
+        version = sh(script: "export PATH=\"$HOME/.poetry/bin:$PATH\" && poetry version -s", returnStdout: true ,label: "get version").trim()
         return version
     }catch(e){
         return "file version not found" 
@@ -31,7 +31,7 @@ def getVersion(){
 }
 
 def bumpVersion(String currentVersion, String newVersion, String patch, String path){
-  sh("poetry version prerelease")
+  sh("export PATH=\"$HOME/.poetry/bin:$PATH\" && poetry version prerelease")
 }
 
 def slackMessage(){
@@ -99,6 +99,7 @@ def bumpGrpc(String newVersion, String search, String patch, String path){
 def buildPython(String command, String version){
     if(command == "build"){
       sh script:"""#!/bin/bash
+          export PATH="$HOME/.poetry/bin:$PATH" &&
           poetry install &&
           poetry build
       """, label: "Build python package"
@@ -106,6 +107,7 @@ def buildPython(String command, String version){
       try{
         withCredentials([usernamePassword(credentialsId: 'Hydrosphere_pypi', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
           sh script: """#!/bin/bash
+              export PATH="$HOME/.poetry/bin:$PATH" &&
               poetry install &&
               poetry build &&
               poetry publish -u ${USERNAME} -p ${PASSWORD}
@@ -140,6 +142,7 @@ node('hydrocentral') {
       sh script: "git config --global user.name \"HydroRobot\"", label: "Set username"
       sh script: "git config --global user.email \"robot@hydrosphere.io\"", label: "Set user email"
       checkoutRepo("https://github.com/Hydrospheredata/$SERVICENAME" + '.git')
+      sh script: "curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python3"
       AUTHOR = sh(script:"git log -1 --pretty=format:'%an'", returnStdout: true, label: "get last commit author").trim()
       if (params.grpcVersion == ''){
           //Set grpcVersion
