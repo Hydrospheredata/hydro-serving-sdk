@@ -10,13 +10,13 @@ description = " This package's purpose is to provide a simple and convenient way
 maintainers = ["Bulat Lutfullin <blutfullin@provectus.com>"]
 name = "hydrosdk"
 readme = "README.md"
-version = "3.0.0-alpha.4"
+version = "3.0.0-alpha.5"
 
 [tool.poetry.urls]
 homepage = "https://hydrosphere.io/"
 
 [tool.poetry.dependencies]
-hydro-serving-grpc = "^3.0.0-dev3"
+hydro-serving-grpc = "3.0.0.dev3"
 importlib_metadata = "^1.7.0"
 numpy = "1.18.3"
 python = "^3.6.2"
