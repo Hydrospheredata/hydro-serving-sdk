@@ -1,15 +1,22 @@
 import re
-from dataclasses import dataclass, field
+from pydantic import BaseModel
 from typing import List, Dict, Optional
 
 from hydrosdk.cluster import Cluster
 from hydrosdk.utils import handle_request_error, enable_camel_case
 from hydrosdk.builder import AbstractBuilder
 
+class K8SEntity(BaseModel):
+    class Config:
+        @staticmethod
+        def to_camel_case(x: str):
+            segments = x.split("_")
+            return segments[0] + "".join([x.capitalize() for x in segments[1:]])
 
-@enable_camel_case
-@dataclass
-class HorizontalPodAutoScalerSpec:
+        alias_generator = to_camel_case
+        allow_population_by_field_name = True
+
+class HorizontalPodAutoScalerSpec(K8SEntity):
     """
     HPA Specification
 
@@ -24,10 +31,7 @@ class HorizontalPodAutoScalerSpec:
     max_replicas: int
     cpu_utilization: int = None
 
-
-@enable_camel_case
-@dataclass
-class NodeSelectorRequirement:
+class NodeSelectorRequirement(K8SEntity):
     """
     A node selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
 
@@ -42,10 +46,7 @@ class NodeSelectorRequirement:
     operator: str
     values: List[str] = None
 
-
-@enable_camel_case
-@dataclass
-class NodeSelectorTerm:
+class NodeSelectorTerm(K8SEntity):
     """
     A null or empty node selector term matches no objects. The requirements of them are ANDed.
      The TopologySelectorTerm type implements a subset of the NodeSelectorTerm.
@@ -53,10 +54,7 @@ class NodeSelectorTerm:
     match_expressions: List[NodeSelectorRequirement] = None
     match_fields: List[NodeSelectorRequirement] = None
 
-
-@enable_camel_case
-@dataclass
-class PreferredSchedulingTerm:
+class PreferredSchedulingTerm(K8SEntity):
     """
     An empty preferred scheduling term matches all objects with implicit weight 0 (i.e. it's a no-op). A null preferred scheduling
      term matches no objects (i.e. is also a no-op).
@@ -67,20 +65,14 @@ class PreferredSchedulingTerm:
     weight: int
     preference: NodeSelectorTerm
 
-
-@enable_camel_case
-@dataclass
-class NodeSelector:
+class NodeSelector(K8SEntity):
     """
     A node selector represents the union of the results of one or more label queries over a set of nodes; that is,
      it represents the OR of the selectors represented by the node selector terms.
     """
-    node_selector_terms: List[NodeSelectorTerm] = field(default_factory=list)
+    node_selector_terms: List[NodeSelectorTerm] = []
 
-
-@enable_camel_case
-@dataclass
-class LabelSelectorRequirement:
+class LabelSelectorRequirement(K8SEntity):
     """
     A label selector requirement is a selector that contains values, a key, and an operator that relates the key and values.
 
@@ -91,12 +83,9 @@ class LabelSelectorRequirement:
     """
     key: str
     operator: str
-    values: List[str] = None
+    values: Optional[List[str]] = None
 
-
-@enable_camel_case
-@dataclass
-class LabelSelector:
+class LabelSelector(K8SEntity):
     """
     A label selector is a label query over a set of resources. The result of matchLabels and matchExpressions are ANDed.
     An empty label selector matches all objects. A null label selector matches no objects.
@@ -106,13 +95,10 @@ class LabelSelector:
       The requirements are ANDed.
     :param match_expressions: matchExpressions is a list of label selector requirements. The requirements are ANDed.
     """
-    match_expressions: List[LabelSelectorRequirement] = None
-    match_labels: Dict[str, str] = None
+    match_expressions: Optional[List[LabelSelectorRequirement]] = None
+    match_labels: Optional[Dict[str, str]] = None
 
-
-@enable_camel_case
-@dataclass
-class PodAffinityTerm:
+class PodAffinityTerm(K8SEntity):
     """
     Defines a set of pods (namely those matching the labelSelector relative to the given namespace(s)) that this pod should be co-located
     (affinity) or not co-located (anti-affinity) with, where co-located is defined as running on a node whose value of the label with key
@@ -128,12 +114,9 @@ class PodAffinityTerm:
     """
     label_selector: LabelSelector
     topology_key: str
-    namespaces: List[str] = None
+    namespaces: Optional[List[str]] = None
 
-
-@enable_camel_case
-@dataclass
-class WeightedPodAffinityTerm:
+class WeightedPodAffinityTerm(K8SEntity):
     """
     The weights of all of the matched WeightedPodAffinityTerm fields are added per-node to find the most preferred node(s)
 
@@ -143,40 +126,28 @@ class WeightedPodAffinityTerm:
     weight: int
     pod_affinity_term: PodAffinityTerm
 
-
-@enable_camel_case
-@dataclass
-class NodeAffinity:
+class NodeAffinity(K8SEntity):
     """
     Group of node affinity scheduling rules.
     """
-    preferred_during_scheduling_ignored_during_execution: List[PreferredSchedulingTerm] = field(default_factory=list)
-    required_during_scheduling_ignored_during_execution: NodeSelector = None
+    preferred_during_scheduling_ignored_during_execution: List[PreferredSchedulingTerm] = []
+    required_during_scheduling_ignored_during_execution: Optional[NodeSelector] = None
 
-
-@enable_camel_case
-@dataclass
-class PodAffinity:
+class PodAffinity(K8SEntity):
     """
     Pod affinity is a group of inter pod affinity scheduling rules.
     """
-    preferred_during_scheduling_ignored_during_execution: List[WeightedPodAffinityTerm] = field(default_factory=list)
-    required_during_scheduling_ignored_during_execution: List[PodAffinityTerm] = field(default_factory=list)
+    preferred_during_scheduling_ignored_during_execution: List[WeightedPodAffinityTerm] = []
+    required_during_scheduling_ignored_during_execution: List[PodAffinityTerm] = []
 
-
-@enable_camel_case
-@dataclass
-class PodAntiAffinity:
+class PodAntiAffinity(K8SEntity):
     """
     Pod anti affinity is a group of inter pod anti affinity scheduling rules.
     """
-    preferred_during_scheduling_ignored_during_execution: List[WeightedPodAffinityTerm] = field(default_factory=list)
-    required_during_scheduling_ignored_during_execution: List[PodAffinityTerm] = field(default_factory=list)
+    preferred_during_scheduling_ignored_during_execution: List[WeightedPodAffinityTerm] = []
+    required_during_scheduling_ignored_during_execution: List[PodAffinityTerm] = []
 
-
-@enable_camel_case
-@dataclass
-class Affinity:
+class Affinity(K8SEntity):
     """
     Group of affinity scheduling rules.
 
@@ -185,14 +156,11 @@ class Affinity:
     :param pod_anti_affinity: pod anti-affinity scheduling rules
         (e.g. avoid putting this pod in the same node, zone, etc. as some other pod(s)).
     """
-    node_affinity: NodeAffinity = None
-    pod_affinity: PodAffinity = None
-    pod_anti_affinity: PodAntiAffinity = None
+    node_affinity: Optional[NodeAffinity] = None
+    pod_affinity: Optional[PodAffinity] = None
+    pod_anti_affinity: Optional[PodAntiAffinity] = None
 
-
-@enable_camel_case
-@dataclass
-class Toleration:
+class Toleration(K8SEntity):
     """
     The pod this Toleration is attached to tolerates any taint that matches the triple <key,value,effect> using the matching operator <operator>.
 
@@ -209,35 +177,26 @@ class Toleration:
      otherwise just a regular string.
     """
     operator: str
-    toleration_seconds: int = None
-    key: str = None
-    value: str = None
-    effect: str = None
+    toleration_seconds: Optional[int] = None
+    key: Optional[str] = None
+    value: Optional[str] = None
+    effect: Optional[str] = None
 
-
-@enable_camel_case
-@dataclass
-class PodSpec:
+class PodSpec(K8SEntity):
     """
     PodSpec contains all configurations related to a pod.
     """
-    node_selector: Dict[str, str] = field(default_factory=dict)
-    affinity: Affinity = None
-    tolerations: List[Toleration] = field(default_factory=list)
+    node_selector: Dict[str, str] = {}
+    tolerations: List[Toleration] = []
+    affinity: Optional[Affinity] = None
 
-
-@enable_camel_case
-@dataclass
-class DeploymentSpec:
+class DeploymentSpec(K8SEntity):
     """
     DeploymentSpec contains all configurations related to a deployment.
     """
     replica_count: int = 1
 
-
-@enable_camel_case
-@dataclass
-class ResourceRequirements:
+class ResourceRequirements(K8SEntity):
     """
     Resources required by the container.
 
@@ -258,20 +217,14 @@ class ResourceRequirements:
             if not re.match(quantity_validation_regex, quantity):
                 raise ValueError(f"{resource} request ({quantity}) is invalid. Quantity must match '{quantity_validation_regex}'")
 
-
-@enable_camel_case
-@dataclass
-class ContainerSpec:
+class ContainerSpec(K8SEntity):
     """
     ContainerSpec contains all configurations related to a container.
     """
-    resources: ResourceRequirements = None
-    env: Dict[str, str] = None
+    resources: Optional[ResourceRequirements] = None
+    env: Optional[Dict[str, str]] = None
 
-
-@enable_camel_case
-@dataclass
-class DeploymentConfiguration:
+class DeploymentConfiguration(K8SEntity):
     """
     DeploymentConfiguration encapsulates k8s configs about how your Servables and ModelVariants should run.
 
@@ -282,14 +235,12 @@ class DeploymentConfiguration:
     :param deployment: Deployment specification
     """
     name: str
-    hpa: HorizontalPodAutoScalerSpec = None
-    pod: PodSpec = None
-    container: ContainerSpec = None
-    deployment: DeploymentSpec = None
-    _BASE_URL: str = "/api/v2/deployment_configuration"
+    hpa: Optional[HorizontalPodAutoScalerSpec] = None
+    pod: Optional[PodSpec] = None
+    container: Optional[ContainerSpec] = None
+    deployment: Optional[DeploymentSpec] = None
 
-    def __str__(self):
-        return f"Deployment Configuration (name={self.name})"
+    _BASE_URL: str = "/api/v2/deployment_configuration"
 
     @staticmethod
     def list(cluster: Cluster) -> List['DeploymentConfiguration']:
@@ -301,7 +252,7 @@ class DeploymentConfiguration:
         """
         resp = cluster.request("GET", DeploymentConfiguration._BASE_URL)
         handle_request_error(resp, f"Failed to get a list of Deployment Configurations - {resp.status_code} {resp.text}")
-        return [DeploymentConfiguration.from_camel_case_dict(app_json) for app_json in resp.json()]
+        return [DeploymentConfiguration.parse_obj(app_json) for app_json in resp.json()]
 
     @staticmethod
     def find(cluster: Cluster, name: str) -> 'DeploymentConfiguration':
@@ -314,7 +265,7 @@ class DeploymentConfiguration:
         """
         resp = cluster.request("GET", f"{DeploymentConfiguration._BASE_URL}/{name}")
         handle_request_error(resp, f"Failed to find Deployment Configuration named {name} {resp.status_code} {resp.text}")
-        return DeploymentConfiguration.from_camel_case_dict(resp.json())
+        return DeploymentConfiguration.parse_obj(resp.json())
 
     @staticmethod
     def delete(cluster: Cluster, name: str) -> dict:
@@ -330,7 +281,7 @@ class DeploymentConfiguration:
         return resp
     
     def to_dict(self):
-        return self.to_camel_case_dict()
+        return self.dict(by_alias=True)
 
 
 class DeploymentConfigurationBuilder(AbstractBuilder):
@@ -382,7 +333,7 @@ class DeploymentConfigurationBuilder(AbstractBuilder):
             raise ValueError("HorizontalPodAutoScalerSpec is already set")
         if max_replicas < min_replicas:
             raise ValueError(f"max_replicas ({max_replicas}) cannot be smaller than min_replicas ({min_replicas}).")
-        self.hpa = HorizontalPodAutoScalerSpec(min_replicas, max_replicas, target_cpu_utilization_percentage)
+        self.hpa = HorizontalPodAutoScalerSpec(min_replicas=min_replicas, max_replicas=max_replicas, cpu_utilization=target_cpu_utilization_percentage)
         return self
 
     def with_pod_node_selector(self, node_selector: Dict[str, str]) -> 'DeploymentConfigurationBuilder':
@@ -562,6 +513,6 @@ class DeploymentConfigurationBuilder(AbstractBuilder):
             container=self.container_spec,
             deployment=self.deployment_spec
         )
-        resp = cluster.request("POST", DeploymentConfiguration._BASE_URL, json=config.to_camel_case_dict())
+        resp = cluster.request("POST", DeploymentConfiguration._BASE_URL, json=config.to_dict())
         handle_request_error(resp, f"Failed to upload new Deployment Configuration. {resp.status_code} {resp.text}")
-        return DeploymentConfiguration.from_camel_case_dict(resp.json())
+        return DeploymentConfiguration.parse_obj(resp.json())
