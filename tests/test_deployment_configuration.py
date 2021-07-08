@@ -9,11 +9,11 @@ import yaml
 from tests.common_fixtures import cluster
 from hydrosdk.deployment_configuration import *
 from hydrosdk.utils import BadRequestException
-
+import uuid
 
 @pytest.fixture(scope="module")
 def deployment_configuration_name():
-    return f"deploy_{random.randint(0, 1e5)}"
+    return f"deploy_{uuid.uuid4()}"
 
 
 @pytest.fixture()
@@ -42,7 +42,7 @@ def test_yaml_and_json_equality(deployment_config_json: Dict, deployment_config_
 
 
 def test_reading_from_camel_case_json(deployment_config_json: Dict):
-    deployment_config = DeploymentConfiguration.from_camel_case_dict(deployment_config_json)
+    deployment_config = DeploymentConfiguration.parse_obj(deployment_config_json)
 
     assert deployment_config.name == "deploy_23432"
 
@@ -61,13 +61,6 @@ def test_reading_from_camel_case_json(deployment_config_json: Dict):
     assert deployment_config.pod.node_selector.keys() == {"foo", "key"}
     assert deployment_config.pod.node_selector["foo"] == "bar"
     assert deployment_config.pod.node_selector["key"] == "value"
-
-
-def test_converting_back_to_camel_case(deployment_config_json: Dict):
-    deployment_config = DeploymentConfiguration.from_camel_case_dict(deployment_config_json)
-    camel_case_config = deployment_config.to_camel_case_dict()
-    assert json.dumps(camel_case_config, sort_keys=True) == json.dumps(deployment_config_json, sort_keys=True)
-
 
 def test_deployment_configuration_builder(cluster: Cluster, deployment_config_json: Dict, deployment_configuration_name: str):
     wpats = [
@@ -182,10 +175,10 @@ def test_deployment_configuration_builder(cluster: Cluster, deployment_config_js
         .with_affinity(affinity)
 
     new_config = builder.build(cluster)
-    camel_case_config = new_config.to_camel_case_dict()
+    camel_case_config = new_config.dict(by_alias=True, exclude_unset=True)
     deployment_config_json["name"] = deployment_configuration_name
 
-    assert json.dumps(camel_case_config, sort_keys=True) == json.dumps(deployment_config_json, sort_keys=True)
+    assert camel_case_config == deployment_config_json
 
     DeploymentConfiguration.delete(cluster, deployment_configuration_name)
 
