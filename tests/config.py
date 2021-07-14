@@ -19,7 +19,7 @@ config = Configuration.parse_obj({
     "runtime": 
         {
             "name": "hydrosphere/serving-runtime-python-3.7",
-            "tag": "dev"
+            "tag": "3.0.0-dev4"
         },
     "http_cluster":
         {  
