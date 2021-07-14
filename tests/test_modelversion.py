@@ -39,6 +39,12 @@ def test_model_create_programmatically():
         './data/*',
         './model/snapshot.proto'
     ]
+    resolved_payload = [
+        '/home/user/folder/model/cool/src/func_main.py',
+        '/home/user/folder/model/cool/requirements.txt',
+        '/home/user/folder/model/cool/data/*',
+        '/home/user/folder/model/cool/model/snapshot.proto',
+    ]
     signature = SignatureBuilder('infer') \
         .with_input('in1', 'double', [-1, 2], ProfilingType.NUMERICAL) \
         .with_output('out1', 'double', [-1], ProfilingType.NUMERICAL).build()
@@ -58,9 +64,29 @@ def test_model_create_programmatically():
     assert model_version_builder.runtime == runtime
     assert model_version_builder.path == path
     assert list(model_version_builder.payload.values()) == payload
+    assert list(model_version_builder.payload.keys()) == resolved_payload
     assert model_version_builder.signature == signature
     assert model_version_builder.monitoring_configuration == monitoring_configuration
 
+def test_model_relative_training_data():
+    name = config.default_model_name
+    path = "/home/user/folder/model/cool/"
+    training_data = "./training-data.csv"
+    try:
+         ModelVersionBuilder(name, path) \
+            .with_training_data(training_data)
+    except FileNotFoundError as err:
+        assert str(err) == "Can't find training data file /home/user/folder/model/cool/training-data.csv"
+
+def test_model_absolute_training_data():
+    name = config.default_model_name
+    path = "/home/user/folder/model/cool/"
+    training_data = "/home/data/training-data.csv"
+    try:
+         ModelVersionBuilder(name, path) \
+            .with_training_data(training_data)
+    except FileNotFoundError as err:
+        assert str(err) == "Can't find training data file /home/data/training-data.csv"
 
 def test_model_create_signature_validation():
     name = config.default_model_name

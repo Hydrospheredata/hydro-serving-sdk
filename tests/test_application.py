@@ -61,6 +61,7 @@ def test_find(cluster: Cluster, app: Application):
 
 
 def test_execution_graph(app: Application, modelversion: ModelVersion):
+    print(modelversion.signature)
     ex_graph = app.execution_graph
     assert len(ex_graph.stages) == 1
     assert len(ex_graph.stages[0].model_variants) == 1
