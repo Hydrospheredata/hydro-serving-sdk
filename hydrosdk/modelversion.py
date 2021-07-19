@@ -204,16 +204,19 @@ class ModelVersionBuilder(AbstractBuilder):
         :param training_data: path (absolute, relative or an S3 URI) to a csv file with 
                               the training data 
         """
-        if training_data and not isinstance(training_data, str):
+        if not isinstance(training_data, str):
             raise TypeError("training_data should be a path presented as a string")
-        if not training_data.startswith("s3://"):
+        if training_data.startswith("s3://"): # pass S3 paths as is
+            self.training_data = training_data
+        else:  # assume that it's local file
             if not os.path.isabs(training_data):
                 full_training_path = os.path.normpath(os.path.join(self.path, training_data))
             else:
-                full_training_path = training_data
+                full_training_path = training_data # absolute paths as is
             if not os.path.exists(full_training_path):
                 raise FileNotFoundError(f"Can't find training data file {full_training_path}")
-            self.training_data = training_data
+            self.training_data = full_training_path
+
         return self
 
     def with_monitoring_configuration(self, monitoring_configuration: MonitoringConfiguration) -> 'ModelVersionBuilder':
