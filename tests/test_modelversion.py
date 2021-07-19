@@ -73,8 +73,9 @@ def test_model_relative_training_data():
     path = "/home/user/folder/model/cool/"
     training_data = "./training-data.csv"
     try:
-         ModelVersionBuilder(name, path) \
+        b = ModelVersionBuilder(name, path) \
             .with_training_data(training_data)
+        pytest.fail(f"Should be unreachable: {b.training_data}")
     except FileNotFoundError as err:
         assert str(err) == "Can't find training data file /home/user/folder/model/cool/training-data.csv"
 
@@ -83,8 +84,9 @@ def test_model_absolute_training_data():
     path = "/home/user/folder/model/cool/"
     training_data = "/home/data/training-data.csv"
     try:
-         ModelVersionBuilder(name, path) \
+        b = ModelVersionBuilder(name, path) \
             .with_training_data(training_data)
+        pytest.fail(f"Should be unreachable: {b.training_data}")
     except FileNotFoundError as err:
         assert str(err) == "Can't find training data file /home/data/training-data.csv"
 
@@ -93,7 +95,7 @@ def test_model_create_signature_validation():
     path = "/home/user/folder/model/cool/"
     signature = SignatureBuilder('infer').build()
     with pytest.raises(SignatureViolationException):
-        _ = ModelVersionBuilder(name, path).with_signature(signature)
+        ModelVersionBuilder(name, path).with_signature(signature)
 
 
 def test_model_version_builder_build(cluster: Cluster):
