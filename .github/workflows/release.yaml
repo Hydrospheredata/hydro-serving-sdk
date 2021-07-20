@@ -92,7 +92,7 @@ jobs:
         run: |
           GRPC_VERSION=$(curl -Ls https://pypi.org/pypi/hydro-serving-grpc/json | jq -r '.releases | keys[-1]')
           echo $GRPC_VERSION
-          poetry add hydro-serving-grpc=$GRPC_VERSION
+         # poetry add hydro-serving-grpc=$GRPC_VERSION
           
       - name: Bump grpc to latest stable version
         if: github.event.inputs.grpc_version == '' && env.RELEASE == 'global'
