@@ -33,7 +33,7 @@ class Cluster:
     def __init__(self, http_address: str, grpc_address: Optional[str] = None,
                  grpc_credentials: Optional[grpc.ChannelCredentials] = None,
                  grpc_options: Optional[list] = None, grpc_compression: Optional[grpc.Compression] = None,
-                 timeout: int = 5, **kwarg) -> 'Cluster':
+                 timeout: int = 5, check_connection = True, **kwarg) -> 'Cluster':
         """
         A cluster object which hides networking details and provides a connection to a 
         deployed Hydrosphere cluster.
@@ -64,10 +64,10 @@ class Cluster:
                 self.channel = grpc.insecure_channel(target=self.grpc_address, options=grpc_options,
                                                      compression=grpc_compression)
 
-            if not grpc_server_on(self.channel, timeout):
-                raise ConnectionError(
-                    f"Couldn't establish connection with grpc {self.grpc_address}. No connection")
-            logging.info(f"Connected to the grpc - {self.grpc_address}")
+            if check_connection:
+                if not grpc_server_on(self.channel, timeout):
+                    raise ConnectionError(
+                        f"Couldn't establish connection with grpc {self.grpc_address}. No connection")
 
     def request(self, method: str, url: str, **kwargs) -> requests.Response:
         """

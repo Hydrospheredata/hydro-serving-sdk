@@ -32,6 +32,15 @@ def test_cluster_init(req_mock):
         cluster = Cluster(config.http_cluster.url)
         assert cluster.http_address == config.http_cluster.url
 
+def test_cluster_unsafe_init():
+    cluster = Cluster(
+        http_address=config.http_cluster.url,
+        grpc_address=config.grpc_cluster.url,
+        grpc_credentials=ssl_channel_credentials(),
+        check_connection=False
+    )
+    assert cluster.http_address == config.http_cluster.url
+    assert cluster.channel is not None
 
 @pytest.mark.skipif(config.grpc_cluster.ssl, reason="Cluster is running in secure mode")
 def test_cluster_insecure_grpc(req_mock):
