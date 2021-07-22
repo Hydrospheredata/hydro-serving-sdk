@@ -176,29 +176,33 @@ class Servable:
 
     def lock_while_starting(self, timeout: int = 120) -> 'Servable':
         """ Wait for a servable to become ready. """
+        updated_servable = Servable.find_by_name(self.cluster, self.name)
+        self.status = updated_servable.status
+        self.status_message = updated_servable.status_message
+
+        if self.status is ServableStatus.SERVING:
+            return self
+
+        deadline_at = datetime.datetime.now().timestamp() + timeout
         events_stream = self.cluster.request("GET", "/api/v2/events", stream=True)
         events_client = sseclient.SSEClient(events_stream)
-
-        self.status = Servable.find_by_name(self.cluster, self.name).status
-        if self.status is ServableStatus.STARTING: 
-            return self
-        if self.status in (ServableStatus.NOT_AVAILABLE, ServableStatus.NOT_SERVING):
-            raise ValueError('Servable initialization failed')
         try:
-            deadline_at = datetime.datetime.now().timestamp() + timeout
-            for event in events_client.events():
+            filtered_events = filter(lambda x: x.event == "ServableUpdate", events_client.events())
+            servables_stream = map(lambda x: Servable._from_json(self.cluster, json.loads(x.data)), filtered_events)
+            target_stream = filter(lambda x: x.name == self.name, servables_stream)
+
+            for servable in target_stream:
                 if datetime.datetime.now().timestamp() > deadline_at:
                     raise TimeoutException('Time out waiting for a servable to become ready')
-                if event.event == "ServableUpdate":
-                    data = json.loads(event.data)
-                    print(data)
-                    if data.get("fullName") == self.name:
-                        self.status = ServableStatus.from_camel_case(data.get("status"))
-                        if self.status is ServableStatus.SERVING:
-                            return self
-                        raise ValueError('Servable initialization failed')
+                
+                self.status = servable.status
+                self.status_message = servable.status_message
+
+                if self.status is ServableStatus.SERVING:
+                    return self
         finally:
             events_client.close()
+        
 
     def __str__(self) -> str:
         return f"Servable '{self.name}' for model_version_id {self.model_version_id}"
