@@ -26,7 +26,6 @@ def req_mock():
         return mock
     return _mock
 
-
 def test_cluster_init(req_mock):
     with req_mock():
         cluster = Cluster(config.http_cluster.url)

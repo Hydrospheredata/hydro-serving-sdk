@@ -1,5 +1,4 @@
 import json
-import logging
 from typing import Dict
 from typing import Optional
 from urllib import parse
@@ -78,9 +77,8 @@ class Cluster:
         :param kwargs: additional args
         :return: request res
         """
-        res = parse.urlsplit(self.http_address)
-        res = res._replace(path=f"{res.path.rstrip('/')}/{url.lstrip('/')}")
-        return requests.request(method, parse.urlunsplit(res), **kwargs)
+        url = parse.urljoin(self.http_address, url)
+        return requests.request(method, url, **kwargs)
 
     def build_info(self) -> Dict[str, str]:
         """
