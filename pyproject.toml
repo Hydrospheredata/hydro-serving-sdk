@@ -10,7 +10,7 @@ description = " This package's purpose is to provide a simple and convenient way
 maintainers = ["Bulat Lutfullin <blutfullin@provectus.com>"]
 name = "hydrosdk"
 readme = "README.md"
-version = "3.0.0-alpha.14"
+version = "3.0.0-alpha.15"
 
 [tool.poetry.urls]
 homepage = "https://hydrosphere.io/"
