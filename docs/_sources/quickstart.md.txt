@@ -17,7 +17,7 @@ pip install git+git://github.com/Hydrospheredata/hydro-serving-sdk.git
 ## Using hydrosdk
 
 To use hydrosdk, you must first import it connect to your Hydrosphere.io platform by 
-creating a Cluster object.
+creating a [Cluster](hydrosdk/hydrosdk.cluster) object.
 
 
 ```python
@@ -34,7 +34,7 @@ Now that you have established a connection to Hydrosphere platform via Cluster o
 from hydrosdk.modelversion import ModelVersion
 
 # Print out model names and versions
-for modelversion in ModelVersion.list_model_versions(cluster=cluster):
+for modelversion in ModelVersion.list(cluster=cluster):
     print(modelversion)
 ```
 
@@ -52,7 +52,7 @@ cluster = Cluster("http-cluster-address",
                   grpc_address="grpc-cluster-address", ssl=True,
                   grpc_credentials=ssl_channel_credentials())
 
-app = Application.find_by_name(cluster, "my-model")
+app = Application.find_by_name(cluster, "application-name")
 predictor = app.predictor()
 
 df = pd.read_csv("path/to/data.csv")
@@ -60,5 +60,5 @@ for row in df.itertuples(index=False):
     predictor.predict(row._asdict())
 ```
 
-Other topics such as LocalModels, metrics and uploading training data will be covered in more detail in the following sections,
+Other topics such as ModelVersion, metrics and uploading training data will be covered in more detail in the following sections,
  so don't worry if you do not completely understand the examples.

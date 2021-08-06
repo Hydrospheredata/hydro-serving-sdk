@@ -11,9 +11,7 @@ What to do next?
 
 * ⭐️ Checkout and star `Hydrosphere Github Repo <https://github.com/Hydrospheredata/hydro-serving>`_;
 * 🐍 Install and explore our :doc:`quickstart` tutorial;
-* 🥳 Become part of `Hydrosphere Slack Community <https://join.slack.com/t/hydrospheredata/shared_invite/zt-gg41mrlg-eDz6v6yhkOfoMf~oi2mTug>`_.
-
-
+* 🥳 Become part of `Hydrosphere Slack Community <https://join.slack.com/t/hydrospheredata/shared_invite/zt-tt4j24xj-TpnI_D2aJDBHIbA~EmPSlQ>`_.
 
 .. toctree::
    :maxdepth: 4

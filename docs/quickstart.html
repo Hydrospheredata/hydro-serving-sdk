@@ -3,23 +3,27 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>Quickstart &mdash; hydrosdk 2.4.1
- documentation</title>
+  <title>Quickstart &mdash; hydrosdk 3.0.0 documentation</title>
   
 
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
 
   
   
     <link rel="shortcut icon" href="_static/favicon.svg"/>
   
+
   
+  
+
   
 
   
@@ -29,10 +33,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -40,7 +44,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Getting Started Tutorial" href="getting_started_tutorial.html" />
-    <link rel="prev" title="What’s new in 2.4.1" href="whats_new.html" />
+    <link rel="prev" title="What’s new in 3.0.0" href="whats_new.html" />
     <link href="_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -56,7 +60,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home" alt="Documentation Home"> hydrosdk
+            <a href="index.html" class="icon icon-home"> hydrosdk
           
 
           
@@ -67,11 +71,6 @@
 
           
             
-            
-              <div class="version">
-                2.4.1
-
-              </div>
             
           
 
@@ -95,17 +94,16 @@
               
             
             
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="whats_new.html">What’s new in 2.4.1
-</a></li>
+<li class="toctree-l1"><a class="reference internal" href="whats_new.html">What’s new in 3.0.0</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Quickstart</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#using-hydrosdk">Using hydrosdk</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="getting_started_tutorial.html">Getting Started Tutorial</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="getting_started_tutorial.html#upload-your-code-as-a-local-model">Upload your code as a Local Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started_tutorial.html#creating-a-modelversion">Creating a ModelVersion</a></li>
 <li class="toctree-l2"><a class="reference internal" href="getting_started_tutorial.html#connect-to-your-deployed-model">Connect to your deployed model</a></li>
 <li class="toctree-l2"><a class="reference internal" href="getting_started_tutorial.html#attach-monitoring-model-to-your-inference-model">Attach monitoring model to your inference model</a></li>
 </ul>
@@ -116,7 +114,7 @@
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk/hydrosdk.modelversion.html">hydrosdk.modelversion module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk/hydrosdk.predictor.html">hydrosdk.predictor module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk/hydrosdk.deployment_configuration.html">hydrosdk.deployment_configuration module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="hydrosdk/hydrosdk.contract.html">hydrosdk.contract module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hydrosdk/hydrosdk.signature.html">hydrosdk.signature module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk/hydrosdk.exceptions.html">hydrosdk.exceptions module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk/hydrosdk.image.html">hydrosdk.image module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk/hydrosdk.monitoring.html">hydrosdk.monitoring module</a></li>
@@ -167,6 +165,8 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
@@ -178,7 +178,7 @@
     
       <li class="wy-breadcrumbs-aside">
         
-            
+          
             <a href="_sources/quickstart.md.txt" rel="nofollow"> View page source</a>
           
         
@@ -212,7 +212,7 @@
 <div class="section" id="using-hydrosdk">
 <h2>Using hydrosdk<a class="headerlink" href="#using-hydrosdk" title="Permalink to this headline">¶</a></h2>
 <p>To use hydrosdk, you must first import it connect to your Hydrosphere.io platform by
-creating a Cluster object.</p>
+creating a <a class="reference internal" href="hydrosdk/hydrosdk.cluster.html"><span class="doc">Cluster</span></a> object.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">hydrosdk.cluster</span> <span class="kn">import</span> <span class="n">Cluster</span>
 
 <span class="c1"># Provide your cluster address here</span>
@@ -224,7 +224,7 @@ The following lists all model versions deployed to your platform and prints thei
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">hydrosdk.modelversion</span> <span class="kn">import</span> <span class="n">ModelVersion</span>
 
 <span class="c1"># Print out model names and versions</span>
-<span class="k">for</span> <span class="n">modelversion</span> <span class="ow">in</span> <span class="n">ModelVersion</span><span class="o">.</span><span class="n">list_model_versions</span><span class="p">(</span><span class="n">cluster</span><span class="o">=</span><span class="n">cluster</span><span class="p">):</span>
+<span class="k">for</span> <span class="n">modelversion</span> <span class="ow">in</span> <span class="n">ModelVersion</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">cluster</span><span class="o">=</span><span class="n">cluster</span><span class="p">):</span>
    <span class="nb">print</span><span class="p">(</span><span class="n">modelversion</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -240,7 +240,7 @@ which is designed to make inference for your data via GRPC API.</p>
                   <span class="n">grpc_address</span><span class="o">=</span><span class="s2">&quot;grpc-cluster-address&quot;</span><span class="p">,</span> <span class="n">ssl</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                   <span class="n">grpc_credentials</span><span class="o">=</span><span class="n">ssl_channel_credentials</span><span class="p">())</span>
 
-<span class="n">app</span> <span class="o">=</span> <span class="n">Application</span><span class="o">.</span><span class="n">find_by_name</span><span class="p">(</span><span class="n">cluster</span><span class="p">,</span> <span class="s2">&quot;my-model&quot;</span><span class="p">)</span>
+<span class="n">app</span> <span class="o">=</span> <span class="n">Application</span><span class="o">.</span><span class="n">find_by_name</span><span class="p">(</span><span class="n">cluster</span><span class="p">,</span> <span class="s2">&quot;application-name&quot;</span><span class="p">)</span>
 <span class="n">predictor</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">predictor</span><span class="p">()</span>
 
 <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;path/to/data.csv&quot;</span><span class="p">)</span>
@@ -248,7 +248,7 @@ which is designed to make inference for your data via GRPC API.</p>
     <span class="n">predictor</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">_asdict</span><span class="p">())</span>
 </pre></div>
 </div>
-<p>Other topics such as LocalModels, metrics and uploading training data will be covered in more detail in the following sections,
+<p>Other topics such as ModelVersion, metrics and uploading training data will be covered in more detail in the following sections,
 so don’t worry if you do not completely understand the examples.</p>
 </div>
 </div>
@@ -258,37 +258,29 @@ so don’t worry if you do not completely understand the examples.</p>
            
           </div>
           <footer>
-  
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="getting_started_tutorial.html" class="btn btn-neutral float-right" title="Getting Started Tutorial" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="whats_new.html" class="btn btn-neutral float-left" title="What’s new in 2.4.1" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+        <a href="getting_started_tutorial.html" class="btn btn-neutral float-right" title="Getting Started Tutorial" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="whats_new.html" class="btn btn-neutral float-left" title="What’s new in 3.0.0" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        
-        &copy; Copyright 2020, Hydrosphere.io
+        &#169; Copyright 2020, Hydrosphere.io.
 
     </p>
   </div>
     
     
     
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 
@@ -314,6 +306,7 @@ so don’t worry if you do not completely understand the examples.</p>
     })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
     ga('create', 'UA-160853646-4', 'auto');
+    
     ga('send', 'pageview');
     </script>
 

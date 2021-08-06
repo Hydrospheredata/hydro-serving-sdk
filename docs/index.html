@@ -3,23 +3,27 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>hydrosdk - SDK for Hydrosphere.io &mdash; hydrosdk 2.4.1
- documentation</title>
+  <title>hydrosdk - SDK for Hydrosphere.io &mdash; hydrosdk 3.0.0 documentation</title>
   
 
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
 
   
   
     <link rel="shortcut icon" href="_static/favicon.svg"/>
   
+
   
+  
+
   
 
   
@@ -29,17 +33,17 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="What’s new in 2.4.1" href="whats_new.html" />
+    <link rel="next" title="What’s new in 3.0.0" href="whats_new.html" />
     <link href="_static/style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -55,7 +59,7 @@
           
 
           
-            <a href="#" class="icon icon-home" alt="Documentation Home"> hydrosdk
+            <a href="#" class="icon icon-home"> hydrosdk
           
 
           
@@ -66,11 +70,6 @@
 
           
             
-            
-              <div class="version">
-                2.4.1
-
-              </div>
             
           
 
@@ -94,17 +93,16 @@
               
             
             
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="whats_new.html">What’s new in 2.4.1
-</a></li>
+<li class="toctree-l1"><a class="reference internal" href="whats_new.html">What’s new in 3.0.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="quickstart.html#installation">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="quickstart.html#using-hydrosdk">Using hydrosdk</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="getting_started_tutorial.html">Getting Started Tutorial</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="getting_started_tutorial.html#upload-your-code-as-a-local-model">Upload your code as a Local Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started_tutorial.html#creating-a-modelversion">Creating a ModelVersion</a></li>
 <li class="toctree-l2"><a class="reference internal" href="getting_started_tutorial.html#connect-to-your-deployed-model">Connect to your deployed model</a></li>
 <li class="toctree-l2"><a class="reference internal" href="getting_started_tutorial.html#attach-monitoring-model-to-your-inference-model">Attach monitoring model to your inference model</a></li>
 </ul>
@@ -115,7 +113,7 @@
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk/hydrosdk.modelversion.html">hydrosdk.modelversion module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk/hydrosdk.predictor.html">hydrosdk.predictor module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk/hydrosdk.deployment_configuration.html">hydrosdk.deployment_configuration module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="hydrosdk/hydrosdk.contract.html">hydrosdk.contract module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hydrosdk/hydrosdk.signature.html">hydrosdk.signature module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk/hydrosdk.exceptions.html">hydrosdk.exceptions module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk/hydrosdk.image.html">hydrosdk.image module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk/hydrosdk.monitoring.html">hydrosdk.monitoring module</a></li>
@@ -166,6 +164,8 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
@@ -177,7 +177,7 @@
     
       <li class="wy-breadcrumbs-aside">
         
-            
+          
             <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
           
         
@@ -201,20 +201,19 @@ It is language-agnostic and framework-agnostic, with support for all major progr
 <ul class="simple">
 <li><p>⭐️ Checkout and star <a class="reference external" href="https://github.com/Hydrospheredata/hydro-serving">Hydrosphere Github Repo</a>;</p></li>
 <li><p>🐍 Install and explore our <a class="reference internal" href="quickstart.html"><span class="doc">Quickstart</span></a> tutorial;</p></li>
-<li><p>🥳 Become part of <a class="reference external" href="https://join.slack.com/t/hydrospheredata/shared_invite/zt-gg41mrlg-eDz6v6yhkOfoMf~oi2mTug">Hydrosphere Slack Community</a>.</p></li>
+<li><p>🥳 Become part of <a class="reference external" href="https://join.slack.com/t/hydrospheredata/shared_invite/zt-tt4j24xj-TpnI_D2aJDBHIbA~EmPSlQ">Hydrosphere Slack Community</a>.</p></li>
 </ul>
 <div class="toctree-wrapper compound">
-<p class="caption"><span class="caption-text">Contents:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="whats_new.html">What’s new in 2.4.1
-</a></li>
+<li class="toctree-l1"><a class="reference internal" href="whats_new.html">What’s new in 3.0.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="quickstart.html#installation">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="quickstart.html#using-hydrosdk">Using hydrosdk</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="getting_started_tutorial.html">Getting Started Tutorial</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="getting_started_tutorial.html#upload-your-code-as-a-local-model">Upload your code as a Local Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started_tutorial.html#creating-a-modelversion">Creating a ModelVersion</a></li>
 <li class="toctree-l2"><a class="reference internal" href="getting_started_tutorial.html#connect-to-your-deployed-model">Connect to your deployed model</a></li>
 <li class="toctree-l2"><a class="reference internal" href="getting_started_tutorial.html#attach-monitoring-model-to-your-inference-model">Attach monitoring model to your inference model</a></li>
 </ul>
@@ -225,7 +224,7 @@ It is language-agnostic and framework-agnostic, with support for all major progr
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk/hydrosdk.modelversion.html">hydrosdk.modelversion module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk/hydrosdk.predictor.html">hydrosdk.predictor module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk/hydrosdk.deployment_configuration.html">hydrosdk.deployment_configuration module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="hydrosdk/hydrosdk.contract.html">hydrosdk.contract module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hydrosdk/hydrosdk.signature.html">hydrosdk.signature module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk/hydrosdk.exceptions.html">hydrosdk.exceptions module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk/hydrosdk.image.html">hydrosdk.image module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk/hydrosdk.monitoring.html">hydrosdk.monitoring module</a></li>
@@ -253,35 +252,28 @@ It is language-agnostic and framework-agnostic, with support for all major progr
            
           </div>
           <footer>
-  
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="whats_new.html" class="btn btn-neutral float-right" title="What’s new in 2.4.1" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
+        <a href="whats_new.html" class="btn btn-neutral float-right" title="What’s new in 3.0.0" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        
-        &copy; Copyright 2020, Hydrosphere.io
+        &#169; Copyright 2020, Hydrosphere.io.
 
     </p>
   </div>
     
     
     
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 
@@ -307,6 +299,7 @@ It is language-agnostic and framework-agnostic, with support for all major progr
     })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
     ga('create', 'UA-160853646-4', 'auto');
+    
     ga('send', 'pageview');
     </script>
 

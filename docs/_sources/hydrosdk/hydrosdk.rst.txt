@@ -9,7 +9,7 @@ hydrosdk API
    hydrosdk.modelversion
    hydrosdk.predictor
    hydrosdk.deployment_configuration
-   hydrosdk.contract
+   hydrosdk.signature
    hydrosdk.exceptions
    hydrosdk.image
    hydrosdk.monitoring

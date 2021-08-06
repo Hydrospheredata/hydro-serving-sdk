@@ -3,23 +3,27 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>hydrosdk.monitoring module &mdash; hydrosdk 2.4.1
- documentation</title>
+  <title>hydrosdk.monitoring module &mdash; hydrosdk 3.0.0 documentation</title>
   
 
   
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
 
   
   
     <link rel="shortcut icon" href="../_static/favicon.svg"/>
   
+
   
+  
+
   
 
   
@@ -29,10 +33,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
-        <script src="../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -56,7 +60,7 @@
           
 
           
-            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> hydrosdk
+            <a href="../index.html" class="icon icon-home"> hydrosdk
           
 
           
@@ -67,11 +71,6 @@
 
           
             
-            
-              <div class="version">
-                2.4.1
-
-              </div>
             
           
 
@@ -95,17 +94,16 @@
               
             
             
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../whats_new.html">What’s new in 2.4.1
-</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whats_new.html">What’s new in 3.0.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../quickstart.html#installation">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../quickstart.html#using-hydrosdk">Using hydrosdk</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../getting_started_tutorial.html">Getting Started Tutorial</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../getting_started_tutorial.html#upload-your-code-as-a-local-model">Upload your code as a Local Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started_tutorial.html#creating-a-modelversion">Creating a ModelVersion</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../getting_started_tutorial.html#connect-to-your-deployed-model">Connect to your deployed model</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../getting_started_tutorial.html#attach-monitoring-model-to-your-inference-model">Attach monitoring model to your inference model</a></li>
 </ul>
@@ -116,7 +114,7 @@
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.modelversion.html">hydrosdk.modelversion module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.predictor.html">hydrosdk.predictor module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.deployment_configuration.html">hydrosdk.deployment_configuration module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="hydrosdk.contract.html">hydrosdk.contract module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hydrosdk.signature.html">hydrosdk.signature module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.exceptions.html">hydrosdk.exceptions module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.image.html">hydrosdk.image module</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">hydrosdk.monitoring module</a></li>
@@ -167,6 +165,8 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
@@ -180,7 +180,7 @@
     
       <li class="wy-breadcrumbs-aside">
         
-            
+          
             <a href="../_sources/hydrosdk/hydrosdk.monitoring.rst.txt" rel="nofollow"> View page source</a>
           
         
@@ -201,8 +201,8 @@
 <dd class="field-odd"><p></p></dd>
 </dl>
 <dl class="py class">
-<dt id="hydrosdk.monitoring.MetricModel">
-<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.monitoring.</code><code class="sig-name descname">MetricModel</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">modelversion</span></em>, <em class="sig-param"><span class="n">threshold</span></em>, <em class="sig-param"><span class="n">comparator</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.monitoring.MetricModel" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="hydrosdk.monitoring.MetricModel">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">hydrosdk.monitoring.</span></span><span class="sig-name descname"><span class="pre">MetricModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">modelversion</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comparator</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.monitoring.MetricModel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Model having extra metric fields</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -219,10 +219,10 @@
 </dd></dl>
 
 <dl class="py class">
-<dt id="hydrosdk.monitoring.MetricSpecConfig">
-<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.monitoring.</code><code class="sig-name descname">MetricSpecConfig</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">modelversion_id</span></em>, <em class="sig-param"><span class="n">threshold</span></em>, <em class="sig-param"><span class="n">threshold_op</span></em>, <em class="sig-param"><span class="n">servable</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.monitoring.MetricSpecConfig" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="hydrosdk.monitoring.MetricSpecConfig">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">hydrosdk.monitoring.</span></span><span class="sig-name descname"><span class="pre">MetricSpecConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">modelversion_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold_op</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">servable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.monitoring.MetricSpecConfig" title="Permalink to this definition">¶</a></dt>
 <dd><p>Metric specification config</p>
-<p>Create MetricSpecConfig for specified ModelVersion.</p>
+<p>Create a MetricSpecConfig for the specified ModelVersion.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -238,8 +238,8 @@
 </dd></dl>
 
 <dl class="py class">
-<dt id="hydrosdk.monitoring.ThresholdCmpOp">
-<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.monitoring.</code><code class="sig-name descname">ThresholdCmpOp</code><a class="headerlink" href="#hydrosdk.monitoring.ThresholdCmpOp" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="hydrosdk.monitoring.ThresholdCmpOp">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">hydrosdk.monitoring.</span></span><span class="sig-name descname"><span class="pre">ThresholdCmpOp</span></span><a class="headerlink" href="#hydrosdk.monitoring.ThresholdCmpOp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Threshold comparison operator is used to check if ModelVersion is healthy
 Model is healthy if {metric_value}{TresholdCmpOp}{threshold}</p>
 </dd></dl>
@@ -251,37 +251,29 @@ Model is healthy if {metric_value}{TresholdCmpOp}{threshold}</p>
            
           </div>
           <footer>
-  
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="hydrosdk.servable.html" class="btn btn-neutral float-right" title="hydrosdk.servable module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="hydrosdk.image.html" class="btn btn-neutral float-left" title="hydrosdk.image module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+        <a href="hydrosdk.servable.html" class="btn btn-neutral float-right" title="hydrosdk.servable module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="hydrosdk.image.html" class="btn btn-neutral float-left" title="hydrosdk.image module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        
-        &copy; Copyright 2020, Hydrosphere.io
+        &#169; Copyright 2020, Hydrosphere.io.
 
     </p>
   </div>
     
     
     
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 
@@ -307,6 +299,7 @@ Model is healthy if {metric_value}{TresholdCmpOp}{threshold}</p>
     })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
     ga('create', 'UA-160853646-4', 'auto');
+    
     ga('send', 'pageview');
     </script>
 

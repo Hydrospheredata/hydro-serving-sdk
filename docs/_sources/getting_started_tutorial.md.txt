@@ -2,13 +2,13 @@
 This tutorial will show you how to use hydrosdk. You will learn how to upload your code as a model to Hydrosphere.io,
  setup your client code to make inference, and attach a monitoring metric to your model.
  
- ``` important:: This tutorials was written for hydrosdk==2.4.1
+ ``` important:: This tutorials was written for hydrosdk==3.0.0
 ```
 ```note:: If you haven't launched Hydrosphere.io platform, please do so before proceeding with this tutorial.
  You can learn how to do by checking documentation here - https://hydrosphere.io/serving-docs/latest/install/index.html. 
 ```
 
- ## Upload your code as a Local Model
+ ## Creating a ModelVersion
  
 First we need to connect to the Hydrosphere.io platform by creating [Cluster](hydrosdk/hydrosdk.cluster) object.
 
@@ -60,18 +60,15 @@ Hydrosphere Serving has a strictly typed inference engine, so before uploading o
  as well as what its inputs and outputs shapes and types are.
  
 ```python
-from hydrosdk.contract import SignatureBuilder, ModelContract
+from hydrosdk.signature import SignatureBuilder
 
 signature = SignatureBuilder('infer') \
                 .with_input('x', 'double', "scalar") \
-                .with_output('y', 'double', "scalar").build()
-
-contract = ModelContract(predict=signature)
+                .with_output('y', 'double', "scalar") \
+                .build()
 ```
 
-At this point we can combine all our efforts into the LocalModel object. LocalModels are models before they get
- uploaded to the cluster. LocalModels are containers for all the information required to instantiate a ModelVersion
-  in a Hydrosphere cluster. We'll call this model `"sqrt_model"`.
+At this point we can combine all our efforts into the [ModelVersion](hydrosdk/hydrosdk.modelversion) object using [ModelVersionBuilder](hydrosdk/hydrosdk.modelversion). We'll call this model `"sqrt_model"`.
   
 
 Moreover, we need to specify environment in which our model will run.
@@ -80,19 +77,18 @@ In this tutorial we will use default Python 3.7 runtime.
 This runtime uses `src/func_main.py` script as an entry point, that's why we organised our files as we did.
 
 ```python
-from hydrosdk.modelversion import LocalModel
+from hydrosdk.modelversion import ModelVersionBuilder
 from hydrosdk.image import DockerImage
 
-sqrt_local_model = LocalModel(name="sqrt_model",
-                              contract=contract,
-                              runtime=DockerImage("hydrosphere/serving-runtime-python-3.7", "2.4.0", None),
-                              payload=payload,
-                              path=path)
+sqrt_local_model_builder = ModelVersionBuilder(name="sqrt_model", path=path) \
+    .with_runtime(DockerImage(name="hydrosphere/serving-runtime-python-3.7", tag="3.0.0")) \
+    .with_payload(payload) \
+    .with_signature(signature)
 ```
 
-After packing all necessary information into a LocalModel, we finally can upload it.
+After packing all necessary information into a [ModelVersionBuilder](hydrosdk/hydrosdk.modelversion), we finally can build and upload it to the cluster.
 ```python
-sqrt_model: ModelVersion = sqrt_local_model.upload(cluster)
+sqrt_model: ModelVersion = sqrt_local_model_builder.build(cluster)
 sqrt_model.lock_till_released()
 ```
 
@@ -109,9 +105,9 @@ To create a simple application with one stage we'll use [ApplicationBuilder](hyd
 ```python
 from hydrosdk.application import ApplicationBuilder, ExecutionStageBuilder
 
-stage = ExecutionStageBuilder().with_model_variant(name=sqrt_model, weight=100).build()
-app_builder = ApplicationBuilder(cluster, "sqrt_model").with_stage(stage)
-sqrt_app = app_builder.build()
+stage = ExecutionStageBuilder().with_model_variant(model_version=sqrt_model, weight=100).build()
+app_builder = ApplicationBuilder(name="sqrt_model").with_stage(stage)
+sqrt_app = app_builder.build(cluster)
 sqrt_app.lock_while_starting()
 ```
 
@@ -178,19 +174,17 @@ signature = SignatureBuilder('predict') \
                 .with_input('x', 'double', "scalar") \
                 .with_input('y', 'double', "scalar") \
                 .with_output('value', 'float', "scalar").build()
-
-contract = ModelContract(predict=signature)
 ```
 
-Similarly we create a LocalModel and upload it to the cluster.
+Similarly we create a ModelVersion using ModelVersionBuilder and upload it to the cluster.
 ```python
-monitoring_local_model = LocalModel(name="sqrt_monitoring_model",
-                         contract=contract,
-                         runtime=DockerImage("hydrosphere/serving-runtime-python-3.7", "2.4.0", None),
-                         payload=payload,
-                         path=path)
 
-monitoring_model = monitoring_local_model.upload(cluster)
+monitoring_local_model_builder = ModelVersionBuilder(name="sqrt_monitoring_model", path=path) \
+    .with_runtime(DockerImage(name="hydrosphere/serving-runtime-python-3.7", tag="3.0.0")) \
+    .with_payload(payload) \
+    .with_signature(signature)
+
+monitoring_model = monitoring_local_model_builder.build(cluster)
 monitoring_model.lock_till_released()
 ```
 

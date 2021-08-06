@@ -25,9 +25,9 @@ copyright = '2020, Hydrosphere.io'
 author = 'Hydrosphere.io'
 
 # The full version, including alpha/beta/rc tags
-with open("../../../version", 'r') as f:
-    version = f.read()
-release = version
+#with open("../../../version", 'r') as f:
+ #   version = f.read()
+release = '3.0.0'
 
 # -- General configuration ---------------------------------------------------
 
@@ -41,7 +41,7 @@ extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.coverage',
               'sphinx_rtd_theme'
               ]
-
+from recommonmark.transform import AutoStructify
 # Tell Sphinx to use recommonmark to parse md
 source_suffix = {
     '.rst': 'restructuredtext',

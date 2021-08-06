@@ -3,23 +3,27 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>hydrosdk.servable module &mdash; hydrosdk 2.4.1
- documentation</title>
+  <title>hydrosdk.servable module &mdash; hydrosdk 3.0.0 documentation</title>
   
 
   
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
 
   
   
     <link rel="shortcut icon" href="../_static/favicon.svg"/>
   
+
   
+  
+
   
 
   
@@ -29,10 +33,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
-        <script src="../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -56,7 +60,7 @@
           
 
           
-            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> hydrosdk
+            <a href="../index.html" class="icon icon-home"> hydrosdk
           
 
           
@@ -67,11 +71,6 @@
 
           
             
-            
-              <div class="version">
-                2.4.1
-
-              </div>
             
           
 
@@ -95,17 +94,16 @@
               
             
             
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../whats_new.html">What’s new in 2.4.1
-</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whats_new.html">What’s new in 3.0.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../quickstart.html#installation">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../quickstart.html#using-hydrosdk">Using hydrosdk</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../getting_started_tutorial.html">Getting Started Tutorial</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../getting_started_tutorial.html#upload-your-code-as-a-local-model">Upload your code as a Local Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started_tutorial.html#creating-a-modelversion">Creating a ModelVersion</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../getting_started_tutorial.html#connect-to-your-deployed-model">Connect to your deployed model</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../getting_started_tutorial.html#attach-monitoring-model-to-your-inference-model">Attach monitoring model to your inference model</a></li>
 </ul>
@@ -116,7 +114,7 @@
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.modelversion.html">hydrosdk.modelversion module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.predictor.html">hydrosdk.predictor module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.deployment_configuration.html">hydrosdk.deployment_configuration module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="hydrosdk.contract.html">hydrosdk.contract module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hydrosdk.signature.html">hydrosdk.signature module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.exceptions.html">hydrosdk.exceptions module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.image.html">hydrosdk.image module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hydrosdk.monitoring.html">hydrosdk.monitoring module</a></li>
@@ -167,6 +165,8 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
@@ -180,7 +180,7 @@
     
       <li class="wy-breadcrumbs-aside">
         
-            
+          
             <a href="../_sources/hydrosdk/hydrosdk.servable.rst.txt" rel="nofollow"> View page source</a>
           
         
@@ -203,19 +203,19 @@ You can learn more about Servables here <a class="reference external" href="http
 <dd class="field-odd"><p></p></dd>
 </dl>
 <dl class="py class">
-<dt id="hydrosdk.servable.Servable">
-<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.servable.</code><code class="sig-name descname">Servable</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cluster</span></em>, <em class="sig-param"><span class="n">model_version</span></em>, <em class="sig-param"><span class="n">servable_name</span></em>, <em class="sig-param"><span class="n">status</span></em>, <em class="sig-param"><span class="n">status_message</span></em>, <em class="sig-param"><span class="n">deployment_configuration</span></em>, <em class="sig-param"><span class="n">metadata</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.servable.Servable" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="hydrosdk.servable.Servable">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">hydrosdk.servable.</span></span><span class="sig-name descname"><span class="pre">Servable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cluster</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_version_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">servable_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status_message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deployment_configuration_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.servable.Servable" title="Permalink to this definition">¶</a></dt>
 <dd><p>Servable is an instance of a model version which is used within applications. Intendend for
 internal usage only.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>cluster</strong> (<a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster"><em>hydrosdk.cluster.Cluster</em></a>) – </p></li>
-<li><p><strong>model_version</strong> (<a class="reference internal" href="hydrosdk.modelversion.html#hydrosdk.modelversion.ModelVersion" title="hydrosdk.modelversion.ModelVersion"><em>hydrosdk.modelversion.ModelVersion</em></a>) – </p></li>
+<li><p><strong>model_version_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – </p></li>
 <li><p><strong>servable_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p></li>
 <li><p><strong>status</strong> (<a class="reference internal" href="#hydrosdk.servable.ServableStatus" title="hydrosdk.servable.ServableStatus"><em>hydrosdk.servable.ServableStatus</em></a>) – </p></li>
-<li><p><strong>status_message</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p></li>
-<li><p><strong>deployment_configuration</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="hydrosdk.deployment_configuration.html#hydrosdk.deployment_configuration.DeploymentConfiguration" title="hydrosdk.deployment_configuration.DeploymentConfiguration"><em>hydrosdk.deployment_configuration.DeploymentConfiguration</em></a><em>]</em>) – </p></li>
+<li><p><strong>status_message</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – </p></li>
+<li><p><strong>deployment_configuration_name</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – </p></li>
 <li><p><strong>metadata</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a><em>]</em>) – </p></li>
 </ul>
 </dd>
@@ -224,8 +224,8 @@ internal usage only.</p>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="hydrosdk.servable.Servable.create">
-<em class="property">static </em><code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cluster</span></em>, <em class="sig-param"><span class="n">model_name</span></em>, <em class="sig-param"><span class="n">version</span></em>, <em class="sig-param"><span class="n">metadata</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">deployment_configuration</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.servable.Servable.create" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="hydrosdk.servable.Servable.create">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cluster</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deployment_configuration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.servable.Servable.create" title="Permalink to this definition">¶</a></dt>
 <dd><p>Deploy an instance of uploaded model version at your cluster.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -250,8 +250,8 @@ internal usage only.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="hydrosdk.servable.Servable.delete">
-<em class="property">static </em><code class="sig-name descname">delete</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cluster</span></em>, <em class="sig-param"><span class="n">servable_name</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.servable.Servable.delete" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="hydrosdk.servable.Servable.delete">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">delete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cluster</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">servable_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.servable.Servable.delete" title="Permalink to this definition">¶</a></dt>
 <dd><p>Shut down and delete servable instance.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -270,8 +270,8 @@ internal usage only.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="hydrosdk.servable.Servable.find_by_name">
-<em class="property">static </em><code class="sig-name descname">find_by_name</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cluster</span></em>, <em class="sig-param"><span class="n">servable_name</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.servable.Servable.find_by_name" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="hydrosdk.servable.Servable.find_by_name">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">find_by_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cluster</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">servable_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.servable.Servable.find_by_name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Finds a serving servable in a cluster</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -293,8 +293,8 @@ internal usage only.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="hydrosdk.servable.Servable.list">
-<em class="property">static </em><code class="sig-name descname">list</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cluster</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.servable.Servable.list" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="hydrosdk.servable.Servable.list">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cluster</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.servable.Servable.list" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieve a list of all servables available at your cluster</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -310,8 +310,8 @@ internal usage only.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="hydrosdk.servable.Servable.lock_while_starting">
-<code class="sig-name descname">lock_while_starting</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">timeout</span><span class="o">=</span><span class="default_value">120</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.servable.Servable.lock_while_starting" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="hydrosdk.servable.Servable.lock_while_starting">
+<span class="sig-name descname"><span class="pre">lock_while_starting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">120</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.servable.Servable.lock_while_starting" title="Permalink to this definition">¶</a></dt>
 <dd><p>Wait for a servable to become ready.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -324,8 +324,8 @@ internal usage only.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="hydrosdk.servable.Servable.predictor">
-<code class="sig-name descname">predictor</code><span class="sig-paren">(</span><em class="sig-param">monitorable=True</em>, <em class="sig-param">return_type=&lt;PredictorDT.DICT_NP_ARRAY: 'nparray'&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.servable.Servable.predictor" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="hydrosdk.servable.Servable.predictor">
+<span class="sig-name descname"><span class="pre">predictor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">monitorable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">PredictorDT.DICT_NP_ARRAY</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.servable.Servable.predictor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a predictor object which is used to pass data into the deployed Servable</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -346,12 +346,12 @@ internal usage only.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="hydrosdk.servable.ServableStatus">
-<em class="property">class </em><code class="sig-prename descclassname">hydrosdk.servable.</code><code class="sig-name descname">ServableStatus</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.servable.ServableStatus" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="hydrosdk.servable.ServableStatus">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">hydrosdk.servable.</span></span><span class="sig-name descname"><span class="pre">ServableStatus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.servable.ServableStatus" title="Permalink to this definition">¶</a></dt>
 <dd><p>Servable can be in one of four states</p>
 <dl class="py method">
-<dt id="hydrosdk.servable.ServableStatus.from_camel_case">
-<em class="property">static </em><code class="sig-name descname">from_camel_case</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">camel_case_servable_status</span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.servable.ServableStatus.from_camel_case" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="hydrosdk.servable.ServableStatus.from_camel_case">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">from_camel_case</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">camel_case_servable_status</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.servable.ServableStatus.from_camel_case" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get value of ServableStatus enum from CamelCase style string returned from the manager.
 :param camel_case_servable_status:
 :return: ServableStatus</p>
@@ -380,37 +380,29 @@ internal usage only.</p>
            
           </div>
           <footer>
-  
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="../getting_help.html" class="btn btn-neutral float-right" title="Getting Help" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="hydrosdk.monitoring.html" class="btn btn-neutral float-left" title="hydrosdk.monitoring module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+        <a href="../getting_help.html" class="btn btn-neutral float-right" title="Getting Help" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="hydrosdk.monitoring.html" class="btn btn-neutral float-left" title="hydrosdk.monitoring module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        
-        &copy; Copyright 2020, Hydrosphere.io
+        &#169; Copyright 2020, Hydrosphere.io.
 
     </p>
   </div>
     
     
     
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 
@@ -436,6 +428,7 @@ internal usage only.</p>
     })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
     ga('create', 'UA-160853646-4', 'auto');
+    
     ga('send', 'pageview');
     </script>
 
