@@ -198,8 +198,299 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="hydrosdk-application-module">
-<h1>hydrosdk.application module<a class="headerlink" href="#hydrosdk-application-module" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-hydrosdk.application">
+<span id="hydrosdk-application-module"></span><h1>hydrosdk.application module<a class="headerlink" href="#module-hydrosdk.application" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="hydrosdk.application.Application">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">hydrosdk.application.</span></span><span class="sig-name descname"><span class="pre">Application</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cluster</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">execution_graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">signature</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kafka_streaming</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.application.Application" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Applications are used to combine your ModelVersions into a linear graph and deploy
+it into production, exposing HTTP and gRPC interfaces for consumers.</p>
+<p>Use ApplicationBuilder class to create a new Application in your Hydrosphere cluster
+or an Application.find method to get the existing Application.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Example</dt>
+<dd class="field-odd"><p></p></dd>
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>cluster</strong> (<a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster"><em>hydrosdk.cluster.Cluster</em></a>) – </p></li>
+<li><p><strong>id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – </p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p></li>
+<li><p><strong>execution_graph</strong> (<em>ExecutionGraph</em>) – </p></li>
+<li><p><strong>status</strong> (<a class="reference internal" href="#hydrosdk.application.ApplicationStatus" title="hydrosdk.application.ApplicationStatus"><em>hydrosdk.application.ApplicationStatus</em></a>) – </p></li>
+<li><p><strong>signature</strong> (<em>hydro_serving_grpc.serving.contract.signature_pb2.ModelSignature</em>) – </p></li>
+<li><p><strong>kafka_streaming</strong> (<em>List</em><em>[</em><em>hydrosdk.application.StreamingParams</em><em>]</em>) – </p></li>
+<li><p><strong>metadata</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em><em>]</em>) – </p></li>
+<li><p><strong>message</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#hydrosdk.application.Application" title="hydrosdk.application.Application">Application</a></p>
+</dd>
+</dl>
+<p>List all applications created on the cluster.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">hydrosdk.cluster</span> <span class="kn">import</span> <span class="n">Cluster</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cluster</span> <span class="o">=</span> <span class="n">Cluster</span><span class="p">(</span><span class="s2">&quot;http-cluster-endpoint&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">apps</span> <span class="o">=</span> <span class="n">Application</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">cluster</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">app</span> <span class="ow">in</span> <span class="n">apps</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="nb">print</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Find an application by name and perform a prediction from it.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">hydrosdk.cluster</span> <span class="kn">import</span> <span class="n">Cluster</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cluster</span> <span class="o">=</span> <span class="n">Cluster</span><span class="p">(</span><span class="s2">&quot;http-cluster-endpoint&quot;</span><span class="p">,</span> <span class="s2">&quot;grpc-cluster-endpoint&quot;</span><span class="p">)</span>  <span class="c1"># important to use a gRPC endpoint</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span> <span class="o">=</span> <span class="n">Application</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">cluster</span><span class="p">,</span> <span class="s2">&quot;my-application&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pred</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">predictor</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">resp</span> <span class="o">=</span> <span class="n">pred</span><span class="o">.</span><span class="n">predict</span><span class="p">({</span><span class="s2">&quot;my-input&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cluster</strong> (<a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster"><em>hydrosdk.cluster.Cluster</em></a>) – active cluster</p></li>
+<li><p><strong>id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – unique application ID</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – application Name</p></li>
+<li><p><strong>signature</strong> (<em>hydro_serving_grpc.serving.contract.signature_pb2.ModelSignature</em>) – signature, specifying input and output fields names, dtypes and shapes</p></li>
+<li><p><strong>execution_graph</strong> (<em>ExecutionGraph</em>) – linear graph which specifies ExecutionStages which sequentially transform input</p></li>
+<li><p><strong>status</strong> (<a class="reference internal" href="#hydrosdk.application.ApplicationStatus" title="hydrosdk.application.ApplicationStatus"><em>hydrosdk.application.ApplicationStatus</em></a>) – Application Status</p></li>
+<li><p><strong>kafka_streaming</strong> (<em>List</em><em>[</em><em>hydrosdk.application.StreamingParams</em><em>]</em>) – list of Kafka parameters with input and output Kafka topics specified</p></li>
+<li><p><strong>metadata</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em><em>]</em>) – metadata with string keys and string values.</p></li>
+<li><p><strong>message</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – possible error message from the cluster</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#hydrosdk.application.Application" title="hydrosdk.application.Application">Application</a></p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="hydrosdk.application.Application.delete">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">delete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cluster</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">application_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.application.Application.delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete an application by name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cluster</strong> (<a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster"><em>hydrosdk.cluster.Cluster</em></a>) – active cluster</p></li>
+<li><p><strong>application_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – application name</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>response from the cluster</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hydrosdk.application.Application.find">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">find</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cluster</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">application_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.application.Application.find" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for an application by name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cluster</strong> (<a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster"><em>hydrosdk.cluster.Cluster</em></a>) – active cluster</p></li>
+<li><p><strong>application_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – application name</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>deserialized application object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#hydrosdk.application.Application" title="hydrosdk.application.Application">hydrosdk.application.Application</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hydrosdk.application.Application.list">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cluster</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.application.Application.list" title="Permalink to this definition">¶</a></dt>
+<dd><p>List all available applications from the cluster.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cluster</strong> (<a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster"><em>hydrosdk.cluster.Cluster</em></a>) – active cluster</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>deserialized list of application objects</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>List[<a class="reference internal" href="#hydrosdk.application.Application" title="hydrosdk.application.Application">hydrosdk.application.Application</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hydrosdk.application.Application.lock_while_starting">
+<span class="sig-name descname"><span class="pre">lock_while_starting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">120</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.application.Application.lock_while_starting" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wait for an application to become ready.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>timeout</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#hydrosdk.application.Application" title="hydrosdk.application.Application">hydrosdk.application.Application</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hydrosdk.application.Application.predictor">
+<span class="sig-name descname"><span class="pre">predictor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">return_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">PredictorDT.DICT_NP_ARRAY</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.application.Application.predictor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a predictor object which is used to transform your data
+into a proto message, pass it via gRPC to the cluster and decode
+the cluster output from proto to a dict with Python dtypes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>return_type</strong> – Specifies into which format should predictor serialize model output.
+Numpy dtypes, Python dtypes or pd.DataFrame are supported.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>PredictServiceClient with .predict() method which accepts your data</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="hydrosdk.predictor.html#hydrosdk.predictor.PredictServiceClient" title="hydrosdk.predictor.PredictServiceClient">hydrosdk.predictor.PredictServiceClient</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="hydrosdk.application.ApplicationBuilder">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">hydrosdk.application.</span></span><span class="sig-name descname"><span class="pre">ApplicationBuilder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.application.ApplicationBuilder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>ApplicationBuilder is used to create new Applications in your cluster.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Example</dt>
+<dd class="field-odd"><p></p></dd>
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#hydrosdk.application.ApplicationBuilder" title="hydrosdk.application.ApplicationBuilder">ApplicationBuilder</a></p>
+</dd>
+</dl>
+<p>Create an application from existing modelversions.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">hydrosdk</span> <span class="kn">import</span> <span class="n">Cluster</span><span class="p">,</span> <span class="n">ModelVersion</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cluster</span> <span class="o">=</span> <span class="n">Cluster</span><span class="p">(</span><span class="s1">&#39;http-cluster-endpoint&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mv1</span> <span class="o">=</span> <span class="n">ModelVersion</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">cluster</span><span class="p">,</span> <span class="s2">&quot;my-model&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mv2</span> <span class="o">=</span> <span class="n">ModelVersion</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">cluster</span><span class="p">,</span> <span class="s2">&quot;my-model&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stage</span> <span class="o">=</span> <span class="n">ExecutionStageBuilder</span><span class="p">()</span>                     <span class="o">.</span><span class="n">with_model_variant</span><span class="p">(</span><span class="n">mv1</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>                     <span class="o">.</span><span class="n">with_model_variant</span><span class="p">(</span><span class="n">mv2</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span> \
+<span class="go">                .build()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">app</span> <span class="o">=</span> <span class="n">ApplicationBuilder</span><span class="p">(</span><span class="s2">&quot;my-application-ab-test&quot;</span><span class="p">)</span>                 <span class="o">.</span><span class="n">with_stage</span><span class="p">(</span><span class="n">stage</span><span class="p">)</span>                 <span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">cluster</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cluster</strong> – Hydrosphere cluster where you want to create an Application</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Future Application name</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#hydrosdk.application.ApplicationBuilder" title="hydrosdk.application.ApplicationBuilder">ApplicationBuilder</a></p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="hydrosdk.application.ApplicationBuilder.build">
+<span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cluster</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.application.ApplicationBuilder.build" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create an Application in your Hydrosphere cluster.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Application object</p>
+</dd>
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><p><strong>cluster</strong> (<a class="reference internal" href="hydrosdk.cluster.html#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster"><em>hydrosdk.cluster.Cluster</em></a>) – </p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#hydrosdk.application.Application" title="hydrosdk.application.Application">hydrosdk.application.Application</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hydrosdk.application.ApplicationBuilder.with_kafka_params">
+<span class="sig-name descname"><span class="pre">with_kafka_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_topic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dest_topic</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.application.ApplicationBuilder.with_kafka_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a kafka parameters to your Application.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source_topic</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – source Kafka topic</p></li>
+<li><p><strong>dest_topic</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – destination Kafka topic</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#hydrosdk.application.ApplicationBuilder" title="hydrosdk.application.ApplicationBuilder">hydrosdk.application.ApplicationBuilder</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hydrosdk.application.ApplicationBuilder.with_metadata">
+<span class="sig-name descname"><span class="pre">with_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.application.ApplicationBuilder.with_metadata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a metadata value to your future Application.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – string key under which <cite>value</cite> will be stored</p></li>
+<li><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – string value</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#hydrosdk.application.ApplicationBuilder" title="hydrosdk.application.ApplicationBuilder">hydrosdk.application.ApplicationBuilder</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hydrosdk.application.ApplicationBuilder.with_metadatas">
+<span class="sig-name descname"><span class="pre">with_metadatas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metadata</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.application.ApplicationBuilder.with_metadatas" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a metadata to your future Application.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>metadata</strong> (<em>Dict</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – a dict containing metadata for your application</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#hydrosdk.application.ApplicationBuilder" title="hydrosdk.application.ApplicationBuilder">hydrosdk.application.ApplicationBuilder</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hydrosdk.application.ApplicationBuilder.with_stage">
+<span class="sig-name descname"><span class="pre">with_stage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stage</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.application.ApplicationBuilder.with_stage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add an ExecutionStage to your Application. See ExecutionStage for more information.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>stage</strong> (<em>hydrosdk.application.ExecutionStage</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#hydrosdk.application.ApplicationBuilder" title="hydrosdk.application.ApplicationBuilder">hydrosdk.application.ApplicationBuilder</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="hydrosdk.application.ApplicationStatus">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">hydrosdk.application.</span></span><span class="sig-name descname"><span class="pre">ApplicationStatus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.application.ApplicationStatus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></a></p>
+<p>An enumeration.</p>
+</dd></dl>
+
 </div>
 
 

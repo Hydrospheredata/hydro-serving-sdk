@@ -198,8 +198,100 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="hydrosdk-cluster-module">
-<h1>hydrosdk.cluster module<a class="headerlink" href="#hydrosdk-cluster-module" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-hydrosdk.cluster">
+<span id="hydrosdk-cluster-module"></span><h1>hydrosdk.cluster module<a class="headerlink" href="#module-hydrosdk.cluster" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="hydrosdk.cluster.Cluster">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">hydrosdk.cluster.</span></span><span class="sig-name descname"><span class="pre">Cluster</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">http_address</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grpc_address</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grpc_credentials</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grpc_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grpc_compression</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_connection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwarg</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.cluster.Cluster" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Cluster responsible for interactions with the server.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Example</dt>
+<dd class="field-odd"><p></p></dd>
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>http_address</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p></li>
+<li><p><strong>grpc_address</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – </p></li>
+<li><p><strong>grpc_credentials</strong> (<em>Optional</em><em>[</em><em>grpc.ChannelCredentials</em><em>]</em>) – </p></li>
+<li><p><strong>grpc_options</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a><em>]</em>) – </p></li>
+<li><p><strong>grpc_compression</strong> (<em>Optional</em><em>[</em><em>grpc.Compression</em><em>]</em>) – </p></li>
+<li><p><strong>timeout</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster">Cluster</a></p>
+</dd>
+</dl>
+<p>Create a cluster instance only with HTTP connection.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cluster</span> <span class="o">=</span> <span class="n">Cluster</span><span class="p">(</span><span class="s2">&quot;http-cluster-endpoint&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">cluster</span><span class="o">.</span><span class="n">build_info</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>Create a cluster instance with both HTTP and gRPC connection.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">grpc</span> <span class="kn">import</span> <span class="n">ssl_channel_credentials</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">grpc_credentials</span> <span class="o">=</span> <span class="n">ssl_channel_credentials</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cluster</span> <span class="o">=</span> <span class="n">Cluster</span><span class="p">(</span><span class="s2">&quot;http-cluster-endpoint&quot;</span><span class="p">,</span> <span class="s2">&quot;grpc-cluster-endpoint&quot;</span><span class="p">,</span> <span class="n">ssl</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">grpc_credentials</span><span class="o">=</span><span class="n">grpc_credentials</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">cluster</span><span class="o">.</span><span class="n">build_info</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>A cluster object which hides networking details and provides a connection to a
+deployed Hydrosphere cluster.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>http_address</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – HTTP endpoint of the cluster</p></li>
+<li><p><strong>grpc_address</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – gRPC endpoint of the cluster</p></li>
+<li><p><strong>grpc_credentials</strong> (<em>Optional</em><em>[</em><em>grpc.ChannelCredentials</em><em>]</em>) – an optional instance of ChannelCredentials to use for gRPC endpoint</p></li>
+<li><p><strong>grpc_options</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a><em>]</em>) – an optional list of key-value pairs to configure the channel</p></li>
+<li><p><strong>grpc_compression</strong> (<em>Optional</em><em>[</em><em>grpc.Compression</em><em>]</em>) – an optional value indicating the compression method to be
+used over the lifetime of the channel</p></li>
+<li><p><strong>timeout</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – timeout value to check for gRPC connection</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Cluster instance</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#hydrosdk.cluster.Cluster" title="hydrosdk.cluster.Cluster">Cluster</a></p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="hydrosdk.cluster.Cluster.build_info">
+<span class="sig-name descname"><span class="pre">build_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.cluster.Cluster.build_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns Manager, Gateway and Sonar services builds information containing version, release commit, etc.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Dictionary with build information</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Dict[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="hydrosdk.cluster.Cluster.request">
+<span class="sig-name descname"><span class="pre">request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydrosdk.cluster.Cluster.request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Formats address and url, send request</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – type of request</p></li>
+<li><p><strong>url</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – url for a request to be sent to</p></li>
+<li><p><strong>kwargs</strong> – additional args</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>request res</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>requests.models.Response</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 
