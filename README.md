@@ -1,3 +1,3 @@
 GitHub Pages of [Hydrospheredata/hydro-serving-sdk](https://github.com/Hydrospheredata/hydro-serving-sdk.git)
 ===
-Sphinx html documentation of [a8b9bcb3](https://github.com/Hydrospheredata/hydro-serving-sdk/tree/a8b9bcb3dd254ab7a5f54f8ca1cf88e3cba69d9f)
+Sphinx html documentation of [3b6494a1](https://github.com/Hydrospheredata/hydro-serving-sdk/tree/3b6494a1eabbb1441646c7b2e50e83a0371b166d)
