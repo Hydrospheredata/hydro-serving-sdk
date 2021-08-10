@@ -42,6 +42,9 @@ requests_mock = "^1.7.0"
 autoflake = "^1.4"
 isort = "^5.8.0"
 devtools = "^0.6.1"
+Sphinx = "^4.1.2"
+recommonmark = "^0.7.1"
+sphinx-rtd-theme = "^0.5.2"
 
 [build-system]
 build-backend = "poetry.core.masonry.api"
