@@ -21,6 +21,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2.3.1
 
+      - name: Setup Python
+        uses: actions/setup-python@v2.2.2
+        with:
+          python-version: 3.7
+          
+      - name: Setup poetry
+        uses: abatilo/actions-poetry@v2.1.0
+
 ####### Get tag, sed version in docs #####
       - name: Get latest tag
         id: get-latest-tag
@@ -63,10 +71,16 @@ jobs:
           replace: "${{ env.RUNTIME_VERSION }}"
           include: "docs-src/*"
 
-      - uses: seanzhengw/sphinx-pages@master
+
+      - name: Install poetry dependency
+        run: poetry install
+
+      - name: Build sphinx Docs
+        run: poetry run sphinx-build docs-src/source docs
+
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          create_readme: true
-          source_dir: "docs-src/source"
-        env:
-          VERSION: "${{ env.VERSION }}"
+          publish_dir: ./docs
+
