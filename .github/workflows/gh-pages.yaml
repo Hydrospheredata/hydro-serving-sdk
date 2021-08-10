@@ -1,0 +1,72 @@
+name: Build and Deploy
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Set sdk version'
+        required: true
+
+      runtime_tag:
+        description: 'Set runtime tag'
+        required: true
+
+      runtime_version:
+        description: 'Set runtime version'
+        default: '3.7'
+        required: true
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.3.1
+
+####### Get tag, sed version in docs #####
+      - name: Get latest tag
+        id: get-latest-tag
+        uses: actions-ecosystem/action-get-latest-tag@v1
+
+      - name: Set VERSION variable
+        if: github.event.inputs.version == '' && github.event_name == 'workflow_dispatch'
+        run: echo VERSION=${{ steps.get-latest-tag.outputs.tag }} >> $GITHUB_ENV
+
+      - name: Set VERSION variable
+        if: github.event.inputs.version != '' && github.event_name == 'workflow_dispatch'
+        run: echo VERSION=${{ github.event.inputs.version }} >> $GITHUB_ENV
+
+      - name: Set RUNTIME_VERSION variable
+        if: github.event.inputs.version != '' && github.event_name == 'workflow_dispatch'
+        run: echo RUNTIME_VERSION=${{ github.event.inputs.runtime_version }} >> $GITHUB_ENV
+
+      - name: Set RUNTIME_TAG variable
+        if: github.event.inputs.version != '' && github.event_name == 'workflow_dispatch'
+        run: echo RUNTIME_TAG=${{ github.event.inputs.runtime_tag }} >> $GITHUB_ENV
+
+      - name: Find and Replace dependency
+        uses: jacobtomlinson/gha-find-replace@master
+        with:
+          find: "$sdk_version"
+          replace: "${{ env.VERSION }}"
+          include: "docs-src/*"
+
+      - name: Find and Replace dependency
+        uses: jacobtomlinson/gha-find-replace@master
+        with:
+          find: "$runtime_tag"
+          replace: "${{ env.RUNTIME_TAG }}"
+          include: "docs-src/*"
+
+      - name: Find and Replace dependency
+        uses: jacobtomlinson/gha-find-replace@master
+        with:
+          find: "$runtime_version"
+          replace: "${{ env.RUNTIME_VERSION }}"
+          include: "docs-src/*"
+
+      - uses: seanzhengw/sphinx-pages@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          create_readme: true
+          source_dir: "docs-src/source"
+        env:
+          VERSION: "${{ env.VERSION }}"
