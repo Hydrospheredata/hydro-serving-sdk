@@ -13,7 +13,7 @@
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.abspath('.'))
 
 # -- Project information -----------------------------------------------------
 from recommonmark.transform import AutoStructify
@@ -38,7 +38,8 @@ extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.intersphinx',
               'recommonmark',
               'sphinx.ext.coverage',
-              'sphinx_rtd_theme'
+              'sphinx_rtd_theme',
+              'sphinx.ext.githubpages'
               ]
 
 # Tell Sphinx to use recommonmark to parse md
