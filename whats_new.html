@@ -198,12 +198,18 @@
             
   <div class="section" id="what-s-new-in-release">
 <h1>What’s new in 3.0.0<a class="headerlink" href="#what-s-new-in-release" title="Permalink to this headline">¶</a></h1>
-<ul class="simple">
-<li><p>Simplified Cluster constructor</p></li>
-<li><p>Revoke LocalModel, use ModelVersionBuild insted</p></li>
-<li><p>Using Signature instead of Contract</p></li>
-<li><p>Fixed model’s path resolover</p></li>
-</ul>
+<p>Features:
+* ModelVersion: revoked LocalModel, useing ModelVersionBuild instead
+* Signature: using Signature instead of Contract
+* Cluster: added flag to skip connection check
+* Deployment Configuration: switched from custom dataclass to pydantic dataclass
+* Monitoring: added ability to configure monitoring configuration</p>
+<p>Fixes:
+* Cluster: simplified constructor
+* Cluster: simplified urljoin function
+* Servable: stabilized Servable’s lock_while_starting method
+* Model: fixed model’s path resolover
+* ModelVersion: fix training data path resolver</p>
 </div>
 
 
