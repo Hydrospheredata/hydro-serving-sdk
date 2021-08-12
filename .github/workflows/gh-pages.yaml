@@ -50,27 +50,15 @@ jobs:
         if: github.event.inputs.version != '' && github.event_name == 'workflow_dispatch'
         run: echo RUNTIME_TAG=${{ github.event.inputs.runtime_tag }} >> $GITHUB_ENV
 
-      - name: Find and Replace dependency
-        uses: jacobtomlinson/gha-find-replace@master
-        with:
-          find: "$sdk_version"
-          replace: "${{ env.VERSION }}"
-          include: "docs-src/*"
+######## Sed magic time ##########
 
-      - name: Find and Replace dependency
-        uses: jacobtomlinson/gha-find-replace@master
-        with:
-          find: "$runtime_tag"
-          replace: "${{ env.RUNTIME_TAG }}"
-          include: "docs-src/*"
+      - name: Sed docs variables
+        run: | 
+          grep -rl '$sdk_version' docs-src/* | xargs sed -i  "s/\$sdk_version/${{ env.VERSION }}/g"
+          grep -rl '$runtime_version' docs-src/* | xargs sed -i  "s/\$runtime_version/${{ env.RUNTIME_VERSION }}/g"
+          grep -rl '$runtime_tag' docs-src/* | xargs sed -i  "s/\$runtime_tag/${{ env.RUNTIME_TAG }}/g"
 
-      - name: Find and Replace dependency
-        uses: jacobtomlinson/gha-find-replace@master
-        with:
-          find: "$runtime_version"
-          replace: "${{ env.RUNTIME_VERSION }}"
-          include: "docs-src/*"
-
+##################################
 
       - name: Install poetry dependency
         run: poetry install
