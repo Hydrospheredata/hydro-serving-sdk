@@ -202,7 +202,7 @@
 setup your client code to make inference, and attach a monitoring metric to your model.</p>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
-<p>This tutorials was written for hydrosdk==$sdk_version</p>
+<p>This tutorials was written for hydrosdk==3.0.0</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -267,7 +267,7 @@ This runtime uses <code class="docutils literal notranslate"><span class="pre">s
 <span class="kn">from</span> <span class="nn">hydrosdk.image</span> <span class="kn">import</span> <span class="n">DockerImage</span>
 
 <span class="n">sqrt_local_model_builder</span> <span class="o">=</span> <span class="n">ModelVersionBuilder</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;sqrt_model&quot;</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">)</span> \
-    <span class="o">.</span><span class="n">with_runtime</span><span class="p">(</span><span class="n">DockerImage</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;hydrosphere/serving-runtime-python-$runtime_version&quot;</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="s2">&quot;$runtime_tag&quot;</span><span class="p">))</span> \
+    <span class="o">.</span><span class="n">with_runtime</span><span class="p">(</span><span class="n">DockerImage</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;hydrosphere/serving-runtime-python-3.7&quot;</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="s2">&quot;3.0.0&quot;</span><span class="p">))</span> \
     <span class="o">.</span><span class="n">with_payload</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span> \
     <span class="o">.</span><span class="n">with_signature</span><span class="p">(</span><span class="n">signature</span><span class="p">)</span>
 </pre></div>
@@ -351,7 +351,7 @@ with a single float scalar value in the output.</p>
 <p>Similarly we create a ModelVersion using ModelVersionBuilder and upload it to the cluster.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
 <span class="n">monitoring_local_model_builder</span> <span class="o">=</span> <span class="n">ModelVersionBuilder</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;sqrt_monitoring_model&quot;</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">)</span> \
-    <span class="o">.</span><span class="n">with_runtime</span><span class="p">(</span><span class="n">DockerImage</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;hydrosphere/serving-runtime-python-$runtime_version&quot;</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="s2">&quot;$runtime_tag&quot;</span><span class="p">))</span> \
+    <span class="o">.</span><span class="n">with_runtime</span><span class="p">(</span><span class="n">DockerImage</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;hydrosphere/serving-runtime-python-3.7&quot;</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="s2">&quot;3.0.0&quot;</span><span class="p">))</span> \
     <span class="o">.</span><span class="n">with_payload</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span> \
     <span class="o">.</span><span class="n">with_signature</span><span class="p">(</span><span class="n">signature</span><span class="p">)</span>
 

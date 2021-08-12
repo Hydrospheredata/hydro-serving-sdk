@@ -2,7 +2,7 @@
 This tutorial will show you how to use hydrosdk. You will learn how to upload your code as a model to Hydrosphere.io,
  setup your client code to make inference, and attach a monitoring metric to your model.
  
- ``` important:: This tutorials was written for hydrosdk==$sdk_version
+ ``` important:: This tutorials was written for hydrosdk==3.0.0
 ```
 ```note:: If you haven't launched Hydrosphere.io platform, please do so before proceeding with this tutorial.
  You can learn how to do by checking documentation here - https://hydrosphere.io/serving-docs/latest/install/index.html. 
@@ -81,7 +81,7 @@ from hydrosdk.modelversion import ModelVersionBuilder
 from hydrosdk.image import DockerImage
 
 sqrt_local_model_builder = ModelVersionBuilder(name="sqrt_model", path=path) \
-    .with_runtime(DockerImage(name="hydrosphere/serving-runtime-python-$runtime_version", tag="$runtime_tag")) \
+    .with_runtime(DockerImage(name="hydrosphere/serving-runtime-python-3.7", tag="3.0.0")) \
     .with_payload(payload) \
     .with_signature(signature)
 ```
@@ -180,7 +180,7 @@ Similarly we create a ModelVersion using ModelVersionBuilder and upload it to th
 ```python
 
 monitoring_local_model_builder = ModelVersionBuilder(name="sqrt_monitoring_model", path=path) \
-    .with_runtime(DockerImage(name="hydrosphere/serving-runtime-python-$runtime_version", tag="$runtime_tag")) \
+    .with_runtime(DockerImage(name="hydrosphere/serving-runtime-python-3.7", tag="3.0.0")) \
     .with_payload(payload) \
     .with_signature(signature)
 
