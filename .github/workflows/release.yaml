@@ -35,8 +35,10 @@ jobs:
   Release:
     runs-on: ubuntu-latest
     env:
-      BUMP: prerelease # default values for push-triggered run
+      BUMP: ${{ github.event.inputs.bump }} # default values for push-triggered run
       RELEASE: local
+      VERSION: ${{ github.event.inputs.version }}
+      GRPC_VERSION: ${{ github.event.inputs.grpc_version }}
     steps:
       - name: Validate inputs  #TODO create an action for this
         if: github.event_name == 'workflow_dispatch'
@@ -75,6 +77,8 @@ jobs:
           
           echo BUMP=${{ github.event.inputs.bump }} >> $GITHUB_ENV
           echo RELEASE=${{ github.event.inputs.release }} >> $GITHUB_ENV
+          echo VERSION=${{ github.event.inputs.version }} >> $GITHUB_ENV
+          echo GRPC_VERSION=${{ github.event.inputs.grpc_version }} >> $GITHUB_ENV
               
       - name: Checkout
         uses: actions/checkout@v2
@@ -95,26 +99,26 @@ jobs:
          # poetry add hydro-serving-grpc=$GRPC_VERSION
           
       - name: Bump grpc to latest stable version
-        if: github.event.inputs.grpc_version == '' && env.RELEASE == 'global'
+        if: env.GRPC_VERSION == '' && env.RELEASE == 'global'
         run: |
           GRPC_VERSION=$(curl -Ls https://pypi.org/pypi/hydro-serving-grpc/json | jq -r .info.version)
           echo $GRPC_VERSION
           poetry add hydro-serving-grpc=$GRPC_VERSION
           
       - name: Set manual grpc version
-        if: github.event.inputs.grpc_version != ''
-        run: poetry add hydro-serving-grpc=${{ github.event.inputs.grpc_version }}
+        if: env.GRPC_VERSION != ''
+        run: poetry add hydro-serving-grpc=${{ env.GRPC_VERSION }}
           
       - name: Install dependencies
         run: poetry install
         
       - name: bump version
-        if: github.events.inputs.version == ''
+        if: env.VERSION == ''
         run: poetry version ${{ env.BUMP }}
         
       - name: force bump version
         if: github.events.inputs.version != ''
-        run: poetry version ${{ github.events.inputs.version }}
+        run: poetry version ${{ env.VERSION }}
         
       - name: Build
         run: poetry build
