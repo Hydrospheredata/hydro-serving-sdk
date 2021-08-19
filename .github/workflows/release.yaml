@@ -92,7 +92,7 @@ jobs:
         uses: abatilo/actions-poetry@v2.1.0
         
       - name: Bump grpc
-        if: github.event.inputs.grpc_version == '' && env.RELEASE == 'local'
+        if: env.GRPC_VERSION == '' && env.RELEASE == 'local'
         run: |
           GRPC_VERSION=$(curl -Ls https://pypi.org/pypi/hydro-serving-grpc/json | jq -r '.releases | keys[-1]')
           echo $GRPC_VERSION
@@ -117,7 +117,7 @@ jobs:
         run: poetry version ${{ env.BUMP }}
         
       - name: force bump version
-        if: github.events.inputs.version != ''
+        if: env.VERSION  != ''
         run: poetry version ${{ env.VERSION }}
         
       - name: Build
