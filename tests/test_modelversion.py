@@ -5,14 +5,12 @@ from hydro_serving_grpc.serving.runtime.api_pb2 import PredictRequest, PredictRe
 import pytest
 from hydro_serving_grpc.serving.contract.tensor_pb2 import Tensor, TensorShape
 from hydro_serving_grpc.serving.contract.types_pb2 import DataType
-import requests
 
 from hydrosdk.cluster import Cluster
 from hydrosdk.signature import ModelField, ModelSignature, SignatureBuilder
 from hydrosdk.image import DockerImage
 from hydrosdk.modelversion import ModelVersion, ModelVersionStatus, ModelVersionBuilder, \
-    MonitoringConfiguration, resolve_paths, __analyze
-from hydrosdk.monitoring import ThresholdCmpOp
+    MonitoringConfiguration, resolve_paths, _analyze
 from hydrosdk.exceptions import SignatureViolationException
 from tests.common_fixtures import *
 from tests.config import *
@@ -261,7 +259,7 @@ def test_model_analyze_response():
             "b": Tensor()
         }
     )
-    res = __analyze(model, Mock(), req_id, request, response)
+    res = _analyze(model, Mock(), req_id, request, response)
     assert res.metadata.request_id == req_id
     assert res.metadata.model_version_id == 1
     assert res.metadata.model_name == "test"
@@ -287,10 +285,58 @@ def test_model_analyze_error():
     req_id = "asdsad"
     request = PredictRequest()
     error = "error"
-    res = __analyze(model, Mock(), req_id, request, error=error)
+    res = _analyze(model, Mock(), req_id, request, error=error)
     assert res.metadata.request_id == req_id
     assert res.metadata.model_version_id == 1
     assert res.metadata.model_name == "test"
     assert res.metadata.model_version == 3 
     assert res.error == "error" 
     assert res.response == PredictResponse()
+
+def test_external_model_parse():
+    import json
+    json_str = """
+    {
+    "id": 138,
+    "created": "2021-09-24T11:29:09.624Z",
+    "finished": "2021-09-24T11:29:09.624Z",
+    "modelVersion": 1,
+    "modelSignature": {
+        "signatureName": "predict",
+        "inputs": [{
+            "name": "in",
+            "dtype": "DT_DOUBLE",
+            "shape": {
+                "dims": []
+            },
+            "profile": "NONE"
+        }],
+        "outputs": [{
+            "name": "out",
+            "dtype": "DT_DOUBLE",
+            "shape": {
+                "dims": []
+            },
+            "profile": "NONE"
+        }]
+    },
+    "model": {
+        "id": 18,
+        "name": "external-model"
+    },
+    "status": "Released",
+    "metadata": {},
+    "applications": [],
+    "image": null,
+    "runtime": null,
+    "monitoringConfiguration": {
+        "batchSize": 100
+    },
+    "isExternal": true
+    }"""
+    json_dict = json.loads(json_str)
+    cl = Cluster("asdasd:9091", "asdasd:9090", check_connection=False)
+
+    mv = ModelVersion._from_json(cl, json_dict)
+    print(mv)
+    assert False

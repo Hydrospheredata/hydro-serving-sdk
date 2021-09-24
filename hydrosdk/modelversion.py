@@ -85,6 +85,34 @@ def resolve_paths(path: str, payload: List[str]) -> Dict[str, str]:
     return {os.path.normpath(os.path.join(path, v)): v for v in payload}
 
 
+def _analyze(model, stub, request_id, request, response=None, error=None):
+    if stub is None:
+        raise HydrosphereException("Can't use this method without GRPC cluster")
+    metadata = ExecutionMetadata(
+        request_id = request_id,
+        model_version_id = model.id,
+        model_name = model.name,
+        model_version = model.version,
+        signature_name = model.signature.signature_name
+    )
+    if response is not None:
+        ei = ExecutionInformation(
+            request = request,
+            metadata = metadata,
+            response = response
+        )
+    elif error is not None:
+        ei = ExecutionInformation(
+            request = request,
+            metadata = metadata,
+            error = error
+        )
+    else:
+        raise ValueError("Need to specify either response or error")
+    stub.Analyze(ei)
+    return ei 
+
+
 class MonitoringConfiguration:
     def __init__(self, batch_size: int):
         self.batch_size = batch_size
@@ -306,7 +334,9 @@ class ModelVersionBuilder(AbstractBuilder):
         resp = cluster.request("POST", "/api/v2/externalmodel", json=model)
         handle_request_error(
             resp, f"Failed to create an external model. {resp.status_code} {resp.text}")
-        return ModelVersion._from_json(cluster, resp.json())
+        json_dict = resp.json()
+        json_dict['isExternal'] = True
+        return ModelVersion._from_json(cluster, json_dict)
 
 
 class ModelVersionStatus(str, Enum):
@@ -653,35 +683,7 @@ class ModelVersion:
         """
         Sends inference data to monitoring service. Used if model is deployed in external inference service.
         """
-        return __analyze(self, self.analyze_stub, request_id, request, response, error)
-
-
-def __analyze(model, stub, request_id, request, response=None, error=None):
-    if stub is None:
-        raise HydrosphereException("Can't use this method without GRPC cluster")
-    metadata = ExecutionMetadata(
-        request_id = request_id,
-        model_version_id = model.id,
-        model_name = model.name,
-        model_version = model.version,
-        signature_name = model.signature.signature_name
-    )
-    if response is not None:
-        ei = ExecutionInformation(
-            request = request,
-            metadata = metadata,
-            response = response
-        )
-    elif error is not None:
-        ei = ExecutionInformation(
-            request = request,
-            metadata = metadata,
-            error = error
-        )
-    else:
-        raise ValueError("Need to specify either response or error")
-    stub.Analyze(ei)
-    return ei 
+        return _analyze(self, self.analyze_stub, request_id, request, response, error)
 
 
 class DataProfileStatus(Enum):
