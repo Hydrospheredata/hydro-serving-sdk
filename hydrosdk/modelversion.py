@@ -4,9 +4,9 @@ import logging
 import os
 import tarfile
 import time
-import urllib.parse
 from enum import Enum
-from typing import Optional, Dict, List, Tuple, Iterator, Generator
+from typing import Optional, Dict, List, Tuple, Iterator
+from hydro_serving_grpc.serving.runtime.api_pb2 import PredictRequest, PredictResponse
 
 import sseclient
 import requests
@@ -24,6 +24,8 @@ from hydrosdk.monitoring import MetricSpec, MetricSpecConfig, MetricModel, Thres
 from hydrosdk.exceptions import HydrosphereException, TimeoutException, BadResponseException, BadRequestException
 from hydrosdk.utils import handle_request_error, read_in_chunks
 from hydrosdk.builder import AbstractBuilder
+from hydro_serving_grpc.monitoring.sonar.api_pb2_grpc import MonitoringServiceStub
+from hydro_serving_grpc.monitoring.sonar.entities_pb2 import ExecutionInformation, ExecutionMetadata
 
 
 def _upload_training_data(cluster: Cluster, modelversion_id: int, path: str) -> 'DataUploadResponse':
@@ -81,6 +83,34 @@ def resolve_paths(path: str, payload: List[str]) -> Dict[str, str]:
     :return: dict with {resolved_path: payload_element}
     """
     return {os.path.normpath(os.path.join(path, v)): v for v in payload}
+
+
+def _analyze(model, stub, request_id, request, response=None, error=None):
+    if stub is None:
+        raise HydrosphereException("Can't use this method without GRPC cluster")
+    metadata = ExecutionMetadata(
+        request_id = request_id,
+        model_version_id = model.id,
+        model_name = model.name,
+        model_version = model.version,
+        signature_name = model.signature.signature_name
+    )
+    if response is not None:
+        ei = ExecutionInformation(
+            request = request,
+            metadata = metadata,
+            response = response
+        )
+    elif error is not None:
+        ei = ExecutionInformation(
+            request = request,
+            metadata = metadata,
+            error = error
+        )
+    else:
+        raise ValueError("Need to specify either response or error")
+    stub.Analyze(ei)
+    return ei 
 
 
 class MonitoringConfiguration:
@@ -304,7 +334,9 @@ class ModelVersionBuilder(AbstractBuilder):
         resp = cluster.request("POST", "/api/v2/externalmodel", json=model)
         handle_request_error(
             resp, f"Failed to create an external model. {resp.status_code} {resp.text}")
-        return ModelVersion._from_json(cluster, resp.json())
+        json_dict = resp.json()
+        json_dict['isExternal'] = True
+        return ModelVersion._from_json(cluster, json_dict)
 
 
 class ModelVersionStatus(str, Enum):
@@ -638,12 +670,20 @@ class ModelVersion:
         self.created = created
         self.finished = finished
         self.applications = applications or []
+        if self.cluster.channel:
+            self.analyze_stub = MonitoringServiceStub(self.cluster.channel) 
 
     def __repr__(self):
         return f"{self.name}:{self.version}"
 
     class ReleaseFailed(HydrosphereException):
         pass
+
+    def analyze(self, *, request_id: str, request: PredictRequest, response: Optional[PredictResponse]=None, error: Optional[str]=None):
+        """
+        Sends inference data to monitoring service. Used if model is deployed in external inference service.
+        """
+        return _analyze(self, self.analyze_stub, request_id, request, response, error)
 
 
 class DataProfileStatus(Enum):

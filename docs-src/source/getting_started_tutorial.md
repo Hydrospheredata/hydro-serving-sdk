@@ -218,3 +218,57 @@ Application.delete(cluster, sqrt_app.name)
 ```
 
 You can explore changes on the UI.
+
+## (Internal API) Sending inference data for analysis
+
+If your model is deployed in some other serving platform, you can utilize monitoring capabilities of Hydrosphere.
+
+First of all, you need to register an external model:
+```python
+import hydrosdk
+import grpc
+
+cluster = hydrosdk.Cluster("https://hydro-serving.dev.hydrosphere.io/", "hydro-grpc.dev.hydrosphere.io:443", grpc.ssl_channel_credentials())
+
+sig_builder = hydrosdk.SignatureBuilder("predict")
+sig_builder.with_input("in", "double", "scalar")
+sig_builder.with_output("out", "double", "scalar")
+signature = sig_builder.build()
+
+em_builder = hydrosdk.ModelVersionBuilder("external-model-1", ".").with_signature(signature)
+
+external_model = em_builder.build_external(cluster)
+print(external_model)
+```
+
+Then, you need to prepare data and send it for analysis:
+```python
+from hydro_serving_grpc.serving.runtime.api_pb2 import PredictRequest, PredictResponse
+from hydro_serving_grpc.serving.contract.tensor_pb2 import Tensor
+from hydro_serving_grpc.serving.contract.types_pb2 import DataType
+
+request = PredictRequest(
+    inputs = {
+        "in": Tensor(
+            dtype = DataType.DT_DOUBLE,
+            double_val = [1]
+        )
+    }
+)
+response = PredictResponse(
+    outputs = {
+        "out": Tensor(
+            dtype = DataType.DT_DOUBLE,
+            double_val = [2]
+
+        )
+    }
+)
+res = external_model.analyze(
+    request_id = "test",
+    request = request,
+    response = response
+)
+
+print(res)
+```

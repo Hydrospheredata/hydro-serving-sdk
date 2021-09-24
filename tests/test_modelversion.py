@@ -1,16 +1,16 @@
 import os
 import random
+from hydro_serving_grpc.serving.runtime.api_pb2 import PredictRequest, PredictResponse
 
 import pytest
-from hydro_serving_grpc.serving.contract.tensor_pb2 import TensorShape
+from hydro_serving_grpc.serving.contract.tensor_pb2 import Tensor, TensorShape
 from hydro_serving_grpc.serving.contract.types_pb2 import DataType
 
 from hydrosdk.cluster import Cluster
 from hydrosdk.signature import ModelField, ModelSignature, SignatureBuilder
 from hydrosdk.image import DockerImage
 from hydrosdk.modelversion import ModelVersion, ModelVersionStatus, ModelVersionBuilder, \
-    MonitoringConfiguration, resolve_paths
-from hydrosdk.monitoring import ThresholdCmpOp
+    MonitoringConfiguration, resolve_paths, _analyze
 from hydrosdk.exceptions import SignatureViolationException
 from tests.common_fixtures import *
 from tests.config import *
@@ -227,3 +227,116 @@ def test_list_models_by_model_name(cluster: Cluster, runtime: DockerImage,
     # test sorting
     assert mvs[0].id == mv1.id
     assert mvs[1].id == mv2.id
+
+from hydro_serving_grpc.monitoring.sonar import entities_pb2
+class Mock:
+    def Analyze(c, a):
+        entities_pb2.ExecutionInformation.SerializeToString(a)
+        pass
+
+def test_model_analyze_response():
+    cl = Cluster("asdasd:9091", "asdasd:9090", check_connection=False)
+    model = ModelVersion(
+        cluster=cl,
+        id=1,
+        model_id=2,
+        name="test",
+        version=3,
+        signature=ModelSignature(),
+        status = None,
+        image = "",
+        runtime="",
+        is_external=True
+    )
+    req_id = "asdsad"
+    request = PredictRequest(
+        inputs = {
+            "a": Tensor()
+        }
+    )
+    response = PredictResponse(
+        outputs = {
+            "b": Tensor()
+        }
+    )
+    res = _analyze(model, Mock(), req_id, request, response)
+    assert res.metadata.request_id == req_id
+    assert res.metadata.model_version_id == 1
+    assert res.metadata.model_name == "test"
+    assert res.metadata.model_version == 3 
+    assert res.error == ""
+    assert res.response == response
+
+
+def test_model_analyze_error():
+    cl = Cluster("asdasd:9091", "asdasd:9090", check_connection=False)
+    model = ModelVersion(
+        cluster=cl,
+        id=1,
+        model_id=2,
+        name="test",
+        version=3,
+        signature=ModelSignature(),
+        status = None,
+        image = "",
+        runtime="",
+        is_external=True
+    )
+    req_id = "asdsad"
+    request = PredictRequest()
+    error = "error"
+    res = _analyze(model, Mock(), req_id, request, error=error)
+    assert res.metadata.request_id == req_id
+    assert res.metadata.model_version_id == 1
+    assert res.metadata.model_name == "test"
+    assert res.metadata.model_version == 3 
+    assert res.error == "error" 
+    assert res.response == PredictResponse()
+
+def test_external_model_parse():
+    import json
+    json_str = """
+    {
+    "id": 138,
+    "created": "2021-09-24T11:29:09.624Z",
+    "finished": "2021-09-24T11:29:09.624Z",
+    "modelVersion": 1,
+    "modelSignature": {
+        "signatureName": "predict",
+        "inputs": [{
+            "name": "in",
+            "dtype": "DT_DOUBLE",
+            "shape": {
+                "dims": []
+            },
+            "profile": "NONE"
+        }],
+        "outputs": [{
+            "name": "out",
+            "dtype": "DT_DOUBLE",
+            "shape": {
+                "dims": []
+            },
+            "profile": "NONE"
+        }]
+    },
+    "model": {
+        "id": 18,
+        "name": "external-model"
+    },
+    "status": "Released",
+    "metadata": {},
+    "applications": [],
+    "image": null,
+    "runtime": null,
+    "monitoringConfiguration": {
+        "batchSize": 100
+    },
+    "isExternal": true
+    }"""
+    json_dict = json.loads(json_str)
+    cl = Cluster("asdasd:9091", "asdasd:9090", check_connection=False)
+
+    mv = ModelVersion._from_json(cl, json_dict)
+    print(mv)
+    assert False
