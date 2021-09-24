@@ -35,7 +35,7 @@ jobs:
   Release:
     runs-on: ubuntu-latest
     env:
-      BUMP: ${{ github.event.inputs.bump }} # default values for push-triggered run
+      BUMP: prerelease # default values for push-triggered run
       RELEASE: local
       VERSION: ${{ github.event.inputs.version }}
       GRPC_VERSION: ${{ github.event.inputs.grpc_version }}
