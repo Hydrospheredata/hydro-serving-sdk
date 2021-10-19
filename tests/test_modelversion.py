@@ -11,7 +11,7 @@ from hydrosdk.signature import ModelField, ModelSignature, SignatureBuilder
 from hydrosdk.image import DockerImage
 from hydrosdk.modelversion import ModelVersion, ModelVersionStatus, ModelVersionBuilder, \
     MonitoringConfiguration, resolve_paths, _analyze
-from hydrosdk.exceptions import SignatureViolationException
+from hydrosdk.exceptions import HydrosphereException, SignatureViolationException
 from tests.common_fixtures import *
 from tests.config import *
 
@@ -267,6 +267,25 @@ def test_model_analyze_response():
     assert res.error == ""
     assert res.response == response
 
+def test_model_analyze_without_grpc():
+    cl = Cluster("asdasd:9091", check_connection=False)
+    model = ModelVersion(
+        cluster=cl,
+        id=1,
+        model_id=2,
+        name="test",
+        version=3,
+        signature=ModelSignature(),
+        status = None,
+        image = "",
+        runtime="",
+        is_external=True
+    )
+    req_id = "asdsad"
+    request = PredictRequest()
+    error = "error" 
+    with pytest.raises(HydrosphereException):
+        model.analyze(request_id=req_id, request = request, error = error)
 
 def test_model_analyze_error():
     cl = Cluster("asdasd:9091", "asdasd:9090", check_connection=False)

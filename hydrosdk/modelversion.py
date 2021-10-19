@@ -671,7 +671,9 @@ class ModelVersion:
         self.finished = finished
         self.applications = applications or []
         if self.cluster.channel:
-            self.analyze_stub = MonitoringServiceStub(self.cluster.channel) 
+            self.analyze_stub = MonitoringServiceStub(self.cluster.channel)
+        else:
+            self.analyze_stub = None 
 
     def __repr__(self):
         return f"{self.name}:{self.version}"
