@@ -50,7 +50,8 @@ class Cluster:
         # TODO: add better url validation (but not python validators lib!)
         parse.urlsplit(http_address)  # check if address is ok
         self.http_address = http_address
-
+        self.channel = None
+        
         if grpc_address:
             parse.urlsplit(grpc_address)
             self.grpc_address = grpc_address

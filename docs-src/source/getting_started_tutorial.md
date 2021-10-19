@@ -228,7 +228,7 @@ First of all, you need to register an external model:
 import hydrosdk
 import grpc
 
-cluster = hydrosdk.Cluster("https://hydro-serving.dev.hydrosphere.io/", "hydro-grpc.dev.hydrosphere.io:443", grpc.ssl_channel_credentials())
+cluster = hydrosdk.Cluster("url", "secure-grpc-url", grpc.ssl_channel_credentials())
 
 sig_builder = hydrosdk.SignatureBuilder("predict")
 sig_builder.with_input("in", "double", "scalar")
