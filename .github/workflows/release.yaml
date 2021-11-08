@@ -141,6 +141,12 @@ jobs:
         id: generate-output
         run: echo "::set-output name=tag-output::$(poetry version -s)"
 
+      - name: Create github release
+        uses: meeDamian/github-release@2.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ env.VERSION }}
+
     outputs:
       tag: ${{ steps.generate-output.outputs.tag-output }}
           

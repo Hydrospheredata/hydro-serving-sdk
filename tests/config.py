@@ -23,12 +23,12 @@ config = Configuration.parse_obj({
         },
     "http_cluster":
         {  
-            "url": "http://localhost",
+            "url": "https://hydro-demo.dev.hydrosphere.io",
         },
     "grpc_cluster":
         {
-            "url": "localhost:9090",
-            "ssl": False
+            "url": "hydro-grpc-demo.dev.hydrosphere.io:443",
+            "ssl": True
         },
     "lock_timeout": 120,
     "default_application_name": "infer",
