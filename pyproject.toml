@@ -16,7 +16,7 @@ version = "3.0.2-alpha.0"
 homepage = "https://hydrosphere.io/"
 
 [tool.poetry.dependencies]
-hydro-serving-grpc = "3.0.1"
+hydro-serving-grpc = "^3.0.2" 
 importlib_metadata = "^1.7.0"
 numpy = "1.18.3"
 python = "^3.6.2"
