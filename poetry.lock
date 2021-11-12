@@ -268,7 +268,7 @@ protobuf = ["grpcio-tools (>=1.41.1)"]
 
 [[package]]
 name = "hydro-serving-grpc"
-version = "3.0.2"
+version = "3.0.3"
 description = "Protobuf messages and GRPC API for Hydrosphere Serving platform"
 category = "main"
 optional = false
@@ -900,7 +900,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.6.2"
-content-hash = "3dea96ebb7c2df725a826d239511cee57ad7333c96b858580b7d642382cb0175"
+content-hash = "6e6e31581c171c3f3869a656527add39fdc75b7737c4da703248bf9f4a10463c"
 
 [metadata.files]
 alabaster = [
@@ -1037,8 +1037,8 @@ grpcio = [
     {file = "grpcio-1.41.1.tar.gz", hash = "sha256:9b751271b029432a526a4970dc9b70d93eb6f0963b6a841b574f780b72651969"},
 ]
 hydro-serving-grpc = [
-    {file = "hydro_serving_grpc-3.0.2-py3-none-any.whl", hash = "sha256:8c35a93c4f532f65f24e241127ea2be4ffb293b44b2dbc0c9be225bb3f512ded"},
-    {file = "hydro_serving_grpc-3.0.2.tar.gz", hash = "sha256:b5f7ff824c8f09b0065203dd1f6ae104571dafc5ee940b4a3e5ee2c5c8961f3d"},
+    {file = "hydro_serving_grpc-3.0.3-py3-none-any.whl", hash = "sha256:a15d419eb6e75af0a100a368111fdef5c9da6817dd872cfc0fa7add419cc6d3a"},
+    {file = "hydro_serving_grpc-3.0.3.tar.gz", hash = "sha256:bbe2be4f910db49d41ee6f3cc82978db53b3bfd485d31ce83272a55e162138a2"},
 ]
 idna = [
     {file = "idna-2.10-py2.py3-none-any.whl", hash = "sha256:b97d804b1e9b523befed77c48dacec60e6dcb0b5391d57af6a65a312a90648c0"},
